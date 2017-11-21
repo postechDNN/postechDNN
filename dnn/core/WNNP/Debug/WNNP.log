@@ -1,0 +1,12 @@
+﻿  QC.cpp
+QC.cpp(71): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+QC.cpp(79): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+QC.cpp(91): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+QC.cpp(116): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+QC.cpp(67): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(1270): note: 'scanf' 선언을 참조하십시오.
+QC.cpp(72): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(1270): note: 'scanf' 선언을 참조하십시오.
+QC.cpp(64): warning C4101: 'st' :참조되지 않은 지역 변수입니다.
+  WNNP.vcxproj -> D:\dropbox_cjm\Dropbox (SW스타랩_POSTECH_GA)\SW스타랩_POSTECH_GA의 팀 폴더\Code\dnn\dnn\core\WNNP\Debug\WNNP.exe
+  WNNP.vcxproj -> D:\dropbox_cjm\Dropbox (SW스타랩_POSTECH_GA)\SW스타랩_POSTECH_GA의 팀 폴더\Code\dnn\dnn\core\WNNP\Debug\WNNP.pdb (Full PDB)
