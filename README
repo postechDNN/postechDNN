@@ -1,14 +1,31 @@
-dnn/
-	__init__.py
-	core/
-		__init__.py
-		dnn.py
-	utils/
-		__init__.py
-		quadtree.py
-	apps/
-		__init__.py
-		grwoingdisk.py
-	
+DNN : Dynamic Nearest Neighbors
+version : 0.1
+Relese date : Nov 28, 2017
+----------------------------------------------------------------------------
+Copyright (c) 2017 Hee-Kap Ahn, Jongmin Choi and POSTECH
+See Copyright.txt and License.txt for complete information on terms and 
+conditions of use and distribution of this software.
+----------------------------------------------------------------------------
 
+If you have a question or comment about program 
+contact to heekap@postech.ac.kr or icothos@postech.ac.kr
+
+Introduction 
+------------
+DNN is a library for nearest neighbors and its application. 
+Main purpose of this 
+This program consist by three part Utility,core and application. 
+Core is core part of the library. Core support function or APIs of nearest neighbor.
+Core part is written by c++. Utility consist by used utilities for constructing core part.
+For example, quadtree is uesd for core part and it can be used for many other apllication 
+In this case, quadtree apears on utillity part.
+Application is consist by some algorithms and apllications. 
+It coded by ant languges.
+
+
+----------------------------------------------------------------------------
+History
+  version 0.1 11/28/17
+    Preliminary release
+    Add GrwoingDisk apllication
 
