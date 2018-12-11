@@ -7,25 +7,22 @@ See Copyright.txt and License.txt for complete information on terms and
 conditions of use and distribution of this software.
 ----------------------------------------------------------------------------
 
-If you have a question or comment about program 
-contact to heekap@postech.ac.kr or icothos@postech.ac.kr
+If you have any question or comment about program, 
+please contact to heekap@postech.ac.kr or icothos@postech.ac.kr
 
 Introduction 
 ------------
-DNN is a library for nearest neighbors and its application. 
-Main purpose of this 
-This program consist by three part Utility,core and application. 
-Core is core part of the library. Core support function or APIs of nearest neighbor.
-Core part is written by c++. Utility consist by used utilities for constructing core part.
-For example, quadtree is uesd for core part and it can be used for many other apllication 
-In this case, quadtree apears on utillity part.
-Application is consist by some algorithms and apllications. 
-It coded by ant languges.
+DNN is a library for nearest neighbor algorithms and their applications. 
+Main purpose of this library is to support nearest neighbor algorithm for various settings of environment.
+This program consists of three part: core, utility and application.
+Core is core part of the library. Core supports function or APIs of nearest neighbor. Core part is written by C++.
+Utility consists of several utility functions to construct core part which can be applied to several other applications. Utility part is written by C++.
+Application consists of some algorithms and applications using this library. Application part is written by several different languages.
 
 
 ----------------------------------------------------------------------------
 History
   version 0.1 11/28/17
     Preliminary release
-    Add GrwoingDisk apllication
+    Add GrowingDisk application
 
