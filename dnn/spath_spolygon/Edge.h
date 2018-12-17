@@ -1,15 +1,31 @@
 #pragma once
 #include "SNode.h"
+#include "Point.h"
+using namespace std;
 
 class Edge {
 private:
 	int origin;
 	int dest;
+	point_type len;
 	int triangle[2];
 	SNode * cell;
 public:
+	bool operator==(Edge e2) {
+		if (origin == e2.get_origin() && dest == e2.get_dest())
+			return true;
+		else return false;
+	}
+	void init() {
+		origin = dest = -1;
+	}
 	Edge() {
+		init();
 		cell = NULL;
+	}
+	Edge(int point) {
+		origin = dest = point;
+		len = 0;
 	}
 	Edge(int _origin, int _dest) {
 		cell = NULL;
@@ -21,6 +37,19 @@ public:
 			origin = _dest;
 			dest = _origin;
 		}
+		Point p1 = point_list[origin];
+		Point p2 = point_list[dest];
+		len = (point_type)sqrt(((p1.get_x() - p2.get_x())*(p1.get_x() - p2.get_x()))
+			+ ((p1.get_y() - p2.get_y())*(p1.get_y() - p2.get_y())));
+	}
+	bool is_point() {
+		if (origin == dest) {
+			return true;
+		}
+		else return false;
+	}
+	point_type get_len() {
+		return len;
 	}
 	int set_traingle(int t1, int t2) {
 		if (t1 < t2) {
@@ -37,6 +66,13 @@ public:
 		if (origin == e.get_origin() || origin == e.get_dest())
 			return origin;
 		if (dest == e.get_origin() || dest == e.get_dest())
+			return dest;
+		return -1;
+	}
+	int check_same_point(int p) {
+		if (origin == p)
+			return origin;
+		if (dest == p)
 			return dest;
 		return -1;
 	}

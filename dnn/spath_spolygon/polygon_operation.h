@@ -10,18 +10,24 @@
 #define PI 3.1415926535897931
 using namespace std;
 
-vector<Point> point_list;
+//vector<Point> point_list;
 vector<vector<int>> polygon_list;
 vector<vector<int>> outer_polygon_list;
 vector<vector<int>> triangle_list;
 vector<Edge> diagonal_list;
 vector<Edge> outer_edge_list;
 vector<Edge> outer_diagonal_list;
+vector<Edge *> null_edge_list;
 vector<int> selected_triangle;
 int v_num;
 int bigT[3];
 
 TRIANGLE_TREE tree;
+point_type dist(int p1, int p2) {
+	point_type diff_x = (point_list[p1].get_x() - point_list[p2].get_x());
+	point_type diff_y = (point_list[p1].get_y() - point_list[p2].get_y());
+	return sqrt(pow(diff_x, 2) + pow(diff_y, 2));
+}
 
 double calculate_angle(int origin, int target) {
 	point_type x = point_list[target].get_x() - point_list[origin].get_x();
@@ -78,7 +84,75 @@ Edge get_edge(int d_num) {
 	int d_size = diagonal_list.size();
 	return d_num >= d_size ? outer_edge_list[d_num - d_size] : diagonal_list[d_num];
 }
+bool check_line_intersection(int point1, int point2, int point3, int point4) {
+	Point p1 = point_list[point1];
+	Point p2 = point_list[point2];
+	Point p3 = point_list[point3];
+	Point p4 = point_list[point4];
 
+	point_type ua = (p4.get_x() - p3.get_x()) * (p1.get_y() - p3.get_y()) - (p4.get_y() - p3.get_y()) * (p1.get_x() - p3.get_x());
+	point_type ub = (p2.get_x() - p1.get_x()) * (p1.get_y() - p3.get_y()) - (p2.get_y() - p1.get_y()) * (p1.get_x() - p3.get_x());
+	point_type denominator = (p4.get_y() - p3.get_y()) * (p2.get_x() - p1.get_x()) - (p4.get_x() - p3.get_x()) * (p2.get_y() - p1.get_y());
+
+	bool intersection = false;
+
+	if ((point_type)abs(denominator) >= 0.00001f)
+	{
+		ua /= denominator;
+		ub /= denominator;
+
+		if (ua > 0.0 && ua < 1.0 && ub > 0.0 && ub < 1.0)
+		{
+			intersection = true;
+			//intersectionPoint.X = point1.X + ua * (point2.X - point1.X);
+			//intersectionPoint.Y = point1.Y + ua * (point2.Y - point1.Y);
+		}
+	}
+	return intersection;
+}
+// isLeft(): test if a point is Left|On|Right of an infinite line.
+//    Input:  three points P0, P1, and P2
+//    Return: >0 for P2 left of the line through P0 and P1
+//            =0 for P2 on the line
+//            <0 for P2 right of the line
+//
+inline point_type
+isLeft(int p0, int p1, int p2)
+{
+	Point P0 = point_list[p0];
+	Point P1 = point_list[p1];
+	Point P2 = point_list[p2];
+
+	return (P1.get_x() - P0.get_x())*(P2.get_y() - P0.get_y()) - (P2.get_x() - P0.get_x())*(P1.get_y() - P0.get_y());
+}
+
+bool is_left(int p0, int p1, int p2)
+{
+	Point P0 = point_list[p0];
+	Point P1 = point_list[p1];
+	Point P2 = point_list[p2];
+
+	if ((P1.get_x() - P0.get_x())*(P2.get_y() - P0.get_y()) - (P2.get_x() - P0.get_x())*(P1.get_y() - P0.get_y())>=0)
+		return true;
+	else return false;
+}
+bool is_right(int p0, int p1, int p2)
+{
+	Point P0 = point_list[p0];
+	Point P1 = point_list[p1];
+	Point P2 = point_list[p2];
+
+	if ((P1.get_x() - P0.get_x())*(P2.get_y() - P0.get_y()) - (P2.get_x() - P0.get_x())*(P1.get_y() - P0.get_y()) <= 0)
+		return true;
+	else return false;
+}
+
+
+
+// tests for polygon vertex ordering relative to a fixed point P
+#define above(P,Vi,Vj)  (isLeft(P,Vi,Vj) >= 0)   // true if Vi is above Vj
+#define below(P,Vi,Vj)  (isLeft(P,Vi,Vj) <= 0)   // true if Vi is below Vj
+//===================================================================
 //고쳐야 함
 void seperate_polygon_with_edge(vector<vector<int>>& polygon_list_with_edge, int e_num) {
 	Edge e = diagonal_list[e_num];
@@ -106,7 +180,7 @@ void seperate_polygon_with_edge(vector<vector<int>>& polygon_list_with_edge, int
 		if (check == 2) {
 			Edge e2 = get_edge(*(first + 1));
 			vector<int> new_v;
-			if (first == polygon_list_with_edge[j].begin() && e2.check_same_point(e) == -1) {
+			if (first == polygon_list_with_edge[j].begin() && e2.check_same_point(checked_point[0]) == -1) {
 				new_v = vector<int>(first, second+1);
 				new_v.push_back(e_num);
 				polygon_list_with_edge[j].erase(first, second+1);

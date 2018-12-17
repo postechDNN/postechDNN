@@ -11,7 +11,7 @@
 using namespace std;
 
 struct angle_comp {
-	bool operator() (const int& lhs, const int& rhs) const
+	bool operator() (const point_type& lhs, const point_type& rhs) const
 	{
 		return lhs<rhs;
 	}
@@ -221,14 +221,14 @@ public:
 	}
 	int check_in_polygon(vector<int> & triangle, Point& p) {
 		pair<point_type, point_type> v0, v1, v2;
-		v0 = make_pair<double, double>(point_list[triangle[2]].get_x() - point_list[triangle[0]].get_x(), point_list[triangle[2]].get_y() - point_list[triangle[0]].get_y());
-		v1 = make_pair<double, double>(point_list[triangle[1]].get_x() - point_list[triangle[0]].get_x(), point_list[triangle[1]].get_y() - point_list[triangle[0]].get_y());
-		v2 = make_pair<double, double>(p.get_x() - point_list[triangle[0]].get_x(), p.get_y() - point_list[triangle[0]].get_y());
+		v0 = make_pair<point_type, point_type>(point_list[triangle[2]].get_x() - point_list[triangle[0]].get_x(), point_list[triangle[2]].get_y() - point_list[triangle[0]].get_y());
+		v1 = make_pair<point_type, point_type>(point_list[triangle[1]].get_x() - point_list[triangle[0]].get_x(), point_list[triangle[1]].get_y() - point_list[triangle[0]].get_y());
+		v2 = make_pair<point_type, point_type>(p.get_x() - point_list[triangle[0]].get_x(), p.get_y() - point_list[triangle[0]].get_y());
 
 
 
 		//compute dot product
-		double dot00, dot01, dot02, dot11, dot12;
+		point_type dot00, dot01, dot02, dot11, dot12;
 		dot00 = dot(v0, v0);
 		dot01 = dot(v0, v1);
 		dot02 = dot(v0, v2);
@@ -236,9 +236,9 @@ public:
 		dot12 = dot(v1, v2);
 
 		// Compute barycentric coordinates
-		double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-		double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-		double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+		point_type invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+		point_type u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+		point_type v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
 		// Check if point is in triangle
 		if (abs(v2.first) < absTolerance && abs(v2.second) < absTolerance) return 1;
@@ -261,12 +261,12 @@ public:
 
 		bool intersection = false;
 
-		if (abs(denominator) >= 0.00001f)
+		if ((point_type)abs(denominator) >= 0.00001f)
 		{
 			ua /= denominator;
 			ub /= denominator;
 
-			if (ua > 0 && ua < 1 && ub > 0 && ub < 1)
+			if (ua > 0.0 && ua < 1.0 && ub > 0.0 && ub < 1.0)
 			{
 				intersection = true;
 				//intersectionPoint.X = point1.X + ua * (point2.X - point1.X);
@@ -281,14 +281,14 @@ public:
 		for (int i = 0; i < (int)adjacent_triangle_list.size(); i++) {
 			if (check_intersection(t_num, adjacent_triangle_list[i])) {
 				parents.push_back(adjacent_triangle_list[i]);
-				continue;
+				continue; 
 			}
 			else {
 				int check = 0;
 				for (int j = 0; j < 3; j++) {
 					check += check_in_polygon(triangle, triangle_list[adjacent_triangle_list[i]][j] );
 				}
-				if(check>3) parents.push_back(adjacent_triangle_list[i]);
+				if(check>=3) parents.push_back(adjacent_triangle_list[i]);//디버깅중 고침
 			}
 		}
 		return parents;

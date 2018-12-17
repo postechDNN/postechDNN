@@ -2,6 +2,8 @@
 typedef double point_type;
 using namespace std;
 
+
+
 class Point {
 private:
 	int id;
@@ -42,3 +44,4 @@ public:
 	}
 };
 
+vector<Point> point_list;
