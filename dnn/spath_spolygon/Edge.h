@@ -6,6 +6,7 @@ using namespace std;
 class Edge {
 private:
 	int origin;
+	bool reverse;
 	int dest;
 	point_type len;
 	int triangle[2];
@@ -17,6 +18,7 @@ public:
 		else return false;
 	}
 	void init() {
+		reverse = false;
 		origin = dest = -1;
 	}
 	Edge() {
@@ -25,15 +27,18 @@ public:
 	}
 	Edge(int point) {
 		origin = dest = point;
+		reverse = false;
 		len = 0;
 	}
 	Edge(int _origin, int _dest) {
 		cell = NULL;
 		if (_origin < _dest) {
+			reverse = false;
 			origin = _origin;
 			dest = _dest;
 		}
 		else {
+			reverse = true;
 			origin = _dest;
 			dest = _origin;
 		}
@@ -41,6 +46,9 @@ public:
 		Point p2 = point_list[dest];
 		len = (point_type)sqrt(((p1.get_x() - p2.get_x())*(p1.get_x() - p2.get_x()))
 			+ ((p1.get_y() - p2.get_y())*(p1.get_y() - p2.get_y())));
+	}
+	bool is_reverse() {
+		return reverse;
 	}
 	bool is_point() {
 		if (origin == dest) {

@@ -6,8 +6,6 @@
 using namespace std;
 
 
-
-
 // tangent_PointPoly(): find any polygon's exterior tangents
 //    Input:  P = a 2D point (exterior to the polygon)
 //            n = number of polygon vertices
@@ -194,23 +192,23 @@ RLtangent_PolyPolyC(vector<int> V, vector<int> W, int* t1, int* t2)
 	*t2 = ix2;
 	return;
 }
-bool side_check(Chain * left_upper_chain, Chain * right_upper_chain, Chain * left_down_chain, Chain * right_down_chain, int apax1, int apax2, Edge * common_edge) {
+bool side_check(Chain * left_upper_chain, Chain * right_upper_chain, Chain * left_down_chain, Chain * right_down_chain, int apex1, int apex2, Edge * common_edge) {
 
 	//int l1 = left_down_chain->check_one_side(apax1, apax2, common_edge);
 	//int r1 = right_down_chain->check_one_side(apax1, apax2, common_edge);
-	int l2 = left_upper_chain->check_one_side(apax1, apax2, common_edge);
-	int r2 = right_upper_chain->check_one_side(apax1, apax2, common_edge);
+	int l2 = left_upper_chain->check_one_side(apex1, apex2, common_edge);
+	int r2 = right_upper_chain->check_one_side(apex1, apex2, common_edge);
 	
 	if (l2 == 0 || r2 == 0)// || (l1 == l2 && l1 != 3) || (r1 == r2 && r2 != 3))
 		return false;
-	bool check = check_line_intersection(apax1, apax2, common_edge->get_origin(), common_edge->get_dest());
+	bool check = check_line_intersection(apex1, apex2, common_edge->get_origin(), common_edge->get_dest(),true);
 	
 	if (check)
 		return true;
-	int check1 = common_edge->check_same_point(apax1);
-	int check2 = common_edge->check_same_point(apax2);
-	bool seq1 = left_upper_chain->check_sequence(apax1, apax2);
-	bool seq2 = right_upper_chain->check_sequence(apax1, apax2);
+	int check1 = common_edge->check_same_point(apex1);
+	int check2 = common_edge->check_same_point(apex2);
+	bool seq1 = left_upper_chain->check_sequence(apex1, apex2);
+	bool seq2 = right_upper_chain->check_sequence(apex1, apex2);
 	if ((check1 != -1 || check2 != -1) && (seq1 || seq2))
 		return true;
 	return false;
@@ -257,11 +255,11 @@ bool valid_check(Chain * left_upper_chain, Chain * right_upper_chain, Chain * le
 
 	return true;
 }
-bool compute_outer_tangent(Chain* lu, Chain *ru, int * t1, int *t2, Edge * common_edge, Chain * ld = NULL, Chain * rd = NULL) {
+ bool compute_outer_tangent(Chain* lu, Chain *ru, int * t1, int *t2, Edge * common_edge, Chain * ld = NULL, Chain * rd = NULL) {
 	vector<int> p1_list = lu->get_point_list();
 	vector<int> p2_list = ru->get_point_list();
 	point_type min = -1;
-	if (p1_list.size() == 1 && p2_list.size() == 1) {
+	if (p1_list.size() == 1 && p2_list.size() == 1) {//left_upper 이랑 right_upper chain가 single point로만 구성돼있으면 (당근) idx는 0이어야게쮜
 		*t1 = 0;
 		*t2 = 0;
 	}else if (p1_list.size() == 1) {
@@ -286,6 +284,7 @@ bool compute_outer_tangent(Chain* lu, Chain *ru, int * t1, int *t2, Edge * commo
 		*t2 = (idx - idx_diff);*/
 	}else if (p2_list.size() == 1) {
 		int idx = -1, idx_diff = -1;
+
 		if (common_edge->check_same_point(p1_list.front()) == -1) {
 			idx = 0;
 			idx_diff = 1;
@@ -295,15 +294,15 @@ bool compute_outer_tangent(Chain* lu, Chain *ru, int * t1, int *t2, Edge * commo
 			idx_diff = -1;
 		}
 		while (idx >= 0 && idx < (int)p1_list.size()) {
-			if(side_check(lu,ru,ld,rd,p1_list[idx],p2_list[0],common_edge)){
+			if(side_check(lu,ru,ld,rd,p1_list[idx],p2_list[0],common_edge)){/////////////////////이거 만족 안 하면 t1값이 안정해진 대로 valid_check(?)함
 				*t1 = idx;
 				*t2 = 0;
 				break;
 			}
 			idx += idx_diff;
 		}
-		/**t1 = (idx - idx_diff);
-		*t2 = 0;*/
+		//*t1 = (idx - idx_diff);
+		//*t2 = 0;
 	}/*else if (p1_list.size() == 2 && (int)p2_list.size() == 2) {
 		int p1_com = -1, p2_com = -1;
 		int p1_diff = -1, p2_diff = -1;
@@ -330,7 +329,7 @@ bool compute_outer_tangent(Chain* lu, Chain *ru, int * t1, int *t2, Edge * commo
 			*t1 = p1_com;
 			*t2 = p2_com;			
 		}
-	}*/else if (p1_list.size() == 2) {
+	}*/else if (p1_list.size() == 2) { //여기서 vector iterator+ offset 문제 뜸 ////////////////////////////////////////////////////////////////////////
 		if (p1_list.front() == p2_list.front() || p1_list.front() == p2_list.back()) {
 			*t1 = 1;
 		}

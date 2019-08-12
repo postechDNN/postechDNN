@@ -8,6 +8,13 @@
 #include "Edge.h"
 #include "polygon_operation.h"
 #define PI 3.1415926535897931
+
+point_type max_y;
+point_type min_y;
+point_type max_x;
+point_type min_x;
+
+point_type MAX_x;
 using namespace std;
 
 struct angle_comp {
@@ -117,7 +124,8 @@ public:
 					ret_candidates.push_back(candidates[i]);
 				}
 			}
-			if (ret_candidates.size() == 0) return -1;
+			if (ret_candidates.size() == 0)
+				return -1;
 			current_height--;
 		}
 

@@ -6,6 +6,8 @@
 #include "Edge.h"
 #include "Tree.h"
 #include "VertexID.h"
+
+
 #define NULL_HELPER -1
 #define PI 3.1415926535897931
 using namespace std;
@@ -29,7 +31,7 @@ point_type dist(int p1, int p2) {
 	return sqrt(pow(diff_x, 2) + pow(diff_y, 2));
 }
 
-double calculate_angle(int origin, int target) {
+double calculate_angle(int origin, int target) { //target-origin vector가 x축과 이루는 각을 알려주는 것 가타요....
 	point_type x = point_list[target].get_x() - point_list[origin].get_x();
 	point_type y = point_list[target].get_y() - point_list[origin].get_y();
 	return atan2(y, x);
@@ -84,12 +86,110 @@ Edge get_edge(int d_num) {
 	int d_size = diagonal_list.size();
 	return d_num >= d_size ? outer_edge_list[d_num - d_size] : diagonal_list[d_num];
 }
-bool check_line_intersection(int point1, int point2, int point3, int point4) {
-	Point p1 = point_list[point1];
-	Point p2 = point_list[point2];
-	Point p3 = point_list[point3];
-	Point p4 = point_list[point4];
 
+// Given three colinear points p, q, r, the function checks if 
+// point q lies on line segment 'pr' 
+bool onSegment(Point p, Point q, Point r)
+{
+	point_type p_x = p.get_x(), p_y = p.get_y();
+	point_type q_x = q.get_x(), q_y = q.get_y();
+	point_type r_x = r.get_x(), r_y = r.get_y();
+
+	if (q_x <= max(p_x, r_x) && q_x >= min(p_x, r_x) &&
+		q_y <= max(p_y, r_y) && q_y >= min(p_y, r_y))
+		return true;
+
+	return false;
+}
+
+// To find orientation of ordered triplet (p, q, r). 
+// The function returns following values 
+// 0 --> p, q and r are colinear 
+// 1 --> Clockwise 
+// 2 --> Counterclockwise 
+int orientation(Point p, Point q, Point r)
+{
+	point_type p_x = p.get_x(), p_y = p.get_y();
+	point_type q_x = q.get_x(), q_y = q.get_y();
+	point_type r_x = r.get_x(), r_y = r.get_y();
+	// See https://www.geeksforgeeks.org/orientation-3-ordered-points/ 
+	// for details of below formula. 
+	int val = (q_y - p_y) * (r_x - q_x) -
+		(q_x - p_x) * (r_y - q_y);
+
+	if (val == 0) return 0; // colinear 
+
+	return (val > 0) ? 1 : 2; // clock or counterclock wise 
+}
+
+float dot_product(int v1_p1, int v1_p2, int v2_p1, int v2_p2)
+{
+
+	Point v1 = Point(v1_p1, v1_p2);
+	Point v2 = Point(v2_p1, v2_p2);
+
+	float v1_x = v1.get_x();
+	float v2_x = v2.get_x();
+	float v1_y = v1.get_y();
+	float v2_y = v2.get_y();
+
+	return v1_x * v2_x + v1_y * v2_y;
+}
+
+// The main function that returns true if line segment 'p1q1' 
+// and 'p2q2' intersect. 
+bool check_line_intersection_open(Point p1, Point q1, Point p2, Point q2)
+{
+	// Find the four orientations needed for general and 
+	// special cases 
+	int o1 = orientation(p1, q1, p2);
+	int o2 = orientation(p1, q1, q2);
+	int o3 = orientation(p2, q2, p1);
+	int o4 = orientation(p2, q2, q1);
+
+	// General case 
+	if (o1 != o2 && o3 != o4)
+		return true;
+
+	// Special Cases 
+	// p1, q1 and p2 are colinear and p2 lies on segment p1q1 
+	if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+	// p1, q1 and q2 are colinear and q2 lies on segment p1q1 
+	if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+	// p2, q2 and p1 are colinear and p1 lies on segment p2q2 
+	if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+	// p2, q2 and q1 are colinear and q1 lies on segment p2q2 
+	if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+	return false; // Doesn't fall in any of the above cases 
+}
+
+bool check_line_intersection_closed(Point p1, Point p2, Point p3, Point p4)
+{
+		
+	if (p1.check_equal(p2))
+	{
+		point_type dx_a = p1.get_x() - p3.get_x();
+		point_type dx_b = p4.get_x() - p1.get_x();
+		point_type dy_a = p1.get_y() - p3.get_y();
+		point_type dy_b = p4.get_y() - p1.get_y();
+		if (dy_a == 0 && dy_b == 0)
+		{
+			if (dx_a * dx_b >= 0)
+				return true;
+			else
+				return false;
+		}
+		else {
+			if (dx_a / dy_a == dx_b / dy_b)
+				return true;
+			else
+				return false;
+		}
+	}
 	point_type ua = (p4.get_x() - p3.get_x()) * (p1.get_y() - p3.get_y()) - (p4.get_y() - p3.get_y()) * (p1.get_x() - p3.get_x());
 	point_type ub = (p2.get_x() - p1.get_x()) * (p1.get_y() - p3.get_y()) - (p2.get_y() - p1.get_y()) * (p1.get_x() - p3.get_x());
 	point_type denominator = (p4.get_y() - p3.get_y()) * (p2.get_x() - p1.get_x()) - (p4.get_x() - p3.get_x()) * (p2.get_y() - p1.get_y());
@@ -101,7 +201,7 @@ bool check_line_intersection(int point1, int point2, int point3, int point4) {
 		ua /= denominator;
 		ub /= denominator;
 
-		if (ua > 0.0 && ua < 1.0 && ub > 0.0 && ub < 1.0)
+		if (ua > 0.0 && ua < 1.0 && ub >= 0.0 && ub < 1.0)
 		{
 			intersection = true;
 			//intersectionPoint.X = point1.X + ua * (point2.X - point1.X);
@@ -109,6 +209,23 @@ bool check_line_intersection(int point1, int point2, int point3, int point4) {
 		}
 	}
 	return intersection;
+} //doIntersect 로 없앨 수 있는듯
+
+bool check_line_intersection(int point1, int point2, int point3, int point4, bool boundary_included) {
+	//선분 p1p2 와 선분 p3p4 가 만나는지 return
+	
+	Point p1 = point_list[point1];
+	Point p2 = point_list[point2];
+	Point p3 = point_list[point3];
+	Point p4 = point_list[point4];
+	
+	if(boundary_included)
+		return check_line_intersection_open(p1, p2, p3, p4);
+	else
+	{
+		return check_line_intersection_closed(p1, p2, p3, p4);
+	}
+
 }
 // isLeft(): test if a point is Left|On|Right of an infinite line.
 //    Input:  three points P0, P1, and P2
@@ -126,7 +243,7 @@ isLeft(int p0, int p1, int p2)
 	return (P1.get_x() - P0.get_x())*(P2.get_y() - P0.get_y()) - (P2.get_x() - P0.get_x())*(P1.get_y() - P0.get_y());
 }
 
-bool is_left(int p0, int p1, int p2)
+bool is_left(int p0, int p1, int p2)// p1p2기준 p0가 left side에 있다., cf. cross product, determinant
 {
 	Point P0 = point_list[p0];
 	Point P1 = point_list[p1];
@@ -136,7 +253,7 @@ bool is_left(int p0, int p1, int p2)
 		return true;
 	else return false;
 }
-bool is_right(int p0, int p1, int p2)
+bool is_right(int p0, int p1, int p2)//p1p2기준 p0가 right side 에 있다
 {
 	Point P0 = point_list[p0];
 	Point P1 = point_list[p1];
@@ -146,14 +263,73 @@ bool is_right(int p0, int p1, int p2)
 		return true;
 	else return false;
 }
+bool all_left(vector<int> chain, int from, int to)
+{
+	for (int i = 0; i < chain.size(); i++)
+	{
+		if (!is_left(chain[i], from, to))
+			return false;
+	}
+	return true;
+}
+bool all_right(vector<int> chain, int from, int to)
+{
+	for (int i = 0; i < chain.size(); i++)
+	{
+		if (!is_right(chain[i], from, to))
+			return false;
+	}
+	return true;
+}
 
+int connect_vectors(vector<int>& left_list, vector<int>& right_list, vector<int>& concatenated_list)
+{
+	/*
+		@brief: concatenates _left and _right list with the common point appearing once in the concatenated_list, also reverses the left and right lists if needed(reference type)
+		@return: the index of the common point in the concatenated list
+	*/
+	int common_point_index = left_list.size() - 1;
 
+	//both lists should not be empty
+	if (left_list.empty() || right_list.empty())
+	{
+		exit(11);
+	}
+	if (left_list.back() == right_list.front())
+	{
+		left_list.pop_back();
+	}
+	else if (left_list.back() == right_list.back())
+	{
+		left_list.pop_back();
+		reverse(right_list.begin(), right_list.end());
+	}
+	else if (left_list.front() == right_list.front())
+	{
+		reverse(left_list.begin(), left_list.end());
+		left_list.pop_back();
+	}
+	else if (left_list.front() == right_list.back())
+	{
+		reverse(left_list.begin(), left_list.end());
+		reverse(right_list.begin(), right_list.end());
+		left_list.pop_back();
+	}
+	else {
+		return -1;		
+	}
+	concatenated_list.insert(concatenated_list.end(), left_list.begin(), left_list.end());
+	concatenated_list.insert(concatenated_list.end(), right_list.begin(), right_list.end());
+	left_list.push_back(concatenated_list[common_point_index]);
+	
+	return common_point_index;
+}
 
 // tests for polygon vertex ordering relative to a fixed point P
 #define above(P,Vi,Vj)  (isLeft(P,Vi,Vj) >= 0)   // true if Vi is above Vj
 #define below(P,Vi,Vj)  (isLeft(P,Vi,Vj) <= 0)   // true if Vi is below Vj
 //===================================================================
-//고쳐야 함
+//고쳐야 함...ㅜㅜㅜㅜㅜㅜㅜ
 void seperate_polygon_with_edge(vector<vector<int>>& polygon_list_with_edge, int e_num) {
 	Edge e = diagonal_list[e_num];
 	for (int j = 0; j < int(polygon_list_with_edge.size()); j++) {
@@ -408,7 +584,7 @@ vector<Edge> triangulate_monotone_polygons(vector<vector<int>>& polygon_list) {
 	polygon_list.swap(new_polygon_list);
 	return diagonal_list;
 }
-vector<Edge> find_monotone_polygon(vector<int>& polygon, bool reverse) {
+vector<Edge> find_monotone_polygon(vector<int>& polygon, bool reverse) {//goal is to return list of diagonals
 
 	bool(*fp)(VertexID, VertexID);
 	fp = reverse ? y_DOWNUP_comp : y_UPDOWN_comp;
@@ -426,7 +602,7 @@ vector<Edge> find_monotone_polygon(vector<int>& polygon, bool reverse) {
 		int pointID = point_set[i].get_pointID();
 		int polygonID = point_set[i].get_polygonID();
 
-		int left_PointID = get_left_vertex(polygon, polygonID);
+		int left_PointID = get_left_vertex(polygon, polygonID);//화면상의 left right이랑 반대로 들어가는뎅(input6.txt에서)
 		int right_PointID = get_right_vertex(polygon, polygonID);
 
 		Point vertex = point_list[pointID];
@@ -438,8 +614,8 @@ vector<Edge> find_monotone_polygon(vector<int>& polygon, bool reverse) {
 		point_type e1 = calculate_angle(pointID, left_PointID, reverse);
 		point_type e2 = calculate_angle(pointID, right_PointID, reverse);
 		if (e1 < 0) e1 = e1 + 2 * PI;
-		if (e2 < 0) e2 = e2 + 2 * PI;
-		if (e1 > e2) swap(e1, e2);
+		if (e2 < 0) e2 = e2 + 2 * PI;//무조건 x축 양의 방향 기준으로 오게 함
+		if (e1 > e2) swap(e1, e2);//e2이 더 큰 값 가지게
 
 		//straight line
 		if (abs(e1 - 0) < absTolerance && abs(e2 - PI) < absTolerance) break;
@@ -490,7 +666,7 @@ vector<Edge> find_monotone_polygon(vector<int>& polygon, bool reverse) {
 
 	return diagonal_list;
 }
-vector<Edge> find_monotone_polygons(vector<vector<int>>& polygon_list)
+vector<Edge> find_monotone_polygons(vector<vector<int>>& polygon_list)//논문 3장 내용 (strictly increasing depth)
 {
 	vector<Edge> diagonal_list;
 	vector<vector<int>> new_polygon_list;
@@ -512,7 +688,7 @@ void make_big_triangle() {
 	vector<VertexID> point_id_list = vector<VertexID>(point_list.size());
 	for (int i = 0; i < int(point_list.size()); i++)
 		point_id_list[i] = VertexID(i, i);
-	sort(point_id_list.begin(), point_id_list.end(), y_UPDOWN_comp);
+	sort(point_id_list.begin(), point_id_list.end(), y_UPDOWN_comp);//y좌표 큰 순서대로 sort함
 
 	int top = point_id_list.begin()->get_pointID();
 	int bottom = (point_id_list.end() - 1)->get_pointID();

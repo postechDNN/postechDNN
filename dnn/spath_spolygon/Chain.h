@@ -4,12 +4,21 @@
 #include "Point.h"
 #include "Edge.h"
 #include "polygon_operation.h"
+
 using namespace std;
 class Chain {
 private:
 	vector<int> c_point_list;
 	point_type len;
 public:
+	Chain operator= (Chain rhs) {
+		vector<int> _point_list = rhs.c_point_list;
+		c_point_list = _point_list;
+		len = rhs.len;
+		printf("Chain operator =\n");
+
+		return *this;
+	}
 	Chain() {
 		len = 0;
 	}
@@ -29,6 +38,8 @@ public:
 		}
 	}
 	Chain(vector<int> _point_list) {
+		c_point_list = _point_list;
+		/*
 		len = 0;
 		int prev = -1;
 		int c_index = 0;
@@ -39,7 +50,7 @@ public:
 			if (i == 0) continue;
 			c_index++;
 			len += dist(c_point_list[c_index - 1], c_point_list[c_index]);
-		}
+		}*/
 	}
 	Chain(Chain * c1, Chain * c2, int p1, int p2) {
 		vector<int> v_c1 = c1->get_point_list();
@@ -68,11 +79,12 @@ public:
 	Chain(Edge* _tan) {
 		//edge_list.push_back(_tan);
 		if (_tan->is_point()) {
-			c_point_list.push_back(_tan->get_origin());
+			
+			c_point_list.push_back(_tan->get_origin() % v_num);
 		}
 		else {
-			c_point_list.push_back(_tan->get_origin());
-			c_point_list.push_back(_tan->get_dest());
+			c_point_list.push_back(_tan->get_origin() %v_num);
+			c_point_list.push_back(_tan->get_dest() %v_num);
 		}
 		len = _tan->get_len();
 	}
@@ -82,29 +94,44 @@ public:
 	void set_point_list(vector<int> _point_list) {
 		c_point_list = _point_list;
 	}
-	void add_point_list(vector<int> _point_list, point_type length = 0) {
-		if (_point_list[0] == c_point_list[0]) {
-			reverse(_point_list.begin(), _point_list.end());
-			_point_list.pop_back();
-			c_point_list.insert(c_point_list.begin(), _point_list.begin(), _point_list.end());
-		}
-		else if (_point_list[0] == c_point_list.back()) {
-			c_point_list.pop_back();
-			c_point_list.insert(c_point_list.end(), _point_list.begin(), _point_list.end());
-		}
-		else if (_point_list.back() == c_point_list.front()) {
-			_point_list.pop_back();
-			c_point_list.insert(c_point_list.begin(), _point_list.begin(), _point_list.end());
-		}
-		else if (_point_list.back() == c_point_list.back()) {
-			_point_list.pop_back();
-			reverse(_point_list.begin(), _point_list.end());
-			c_point_list.insert(c_point_list.end(), _point_list.begin(), _point_list.end());
+	void append_points(vector<int> point_list)
+	{
+		if (c_point_list.empty())
+		{
+			c_point_list = point_list;
 		}
 		else {
-			c_point_list.insert(c_point_list.end(), _point_list.begin(), _point_list.end());
+			for (int i = 0; i < point_list.size(); i++)
+			{
+				c_point_list.push_back(point_list[i]);
+			}
 		}
-		len += length;
+	}
+	void add_point_list(vector<int> _point_list, point_type length = 0) {
+		if (!_point_list.empty()) {
+			if (_point_list[0] == c_point_list[0]) {
+				reverse(_point_list.begin(), _point_list.end());
+				_point_list.pop_back();
+				c_point_list.insert(c_point_list.begin(), _point_list.begin(), _point_list.end());
+			}
+			else if (_point_list[0] == c_point_list.back()) {
+				c_point_list.pop_back();
+				c_point_list.insert(c_point_list.end(), _point_list.begin(), _point_list.end());
+			}
+			else if (_point_list.back() == c_point_list.front()) {
+				_point_list.pop_back();
+				c_point_list.insert(c_point_list.begin(), _point_list.begin(), _point_list.end());
+			}
+			else if (_point_list.back() == c_point_list.back()) {
+				_point_list.pop_back();
+				reverse(_point_list.begin(), _point_list.end());
+				c_point_list.insert(c_point_list.end(), _point_list.begin(), _point_list.end());
+			}
+			else {
+				c_point_list.insert(c_point_list.end(), _point_list.begin(), _point_list.end());
+			}
+			len += length;
+		}
 	}
 	void set_len(point_type _len) {
 		len = _len;
@@ -115,45 +142,46 @@ public:
 	vector<int> get_point_list() {
 		return c_point_list;
 	}
-	int check_one_side(int inner_point, int outter_point, Edge * common_edge) {
-	
+	int check_one_side(int inner_point, int outer_point, Edge * common_edge) {
+	//common edge는...음 딱 한 번 필요함(idx 초기 값 설정할 때)
 		int p1 = -1;
 		if (check_inclusive(inner_point)) {
 			p1 = inner_point;
 		}
-		else if(check_inclusive(outter_point)){
-			p1 = outter_point;
+		else if(check_inclusive(outer_point)){
+			p1 = outer_point;
 		}
 		int idx = -1, diff_idx = -1;
 		if (common_edge->get_origin() == c_point_list[0] || common_edge->get_dest() == c_point_list[0]) {
+			//c_point의 첫 element랑 겹치는 게 없는지 확인
 			idx = 0;
 			diff_idx = 1;
 		}
-		else {
+		else {//없으면 c_point_list의 뒤에서부터 idx주고 diff_idx는 -1이된다
 			idx = c_point_list.size() - 1;
 			diff_idx = -1;
 		}
 		int n = 0, m = 0;
 		int num = 0;
-		while (idx >= 0 && idx < (int)c_point_list.size() && c_point_list[idx] != p1) {
+		while (idx >= 0 && idx < (int)c_point_list.size() && c_point_list[idx] != p1) {//inner, outer point가 나오면 중단
 			num++;
-			if (is_left(c_point_list[idx], inner_point, outter_point))
+			if (is_left(c_point_list[idx], inner_point, outer_point))
 				n++;
-			if (is_right(c_point_list[idx], inner_point, outter_point))
+			if (is_right(c_point_list[idx], inner_point, outer_point))
 				m++;
 			idx += diff_idx;
 		}
 		int r1 = -1;
-		if (m == 0 && n == 0) {
+		if (m == 0 && n == 0) {//while loop 한 번도 안 돌 경우, 예를들어 common edge 포인트가 inner일때
 			r1 = 3;
 		}
-		if (m == num && n == num) {
+		else if (m == num && n == num) {//else if 가 아니고..??//////////////////////
 			r1 = 3;
 		}
-		else if (m == num) {
+		else if (m == num) {//다 right side
 			r1 = 2;
 		}
-		else if (n == num) {
+		else if (n == num) {//다 left side
 			r1 = 1;
 		}
 		else r1 = 0;
@@ -161,9 +189,9 @@ public:
 		num = n = m = 0;
 		while (idx >= 0 && idx < (int)c_point_list.size()) {
 			num++;
-			if (is_left(c_point_list[idx], inner_point, outter_point))
+			if (is_left(c_point_list[idx], inner_point, outer_point))
 				n++;
-			if (is_right(c_point_list[idx], inner_point, outter_point))
+			if (is_right(c_point_list[idx], inner_point, outer_point))
 				m++;
 			idx += diff_idx;
 		}
@@ -200,16 +228,16 @@ public:
 			if (is_right(c_point_list[i], p1, p2))
 				m++;
 		}
-		if (m == (int)c_point_list.size() && n == (int)c_point_list.size()) {
+		if (m == (int)c_point_list.size() && n == (int)c_point_list.size()) {//c_point_list의 모든 점이 p1p2 벡터와 일직선상에 있었을 때(is left와 is_right모두 만족)
 			return 3;
 		}
-		else if (m == (int)c_point_list.size()) {
+		else if (m == (int)c_point_list.size()) {//p1p2기준 c_point 상의 점이 모두 right side에 있었다
 			return 2;
 		}
-		else if (n == (int)c_point_list.size()) {
+		else if (n == (int)c_point_list.size()) {//chain을 구성하는 모든 점들이 p1p2의 left side에 있더라
 			return 1;
 		}
-		else return 0;
+		else return 0;//이도 저도 아니다 (어중간)
 	}
 	vector<int> cutting_c_point_list(Edge * common_chain, int idx, bool first) {
 		vector<int> new_v;
@@ -242,10 +270,11 @@ public:
 	bool check_enable_line(int p1, int p2, Edge * common_edge, Chain * c1) {
 
 		int check_side = c1->check_one_side(p1, p2, common_edge);
-		if (check_side == 0) return false;
+		if (check_side == 0) return false;//common_edge기준 p1과 p2가 같은 side에 있지 않을때..?
 		
 		return true;
-		bool check = check_line_intersection(p1, p2, common_edge->get_origin(), common_edge->get_dest());
+		//여기까지는 닿지도 않...지??ㅇㅇㅇ
+		bool check = check_line_intersection(p1, p2, common_edge->get_origin(), common_edge->get_dest(),false);
 		if (check) return true;
 		
 		/*int check1 = common_edge->check_same_point(p1);
@@ -256,12 +285,12 @@ public:
 			return true;
 		return false;*/
 	}
-	Chain* cutting_chain(Edge * common_edge, int apax, Chain * c1) {
+	Chain* cutting_chain(Edge * common_edge, int apex, Chain * c1) {
 		int index = -1;
-		if (common_edge->check_same_point(c_point_list.front()) == -1) {
+		if (common_edge->check_same_point(c_point_list.front()) == -1) {//c_point[0]이 common edge를 이루는 vertex가 아닐때
 			for (int k = 0; k < (int)c_point_list.size(); k++) {
-				bool check1 = true;
-				check1 = check_enable_line(apax, c_point_list[k], common_edge, c1);//c1->check_one_side(apax, c_point_list[k], common_edge);
+				bool check1 = true;//check_enable_line에서 inner과 outer point가 같을 때 -> isLeft도 해당되고 isRight도 해당이 되넹...
+				check1 = check_enable_line(apex, c_point_list[k], common_edge, c1);//c1->check_one_side(apax, c_point_list[k], common_edge);
 				if (check1){// != 0) {
 					index = k;
 					break;
@@ -271,14 +300,16 @@ public:
 		else {
 			for (int k = (int)c_point_list.size() - 1; k >= 0; k--) {
 				bool check1 = true;
-				check1 = check_enable_line(apax, c_point_list[k], common_edge, c1);//c1->check_one_side(apax, c_point_list[k], common_edge);
+				check1 = check_enable_line(apex, c_point_list[k], common_edge, c1);//c1->check_one_side(apax, c_point_list[k], common_edge);
 				if (check1){// != 0) {
 					index = k;
 					break;
 				}
 			}
 		}
-		return (this->cutting_chain(common_edge, index, true, apax));
+		Chain* return_val = (this->cutting_chain(common_edge, index, true, apex));
+		return return_val;
+		return (this->cutting_chain(common_edge, index, true, apex));
 	}
 	//고쳐야함
 	/*Chain* cutting_chain(Edge * common_edge, int apax, Chain * c1, Chain* c2, bool reverse = false) {
@@ -318,7 +349,7 @@ public:
 			return true;
 		else return false;
 	}
-	int get_point_num() {
+	int get_point_list_size() {
 		return c_point_list.size();
 	}
 	int get_last_point() {
@@ -326,7 +357,7 @@ public:
 	}
 	bool check_intersection(int p1, int p2) {
 		for (int i = 1; i < c_point_list.size(); i++) {
-			if (check_line_intersection(c_point_list[i - 1], c_point_list[i], p1, p2)) {
+			if (check_line_intersection(c_point_list[i - 1], c_point_list[i], p1, p2,true)) {
 				return true;
 			}
 		}
