@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-//operater < and == must be defined for type T.
+//operater =, < and == must be defined for type T.
 template <typename T>
 struct AVLTreeNode {
 	AVLTreeNode();
