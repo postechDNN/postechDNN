@@ -1,0 +1,28 @@
+DNN : Dynamic Nearest Neighbors
+version : 0.1
+Relese date : Nov 28, 2017
+----------------------------------------------------------------------------
+Copyright (c) 2017 Hee-Kap Ahn, Jongmin Choi and POSTECH
+See Copyright.txt and License.txt for complete information on terms and 
+conditions of use and distribution of this software.
+----------------------------------------------------------------------------
+
+If you have any question or comment about program, 
+please contact to heekap@postech.ac.kr or icothos@postech.ac.kr
+
+Introduction 
+------------
+DNN is a library for nearest neighbor algorithms and their applications. 
+Main purpose of this library is to support nearest neighbor algorithm for various settings of environment.
+This program consists of three part: core, utility and application.
+Core is core part of the library. Core supports function or APIs of nearest neighbor. Core part is written by C++.
+Utility consists of several utility functions to construct core part which can be applied to several other applications. Utility part is written by C++.
+Application consists of some algorithms and applications using this library. Application part is written by several different languages.
+
+
+----------------------------------------------------------------------------
+History
+  version 0.1 11/28/17
+    Preliminary release
+    Add GrowingDisk application
+
