@@ -1,14 +1,9 @@
 # AVLTree
 
 This project is an implementation of AVLTree which can support various kinds of line-sweep algorithms such as line sweep intersection, constructing point location datastructure, etc.
+There is no corresponding paper.
 
-# Paper Information
-
-There is no such paper.
-
-Use github issue 
-
-# What is AVLTree
+# What is 'AVLTree'
 
 AVLTree is a data structure which stores data with template type T for each node.
 Operator '=', '<' and '==' must be defined for type T to support AVLTree.
@@ -27,3 +22,9 @@ AVLTree supports these kinds of queries below.
 - AVLTreeNode<T>* getRoot(): return root node of the tree. If the tree is empty, return nullptr.
 - AVLTreeNode<T>* pop(): pop a node with the smallest value and return. If the tree is empty, return nullptr.
 - AVLTreeNode<T>* pop(T t): pop a node with a certain value t and return. If there is no such node, return nullptr.
+
+## Before use it 
+### Setup the project
+none
+### Dependent project
+none
