@@ -1,6 +1,6 @@
 # AVLTree
 
-This project is an implementation of AVLTree which can support various kinds of line-sweep algorithms such as line sweep intersection, constructing point location datastructure, etc.
+This project is an implementation of AVLTree which can support various kinds of line-sweep algorithms such as line sweep intersection, constructing point location datastructure, etc.  
 There is no corresponding paper.
 
 # What is 'AVLTree'
