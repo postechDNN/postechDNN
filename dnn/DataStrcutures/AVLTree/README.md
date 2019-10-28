@@ -3,7 +3,7 @@
 This project is an implementation of AVLTree which can support various kinds of line-sweep algorithms such as line sweep intersection, constructing point location datastructure, etc.  
 There is no corresponding paper.
 
-# What is 'AVLTree'
+## What is 'AVLTree'
 
 AVLTree is a data structure which stores data with template type T for each node.  
 Operator '=', '<' and '==' must be defined for type T to support AVLTree.  
