@@ -5,10 +5,10 @@ There is no corresponding paper.
 
 # What is 'AVLTree'
 
-AVLTree is a data structure which stores data with template type T for each node.
-Operator '=', '<' and '==' must be defined for type T to support AVLTree.
-The datas are stored in increasing order.
-AVLTree has 'AVLTreeNode<T>' struct as its node.
+AVLTree is a data structure which stores data with template type T for each node.  
+Operator '=', '<' and '==' must be defined for type T to support AVLTree.  
+The datas are stored in increasing order.  
+AVLTree has 'AVLTreeNode<T>' struct as its node.  
 AVLTreeNode has these elements:
 - int rank: store the rank of subtree which has this node as a root. (0 for the one-noded tree)
 - T value: store a value with type T.
