@@ -39,3 +39,4 @@ C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\Grow
 C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.csproj.GenerateResource.cache
 C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.exe
 C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.pdb
+C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.csprojAssemblyReference.cache
