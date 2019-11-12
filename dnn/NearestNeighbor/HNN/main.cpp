@@ -4,9 +4,11 @@ using namespace std;
 
 typedef double type_point;
 
-#define DIM	2	// dimension
-#define X	0
-#define Y	1
+// #define DEBUG	1
+
+#define DIM		2	// dimension
+#define X		0
+#define Y		1
 
 struct Point {
 	type_point coords[DIM];
@@ -26,7 +28,36 @@ struct Point {
 };
 
 #define WAIT()	getchar();
-#define END(x)	WAIT(); return(x);
+#define END(x)	WAIT(); exit(x);
+
+Point* readPoints(char* path, int& size, int& k) {
+	FILE* file = NULL;
+	fopen_s(&file, path, "r");
+
+	if (!file) {
+		printf("Invalid file: %s\n", path);
+		END(1);
+	}
+
+	if (k < 0)
+		fscanf_s(file, "%d", &size);
+	else
+		fscanf_s(file, "%d %d", &size, &k);
+
+	Point* points = new Point[size];
+	for (int i = 0; i < size; i++)
+		fscanf_s(file, "%lf %lf", &points[i].coords[X], &points[i].coords[Y]);
+
+#ifdef DEBUG
+	printf("%s:\n", path);
+	for (int i = 0; i < size; i++)
+		printf("%g %g\n", points[i].coords[X], points[i].coords[Y]);
+	printf("\n");
+#endif // DEBUG
+
+	fclose(file);
+	return points;
+}
 
 #define EPSILON		0.1
 
@@ -48,24 +79,9 @@ int main(int argc, char** argv) {
 	}
 
 	// read input points
-	FILE* file_p = NULL;
-	fopen_s(&file_p, argv[1], "r");
-
-	if (!file_p) {
-		printf("Invalid points_file: %s\n", argv[1]);
-		END(1);
-	}
-
+	int k = -1;
 	int input_size = 0;
-	fscanf_s(file_p, "%d", &input_size);
-
-	Point* inputs = new Point[input_size];
-	for (int i = 0; i < input_size; i++) {
-		fscanf_s(file_p, "%lf %lf", &inputs[i].coords[X], &inputs[i].coords[Y]);
-		printf("%g %g\n", inputs[i].coords[X], inputs[i].coords[Y]);
-	}
-
-	fclose(file_p);
+	Point* inputs = readPoints(argv[1], input_size, k);
 
 	// build compressed quadtree
 	CompressedQuadtree<Point> tree(DIM, inputs, input_size);
@@ -76,33 +92,20 @@ int main(int argc, char** argv) {
 	}
 
 	// read query points
-	FILE* file_q = NULL;
-	fopen_s(&file_q, argv[2], "r");
-
-	if (!file_q) {
-		printf("Invalid queries_file: %s\n", argv[2]);
-		END(2);
-	}
-
-	int k = 0;
+	k = 0;
 	int query_size = 0;
+	Point* queries = readPoints(argv[2], query_size, k);
+
 	double epsilon = EPSILON;
-
-	fscanf_s(file_q, "%d %d", &query_size, &k);
-
-	Point* queries = new Point[query_size];
-	for (int i = 0; i < query_size; i++)
-		fscanf_s(file_q, "%lf %lf", &queries[i].coords[X], &queries[i].coords[Y]);
-
-	fclose(file_q);
 
 	// query
 	for (int i = 0; i < query_size; i++) {
 		list<pair<Point*, double>> query = tree.knn(k, queries[i], epsilon);
-		printf("\nquery #%d: (%g, %g)\n", i+1, queries[i].coords[X], queries[i].coords[Y]);
+		printf("query #%d: (%g, %g)\n", i + 1, queries[i].coords[X], queries[i].coords[Y]);
 
 		for (list<pair<Point*, double>>::iterator i = query.begin(); i != query.end(); i++)
 			printf("(%g, %g)\n", (*i->first)[X], (*i->first)[Y]);
+		printf("\n");
 	}
 
 	printf("done.\n");
