@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Voronoi Diagram.cpp">
+    <ClCompile Include="SegmentTree.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Data Structure.h">
+    <ClInclude Include="SegmentTree.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

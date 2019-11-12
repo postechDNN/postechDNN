@@ -4,7 +4,7 @@
 #include <vector>
 #include "P.h"
 #include "Q.h"
-#include "SegmentTree.h"
+#include "../../DataStrcutures/SegTree/SegmentTree.h"
 
 using namespace std;
 

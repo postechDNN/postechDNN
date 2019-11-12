@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{7F38A22B-FBD2-4038-B439-027339194A2E}</ProjectGuid>
-    <RootNamespace>SegL1Voronoi</RootNamespace>
+    <ProjectGuid>{23500E32-E24A-4336-BD25-21E5E71C5477}</ProjectGuid>
+    <RootNamespace>SegTree</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -123,10 +123,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Voronoi Diagram.cpp" />
+    <ClCompile Include="SegmentTree.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Data Structure.h" />
+    <ClInclude Include="SegmentTree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
