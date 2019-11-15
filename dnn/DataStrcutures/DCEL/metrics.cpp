@@ -38,12 +38,11 @@ double cosine_distance(Point& p_1, Point& p_2)
 	return 1 - inner_product(p_1, p_2) / (length(p_1) * length(p_2));
 }
 
-double min_weighted(Point& p_1, Point& p_2, double a, double b)
+double weighted_square(Point& p_1, Point& p_2, double upper, double lower, double left, double right)
+// p_1을 기준으로 p_2의 거리를 측정
 {
-	return std::min(abs(p_1.getx() - p_2.getx()) / a, abs(p_1.gety() - p_2.gety()) / b);
-}
-
-double max_weighted(Point& p_1, Point& p_2, double a, double b)
-{
-	return std::max(abs(p_1.getx() - p_2.getx()) / a, abs(p_1.gety() - p_2.gety()) / b);
+	if (p_2.getx() >= p_1.getx() && p_2.gety() >= p_1.gety()) { return std::max(abs(p_1.getx() - p_2.getx()) / right, abs(p_1.gety() - p_2.gety()) / upper); }
+	else if (p_2.getx() < p_1.getx() && p_2.gety() >= p_1.gety()) { return std::max(abs(p_1.getx() - p_2.getx()) / left, abs(p_1.gety() - p_2.gety()) / upper); }
+	else if (p_2.getx() >= p_1.getx() && p_2.gety() < p_1.gety()) { return std::max(abs(p_1.getx() - p_2.getx()) / right, abs(p_1.gety() - p_2.gety()) / lower); }
+	else { return std::max(abs(p_1.getx() - p_2.getx()) / left, abs(p_1.gety() - p_2.gety()) / lower); }
 }

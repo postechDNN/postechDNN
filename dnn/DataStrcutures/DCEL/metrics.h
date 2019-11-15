@@ -8,5 +8,4 @@ double taxicab_metric(Point& p_1, Point& p_2);
 double inner_product(Point& p_1, Point& p_2);
 double length(Point& p_1);
 double cosine_distance(Point& p_1, Point& p_2);
-double min_weighted(Point& p_1, Point& p_2, double, double);
-double max_weighted(Point& p_1, Point& p_2, double, double);
+double weighted_square(Point& p_1, Point& p_2, double upper, double lower, double left, double right);
