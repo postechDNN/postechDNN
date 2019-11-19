@@ -27,6 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowingDisk", "Examples\Gro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShortestPathSimplePolygon", "Examples\ShortestPathSimplePolygon\ShortestPathSimplePolygon.vcxproj", "{D5B4D14B-924E-48A1-99FE-D87287E28632}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HNN", "NearestNeighbor\HNN\HNN.vcxproj", "{A536A058-B540-4F19-9DDF-9B1A0B3015E8}"
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FNNNE", "NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\nnimage.vcxproj", "{5B1F840D-7EF0-46B2-8250-68DF69EE0808}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RBTree", "DataStrcutures\RBTree\RBTree.vcxproj", "{D4A2F35B-948D-4BF1-A48A-3DD68E28AE08}"

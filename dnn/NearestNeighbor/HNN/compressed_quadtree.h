@@ -134,7 +134,7 @@ public:
 					++itor;
 				}
 
-				qr.insert(itor, std::make_pair<Point*, double>(node->pt, dist));
+				qr.insert(itor, std::make_pair<Point*, double>((Point*)(node->pt), (double)dist));
 
 				if (qr.size() > k) qr.pop_back();
 
@@ -285,7 +285,7 @@ private:
 		double min_dist = std::numeric_limits<double>::max();
 		for (size_t d = 0; d < dim; ++d) {
 
-			double dist;
+			double dist = min_dist;
 			if (pt[d] < node->mid[d] - node->radius) {
 				dist = node->mid[d] - node->radius - pt[d];
 				inside = false;
