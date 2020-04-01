@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Edge.h"
 #include "Point.h"
 
@@ -23,6 +24,14 @@ Edge::~Edge() {
 
 bool Edge::operator==(Edge _e) {
 	return (*this->s == *_e.gets() && *this->t == *_e.gett()) || (*this->s == *_e.gett() && *this->t == *_e.gets());
+}
+
+bool Edge::crossing(Edge _e, bool closed = true) {
+	double minx = std::max(std::min(this->s->getx(), this->t->getx()), std::min(_e.gets()->getx(), _e.gett()->getx()));
+	double maxx = std::min(std::max(this->s->getx(), this->t->getx()), std::max(_e.gets()->getx(), _e.gett()->getx()));
+	if (maxx < minx)
+		return false;
+
 }
 
 Point* Edge::gets() {
