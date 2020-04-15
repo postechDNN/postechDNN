@@ -1,2 +1,3 @@
 #pragma once
-#include "../DataStrcutures/DCEL/SimplePolygon.h"
+#include "../../DataStrcutures/DCEL/PolygonalDomain.h"
+
