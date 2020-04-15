@@ -127,6 +127,7 @@
     <ClInclude Include="DCEL.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="PolygonalDomain.h" />
     <ClInclude Include="SimplePolygon.h" />
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +135,7 @@
     <ClCompile Include="DCEL.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="Point.cpp" />
+    <ClCompile Include="PolygonalDomain.cpp" />
     <ClCompile Include="SimplePolygon.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

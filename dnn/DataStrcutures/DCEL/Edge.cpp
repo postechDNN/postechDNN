@@ -31,7 +31,9 @@ bool Edge::crossing(Edge _e, bool closed = true) {
 	double maxx = std::min(std::max(this->s->getx(), this->t->getx()), std::max(_e.gets()->getx(), _e.gett()->getx()));
 	if (maxx < minx)
 		return false;
-
+	if (maxx == minx) {
+		
+	}
 }
 
 Point* Edge::gets() {
