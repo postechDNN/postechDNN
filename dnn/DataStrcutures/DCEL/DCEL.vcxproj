@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="ConformingSubdivision.cpp" />
     <ClCompile Include="DCEL.cpp" />
+    <ClCompile Include="Dijkstra.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="SimplePolygon.cpp" />

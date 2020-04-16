@@ -6,7 +6,7 @@ protected:
 	Point *s, *t;
 public:
 	Edge();
-	Edge(Point *_s, Point *_t);
+	Edge(Point* _s, Point* _t);
 	Edge(Edge*);
 	~Edge();
 	bool operator==(Edge);
