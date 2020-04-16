@@ -9,4 +9,5 @@ private:
 public:
 	SimplePolygon();
 	SimplePolygon(std::vector<Edge*>*);
+	std::vector<Edge*>* getEdges();
 };

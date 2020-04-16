@@ -8,10 +8,10 @@ public:
 	struct PDNode {
 		Point* p;
 		bool issite;
-		std::vector<PDNode*> adjlist;
+		std::vector<PDNode*>* adjlist;
 	};
 	PDgraph();
 	PDgraph(PolygonalDomain*);
 private:
-	std::vector<PDNode*> nodes;
+	std::vector<PDNode*>* nodes;
 };
