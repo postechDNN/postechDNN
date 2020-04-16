@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -116,9 +116,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="PDDNN.cpp" />
+    <ClCompile Include="PDGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PDDNN.h" />
+    <ClInclude Include="PDgraph.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

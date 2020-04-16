@@ -11,4 +11,5 @@ public:
 	PolygonalDomain(std::vector<SimplePolygon*>*);
 	~PolygonalDomain();
 	bool validPoint(Point p);
+	std::vector<SimplePolygon*>* getObstacles();
 };

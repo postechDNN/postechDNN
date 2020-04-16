@@ -3,7 +3,7 @@
 #include "../../DataStrcutures/DCEL/PolygonalDomain.h"
 #include "../../DataStrcutures/DCEL/Point.h"
 
-class PDgraph : public PolygonalDomain {
+class PDgraph{
 public:
 	struct PDNode {
 		Point* p;
