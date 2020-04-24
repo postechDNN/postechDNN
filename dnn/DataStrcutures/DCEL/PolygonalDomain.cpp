@@ -1,7 +1,7 @@
 #include "PolygonalDomain.h"
 #include "SimplePolygon.h"
 #include <iterator>
-#include <math.h>
+#include <cmath>
 #define MAX 1000 //¼öÁ¤
 
 bool PolygonalDomain::validPoint(Point p) {
