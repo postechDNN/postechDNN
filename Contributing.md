@@ -16,6 +16,7 @@ For convinience use emoji at the start of commit message to distinguish each com
 * :warning: `:warning:` when you reduced the memory usage.
 * :lock: `:lock:` when you resolved a securty issue.
 * :arrow_up: `:arrow_up:` when you started new project or add a new feature.
+* :beers: `:beers:` when you merged and resolved conflicts.
 
 ### Code Style 
 Check the [google c++ style guide](https://google.github.io/styleguide/cppguide.html).
