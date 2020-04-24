@@ -25,7 +25,7 @@ PDgraph::PDgraph(PolygonalDomain* pd) {
 			Edge* ne = new Edge((*this->nodes)[i]->p, (*this->nodes)[j]->p);
 			bool flag = true;
 			for (int k = 0; k < pd->getObstacles()->size(); k++) {
-				SimplePolygon* sp = (*pd->getObstacles)[k];
+				SimplePolygon* sp = (*pd->getObstacles())[k];
 				for (int l = 0; l < sp->getEdges()->size(); l++) {
 					Edge* te = (*sp->getEdges())[l];
 					if (!((*ne) == (*te)) && ne->crossing(*te, false)) {

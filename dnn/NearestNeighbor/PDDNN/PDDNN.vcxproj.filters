@@ -15,18 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PDDNN.cpp">
+    <ClCompile Include="PDGraph.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="PDGraph.cpp">
+    <ClCompile Include="Dijkstra.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PDDNN.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PDgraph.h">
+    <ClInclude Include="PDGraph.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,6 +7,7 @@ Edge::Edge() {
 	this->t = new Point();
 }
 
+
 Edge::Edge(Point *_s, Point *_t) {
 	this->s = new Point(_s);
 	this->t = new Point(_t);
@@ -29,12 +30,11 @@ bool Edge::operator==(Edge _e) {
 bool Edge::crossing(Edge _e, bool closed = true) {
 	double minx = std::max(std::min(this->s->getx(), this->t->getx()), std::min(_e.gets()->getx(), _e.gett()->getx()));
 	double maxx = std::min(std::max(this->s->getx(), this->t->getx()), std::max(_e.gets()->getx(), _e.gett()->getx()));
+	
 	if (maxx < minx)
 		return false;
-	if (maxx == minx) {
-		
-	}
 }
+
 
 Point* Edge::gets() {
 	return this->s;
@@ -43,6 +43,7 @@ Point* Edge::gets() {
 Point* Edge::gett() {
 	return this->t;
 }
+
 
 double Edge::length() {
 	return this->s->distance(*this->t);
