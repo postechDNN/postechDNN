@@ -10,7 +10,7 @@ public:
 	Edge(Edge*);
 	~Edge();
 	bool operator==(Edge);
-	bool crossing(Edge, bool);
+	Point* crossing(Edge*, bool);
 	Point* gets();
 	Point* gett();
 	double length();
