@@ -20,21 +20,20 @@ public:
 	HEdge* getIncidentEdge();
 };
 
-class HEdge{
+class HEdge : public Edge {
 protected:
 	Vertex *origin;
 	HEdge *next, *prev, *twin;
 	Face *incidentFace;
 public:
 	HEdge();
-	HEdge(Vertex*, Vertex*, Face*);
+	HEdge(Vertex*, Vertex*);
 	~HEdge();
 	Vertex* getOrigin();
 	HEdge* getNext();
 	HEdge* getPrev();
 	HEdge* getTwin();
 	void setIncidentFace(Face*);
-	Edge* toEdge();
 };
 
 class Face {
@@ -48,13 +47,13 @@ public:
 	void setOuter(HEdge*);
 	HEdge* getOuter();
 	std::vector<HEdge*>* getInners();
-	void replaceInner(HEdge*, HEdge*);
-	void addInner(HEdge*);
-	void deleteInner(HEdge*);
-	HEdge* getInnerBoundary(HEdge*);
 };
 
 class DCEL : public Face {	//Referring the outmost face.
+private:
+	std::vector<Face*> *faces;
+	std::vector<HEdge*> *hedges;
+	std::vector<Vertex*> *vertices;
 public:
-
+	DCEL()
 };

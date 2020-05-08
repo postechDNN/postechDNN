@@ -9,18 +9,17 @@ Edge::Edge() {
 
 
 Edge::Edge(Point *_s, Point *_t) {
-	this->s = new Point(_s);
-	this->t = new Point(_t);
+	this->s = _s;
+	this->t = _t;
 }
 
 Edge::Edge(Edge *_e) {
-	this->s = new Point(_e->gets());
-	this->t = new Point(_e->gett());
+	this->s = _e->gets();
+	this->t = _e->gett();
 }
 
 Edge::~Edge() {
-	delete(this->s);
-	delete(this->t);
+
 }
 
 bool Edge::operator==(Edge _e) {
