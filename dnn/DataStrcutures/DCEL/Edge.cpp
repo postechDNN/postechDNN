@@ -25,10 +25,8 @@ Edge::~Edge() {
 bool Edge::operator==(Edge _e) {
 	return (*this->s == *_e.gets() && *this->t == *_e.gett()) || (*this->s == *_e.gett() && *this->t == *_e.gets());
 }
-Point* Edge::crossing(Edge* _e, bool closed = true)
-{
-	//P(t) = (1-t)*this->gets + t*this->gett
-	//P(s) = (1-s)*_e->gets + s*_e->gett
+
+Point* Edge::crossing(Edge* _e, bool closed = true) {
 	double d = (_e->gett()->gety() - _e->gets()->gety()) * (this->t->getx() - this->s->getx()) - (_e->gett()->getx() - _e->gets()->getx()) * (this->t->gety() - this->s->gety());
 	if (d == 0) {//2 lines are parellel
 		return nullptr;

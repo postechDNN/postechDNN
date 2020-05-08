@@ -2,6 +2,7 @@
 #include "Point.h"
 #include <algorithm>
 #include <iterator>
+#include <vector>
 
 Vertex::Vertex() : Point() {
 	this->incidentEdge = nullptr;
@@ -85,6 +86,7 @@ Face::Face() {
 }
 
 Face::~Face() {
+	delete(this->inners);
 }
 
 bool Face::isOutMost() {
@@ -107,8 +109,28 @@ DCEL::DCEL() {
 	this->faces = new std::vector<Face*>();
 	this->hedges = new std::vector<HEdge*>();
 	this->vertices = new std::vector<Vertex*>();
+	lmost = nullptr;
+	tmost = nullptr;
+	bmost = nullptr;
+	rmost = nullptr;
+	Face *of = new Face();
+	this->faces->push_back(of);
 }
 
 DCEL::~DCEL() {
+	delete(this->faces);
+	delete(this->hedges);
+	delete(this->vertices);
+}
 
+std::vector<Face*>* DCEL::getFaces() {
+	return this->faces;
+}
+
+std::vector<HEdge*>* DCEL::getHedges() {
+	return this->hedges;
+}
+
+std::vector<Vertex*>* DCEL::getVertices() {
+	return this->vertices;
 }

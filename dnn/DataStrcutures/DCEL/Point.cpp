@@ -1,5 +1,5 @@
 #include "Point.h"
-#include <math.h>
+#include <cmath>
 
 //this class defines a point in 2D space
 

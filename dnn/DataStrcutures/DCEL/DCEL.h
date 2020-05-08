@@ -49,11 +49,19 @@ public:
 	std::vector<HEdge*>* getInners();
 };
 
-class DCEL : public Face {	//Referring the outmost face.
+class DCEL {
 private:
 	std::vector<Face*> *faces;
-	std::vector<HEdge*> *hedges;
+	std::vector<HEdge*> *hedges;	//we store one hedge for each edges.
 	std::vector<Vertex*> *vertices;
+	Vertex* lmost;
+	Vertex* tmost;
+	Vertex* bmost;
+	Vertex* rmost;
 public:
-	DCEL()
+	DCEL();
+	~DCEL();
+	std::vector<Face*>* getFaces();
+	std::vector<HEdge*>* getHedges();
+	std::vector<Vertex*>* getVertices();
 };
