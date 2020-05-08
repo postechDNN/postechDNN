@@ -39,7 +39,7 @@ Point* Edge::crossing(Edge* _e, bool closed = true)
 		double s = (this->t->getx() - this->s->getx()) * (this->s->gety() - _e->gets()->gety()) - (this->t->gety() - this->s->gety()) * (this->s->getx() - _e->gets()->getx());
 		t = t / d;
 		s = s / d;
-		if (t > 1 || s > 1) {//no intersection
+		if (t > 1 || t < 0 || s > 1 || s < 0) {//no intersection
 			return nullptr;
 		}
 		else if (((t == 0 || t == 1) || (s == 0 || s == 1)) && !closed) {//open 
