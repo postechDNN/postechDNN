@@ -25,13 +25,32 @@ Edge::~Edge() {
 bool Edge::operator==(Edge _e) {
 	return (*this->s == *_e.gets() && *this->t == *_e.gett()) || (*this->s == *_e.gett() && *this->t == *_e.gets());
 }
-
-bool Edge::crossing(Edge _e, bool closed = true) {
-	double minx = std::max(std::min(this->s->getx(), this->t->getx()), std::min(_e.gets()->getx(), _e.gett()->getx()));
-	double maxx = std::min(std::max(this->s->getx(), this->t->getx()), std::max(_e.gets()->getx(), _e.gett()->getx()));
-	
-	if (maxx < minx)
-		return false;
+Point* Edge::crossing(Edge* _e, bool closed = true)
+{
+	//P(t) = (1-t)*this->gets + t*this->gett
+	//P(s) = (1-s)*_e->gets + s*_e->gett
+	double d = (_e->gett()->gety() - _e->gets()->gety()) * (this->t->getx() - this->s->getx()) - (_e->gett()->getx() - _e->gets()->getx()) * (this->t->gety() - this->s->gety());
+	if (d == 0) {//2 lines are parellel
+		return nullptr;
+	}
+	else {
+		double t = (_e->gett()->getx() - _e->gets()->getx()) * (this->s->gety() - _e->gets()->gety()) - (_e->gett()->gety() - _e->gets()->gety()) * (this->s->getx() - _e->gets()->getx());
+		double s = (this->t->getx() - this->s->getx()) * (this->s->gety() - _e->gets()->gety()) - (this->t->gety() - this->s->gety()) * (this->s->getx() - _e->gets()->getx());
+		t = t / d;
+		s = s / d;
+		if (t > 1 || t < 0 || s > 1 || s < 0) {//no intersection
+			return nullptr;
+		}
+		else if (((t == 0 || t == 1) || (s == 0 || s == 1)) && !closed) {//open 
+			return nullptr;
+		}
+		else {
+			double x = (1 - t) * this->s->getx() + t * this->t->getx();
+			double y = (1 - t) * this->s->gety() + t * this->t->gety();
+			Point *P = new Point(x, y);
+			return P;
+		}
+	}
 }
 
 
