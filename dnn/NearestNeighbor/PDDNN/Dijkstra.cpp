@@ -2,8 +2,10 @@
 #include <vector>
 #include <queue>
 #include <functional>
-#include "Edge.h"
-#include "Point.h"
+#include "../../DataStrcutures/DCEL/Edge.h"
+#include "../../DataStrcutures/DCEL/Point.h"
+
+
 #define INF 1e9
 using namespace std;
 
