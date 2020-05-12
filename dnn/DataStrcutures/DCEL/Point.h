@@ -5,7 +5,6 @@
 class Point {
 protected:
 	double x, y;
-	int size;
 public:
 	Point();
 	Point(double, double);

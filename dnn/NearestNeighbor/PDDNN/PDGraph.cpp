@@ -1,15 +1,12 @@
-#include <vector>
-#include <iterator>
-#include "PDgraph.h"
-#include "../../DataStrcutures/DCEL/PolygonalDomain.h"
-#include "../../DataStrcutures/DCEL/SimplePolygon.h"
-#include "../../DataStrcutures/DCEL/Edge.h"
+#include "PDGraph.h"
+
 
 PDgraph::PDgraph() {
 }
 
 PDgraph::PDgraph(PolygonalDomain* pd) {
 	this->nodes = new std::vector<PDNode*>();
+	
 	for (int i = 0; i < pd->getObstacles()->size(); i++) {
 		SimplePolygon* sp = (*pd->getObstacles())[i];
 		for (int j = 0; j < sp->getEdges()->size(); j++) {
@@ -20,6 +17,7 @@ PDgraph::PDgraph(PolygonalDomain* pd) {
 			n->adjlist = new std::vector<PDNode*>();
 		}
 	}
+
 	for (int i = 0; i < this->nodes->size(); i++) {
 		for (int j = i + 1; j < this->nodes->size(); j++) {
 			Edge* ne = new Edge((*this->nodes)[i]->p, (*this->nodes)[j]->p);
@@ -28,7 +26,7 @@ PDgraph::PDgraph(PolygonalDomain* pd) {
 				SimplePolygon* sp = (*pd->getObstacles())[k];
 				for (int l = 0; l < sp->getEdges()->size(); l++) {
 					Edge* te = (*sp->getEdges())[l];
-					if (!((*ne) == (*te)) && ne->crossing(*te, false)) {
+					if (!((*ne) == (*te)) && ne->crossing(te, false)) {
 						flag = false;
 						break;
 					}

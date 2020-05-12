@@ -1,8 +1,5 @@
 #include "DCEL.h"
-#include "Point.h"
-#include <algorithm>
-#include <iterator>
-#include <vector>
+
 
 Vertex::Vertex() : Point() {
 	this->incidentEdge = nullptr;

@@ -1,6 +1,4 @@
-#include <algorithm>
 #include "Edge.h"
-#include "Point.h"
 
 Edge::Edge() {
 	this->s = new Point();
@@ -28,7 +26,7 @@ bool Edge::operator==(Edge _e) {
 
 Point* Edge::crossing(Edge* _e, bool closed = true) {
 	double d = (_e->gett()->gety() - _e->gets()->gety()) * (this->t->getx() - this->s->getx()) - (_e->gett()->getx() - _e->gets()->getx()) * (this->t->gety() - this->s->gety());
-	if (d == 0) {//2 lines are parellel
+	if (d == 0) { 
 		return nullptr;
 	}
 	else {
@@ -36,10 +34,10 @@ Point* Edge::crossing(Edge* _e, bool closed = true) {
 		double s = (this->t->getx() - this->s->getx()) * (this->s->gety() - _e->gets()->gety()) - (this->t->gety() - this->s->gety()) * (this->s->getx() - _e->gets()->getx());
 		t = t / d;
 		s = s / d;
-		if (t > 1 || t < 0 || s > 1 || s < 0) {//no intersection
+		if (t > 1 || t < 0 || s > 1 || s < 0) {
 			return nullptr;
 		}
-		else if (((t == 0 || t == 1) || (s == 0 || s == 1)) && !closed) {//open 
+		else if (((t == 0 || t == 1) || (s == 0 || s == 1)) && !closed) {
 			return nullptr;
 		}
 		else {

@@ -1,5 +1,8 @@
-﻿  Dijkstra.cpp
-E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN\dnn\DataStrcutures\DCEL\Dijkstra.cpp(54,13): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
-C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\include\xutility(4088,24): warning C4244: '=': 'const double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN\dnn\DataStrcutures\DCEL\Dijkstra.cpp(23): message : 컴파일되는 함수 템플릿 인스턴스화 'void std::fill<int*,double>(int *const ,int *const ,const double &)'에 대한 참조를 확인하세요.
-  DCEL.vcxproj -> E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN\dnn\Debug\DCEL.exe
+﻿  ConformingSubdivision.cpp
+  DCEL.cpp
+  Edge.cpp
+  Point.cpp
+  PolygonalDomain.cpp
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\DataStrcutures\DCEL\PolygonalDomain.cpp(13,67): error C3867: 'std::vector<Edge *,std::allocator<Edge *>>::begin': 비표준 구문입니다. '&'를 사용하여 멤버 포인터를 만드세요.
+  SimplePolygon.cpp
+  코드를 생성하고 있습니다...

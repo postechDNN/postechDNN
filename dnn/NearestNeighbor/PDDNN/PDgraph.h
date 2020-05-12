@@ -1,7 +1,8 @@
 #pragma once
-#include <vector>
 #include "../../DataStrcutures/DCEL/PolygonalDomain.h"
 #include "../../DataStrcutures/DCEL/Point.h"
+#include "../../DataStrcutures/DCEL/SimplePolygon.h"
+
 
 class PDgraph{
 public:
@@ -10,6 +11,7 @@ public:
 		bool issite;
 		std::vector<PDNode*>* adjlist;
 	};
+
 	PDgraph();
 	PDgraph(PolygonalDomain*);
 private:
