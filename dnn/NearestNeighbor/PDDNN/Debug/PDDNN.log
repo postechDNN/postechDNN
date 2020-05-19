@@ -1,0 +1,37 @@
+﻿  main.cpp
+  PDGraph.cpp
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(13,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(15,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(24,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(25,25): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(30,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(32,24): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(66,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(73,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(91,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(110,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDGraph.cpp(157,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  PDNode.cpp
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\PDDNN\PDNode.cpp(29,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  코드를 생성하고 있습니다...
+main.obj : error LNK2019: "public: __thiscall Point::Point(double,double)" (??0Point@@QAE@NN@Z) 외부 기호(참조 위치: _main 함수)에서 확인하지 못했습니다.
+main.obj : error LNK2019: "public: __thiscall Point::~Point(void)" (??1Point@@QAE@XZ) 외부 기호(참조 위치: _main 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2001: "public: __thiscall Point::~Point(void)" (??1Point@@QAE@XZ) 외부 기호를 확인할 수 없습니다.
+main.obj : error LNK2019: "public: __thiscall PolygonalDomain::PolygonalDomain(void)" (??0PolygonalDomain@@QAE@XZ) 외부 기호(참조 위치: _main 함수)에서 확인하지 못했습니다.
+main.obj : error LNK2019: "public: __thiscall PolygonalDomain::~PolygonalDomain(void)" (??1PolygonalDomain@@QAE@XZ) 외부 기호(참조 위치: _main 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: __thiscall Point::Point(class Point *)" (??0Point@@QAE@PAV0@@Z) 외부 기호(참조 위치: "public: void __thiscall PDgraph::Dijkstra(class PDNode *)" (?Dijkstra@PDgraph@@QAEXPAVPDNode@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: double __thiscall Point::getx(void)" (?getx@Point@@QAENXZ) 외부 기호(참조 위치: "public: void __thiscall PDgraph::Dijkstra(class PDNode *)" (?Dijkstra@PDgraph@@QAEXPAVPDNode@@@Z) 함수)에서 확인하지 못했습니다.
+PDNode.obj : error LNK2001: "public: double __thiscall Point::getx(void)" (?getx@Point@@QAENXZ) 외부 기호를 확인할 수 없습니다.
+PDGraph.obj : error LNK2019: "public: double __thiscall Point::gety(void)" (?gety@Point@@QAENXZ) 외부 기호(참조 위치: "public: void __thiscall PDgraph::Dijkstra(class PDNode *)" (?Dijkstra@PDgraph@@QAEXPAVPDNode@@@Z) 함수)에서 확인하지 못했습니다.
+PDNode.obj : error LNK2001: "public: double __thiscall Point::gety(void)" (?gety@Point@@QAENXZ) 외부 기호를 확인할 수 없습니다.
+PDGraph.obj : error LNK2019: "public: double __thiscall Point::distance(class Point)" (?distance@Point@@QAENV1@@Z) 외부 기호(참조 위치: "public: void __thiscall PDgraph::Dijkstra(class PDNode *)" (?Dijkstra@PDgraph@@QAEXPAVPDNode@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: __thiscall Edge::Edge(class Point *,class Point *)" (??0Edge@@QAE@PAVPoint@@0@Z) 외부 기호(참조 위치: "public: __thiscall PDgraph::PDgraph(class PolygonalDomain *)" (??0PDgraph@@QAE@PAVPolygonalDomain@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: __thiscall Edge::Edge(class Edge *)" (??0Edge@@QAE@PAV0@@Z) 외부 기호(참조 위치: "public: __thiscall PDgraph::PDgraph(class PolygonalDomain *)" (??0PDgraph@@QAE@PAVPolygonalDomain@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: __thiscall Edge::~Edge(void)" (??1Edge@@QAE@XZ) 외부 기호(참조 위치: "public: void * __thiscall Edge::`scalar deleting destructor'(unsigned int)" (??_GEdge@@QAEPAXI@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: bool __thiscall Edge::operator==(class Edge)" (??8Edge@@QAE_NV0@@Z) 외부 기호(참조 위치: "public: __thiscall PDgraph::PDgraph(class PolygonalDomain *)" (??0PDgraph@@QAE@PAVPolygonalDomain@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: bool __thiscall Edge::crossing(class Edge,bool)" (?crossing@Edge@@QAE_NV1@_N@Z) 외부 기호(참조 위치: "public: __thiscall PDgraph::PDgraph(class PolygonalDomain *)" (??0PDgraph@@QAE@PAVPolygonalDomain@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: class Point * __thiscall Edge::gets(void)" (?gets@Edge@@QAEPAVPoint@@XZ) 외부 기호(참조 위치: "public: __thiscall PDgraph::PDgraph(class PolygonalDomain *)" (??0PDgraph@@QAE@PAVPolygonalDomain@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: class std::vector<class Edge *,class std::allocator<class Edge *> > * __thiscall SimplePolygon::getEdges(void)" (?getEdges@SimplePolygon@@QAEPAV?$vector@PAVEdge@@V?$allocator@PAVEdge@@@std@@@std@@XZ) 외부 기호(참조 위치: "public: __thiscall PDgraph::PDgraph(class PolygonalDomain *)" (??0PDgraph@@QAE@PAVPolygonalDomain@@@Z) 함수)에서 확인하지 못했습니다.
+PDGraph.obj : error LNK2019: "public: class std::vector<class SimplePolygon *,class std::allocator<class SimplePolygon *> > * __thiscall PolygonalDomain::getObstacles(void)" (?getObstacles@PolygonalDomain@@QAEPAV?$vector@PAVSimplePolygon@@V?$allocator@PAVSimplePolygon@@@std@@@std@@XZ) 외부 기호(참조 위치: "public: __thiscall PDgraph::PDgraph(class PolygonalDomain *)" (??0PDgraph@@QAE@PAVPolygonalDomain@@@Z) 함수)에서 확인하지 못했습니다.
+PDNode.obj : error LNK2019: "public: __thiscall Point::Point(void)" (??0Point@@QAE@XZ) 외부 기호(참조 위치: "public: __thiscall PDNode::PDNode(void)" (??0PDNode@@QAE@XZ) 함수)에서 확인하지 못했습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Debug\PDDNN.exe : fatal error LNK1120: 17개의 확인할 수 없는 외부 참조입니다.

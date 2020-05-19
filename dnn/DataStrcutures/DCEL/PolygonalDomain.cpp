@@ -1,8 +1,15 @@
 #include "PolygonalDomain.h"
 #include "SimplePolygon.h"
-#include <iterator>
-#include <cmath>
+
 #define MAX 1000 //¼öÁ¤
+
+PolygonalDomain::PolygonalDomain() {
+	this->obstacles = new std::vector<SimplePolygon*>();
+}
+
+PolygonalDomain::PolygonalDomain(std::vector<SimplePolygon*>* obs) {
+	this->obstacles = obs;
+}
 
 bool PolygonalDomain::validPoint(Point p) {
 
@@ -12,9 +19,9 @@ bool PolygonalDomain::validPoint(Point p) {
 
 	for (std::vector<SimplePolygon*>::iterator i1 = this->obstacles->begin(); i1 != this->obstacles->end(); i1++) {
 		SimplePolygon* s = *i1;
-		for (std::vector<Edge*>::iterator i2 = s->edges->begin; i2 != s->edges->end(); i2++) {
+		for (std::vector<Edge*>::iterator i2 = s->getEdges()->begin; i2 != s->getEdges()->end(); i2++) {
 			Edge* _e = *i2;
-			if (_e.crossing(&e, true)) {
+			if (_e->crossing(&e, true)) {
 				count++;
 			}
 		}
@@ -25,4 +32,8 @@ bool PolygonalDomain::validPoint(Point p) {
 	}
 	return true;
 
+}
+
+std::vector<SimplePolygon*>* PolygonalDomain::getObstacles() {
+	return this->obstacles;
 }

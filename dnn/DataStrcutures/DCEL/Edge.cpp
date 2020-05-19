@@ -1,6 +1,5 @@
-#include <algorithm>
 #include "Edge.h"
-#include "Point.h"
+#include <algorithm>
 
 Edge::Edge() {
 	this->s = new Point();

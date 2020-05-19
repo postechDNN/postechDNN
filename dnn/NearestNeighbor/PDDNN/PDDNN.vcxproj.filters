@@ -18,12 +18,18 @@
     <ClCompile Include="PDGraph.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Dijkstra.cpp">
+    <ClCompile Include="PDNode.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PDGraph.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PDNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
