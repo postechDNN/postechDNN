@@ -8,8 +8,10 @@
 #include "ipereference.h"
 
 #include <vector>
+#include <string>
 
 using namespace ipe;
+
 
 /**	Get marks on primary selected page (IPE) */
 bool Get_points(IpeletData *data, IpeletHelper *helper, 
@@ -35,11 +37,23 @@ Vector getFirst(CurveSegment cs);
 /** return the second end point of cs */
 Vector getSecond(CurveSegment cs);
 
-/* Drawing tools*/
-bool Draw_point(IpeletData *data, IpeletHelper *helper, Vector p);
-bool Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second);
-bool Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs);
-bool Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
-bool Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
+
+class IPEIO{
+private:
+	Attribute color_attr;
+public:
+
+	/* Drawing tools */
+	bool Draw_point(IpeletData *data, IpeletHelper *helper, Vector p);
+	bool Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second);
+	bool Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs);
+	bool Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
+	bool Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
+
+	/* Attribute setting */
+	void set_color(std::string color);
+	void set_color(int r,int g,int b);
+
+};
 
 #endif

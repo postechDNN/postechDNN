@@ -10,6 +10,7 @@
 #include "ipeIO.h"
 
 #include <vector>
+#include <string>
 
 using namespace ipe;
 using namespace std;
@@ -118,25 +119,27 @@ Vector getSecond(CurveSegment cs){
 	return cs.cp(1);
 }
 
-bool Draw_point(IpeletData *data, IpeletHelper *helper, Vector p){
+bool IPEIO::Draw_point(IpeletData *data, IpeletHelper *helper, Vector p){
 	Attribute tAtr(true,String("mark/disk(sx)"));
 	Reference* pt = new Reference(data->iAttributes,tAtr,p);
+	pt->setStroke(color_attr);
 	data->iPage->append(ESecondarySelected,data->iLayer,pt);
 	return true;
 }
-bool Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second){
+bool IPEIO::Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second){
 	Curve *sp = new Curve;
 	sp->appendSegment(first,second);
 	Shape shape;
 	shape.appendSubPath(sp);
 	Path *obj = new Path(data->iAttributes,shape);
+	obj->setStroke(color_attr);
 	data->iPage->append(ESecondarySelected,data->iLayer,obj);
 	return true;
 }
-bool Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs){
+bool IPEIO::Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs){
 	return Draw_segment(data,helper,getFirst(cs),getSecond(cs));
 }
-bool Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed){
+bool IPEIO::Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed){
 	Curve *sp=new Curve;
 	for(int i=0;i<pts.size()-1;i++){
 		sp->appendSegment(pts[i],pts[i+1]);
@@ -145,9 +148,18 @@ bool Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pt
 	Shape shape;
 	shape.appendSubPath(sp);
 	Path *obj = new Path(data->iAttributes, shape);
+	obj->setStroke(color_attr);
 	data->iPage->append(ESecondarySelected, data->iLayer, obj);
 	return true;
 }
-bool Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed){
+bool IPEIO::Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed){
 	return Draw_polygon(data,helper,SubPath2Vec(sp,false),closed);
+}
+
+void IPEIO::set_color(string color){
+	color_attr=color_attr.makeColor(color.c_str(),color_attr);
+}
+void IPEIO::set_color(int r,int g,int b){
+	string s = to_string(r)+" "+to_string(g)+" "+to_string(b);
+	set_color(s);
 }
