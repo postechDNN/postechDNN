@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
 #include <iostream>
+#include <vector>
+#include <queue>
+
 #include "Edge.h"
 
 class SimplePolygon {

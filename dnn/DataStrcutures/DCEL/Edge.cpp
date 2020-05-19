@@ -17,7 +17,8 @@ Edge::Edge(Edge *_e) {
 }
 
 Edge::~Edge() {
-
+	delete(this->s);
+	delete(this->t);
 }
 
 bool Edge::operator==(Edge _e) {
