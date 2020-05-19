@@ -2,15 +2,6 @@
 
 #define MAX 1000 
 
-PolygonalDomain::PolygonalDomain() {
-	this->obstacles = new std::vector<SimplePolygon*>();
-}
-
-PolygonalDomain::PolygonalDomain(std::vector<SimplePolygon*>* obs) {
-	this->obstacles = obs;
-}
-
-
 bool PolygonalDomain::validPoint(Point p) {
 
 	Point q = Point(MAX, p.gety());
@@ -32,8 +23,4 @@ bool PolygonalDomain::validPoint(Point p) {
 	}
 	return true;
 
-}
-
-std::vector<SimplePolygon*>* PolygonalDomain::getObstacles() {
-	return this->obstacles;
 }
