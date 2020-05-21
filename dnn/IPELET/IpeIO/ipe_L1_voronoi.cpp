@@ -39,7 +39,7 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 		sites.push_back(Point(p.x,p.y));
 
 	L1_voronoi voronoi(sites);
-	std::vector<Edge> lines = voronoi.getEdges();
+	std::vector<Edge> lines = voronoi.getBoundary();
 	//ipe::Curve *c = new ipe::Curve;
 	for(auto line : lines){
 		Point org = line.getOrigin(), dest = line.getDest();

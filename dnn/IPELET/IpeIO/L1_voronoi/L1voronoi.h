@@ -16,7 +16,6 @@ protected:
 	double values[14];
 	enum{ P_X, P_Y, Q_X, Q_Y,MP_X,MQ_X,MP_Y,MQ_Y, MIN_X, MIN_Y, MAX_X,MAX_Y};
 
-	//vertex ���� �� ������ 
 
 	//M_X, M_Y = the middle coordinate between p and q
 	//MP_X , MP_Y = the point which divide p and q which is more closer to p than q
@@ -74,10 +73,10 @@ public:
 
 class L1_voronoi {
 private:
-	double minX = 20.f;
-	double maxX = 1000.f;
-	double minY = 20.f;
-	double maxY = 800.f;
+	double minX;
+	double maxX;
+	double minY;
+	double maxY;
 	struct __Cell {
 		Point site;
 		SimplePolygon cell;
@@ -86,9 +85,9 @@ private:
 	int n_site;
 	std::vector<__Cell> diagram;
 public:
-	L1_voronoi(std::vector<Point>& vertices);
+	L1_voronoi(std::vector<Point>& vertices, double len_inf_edge = 50.);
 	~L1_voronoi();
-	std::vector<Edge> getEdges();
+	std::vector<Edge> getBoundary();
 };
 
 #endif

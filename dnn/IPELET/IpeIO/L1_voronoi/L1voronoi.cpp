@@ -79,7 +79,7 @@ SimplePolygon L1_Bisector::getPolygon() {
 	return SimplePolygon(*(this->vertice));
 }
 
-L1_voronoi::L1_voronoi(std::vector<Point>& vertices) {
+L1_voronoi::L1_voronoi(std::vector<Point>& vertices, double len_inf_edge) {
 	n_site = vertices.size();
 	maxX = minX = vertices[0].getx();
 	maxY = minY = vertices[0].gety();
@@ -90,7 +90,7 @@ L1_voronoi::L1_voronoi(std::vector<Point>& vertices) {
 		minY = minY > vertices[i].gety() ? vertices[i].gety() : minY;
 		maxY = maxY < vertices[i].gety() ? vertices[i].gety() : maxY;
 	}
-	minX -= 50., maxX += 50., minY -= 50., maxY += 50.;
+	minX -= len_inf_edge, maxX += len_inf_edge, minY -= len_inf_edge, maxY += len_inf_edge;
 
 	std::vector<Point> B_pts = { Point(minX,minY),Point(minX,maxY) ,Point(maxX,maxY) ,Point(maxX,minY) };
 	SimplePolygon BoundingBox(B_pts);
@@ -112,16 +112,23 @@ L1_voronoi::L1_voronoi(std::vector<Point>& vertices) {
 	}
 }
 
-std::vector<Edge> L1_voronoi::getEdges() {
+std::vector<Edge> L1_voronoi::getBoundary() {
 	std::vector<Edge> ret;
 
 	for (int i = 0; i < n_site;i++) {
 		std::vector<Edge> edges = diagram[i].cell.getEdges();
-		ret.insert(ret.end(), edges.begin(), edges.end());
+		for (auto it : edges) {
+			Point s = it.getOrigin(), t = it.getDest();
+			int push_flag = 1;
+			if ((s - t).getx() < 1e-6 && (abs(s.getx() - minX) < 1e-6 || abs(s.getx() - maxX) < 1e-6))	//Vertical Segment
+				push_flag = 0;
+			if ((s - t).gety() < 1e-6 && (abs(s.gety() - minY) < 1e-6 || abs(s.gety() - maxY) < 1e-6))	//Horizontal Segment
+				push_flag = 0;
+			if (push_flag) ret.push_back(it);
+		}
 	}
 	std::sort(ret.begin(), ret.end());
 	ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
-
 	return ret;
 }
 
