@@ -29,14 +29,31 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 	vector<const SubPath*> sp_tmp;
 	vector<CurveSegment> cs_tmp;
 
+	IPEIO points;
+	IPEIO polys;
+	IPEIO segs;
+	
+	points.set_color("red");
+	polys.set_color(0,255,0);
+	segs.set_color(0,0,255);
+
+	segs.set_arrow(false);
+	segs.set_dash(3);
+	segs.set_pen(3);
+
+	polys.set_pen(2);
+
 	Get_polygons(data,helper,sp_tmp);
 	Get_points(data,helper,p_tmp);
-	Get_segments(data,helper,false,cs_tmp);
-
+	Get_segments(data,helper,true,cs_tmp);
+	int i=0;
 	for (auto pt:p_tmp){
 		pt.x+=dis(gen);
 		pt.y+=dis(gen);
-		Draw_point(data,helper,pt);
+		points.set_pts_size((i%4)-2);
+		points.set_pts_style(i%5);
+		i+=1;
+		points.Draw_point(data,helper,pt);
 	}
 	
 	for (auto poly:sp_tmp){
@@ -47,7 +64,9 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 			v.y+=dis(gen);
 			new_poly.push_back(v);
 		}
-		Draw_polygon(data,helper,new_poly,true);
+		polys.set_fill("blue",i%2);
+		i+=1;
+		polys.Draw_polygon(data,helper,new_poly,true);
 	}
 	for(auto seg:cs_tmp){
 		Curve *c = new Curve;
@@ -59,8 +78,9 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 			tmp2.y+=dis(gen);
 			c->appendSegment(tmp1,tmp2); 
 		}
-		for(int i=0;i<c->countSegments();i++)
-			Draw_segment(data,helper,c->segment(i));
+		for(int i=0;i<c->countSegments();i++){
+			segs.Draw_segment(data,helper,c->segment(i));
+		}
 	}
 	return true;
 }

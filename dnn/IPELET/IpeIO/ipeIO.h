@@ -8,6 +8,7 @@
 #include "ipereference.h"
 
 #include <vector>
+#include <string>
 
 using namespace ipe;
 
@@ -35,11 +36,57 @@ Vector getFirst(CurveSegment cs);
 /** return the second end point of cs */
 Vector getSecond(CurveSegment cs);
 
-/* Drawing tools*/
-bool Draw_point(IpeletData *data, IpeletHelper *helper, Vector p);
-bool Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second);
-bool Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs);
-bool Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
-bool Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
+
+class IPEIO{
+private:
+	/** 0x01:color  0x02:arrow  0x04:dash  0x08:value  0x10:point_size  0x20:pen_width  0x40:fill*/
+	int Attr_flag;
+
+	//common attrs
+	std::vector<Property> props;
+	std::vector<Attribute> vals;
+
+	Attribute construct;
+	Attribute color_attr;
+
+	//for points
+	Attribute pts_size;
+	Attribute pts_type;
+	
+	//for segments
+	bool farrow;
+
+	//for segments and polygons
+	Attribute dash;
+	Attribute pen_width;
+
+	//for polygons
+	Attribute fill;
+	bool mode;
+
+	void set_Attrs(Reference *obj);
+	void set_Attrs(Path *obj);
+public:
+	IPEIO(): Attr_flag(0),pts_type(true,String("mark/disk(sx)")),mode(false){};
+	/* Drawing tools */
+	bool Draw_point(IpeletData *data, IpeletHelper *helper, Vector p);
+	bool Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second);
+	bool Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs);
+	bool Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
+	bool Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
+
+	/* Attribute setting */
+	void reset_attr(int flag);
+	void set_color(std::string color); //color must be defined in IPE
+	void set_color(int r,int g,int b); //each values are in range [0,255]
+	void set_pts_size(int size); //normal:0  large:1  small:-1  tiny:-2
+	void set_pts_style(int type); //disk:0 circle:1  square:2 box:3  cross:4
+	void set_arrow(bool forward);
+	void set_dash(int type); // No:0  Dot:1  Dash:2 Dash&Dot:3  Dash&Dot&Dot:4
+	void set_pen(int type); //normal:0  heavier:1  fat:2  ultrafat:3
+	void set_fill(std::string color,bool fillonly);
+	void set_fill(int r,int g,int b,bool fillonly);
+	void add_Attribute(Property prop, Attribute val); //It does not check object type and properties.
+};
 
 #endif
