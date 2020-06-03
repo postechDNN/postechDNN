@@ -40,3 +40,18 @@ C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\Grow
 C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.exe
 C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.pdb
 C:\Users\soeun\Documents\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.csprojAssemblyReference.cache
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\bin\Debug\GrowingDisk.exe.config
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\bin\Debug\GrowingDisk.exe
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\bin\Debug\GrowingDisk.pdb
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.csprojAssemblyReference.cache
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\MainWindow.g.cs
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\App.g.cs
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk_MarkupCompile.cache
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk_MarkupCompile.lref
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\MainWindow.baml
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.g.resources
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.Properties.Resources.resources
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.csproj.GenerateResource.cache
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.csproj.CoreCompileInputs.cache
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.exe
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\GrowingDisk\GrowingDisk\obj\Debug\GrowingDisk.pdb

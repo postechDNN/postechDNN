@@ -1,0 +1,2 @@
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Debug\WNNP.pdb
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\WNNP\Debug\WNNP.pdb

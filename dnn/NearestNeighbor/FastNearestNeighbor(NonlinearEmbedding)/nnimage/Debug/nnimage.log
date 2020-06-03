@@ -1,0 +1,19 @@
+﻿  main.cpp
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\main.cpp(13,16): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\main.cpp(82,10): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\main.cpp(90,11): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  fnnne.cpp
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(163,33): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(174,32): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(183,24): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(191,22): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(203,11): warning C4244: '초기화 중': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(204,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(205,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(206,13): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(267,28): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(275,27): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(281,20): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\NearestNeighbor\FastNearestNeighbor(NonlinearEmbedding)\nnimage\fnnne.cpp(286,17): warning C4244: '=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  코드를 생성하고 있습니다...
+  nnimage.vcxproj -> E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Debug\FNNNE.exe
