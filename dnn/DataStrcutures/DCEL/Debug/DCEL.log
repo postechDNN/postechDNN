@@ -1,5 +1,1 @@
-﻿  Dijkstra.cpp
-E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN\dnn\DataStrcutures\DCEL\Dijkstra.cpp(54,13): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
-C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\include\xutility(4088,24): warning C4244: '=': 'const double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN\dnn\DataStrcutures\DCEL\Dijkstra.cpp(23): message : 컴파일되는 함수 템플릿 인스턴스화 'void std::fill<int*,double>(int *const ,int *const ,const double &)'에 대한 참조를 확인하세요.
-  DCEL.vcxproj -> E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN\dnn\Debug\DCEL.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.Platform.targets(67,5): error MSB8020: v142에 대한 빌드 도구(플랫폼 도구 집합 = 'v142')를 찾을 수 없습니다. v142 빌드 도구를 사용하여 빌드하려면 v142 빌드 도구를 설치하십시오.  [프로젝트] 메뉴를 선택하거나 솔루션을 마우스 오른쪽 단추로 클릭한 다음 "솔루션 대상 변경"을 선택하여 현재 Visual Studio 도구로 업그레이드할 수도 있습니다.

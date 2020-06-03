@@ -64,4 +64,7 @@ public:
 	std::vector<Face*>* getFaces();
 	std::vector<HEdge*>* getHedges();
 	std::vector<Vertex*>* getVertices();
+	void addEdge(Vertex*, Vertex*);
+	void deleteEdge(HEdge*);
+	DCEL* mergeDCEL(DCEL*);
 };

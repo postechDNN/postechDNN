@@ -51,7 +51,6 @@ Point* Edge::crossing(Edge* _e, bool closed = true) {
 	}
 }
 
-
 Point* Edge::gets() {
 	return this->s;
 }

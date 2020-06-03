@@ -25,6 +25,7 @@ public:
 	~AVLTree();
 	bool isEmpty();
 	void insert(T);
+	void insert(AVLTreeNode<T>*);
 	AVLTreeNode<T>* getRoot();
 	AVLTreeNode<T>* getLeftNode(T);
 	AVLTreeNode<T>* getRightNode(T);
@@ -146,6 +147,11 @@ template <typename T>
 void AVLTree<T>::insert(T v) {
 	AVLTreeNode<T>* newnode = new AVLTreeNode<T>();
 	newnode->value = v;
+	this->insert(newnode);
+}
+
+template <typename T>
+void AVLTree<T>::insert(AVLTreeNode<T>* newnode) {
 	if (isEmpty()) {
 		this->root = newnode;
 		newnode->p = nullptr;
