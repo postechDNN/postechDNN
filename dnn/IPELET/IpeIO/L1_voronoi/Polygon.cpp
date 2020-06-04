@@ -45,6 +45,7 @@ SimplePolygon::~SimplePolygon() {}
 //The point p is on boundary return 0
 //The point p is outside polygon return -1
 int SimplePolygon::inPolygon(Point p) {
+
 	double min_x = 1e10;
 	double min_x2 = 1e10;
 	int idx = -1;
@@ -66,6 +67,10 @@ int SimplePolygon::inPolygon(Point p) {
 
 		if (y1 - 1e-6 < y && y < y2 + 1e-6 && abs(y1 - y2) > 1e-6 && (y - y1) * (x2 - x1) > (x - x1)* (y2 - y1)) {//edge is right to point p
 			double tmp = (y - y1) * (x1 - x2) / (y1 - y2) + x1;
+			Point tmp_org = Point(x1, y1), tmp_dest = Point(x2, y2);
+			if (abs(y - y2) < 1e-6) { tmp_org = Point(x2, y2); tmp_dest = Point(x1, y1); }
+			//Normalize x2
+			double normal_x2 = (tmp_dest - tmp_org).getx() / (tmp_dest - tmp_org).norm() + tmp_org.getx();
 			if (min_x > tmp || (abs(min_x - tmp) < 1e-6 && min_x2 > x2)) {
 				min_x = tmp;
 				min_x2 = x2;

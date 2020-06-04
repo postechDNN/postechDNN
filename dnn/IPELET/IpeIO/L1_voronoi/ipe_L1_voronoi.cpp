@@ -3,7 +3,7 @@
 #include "ipelet.h"
 #include "ipepage.h"
 #include "ipeIO.h"
-#include "L1_voronoi\L1voronoi.h"
+#include "L1voronoi.h"
 #include <vector>
 
 
