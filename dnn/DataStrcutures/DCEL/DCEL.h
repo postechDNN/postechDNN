@@ -33,6 +33,7 @@ public:
 	HEdge* getNext();
 	HEdge* getPrev();
 	HEdge* getTwin();
+	Face* getIncidentFace();
 	void setIncidentFace(Face*);
 };
 
