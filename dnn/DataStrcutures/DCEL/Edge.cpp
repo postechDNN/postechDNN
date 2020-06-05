@@ -1,8 +1,8 @@
 #include "Edge.h"
 
 Edge::Edge() {
-	this->s = new Point();
-	this->t = new Point();
+	this->s = new Point<>();
+	this->t = new Point<>();
 }
 
 
