@@ -3,7 +3,6 @@
 
 //can use int, double
 template <typename T = double>
-
 class Point {
 protected:
 	T x, y;
