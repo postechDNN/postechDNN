@@ -157,12 +157,14 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		double x = _v1->getx();
 		double y = _v1->gety();
 		double _y = (t_y - s_y) * (x - s_x) / (t_x - s_x) + s_y;
-		if (min > abs(y - _y) && ((t_y - _y) * (s_y - _y) <= 0)) {
-			min = abs(y - _y);
+		if (min > (_y - y) && (_y - y) > 0 && ((t_y - _y) * (s_y - _y) <= 0)) {
+			min = (_y - y);
 			nearest_e = he;
 		}
 	}
-
+	if (nearest_e == nullptr) {
+		e->setIncidentFace(this->getFaces()->front());
+	}
 	if (nearest_e->getIncidentFace() == nearest_e->getTwin()->getIncidentFace()) {
 		e->setIncidentFace(nearest_e->getIncidentFace());
 	}
@@ -176,10 +178,10 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		double temp = (s_x * t_y + t_x * y + x * s_y) - (s_x * y + t_x * s_y + x * t_y);
 		if (temp > 0) {
 			e->setIncidentFace(nearest_e->getIncidentFace());
-		} else if (temp < 0) {
+		}
+		else if (temp < 0) {
 			e->setIncidentFace(nearest_e->getTwin()->getIncidentFace());
 		}
-		//temp==0
 	}
 
 	if (lmost == nullptr) {
@@ -188,17 +190,20 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 			rmost = _v1;
 			tmost = _v1;
 			bmost = _v2;
-		} else if ((_v1->getx() >= _v2->getx()) && (_v1->gety() < _v2->gety())) {
+		}
+		else if ((_v1->getx() >= _v2->getx()) && (_v1->gety() < _v2->gety())) {
 			lmost = _v2;
 			rmost = _v1;
 			tmost = _v2;
 			bmost = _v1;
-		} else if ((_v1->getx() < _v2->getx()) && (_v1->gety() >= _v2->gety())) {
+		}
+		else if ((_v1->getx() < _v2->getx()) && (_v1->gety() >= _v2->gety())) {
 			lmost = _v1;
 			rmost = _v2;
 			tmost = _v1;
 			bmost = _v2;
-		} else if ((_v1->getx() < _v2->getx()) && (_v1->gety() < _v2->gety())) {
+		}
+		else if ((_v1->getx() < _v2->getx()) && (_v1->gety() < _v2->gety())) {
 			lmost = _v1;
 			rmost = _v2;
 			tmost = _v2;
@@ -230,7 +235,6 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 			bmost = _v2;
 		}
 	}
-
 }
 
 void DCEL::deleteEdge(HEdge* _e) {
