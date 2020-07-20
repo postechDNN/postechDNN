@@ -12,7 +12,7 @@ Rectangle::Rectangle(double x1, double x2, double x3, double x4)
 	this->lb = new Point(x1, x4);
 	this->rt = new Point(x2, x3);
 	this->rb = new Point(x2, x4);
-	this->isPoint = false;
+	this->pcheck = false;
 }
 
 Rectangle::Rectangle(double x1, double x2)
@@ -22,7 +22,17 @@ Rectangle::Rectangle(double x1, double x2)
 	this->t = x2;
 	this->b = x2;
 	this->p = new Point(x1, x2);
-	this->isPoint = true;
+	this->pcheck = true;
+}
+
+Rectangle::Rectangle(Point *p)
+{
+	this->l = p->getx();
+	this->r = p->getx();
+	this->t = p->gety();
+	this->b = p->gety();
+	this->p = p;
+	this->pcheck = true;
 }
 
 double Rectangle::getl() {
@@ -39,6 +49,34 @@ double Rectangle::gett() {
 
 double Rectangle::getb() {
 	return this->b;
+}
+
+int Rectangle::getid() {
+	return this->id;
+}
+
+bool Rectangle::isPoint() {
+	return this->pcheck;
+}
+
+Point* Rectangle::getlt() {
+	return this->lt;
+}
+
+Point* Rectangle::getlb() {
+	return this->lb;
+}
+
+Point* Rectangle::getrt() {
+	return this->rt;
+}
+
+Point* Rectangle::getrb() {
+	return this->rb;
+}
+
+Point* Rectangle::getp() {
+	return this->p;
 }
 
 void Rectangle::setid(int a) {

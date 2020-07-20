@@ -1,19 +1,2 @@
-﻿  Edge.cpp
-  Point.cpp
-  rectangle.cpp
-  wakes.cpp
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(283): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(308): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(330): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(359): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(381): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(406): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(428): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(463): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(516): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(521): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(526): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(536): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\dnn\dnn\nearestneighbor\l1nns\l1nns\wakes.cpp(539): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-  코드를 생성하고 있습니다...
+﻿  main.cpp
   L1NNS.vcxproj -> D:\Lab\DNN\DNN\dnn\Debug\L1NNS.exe
