@@ -1,4 +1,3 @@
-/*
 #include "RectangularDomain.h"
 #include<vector>
 #include<algorithm>
@@ -29,4 +28,4 @@ int main()
 	
 	system("pause");
 }
-*/
+;
