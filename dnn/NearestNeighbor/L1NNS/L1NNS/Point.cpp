@@ -30,6 +30,7 @@ double Point::getx() {
 
 double Point::gety() {
 	return this->y;
+	int dummy = 0;
 }
 
 double Point::distance(Point _p) {
