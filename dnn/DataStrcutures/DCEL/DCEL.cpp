@@ -1,10 +1,13 @@
 #include "DCEL.h"
 #include "Point.h"
+#include "Vector.h"
 #include "../AVLTree/AVLTree.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iterator>
 #include <vector>
+#include <iostream>
+#define M_PI 3.14159265358979323846
 #define BUFFERSIZE 1000
 
 
@@ -340,157 +343,240 @@ Vertex* DCEL::getTmost() { return this->tmost; }
 Vertex* DCEL::getBmost() { return this->bmost; }
 
 void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
-	HEdge* e = new HEdge(_v1, _v2);
-	this->vertices->push_back(_v1);
-	this->vertices->push_back(_v2);
-	this->hedges->push_back(e);
-	double min = 10E6;
-	HEdge* nearest_e = nullptr;
-	for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end(); i++) {
-		HEdge* he = *i;
-		double s_x = he->gets()->getx();
-		double s_y = he->gets()->gety();
-		double t_x = he->gett()->getx();
-		double t_y = he->gett()->gety();
-		double x = _v1->getx();
-		double y = _v1->gety();
-		double _y = (t_y - s_y) * (x - s_x) / (t_x - s_x) + s_y;
-		if (min > (_y - y) && (_y - y) > 0 && ((t_y - _y) * (s_y - _y) <= 0)) {
-			min = (_y - y);
-			nearest_e = he;
-		}
-	}
-	if (nearest_e == nullptr) {
-		e->setIncidentFace(this->getFaces()->front());
-	}
-	if (nearest_e->getIncidentFace() == nearest_e->getTwin()->getIncidentFace()) {
-		e->setIncidentFace(nearest_e->getIncidentFace());
-	}
-	else {
-		double s_x = nearest_e->gets()->getx();
-		double s_y = nearest_e->gets()->gety();
-		double t_x = nearest_e->gett()->getx();
-		double t_y = nearest_e->gett()->gety();
-		double x = _v1->getx();
-		double y = _v1->gety();
-		double temp = (s_x * t_y + t_x * y + x * s_y) - (s_x * y + t_x * s_y + x * t_y);
-		if (temp > 0) {
-			e->setIncidentFace(nearest_e->getIncidentFace());
-		}
-		else if (temp < 0) {
-			e->setIncidentFace(nearest_e->getTwin()->getIncidentFace());
-		}
+
+	if (_v1->getx() > _v2->getx()) {
+		std::swap(_v1, _v2);
 	}
 
-	if (lmost == nullptr) {
-		if ((_v1->getx() >= _v2->getx()) && (_v1->gety() >= _v2->gety())) {
-			lmost = _v2;
-			rmost = _v1;
-			tmost = _v1;
-			bmost = _v2;
+	double _x1 = _v1->getx();
+	double _y1 = _v1->gety();
+	double _x2 = _v2->getx();
+	double _y2 = _v2->gety();
+	char* _c1 = _v1->getVertexKey();
+	char* _c2 = _v2->getVertexKey();
+	std::string _str1(_c1);
+	std::string _str2(_c2);
+	_str1 = _str1.substr(1);
+	_str1 = _str2.substr(2);
+	std::string _str = "e" + _str1 + "_" + _str2;
+	char* _c = &_str[0];// = new char[_str1.length() + _str1.length() + 2];
+	HEdge* e = new HEdge(_v1, _v2);
+	e->setHedgeKey(_c);
+	HEdge* closest_e = nullptr;
+
+	//edges
+	//_v2를 공유하는 edge중에 더 기울기가 작은걸 찾음
+	for (auto _e : this->getOutgoingHEdges(_v2)) {
+		double min_angle = 2 * M_PI;
+		double theta;
+
+		Vertex* _v3 = _e->getTwin()->getOrigin();
+		Vector* _v21 = new Vector(_v2, _v1);
+		Vector* _v23 = new Vector(_v2, _v3);
+		theta = acos(_v21->innerProdct(_v23) / (_v21->norm() * _v23->norm()));
+		double z = _v21->outerProdct(_v23);
+		if (z > 0) {
+			theta += M_PI;
 		}
-		else if ((_v1->getx() >= _v2->getx()) && (_v1->gety() < _v2->gety())) {
-			lmost = _v2;
-			rmost = _v1;
-			tmost = _v2;
-			bmost = _v1;
+		if (theta < min_angle) {
+			min_angle = theta;
+			closest_e = _e;
 		}
-		else if ((_v1->getx() < _v2->getx()) && (_v1->gety() >= _v2->gety())) {
-			lmost = _v1;
-			rmost = _v2;
-			tmost = _v1;
-			bmost = _v2;
-		}
-		else if ((_v1->getx() < _v2->getx()) && (_v1->gety() < _v2->gety())) {
-			lmost = _v1;
-			rmost = _v2;
-			tmost = _v2;
-			bmost = _v1;
-		}
-	} else {
-		if (lmost->getx() > _v1->getx()) {
-			lmost = _v1;
-		}
-		if (lmost->getx() > _v2->getx()) {
-			lmost = _v2;
-		}
-		if (rmost->getx() < _v1->getx()) {
-			rmost = _v1;
-		}
-		if (rmost->getx() < _v2->getx()) {
-			rmost = _v2;
-		}
-		if (tmost->gety() < _v1->gety()) {
-			tmost = _v1;
-		}
-		if (tmost->gety() < _v2->gety()) {
-			tmost = _v2;
-		}
-		if (bmost->gety() > _v1->gety()) {
-			bmost = _v1;
-		}
-		if (bmost->gety() > _v2->gety()) {
-			bmost = _v2;
+
+	}
+	if (closest_e == nullptr) {
+		e->setNext(e->getTwin());
+		e->getTwin()->setPrev(e);
+		_v2->setIncidentEdge(e->getTwin());
+	}
+	else {
+		e->getTwin()->setPrev(closest_e->getPrev());
+		closest_e->getPrev()->setNext(e->getTwin());
+		e->setNext(closest_e);
+		closest_e->setPrev(e);
+	}
+
+	closest_e = nullptr;
+	//_v1를 공유하는 edge중에 더 기울기가 작은걸 찾음
+	for (auto _e : this->getOutgoingHEdges(_v1)) {
+		double min_angle = 2 * M_PI;
+		double theta;
+		if (_e->getTwin()->getOrigin() != _v2) {
+			Vertex* _v3 = _e->getTwin()->getOrigin();
+			Vector* _v12 = new Vector(_v1, _v2);
+			Vector* _v13 = new Vector(_v1, _v3);
+			theta = acos(_v12->innerProdct(_v13) / (_v12->norm() * _v13->norm()));
+			double z = _v12->outerProdct(_v13);
+			if (z > 0) {//시계방향
+				theta += M_PI;
+			}
+			if (theta < min_angle) {
+				min_angle = theta;
+				closest_e = _e;
+				closest_e->setPrev(_e->getPrev());
+			}
 		}
 	}
+	if (closest_e == nullptr) {
+		e->setPrev(e->getTwin());
+		e->getTwin()->setNext(e);
+	}
+	else {
+		e->setPrev(closest_e->getPrev());
+		closest_e->getPrev()->setNext(e);
+		e->getTwin()->setNext(closest_e);
+		closest_e->setPrev(e->getTwin());
+	}
+
+	//faces
+	HEdge* _e = e->getNext();
+	while (_e != e && _e != e->getTwin()) {
+		_e = _e->getNext();
+	}
+	//new face is made
+	if (_e == e) {
+		Face* f = e->getNext()->getIncidentFace();
+		std::vector<HEdge*>* inners = f->getInners();
+		HEdge* outer = f->getOuter();
+		Face* f1 = new Face(); //e->getNext's new incedent face
+		Face* f2 = new Face();//twin(e)->getNext's new incedent face
+		e->setIncidentFace(f1);
+		e->getTwin()->setIncidentFace(f2);
+		f1->setOuter(e);
+		f2->setOuter(e->getTwin());
+
+		HEdge* temp = e->getNext();
+		while (temp != e) {
+			temp->setIncidentFace(f1);
+			temp = temp->getNext();
+		}
+		temp = e->getTwin()->getNext();
+		while (temp != e) {
+			temp->setIncidentFace(f2);
+			temp = temp->getNext();
+		}
+		//face inner setting
+		for (auto temp_e : *inners) {
+			SimplePolygon sp_f1 = SimplePolygon();
+			HEdge* h_e = e;
+			do {
+				sp_f1.getEdges()->push_back(h_e);
+				h_e = h_e->getNext();
+			} while (h_e == e);
+			if (sp_f1.inPolygon(temp_e->gets()) == 1) {///if temp_e in f1
+				f1->getInners()->push_back(temp_e);
+			}
+			else {
+				f2->getInners()->push_back(temp_e);
+			}
+		}
+
+		int iter = 0;
+		for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();) {
+			Face* _f = *i;
+			if (f == _f) {
+				this->getFaces()->erase(i);
+			}
+		}
+
+	}
+	//new face is not made
+	else if (_e == e->getTwin()) {
+		e->setIncidentFace(e->getNext()->getIncidentFace());
+		e->getTwin()->setIncidentFace(e->getIncidentFace());
+	}
+	this->getHedges()->push_back(e);
 }
 
 void DCEL::deleteEdge(HEdge* _e) {
-	Vertex* _v1 = _e->getOrigin();
-	Vertex* _v2 = _e->getTwin()->getOrigin();
-	for (std::vector<Vertex*>::iterator i = this->getVertices()->begin(); i != this->getVertices()->end();) {
-		Vertex* _v = *i;
-		if ((_v == _v1) || (_v == _v2)) {
-			i = this->getVertices()->erase(i);
-		} else {
-			i++;
-		}
-	}
-	for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
-		HEdge* _ee = *i;
-		if (_ee == _e) {
-			i = this->getHedges()->erase(i);
-		} else {
-			i++;
-		}
-	}
-	if ((lmost == _v1) || (lmost == _v2)) {
-		double min_x = 0;
-		for (std::vector<Vertex*>::iterator i = this->getVertices()->begin(); i != this->getVertices()->end(); i++) {
-			Vertex* _v = *i;
-			if (min_x > _v->getx()) {
-				min_x = _v->getx();
-				lmost = _v;
+	if (_e->getNext() == _e->getTwin()) {
+		HEdge* _prev = _e->getPrev();
+		_e->getPrev()->setNext(_e->getTwin()->getNext());
+		_e->getTwin()->getNext()->setPrev(_e->getPrev());
+		//delete e
+		for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
+			Edge* temp = *i;
+			if (temp == _e || temp == _e->getTwin()) {
+				this->getHedges()->erase(i);
 			}
 		}
 	}
-	if ((lmost == _v1) || (lmost == _v2)) {
-		double max_x = 0;
-		for (std::vector<Vertex*>::iterator i = this->getVertices()->begin(); i != this->getVertices()->end(); i++) {
-			Vertex* _v = *i;
-			if (max_x < _v->getx()) {
-				max_x = _v->getx();
-				rmost = _v;
+	else if (_e->getPrev() == _e->getTwin()) {
+		_e->getNext()->setPrev(_e->getTwin()->getPrev());
+		_e->getTwin()->getPrev()->setNext(_e->getNext());
+		for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
+			Edge* temp = *i;
+			if (temp == _e || temp == _e->getTwin()) {
+				this->getHedges()->erase(i);
 			}
 		}
 	}
-	if ((lmost == _v1) || (lmost == _v2)) {
-		double min_y = 0;
-		for (std::vector<Vertex*>::iterator i = this->getVertices()->begin(); i != this->getVertices()->end(); i++) {
-			Vertex* _v = *i;
-			if (min_y > _v->gety()) {
-				min_y = _v->gety();
-				bmost = _v;
+	else {
+		HEdge* _temp = _e;
+		do {
+			_temp = _temp->getNext();
+		} while (_temp == _e || _temp == _e->getTwin());
+
+		//or maybe just compare their incident faces
+		if (_temp == _e) {
+			Face* f1 = _e->getIncidentFace();
+			Face* f2 = _e->getTwin()->getIncidentFace();
+			Face* f = new Face();
+			f->setOuter(_e->getNext());
+			HEdge* _temp2 = _e;
+			do {
+				_temp2->setIncidentFace(f);
+				_temp2 = _temp2->getNext();
+			} while (_temp2 == _e);
+
+			_temp2 = _e->getTwin();
+			do {
+				_temp2->setIncidentFace(f);
+				_temp2 = _temp2->getNext();
+			} while (_temp2 == _e->getTwin());
+
+
+			for (auto e : *(f1->getInners())) {
+				f->addInner(_e);
 			}
+			for (auto e : *(f2->getInners())) {
+				f->addInner(_e);
+			}
+			//face가 지워지는 경우
+			_e->getNext()->setPrev(_e->getTwin()->getPrev());
+			_e->getTwin()->getPrev()->setNext(_e->getNext());
+			_e->getPrev()->setNext(_e->getTwin()->getNext());
+			_e->getTwin()->getNext()->setPrev(_e->getPrev());
+			//_e지움
+			for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
+				Edge* temp = *i;
+				if (temp == _e || temp == _e->getTwin()) {
+					this->getHedges()->erase(i);
+				}
+			}
+			//f1,f2지움
+			for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();) {
+				Face* _f = *i;
+				if (_f == f1 || _f == f2) {
+					this->getFaces()->erase(i);
+				}
+			}
+
 		}
-	}
-	if ((lmost == _v1) || (lmost == _v2)) {
-		double max_y = 0;
-		for (std::vector<Vertex*>::iterator i = this->getVertices()->begin(); i != this->getVertices()->end(); i++) {
-			Vertex* _v = *i;
-			if (max_y < _v->gety()) {
-				max_y = _v->gety();
-				tmost = _v;
+		else {
+			//face가 지워지지 않는 경우
+			_e->getNext()->setPrev(_e->getTwin()->getPrev());
+			_e->getTwin()->getPrev()->setNext(_e->getNext());
+			_e->getPrev()->setNext(_e->getTwin()->getNext());
+			_e->getTwin()->getNext()->setPrev(_e->getPrev());
+			//face에 혹시 
+			_e->getIncidentFace()->setOuter(_e->getNext());
+			//_e지움
+			for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
+				Edge* temp = *i;
+				if (temp == _e || temp == _e->getTwin()) {
+					this->getHedges()->erase(i);
+				}
 			}
 		}
 	}
@@ -522,6 +608,72 @@ Face* DCEL::searchFace(char* key) {
 		}
 	}
 	return nullptr;
+}
+
+std::vector<HEdge*> DCEL::getOutgoingHEdges(Vertex* v) {
+	std::vector<HEdge*> output;
+	HEdge* e_original = v->getIncidentEdge();
+	HEdge* e = e_original;
+	do {
+		output.push_back(e);
+		e = e->getTwin()->getNext();
+	} while (e != e_original);
+	return output;
+}
+
+std::vector<HEdge*> DCEL::getIncomingHEdges(Vertex* v) {
+	std::vector<HEdge*> output;
+	HEdge* e_original = v->getIncidentEdge();
+	HEdge* e = e_original;
+	do {
+		output.push_back(e->getTwin());
+		e->getTwin()->getNext();
+	} while (e != e_original);
+	return output;
+}
+
+//The point p is inside polygon return 1
+//The point p is on boundary return 0
+//The point p is outside polygon return -1
+int DCEL::inPolygon(std::vector<HEdge*> *hedges, Point p) {
+	double min_x = 1e10;
+	double min_x2 = 1e10;
+	int idx = -1;
+	double x = p.getx(), y = p.gety();
+	for (int i = 0; i < hedges->size(); i++) {
+		Edge* _e = (*(hedges))[i];
+		Point origin = _e->gets(), dest = _e->gett();
+
+		if (origin.gety() > dest.gety())	//y1 <= y2
+			std::swap(origin, dest);
+		double x1 = origin.getx(), y1 = origin.gety();
+		double x2 = dest.getx(), y2 = dest.gety();
+
+		//Point is on boundary line
+		if (abs((y1 - y2) * (x - x1) - (y - y1) * (x1 - x2)) < 1e-6) {
+			if ((std::min(y1, y2) <= y && y <= std::max(y1, y2)) && std::min(x1, x2) <= x && x <= std::max(x1, x2))
+				return 0;
+		}
+
+		if (y1 - 1e-6 < y && y < y2 + 1e-6 && abs(y1 - y2) > 1e-6 && (y - y1) * (x2 - x1) > (x - x1)* (y2 - y1)) {//edge is right to point p
+			double tmp = (y - y1) * (x1 - x2) / (y1 - y2) + x1;
+			Point tmp_org = Point(x1, y1), tmp_dest = Point(x2, y2);
+			if (abs(y - y2) < 1e-6) { tmp_org = Point(x2, y2); tmp_dest = Point(x1, y1); }
+			//Normalize x2
+			double normal_x2 = (tmp_dest - tmp_org).getx() / (tmp_dest - tmp_org).distance(tmp_dest - tmp_org) + tmp_org.getx(); //
+			if (min_x > tmp || (abs(min_x - tmp) < 1e-6 && min_x2 > x2)) {
+				min_x = tmp;
+				min_x2 = x2;
+				idx = i;
+			}
+		}
+	}
+	if (idx == -1) return -1;
+	Point org = (*hedges)[idx]->gets();
+	Point dest = (*hedges)[idx]->gett();
+	if ((dest - org).gety() > 0)
+		return -1;
+	else return 1;
 }
 
 void DCEL::DCELtotext(FILE* readFile) {
