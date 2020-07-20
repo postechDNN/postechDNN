@@ -105,6 +105,9 @@ public:
 	HEdge* searchHedge(char* key);
 	Vertex* searchVertex(char* key);
 	Face* searchFace(char* key);
+	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
+	std::vector<HEdge*> getIncomingHEdges(Vertex*);
+	int inPolygon(std::vector<HEdge*>*, Point);
 	void DCELtotext(FILE*);
 	void printVertexTab();
 	void printHedgeTab();
