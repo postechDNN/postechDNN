@@ -1,6 +1,7 @@
 #include "DCELdeepcopy.h"
 #include <map>
 #include <set>
+#include <vector>
 
 class DCELdeepcopyContext{
 	public :
@@ -9,16 +10,7 @@ class DCELdeepcopyContext{
 		std::map<Vertex *, Vertex *> vm;
 		std::set<Face *> cf;
 		std::set<HEdge * >ce;
-		std::set<Vertex *> cv;
-		
 
-		bool check(Vertex * v){
-			if(cv.find(v)!=cv.end()) return true;
-			else {
-				cv.insert(v);
-				return false;
-			}
-		}
 
 		bool check(HEdge * e){
 			if(ce.find(e)!=ce.end()) return true;
@@ -64,7 +56,7 @@ class DCELdeepcopyContext{
 			}
 		}
 
-		
+
 		HEdge * DCE(HEdge * e){
 			if(check(e)) return find(e);
 			HEdge * te=find(e);
@@ -109,6 +101,30 @@ class DCELdeepcopyContext{
 DCEL * DCELdeepcopy(DCEL * o){
 	DCELdeepcopyContext DC;
 	DCEL * result=new DCEL();
+
+	auto af= o->getFaces();
+	std::vector<Face*>* nfs =new std::vector<Face*>();
+	for(auto it=af->begin(); it!=af->end();it++){
+		nfs->push_back(DC.DCF(*it));
+	}
+	o->setFaces(nfs);
+
+
+	auto ae= o->getHedges();
+	std::vector<HEdge*>* nes =new std::vector<HEdge*>();
+	for(auto it=ae->begin(); it!=ae->end();it++){
+		nes->push_back(DC.DCE(*it));
+	}
+	o->setHedges(nes);
+
+	
+	auto av= o->getVertices();
+	std::vector<Vertex*>* nvs =new std::vector<Vertex*>();
+	for(auto it=av->begin(); it!=av->end();it++){
+		nvs->push_back(DC.find(*it));
+	}
+	o->setVertices(nvs);
+
 }
 
 
