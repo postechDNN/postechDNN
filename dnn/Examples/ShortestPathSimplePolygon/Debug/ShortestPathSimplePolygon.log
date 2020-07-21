@@ -1,0 +1,9 @@
+﻿  main.cpp
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\polygon_operation.h(117,10): warning C4244: '초기화 중': 'point_type'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\polygon_operation.h(131,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\polygon_operation.h(132,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\polygon_operation.h(133,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\polygon_operation.h(134,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\polygon_operation.h(268,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\polygon_operation.h(277,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+E:\Google Drive\Postech Ph.D\2020-1학기 [연구실]SW 스타랩\DNN-Github\DNN-0424\DNN\dnn\Examples\ShortestPathSimplePolygon\main.cpp(14,10): fatal error C1083: 포함 파일을 열 수 없습니다. 'GL/glew.h': No such file or directory
