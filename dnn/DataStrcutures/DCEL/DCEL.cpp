@@ -426,7 +426,7 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 	Vertex* curv = nullptr;
 	while (!events.isEmpty()) {
 		AVLTreeNode<struct Eventtype>*curevent = events.pop();
-		if (!curv||!(*curv == *curevent->value.eventPoint)) {
+		if (!(*curv == *curevent->value.eventPoint)) {
 			curv = new Vertex(curevent->value.eventPoint);
 			merged->getVertices()->push_back(curv);
 			curx = curv->getx();
@@ -437,6 +437,14 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 			HEdge*hedge = new HEdge(curevent->value.e1->he->gets(), curevent->value.e1->he->gett());
 			curevent->value.e1->he = hedge;
 			hedges.insert(hedge);
+			if (curv->getIncidentEdge()) {
+				hedge->getTwin()->setNext(curv->getIncidentEdge());
+				hedge->setPrev(curv->getIncidentEdge()->getPrev());
+				curv->getIncidentEdge()->getPrev()->setNext(hedge);
+				curv->getIncidentEdge()->setPrev(hedge->getTwin());
+			}
+			else 
+				curv->setIncidentEdge(hedge);
 			curedge->value = *curevent->value.e1;
 			curedge->value.cd = nullptr;
 			curedge->value.cu = nullptr;
@@ -478,7 +486,14 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 			}
 			break;
 		case END:
-			merged->addEdge(curevent->value.e1->he->gets(), curevent->value.e1->he->gett());
+			if (curv->getIncidentEdge()) {
+				curevent->value.e1->he->getTwin()->setNext(curv->getIncidentEdge());
+				curevent->value.e1->he->setPrev(curv->getIncidentEdge()->getPrev());
+				curv->getIncidentEdge()->getPrev()->setNext(curevent->value.e1->he);
+				curv->getIncidentEdge()->setPrev(curevent->value.e1->he->getTwin());
+			}
+			else
+				curv->setIncidentEdge(curevent->value.e1->he);
 			AVLTreeNode<struct Edgetype>*upedge = curedges.getLeftNode(curedge->value);
 			AVLTreeNode<struct Edgetype>*downedge = curedges.getRightNode(curedge->value);
 			if (upedge&&downedge) {
@@ -537,5 +552,7 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 		}
 		delete(curevent);
 	}
+	Face* of = new Face();
+	(*merged->getHedges())[0]->setIncidentFace(of);
 	return merged;
 }
