@@ -966,6 +966,9 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 			else
 				return eventPoint->getx() < eventPoint->getx();
 		}
+		bool operator==(struct Eventtype _e) {
+			return (*this->e1 == *_e.e1) && (*this->e2 == *_e.e2) && (*this->eventPoint == *_e.eventPoint) && (this->ty == _e.ty);
+		}
 	};
 	DCEL* merged = new DCEL();
 	AVLTree<struct Eventtype> events;
