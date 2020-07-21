@@ -1,14 +1,16 @@
 #include "DCEL.h"
 #include "Edge.h"
 #include "Point.h"
+#include "SimplePolygon.h"
 #include "Vector.h"
 #include "../AVLTree/AVLTree.h"
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <vector>
-#include <iostream>
 #define M_PI 3.14159265358979323846
 #define BUFFERSIZE 1000
 
