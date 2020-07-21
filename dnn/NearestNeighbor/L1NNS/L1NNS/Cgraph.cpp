@@ -28,7 +28,7 @@ vector<vector<double>> Cgraph::getmatrix()
 	return this->matrix;
 }
 
-Cgraph::Cgraph(vector<Rectangle> rset, Rectangle bbox, int dir) {
+Cgraph::Cgraph(vector<Rect> rset, Rect bbox, int dir) {
 	vcnt = 0;
 	switch(dir)
 	{
@@ -133,7 +133,7 @@ vector<double> Cgraph::Dijkstra(int s)
 	return dist;
 }
 
-void Cgraph::Cgraphxpos(vector<Rectangle> rset, Rectangle bbox)
+void Cgraph::Cgraphxpos(vector<Rect> rset, Rect bbox)
 {
 	int n = rset.size();
 	// make basic vertex, edge set from input
@@ -159,7 +159,7 @@ void Cgraph::Cgraphxpos(vector<Rectangle> rset, Rectangle bbox)
 	}
 
 	double most; // temp value: x-coordinate first hit by ray
-	int index; // temp index: rectangle first hit by ray
+	int index; // temp index: Rect first hit by ray
 	// Handling and making horizontal edge
 	for (int i = 0; i < n; i++)
 	{
@@ -187,7 +187,7 @@ void Cgraph::Cgraphxpos(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> horizontal ray
+		//Rect -> horizontal ray
 		else {
 			//above horizontal ray
 			most = bbox.getr();
@@ -285,7 +285,7 @@ void Cgraph::Cgraphxpos(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> vertical ray
+		//Rect -> vertical ray
 		else {
 			//upward
 			most = bbox.gett();
@@ -334,7 +334,7 @@ void Cgraph::Cgraphxpos(vector<Rectangle> rset, Rectangle bbox)
 	}
 }
 
-void Cgraph::Cgraphxneg(vector<Rectangle> rset, Rectangle bbox)
+void Cgraph::Cgraphxneg(vector<Rect> rset, Rect bbox)
 {
 	int n = rset.size();
 	// make basic vertex, edge set from input
@@ -359,7 +359,7 @@ void Cgraph::Cgraphxneg(vector<Rectangle> rset, Rectangle bbox)
 		}
 	}
 	double most; // temp value: x-coordinate first hit by ray
-	int index; // temp index: rectangle first hit by ray
+	int index; // temp index: Rect first hit by ray
 	// Handling and making horizontal edge
 	for (int i = 0; i < n; i++)
 	{
@@ -387,7 +387,7 @@ void Cgraph::Cgraphxneg(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> horizontal ray
+		//Rect -> horizontal ray
 		else {
 			//above horizontal ray
 			most = bbox.getl();
@@ -486,7 +486,7 @@ void Cgraph::Cgraphxneg(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> vertical ray
+		//Rect -> vertical ray
 		else {
 			//upward
 			most = bbox.gett();
@@ -535,7 +535,7 @@ void Cgraph::Cgraphxneg(vector<Rectangle> rset, Rectangle bbox)
 	}
 }
 
-void Cgraph::Cgraphypos(vector<Rectangle> rset, Rectangle bbox)
+void Cgraph::Cgraphypos(vector<Rect> rset, Rect bbox)
 {
 	int n = rset.size();
 	// make basic vertex, edge set from input
@@ -560,7 +560,7 @@ void Cgraph::Cgraphypos(vector<Rectangle> rset, Rectangle bbox)
 		}
 	}
 	double most; // temp value: x-coordinate first hit by ray
-	int index; // temp index: rectangle first hit by ray
+	int index; // temp index: Rect first hit by ray
 	// Handling and making horizontal edge
 	for (int i = 0; i < n; i++)
 	{
@@ -588,7 +588,7 @@ void Cgraph::Cgraphypos(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> horizontal ray
+		//Rect -> horizontal ray
 		else {
 			//left vertical ray
 			most = bbox.gett();
@@ -687,7 +687,7 @@ void Cgraph::Cgraphypos(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> hor ray
+		//Rect -> hor ray
 		else {
 			//rightward
 			most = bbox.getr();
@@ -736,7 +736,7 @@ void Cgraph::Cgraphypos(vector<Rectangle> rset, Rectangle bbox)
 	}
 }
 
-void Cgraph::Cgraphyneg(vector<Rectangle> rset, Rectangle bbox)
+void Cgraph::Cgraphyneg(vector<Rect> rset, Rect bbox)
 {
 	int n = rset.size();
 	// make basic vertex, edge set from input
@@ -761,7 +761,7 @@ void Cgraph::Cgraphyneg(vector<Rectangle> rset, Rectangle bbox)
 		}
 	}
 	double most; // temp value: x-coordinate first hit by ray
-	int index; // temp index: rectangle first hit by ray
+	int index; // temp index: Rect first hit by ray
 	// Handling and making horizontal edge
 	for (int i = 0; i < n; i++)
 	{
@@ -789,7 +789,7 @@ void Cgraph::Cgraphyneg(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> horizontal ray
+		//Rect -> horizontal ray
 		else {
 			//above horizontal ray
 			most = bbox.getb();
@@ -888,7 +888,7 @@ void Cgraph::Cgraphyneg(vector<Rectangle> rset, Rectangle bbox)
 			vcnt++;
 		}
 
-		//rectangle -> vertical ray
+		//Rect -> vertical ray
 		else {
 			//rightward
 			most = bbox.getr();

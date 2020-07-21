@@ -30,14 +30,11 @@
     <ClCompile Include="Cgraph.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Rectangle.cpp">
+    <ClCompile Include="Rect.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Rectangle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="RectangularDomain.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -51,6 +48,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Cgraph.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

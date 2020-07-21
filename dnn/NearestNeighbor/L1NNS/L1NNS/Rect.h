@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-class Rectangle {
+class Rect {
 	double l;
 	double r;
 	double t;
@@ -18,10 +18,10 @@ class Rectangle {
 	bool pcheck;
 
 public:
-	Rectangle();
-	Rectangle(Point*);
-	Rectangle(double, double);
-	Rectangle(double, double, double, double);
+	Rect();
+	Rect(Point*);
+	Rect(double, double);
+	Rect(double, double, double, double);
 	double getl(void);
 	double getr(void);
 	double gett(void);

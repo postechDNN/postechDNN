@@ -1,7 +1,7 @@
 #pragma once
 #include"Edge.h"
 #include"Point.h"
-#include"Rectangle.h"
+#include"Rect.h"
 #include<queue>
 #include<vector>
 using namespace std;
@@ -9,7 +9,7 @@ using namespace std;
 class Cgraph {
 public:
 	Cgraph();
-	Cgraph(vector<Rectangle>, Rectangle, int);
+	Cgraph(vector<Rect>, Rect, int);
 	int edgecnt();
 	int vertexcnt();
 	Edge* getedge(int);
@@ -23,8 +23,8 @@ private:
 	vector<vector<pair<int,double>>> adj; //adj list
 	vector<double> Dijkstra(int);
 	int vcnt;
-	void Cgraphxpos(vector<Rectangle>, Rectangle);
-	void Cgraphxneg(vector<Rectangle>, Rectangle);
-	void Cgraphypos(vector<Rectangle>, Rectangle);
-	void Cgraphyneg(vector<Rectangle>, Rectangle);
+	void Cgraphxpos(vector<Rect>, Rect);
+	void Cgraphxneg(vector<Rect>, Rect);
+	void Cgraphypos(vector<Rect>, Rect);
+	void Cgraphyneg(vector<Rect>, Rect);
 };

@@ -118,7 +118,7 @@
     <ClCompile Include="Cgraph.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="Point.cpp" />
-    <ClCompile Include="Rectangle.cpp" />
+    <ClCompile Include="Rect.cpp" />
     <ClCompile Include="RectangularDomain.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -126,7 +126,7 @@
     <ClInclude Include="Cgraph.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Point.h" />
-    <ClInclude Include="Rectangle.h" />
+    <ClInclude Include="Rect.h" />
     <ClInclude Include="RectangularDomain.h" />
     <ClInclude Include="Segment.h" />
   </ItemGroup>

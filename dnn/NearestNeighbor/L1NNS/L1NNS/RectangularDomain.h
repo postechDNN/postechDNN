@@ -24,8 +24,8 @@ shadow는 lwake의 shadow[0]부터 시계방향으로
 
 class RectangularDomain {
 private:
-	vector < Rectangle > rectset; // input rectangles and points
-	Rectangle bbox;
+	vector < Rect > rectset; // input Rects and points
+	Rect bbox;
 	vector<vector<Wake>> lcheck, rcheck, tcheck, bcheck;
 	vector < vector <Segment> > rup, urp, ulp, lup, ldp, dlp, drp, rdp;
 	int n;
@@ -34,11 +34,12 @@ private:
 	Cgraph xpos,xneg,ypos,yneg;
 	void makeshadow();
 	void makecheck();
+	void construct();
 public:
 	RectangularDomain();
-	RectangularDomain(vector<Rectangle>);
-	Rectangle getboundary();
-	Rectangle getrect(int);
+	RectangularDomain(vector<Rect>);
+	Rect getboundary();
+	Rect getrect(int);
 	int rectcnt();
 	Cgraph getcarrier(int);
 	bool incidentcheck(int,int,int);

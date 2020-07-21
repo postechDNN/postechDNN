@@ -1,62 +1,66 @@
 #include"RectangularDomain.h"
-RectangularDomain::RectangularDomain() 
+RectangularDomain::RectangularDomain()
 {
-	bbox = Rectangle(-10000.0, 10000.0, 10000.0, -10000.0);
-	// int dir[4][2] = {};
-	INF = bbox.gett()*bbox.gett();
-	np = 0;
 	//input()
 	/*
-	rectset.push_back(Rectangle(1.6, 5.7, 12.4, 5.9));
-	rectset.push_back(Rectangle(3.4, 7.8, 17.0, 13.5));
-	rectset.push_back(Rectangle(8.5, 13.4, 9.7, 4.7));
-	rectset.push_back(Rectangle(11.2, 15.8, 14.3, 12.3));
-	rectset.push_back(Rectangle(16.6, 23.1, 15.5, 14.1));
-	rectset.push_back(Rectangle(17.9, 30.0, 12.8, 7.8));
-	rectset.push_back(Rectangle(14.9, 20.0, 5.1, 1.5));
-	rectset.push_back(Rectangle(new Point(15.95, 14.8)));
-	rectset.push_back(Rectangle(new Point(15.98, 13.6)));
-	rectset.push_back(Rectangle(new Point(16.14, 9.9)));
-	rectset.push_back(Rectangle(new Point(16.22, 5.7)));
+	rectset.push_back(Rect(1.6, 5.7, 12.4, 5.9));
+	rectset.push_back(Rect(3.4, 7.8, 17.0, 13.5));
+	rectset.push_back(Rect(8.5, 13.4, 9.7, 4.7));
+	rectset.push_back(Rect(11.2, 15.8, 14.3, 12.3));
+	rectset.push_back(Rect(16.6, 23.1, 15.5, 14.1));
+	rectset.push_back(Rect(17.9, 30.0, 12.8, 7.8));
+	rectset.push_back(Rect(14.9, 20.0, 5.1, 1.5));
+	rectset.push_back(Rect(new Point(15.95, 14.8)));
+	rectset.push_back(Rect(new Point(15.98, 13.6)));
+	rectset.push_back(Rect(new Point(16.14, 9.9)));
+	rectset.push_back(Rect(new Point(16.22, 5.7)));
 	*/
-	//rectangle은 lrtb입니다
-	rectset.push_back(Rectangle(107.136, 161, 410.177, 363.854));
-	rectset.push_back(Rectangle(177.698, 261.725, 456.5, 386.477));
-	rectset.push_back(Rectangle(290.812, 376.994, 408.561, 285.213));
-	rectset.push_back(Rectangle(114.139, 206.784, 333.152, 286.829));
-	rectset.push_back(Rectangle(78.05, 283.81, 259.897, 203.879));
-	rectset.push_back(Rectangle(383.996, 437.321, 343.925, 165.636));
-	rectset.push_back(Rectangle(249.875, 333.903, 180.717, 109.079));
-	rectset.push_back(Rectangle(365.682, 524.58, 127.392, 45.5194));
-	rectset.push_back(Rectangle(560.669, 585.985, 260.436, 75.6831));
-	rectset.push_back(Rectangle(478.258, 529.428, 381.629, 222.731));
-	rectset.push_back(Rectangle(334.441, 569.826, 474.275, 438.725));
-	rectset.push_back(Rectangle(137.3, 200.859, 166.713, 51.4444));
-	rectset.push_back(Rectangle(224.559, 327.978, 86.9945, 26.1284));
-	rectset.push_back(Rectangle(43.0386, 88.8228, 391.325, 299.218));
-	rectset.push_back(Rectangle(45.1931, 100.673, 185.027, 106.385));
-	rectset.push_back(Rectangle(new Point(294.582, 450.036)));
-	rectset.push_back(Rectangle(new Point(412.544, 400.482)));
-	rectset.push_back(Rectangle(new Point(421.162, 371.395)));
-	rectset.push_back(Rectangle(new Point(460.483, 354.159)));
-	rectset.push_back(Rectangle(new Point(455.096, 279.827)));
-	rectset.push_back(Rectangle(new Point(555.283, 312.684)));
-	rectset.push_back(Rectangle(new Point(504.112, 185.027)));
-	rectset.push_back(Rectangle(new Point(545.587, 152.17)));
-	rectset.push_back(Rectangle(new Point(574.674, 28.8216)));
-	rectset.push_back(Rectangle(new Point(396.923, 22.8966)));
-	rectset.push_back(Rectangle(new Point(219.712, 14.2784)));
-	rectset.push_back(Rectangle(new Point(227.791, 110.156)));
-	rectset.push_back(Rectangle(new Point(283.271, 99.3831)));
-	rectset.push_back(Rectangle(new Point(327.439, 225.424)));
-	rectset.push_back(Rectangle(new Point(156.152, 27.7444)));
-	rectset.push_back(Rectangle(new Point(111.984, 88.0718)));
-	rectset.push_back(Rectangle(new Point(72.6636, 60.0626)));
-	rectset.push_back(Rectangle(new Point(23.6476, 231.888)));
-	rectset.push_back(Rectangle(new Point(69.9704, 282.52)));
-	rectset.push_back(Rectangle(new Point(202.475, 276.056)));
-	rectset.push_back(Rectangle(new Point(259.032, 318.07)));
-	rectset.push_back(Rectangle(new Point(217.018, 363.854)));
+	//Rect은 lrtb입니다
+	rectset.push_back(Rect(107.136, 161, 410.177, 363.854));
+	rectset.push_back(Rect(177.698, 261.725, 456.5, 386.477));
+	rectset.push_back(Rect(290.812, 376.994, 408.561, 285.213));
+	rectset.push_back(Rect(114.139, 206.784, 333.152, 286.829));
+	rectset.push_back(Rect(78.05, 283.81, 259.897, 203.879));
+	rectset.push_back(Rect(383.996, 437.321, 343.925, 165.636));
+	rectset.push_back(Rect(249.875, 333.903, 180.717, 109.079));
+	rectset.push_back(Rect(365.682, 524.58, 127.392, 45.5194));
+	rectset.push_back(Rect(560.669, 585.985, 260.436, 75.6831));
+	rectset.push_back(Rect(478.258, 529.428, 381.629, 222.731));
+	rectset.push_back(Rect(334.441, 569.826, 474.275, 438.725));
+	rectset.push_back(Rect(137.3, 200.859, 166.713, 51.4444));
+	rectset.push_back(Rect(224.559, 327.978, 86.9945, 26.1284));
+	rectset.push_back(Rect(43.0386, 88.8228, 391.325, 299.218));
+	rectset.push_back(Rect(45.1931, 100.673, 185.027, 106.385));
+	rectset.push_back(Rect(new Point(294.582, 450.036)));
+	rectset.push_back(Rect(new Point(412.544, 400.482)));
+	rectset.push_back(Rect(new Point(421.162, 371.395)));
+	rectset.push_back(Rect(new Point(460.483, 354.159)));
+	rectset.push_back(Rect(new Point(455.096, 279.827)));
+	rectset.push_back(Rect(new Point(555.283, 312.684)));
+	rectset.push_back(Rect(new Point(504.112, 185.027)));
+	rectset.push_back(Rect(new Point(545.587, 152.17)));
+	rectset.push_back(Rect(new Point(574.674, 28.8216)));
+	rectset.push_back(Rect(new Point(396.923, 22.8966)));
+	rectset.push_back(Rect(new Point(219.712, 14.2784)));
+	rectset.push_back(Rect(new Point(227.791, 110.156)));
+	rectset.push_back(Rect(new Point(283.271, 99.3831)));
+	rectset.push_back(Rect(new Point(327.439, 225.424)));
+	rectset.push_back(Rect(new Point(156.152, 27.7444)));
+	rectset.push_back(Rect(new Point(111.984, 88.0718)));
+	rectset.push_back(Rect(new Point(72.6636, 60.0626)));
+	rectset.push_back(Rect(new Point(23.6476, 231.888)));
+	rectset.push_back(Rect(new Point(69.9704, 282.52)));
+	rectset.push_back(Rect(new Point(202.475, 276.056)));
+	rectset.push_back(Rect(new Point(259.032, 318.07)));
+	rectset.push_back(Rect(new Point(217.018, 363.854)));
+	construct();
+}
+
+void RectangularDomain::construct()
+{
+	bbox = Rect(-10000.0, 10000.0, 10000.0, -10000.0);
+	INF = bbox.gett()*bbox.gett();
+	np = 0;
 	for (int i = 0; i < rectset.size(); i++)
 	{
 		rectset[i].setid(i);
@@ -86,11 +90,23 @@ RectangularDomain::RectangularDomain()
 	makecheck();
 }
 
-RectangularDomain::RectangularDomain(vector<Rectangle>)
+RectangularDomain::RectangularDomain(vector<Rect> arr)
 {
+	for (int i = 0; i < arr.size(); i++)
+	{
+		double ll = arr[i].getl();
+		double rr = arr[i].getr();
+		double tt = arr[i].gett();
+		double bb = arr[i].getb();
+		if (ll == rr && tt == bb)
+			rectset.push_back(new Point(ll,bb));
+		else
+			rectset.push_back(Rect(ll,rr,tt,bb));
+	}
+	construct();
 }
 
-Rectangle RectangularDomain::getboundary()
+Rect RectangularDomain::getboundary()
 {
 	return this->bbox;
 }
@@ -100,7 +116,7 @@ int RectangularDomain::rectcnt()
 	return this->rectset.size();
 }
 
-Rectangle RectangularDomain::getrect(int i)
+Rect RectangularDomain::getrect(int i)
 {
 	return this->rectset[i];
 }
@@ -127,23 +143,23 @@ bool RectangularDomain::incidentcheck(int i,int j,int dir)
 	}
 }
 
-bool comparel(Rectangle &a, Rectangle &b) {
+bool comparel(Rect &a, Rect &b) {
 	return a.getl() < b.getl();
 }
 
-bool comparer(Rectangle &a, Rectangle &b) {
+bool comparer(Rect &a, Rect &b) {
 	return a.getr() > b.getr();
 }
 
-bool compareb(Rectangle &a, Rectangle &b) {
+bool compareb(Rect &a, Rect &b) {
 	return a.getb() < b.getb();
 }
 
-bool comparet(Rectangle &a, Rectangle &b) {
+bool comparet(Rect &a, Rect &b) {
 	return a.gett() > b.gett();
 }
 
-bool compareid(Rectangle &a, Rectangle &b) {
+bool compareid(Rect &a, Rect &b) {
 	return a.getid() < b.getid();
 }
 
@@ -305,7 +321,7 @@ void RectangularDomain::makecheck()
 {
 	vector<vector<double>> mat;
 	//reachable checking and has from 
-	lcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 rectangle의 lwake에 j번 정점이 속하는가?
+	lcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
 	mat = xpos.getmatrix();
 	for (int i = 0; i < n; i++)
 	{
@@ -356,7 +372,7 @@ void RectangularDomain::makecheck()
 		}
 	}
 
-	rcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 rectangle의 lwake에 j번 정점이 속하는가?
+	rcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
 	mat = xneg.getmatrix();
 	for (int i = 0; i < n; i++)
 	{
@@ -407,7 +423,7 @@ void RectangularDomain::makecheck()
 		}
 	}
 
-	bcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 rectangle의 lwake에 j번 정점이 속하는가?
+	bcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
 	mat = ypos.getmatrix();
 	for (int i = 0; i < n; i++)
 	{
@@ -458,7 +474,7 @@ void RectangularDomain::makecheck()
 		}
 	}
 
-	tcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 rectangle의 lwake에 j번 정점이 속하는가?
+	tcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
 	mat = yneg.getmatrix();
 	for (int i = 0; i < n; i++)
 	{
@@ -531,7 +547,7 @@ vector<Point_Distance> RectangularDomain::kNNS(Point query,int k)
 	int tindex = -1;
 	int bindex = -1;
 
-	//find rectangle by ray
+	//find Rect by ray
 	for (int i = 0; i < n; i++)
 	{
 		result[i].distance = INF;

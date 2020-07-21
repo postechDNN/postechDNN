@@ -1,8 +1,8 @@
-#include"Rectangle.h"
+#include"Rect.h"
 
-Rectangle::Rectangle() {}
+Rect::Rect() {}
 
-Rectangle::Rectangle(double x1, double x2, double x3, double x4)
+Rect::Rect(double x1, double x2, double x3, double x4)
 {
 	this->l = x1;
 	this->r = x2;
@@ -15,7 +15,7 @@ Rectangle::Rectangle(double x1, double x2, double x3, double x4)
 	this->pcheck = false;
 }
 
-Rectangle::Rectangle(double x1, double x2)
+Rect::Rect(double x1, double x2)
 {
 	this->l = x1;
 	this->r = x1;
@@ -25,7 +25,7 @@ Rectangle::Rectangle(double x1, double x2)
 	this->pcheck = true;
 }
 
-Rectangle::Rectangle(Point *p)
+Rect::Rect(Point *p)
 {
 	this->l = p->getx();
 	this->r = p->getx();
@@ -35,50 +35,50 @@ Rectangle::Rectangle(Point *p)
 	this->pcheck = true;
 }
 
-double Rectangle::getl() {
+double Rect::getl() {
 	return this->l;
 }
 
-double Rectangle::getr() {
+double Rect::getr() {
 	return this->r;
 }
 
-double Rectangle::gett() {
+double Rect::gett() {
 	return this->t;
 }
 
-double Rectangle::getb() {
+double Rect::getb() {
 	return this->b;
 }
 
-int Rectangle::getid() {
+int Rect::getid() {
 	return this->id;
 }
 
-bool Rectangle::isPoint() {
+bool Rect::isPoint() {
 	return this->pcheck;
 }
 
-Point* Rectangle::getlt() {
+Point* Rect::getlt() {
 	return this->lt;
 }
 
-Point* Rectangle::getlb() {
+Point* Rect::getlb() {
 	return this->lb;
 }
 
-Point* Rectangle::getrt() {
+Point* Rect::getrt() {
 	return this->rt;
 }
 
-Point* Rectangle::getrb() {
+Point* Rect::getrb() {
 	return this->rb;
 }
 
-Point* Rectangle::getp() {
+Point* Rect::getp() {
 	return this->p;
 }
 
-void Rectangle::setid(int a) {
+void Rect::setid(int a) {
 	this->id = a;
 }
