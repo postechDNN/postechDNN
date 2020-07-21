@@ -1,12 +1,22 @@
 #include "Triangulation.h"
+#include "DCELdeepcopy.h"
 #include <vector>
 #include <map>
 
+
+DCELFaceMap * SimplePolygonDecomposition(DCEL *  );
+DCELFaceMap * MonotonePolygonDecomposition(DCEL *  );
+DCELFaceMap * TriangleDecomposition(DCEL *  );
+
 TriangleSubdivision::TriangleSubdivision(DCEL * o){
 	origin=o;
-	subdivision=new DCEL();
-	std::vector<Face*>* of= origin.getFaces();
+	DCELFaceMap * nM = DCELdeepcopy(o);
 	
+	DCELFaceMap * nMs = TriangleDecomposition(nM->newDCEL);
+    subdivision=nMs->newDCEL;
+	for(auto it=nMs->map_result.begin() ; it!=nMs->map_result.end(); it++){
+		matching[it->first]=nM->map_result[it->second];
+	}
 }
 
 
@@ -19,6 +29,15 @@ DCEL * TriangleSubdivision::getSubdivision(){
 	return subdivision;
 }
 
-FACE * TriangleSubdivision::originFace(Face * f){
+Face * TriangleSubdivision::originFace(Face * f){
 	return matching[f];
 }
+
+
+
+DCELFaceMap * TriangleDecomposition(DCEL *  o){
+	DCELFaceMap * fm= MonotonePolygonDecomposition(o);
+	return fm;
+}
+
+
