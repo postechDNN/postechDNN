@@ -159,7 +159,7 @@ void AVLTree<T>::insert(AVLTreeNode<T>* newnode) {
 	}
 	AVLTreeNode<T>* temp = this->root;
 	while (true) {
-		if (temp->value < v) {
+		if (temp->value < newnode->value) {
 			if (!temp->r) {
 				temp->r = newnode;
 				newnode->p = temp;

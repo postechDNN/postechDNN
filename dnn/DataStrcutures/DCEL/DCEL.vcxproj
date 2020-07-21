@@ -129,6 +129,7 @@
     <ClInclude Include="Point.h" />
     <ClInclude Include="PolygonalDomain.h" />
     <ClInclude Include="SimplePolygon.h" />
+    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConformingSubdivision.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="PolygonalDomain.cpp" />
     <ClCompile Include="SimplePolygon.cpp" />
+    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
