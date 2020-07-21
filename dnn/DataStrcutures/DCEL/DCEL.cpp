@@ -1,9 +1,11 @@
 #include "DCEL.h"
+#include "Edge.h"
 #include "Point.h"
 #include "Vector.h"
 #include "../AVLTree/AVLTree.h"
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <iterator>
 #include <vector>
 #include <iostream>
