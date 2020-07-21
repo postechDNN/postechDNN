@@ -6,19 +6,19 @@
 #include <iterator>
 #include <vector>
 
-Vertex::Vertex() : Point() {
+Vertex::Vertex() : Point<double>() {
 	this->incidentEdge = nullptr;
 }
 
-Vertex::Vertex(HEdge *_e) : Point() {
+Vertex::Vertex(HEdge *_e) : Point<double>() {
 	this->incidentEdge = _e;
 }
 
-Vertex::Vertex(Point *_p) : Point(_p) {
+Vertex::Vertex(Point<double> *_p) : Point<double>(_p) {
 	this->incidentEdge = nullptr;
 }
 
-Vertex::Vertex(Point *_p, HEdge *_e) : Point(_p) {
+Vertex::Vertex(Point<double> *_p, HEdge *_e) : Point(_p) {
 	this->incidentEdge = _e;
 }
 

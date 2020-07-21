@@ -7,14 +7,14 @@ class Vertex;
 class HEdge;
 class Face;
 
-class Vertex : public Point {
+class Vertex : public Point<double> {
 protected:
 	HEdge *incidentEdge;
 public:
 	Vertex();
 	Vertex(HEdge*);
-	Vertex(Point*);
-	Vertex(Point*,HEdge*);
+	Vertex(Point<double>*);
+	Vertex(Point<double>*,HEdge*);
 	~Vertex();
 	void setIncidentEdge(HEdge*);
 	HEdge* getIncidentEdge();
