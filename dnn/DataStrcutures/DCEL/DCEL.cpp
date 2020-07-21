@@ -347,6 +347,12 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	if (_v1->getx() > _v2->getx()) {
 		std::swap(_v1, _v2);
 	}
+	else if (_v1->getx() == _v2->getx()) {
+		if (_v1->gety() > _v2->gety()) {
+			std::swap(_v1, _v2);
+		}
+		
+	}
 
 	double _x1 = _v1->getx();
 	double _y1 = _v1->gety();
@@ -357,16 +363,24 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	std::string _str1(_c1);
 	std::string _str2(_c2);
 	_str1 = _str1.substr(1);
-	_str1 = _str2.substr(2);
+	_str2 = _str2.substr(1);
 	std::string _str = "e" + _str1 + "_" + _str2;
 	char* _c = &_str[0];// = new char[_str1.length() + _str1.length() + 2];
 	HEdge* e = new HEdge(_v1, _v2);
 	e->setHedgeKey(_c);
+	_str = "e" + _str2 + "_" + _str1;
+	_c = &_str[0];
+	e->getTwin()->setHedgeKey(_c);
+	
 	HEdge* closest_e = nullptr;
 
 	//edges
+	
+	std::vector<HEdge*> outgoing_v2 = this->getOutgoingHEdges(_v2);
+	std::vector<HEdge*> outgoing_v1 = this->getOutgoingHEdges(_v1);
+
 	//_v2를 공유하는 edge중에 더 기울기가 작은걸 찾음
-	for (auto _e : this->getOutgoingHEdges(_v2)) {
+	for (auto _e : outgoing_v2) {
 		double min_angle = 2 * M_PI;
 		double theta;
 
@@ -396,27 +410,30 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		closest_e->setPrev(e);
 	}
 
+
 	closest_e = nullptr;
 	//_v1를 공유하는 edge중에 더 기울기가 작은걸 찾음
-	for (auto _e : this->getOutgoingHEdges(_v1)) {
+	for (auto _e : outgoing_v1) {
 		double min_angle = 2 * M_PI;
 		double theta;
-		if (_e->getTwin()->getOrigin() != _v2) {
-			Vertex* _v3 = _e->getTwin()->getOrigin();
-			Vector* _v12 = new Vector(_v1, _v2);
-			Vector* _v13 = new Vector(_v1, _v3);
-			theta = acos(_v12->innerProdct(_v13) / (_v12->norm() * _v13->norm()));
-			double z = _v12->outerProdct(_v13);
-			if (z > 0) {//시계방향
-				theta += M_PI;
-			}
-			if (theta < min_angle) {
-				min_angle = theta;
-				closest_e = _e;
-				closest_e->setPrev(_e->getPrev());
-			}
+		//if (_e->getTwin()->getOrigin() != _v2) {
+		Vertex* _v3 = _e->getTwin()->getOrigin();
+		Vector* _v12 = new Vector(_v1, _v2);
+		Vector* _v13 = new Vector(_v1, _v3);
+		theta = acos(_v12->innerProdct(_v13) / (_v12->norm() * _v13->norm()));
+		double z = _v12->outerProdct(_v13);
+		if (z > 0) {
+			theta += M_PI;
 		}
+		if (theta < min_angle) {
+			min_angle = theta;
+			closest_e = _e;
+			//closest_e->setPrev(_e->getPrev());
+		}
+		
 	}
+	std::cout << closest_e->getHedgeKey() << "\n";
+	std::cout << closest_e->getPrev()->getHedgeKey() << "\n";
 	if (closest_e == nullptr) {
 		e->setPrev(e->getTwin());
 		e->getTwin()->setNext(e);
@@ -429,21 +446,76 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	}
 
 	//faces
+	Face* f = e->getNext()->getIncidentFace();
+	std::vector<HEdge*>* inners = f->getInners();
+	HEdge* outer = f->getOuter();
 	HEdge* _e = e->getNext();
 	while (_e != e && _e != e->getTwin()) {
 		_e = _e->getNext();
 	}
-	//new face is made
+	//face f is split into two
 	if (_e == e) {
-		Face* f = e->getNext()->getIncidentFace();
-		std::vector<HEdge*>* inners = f->getInners();
-		HEdge* outer = f->getOuter();
-		Face* f1 = new Face(); //e->getNext's new incedent face
-		Face* f2 = new Face();//twin(e)->getNext's new incedent face
+		Face* f1 = new Face(); //e->getNext's new incident face
+		Face* f2 = new Face(); //twin(e)->getNext's new incident face
 		e->setIncidentFace(f1);
 		e->getTwin()->setIncidentFace(f2);
-		f1->setOuter(e);
-		f2->setOuter(e->getTwin());
+
+		//set outer, face key
+		int count = 0;
+		for (auto temp_e : *inners) {
+			HEdge* start_e = temp_e;
+			std::cout << "addedge "<< temp_e->getHedgeKey() << "\n";
+			do {
+				temp_e = temp_e->getNext();
+				std::cout << "addedge " << temp_e->getHedgeKey() << "\n";
+			} while (count < 2 && (temp_e != e && temp_e != e->getTwin() && temp_e != start_e));
+
+			if (temp_e == e) {
+				count++;
+				e->getIncidentFace()->addInner(temp_e);
+				if (!f->isOutMost()) {//e->incidentFace()isn't outerFace
+					e->getIncidentFace()->setOuter(e);
+					e->getIncidentFace()->setFaceKey(f->getFaceKey());
+				}
+				else {
+					e->getIncidentFace()->setFaceKey(f->getFaceKey());
+				}
+				_str = 'f' + std::to_string(this->getFaces()->size());
+				_c = &_str[0];
+				e->getTwin()->getIncidentFace()->setOuter(e->getTwin());
+				e->getTwin()->getIncidentFace()->setFaceKey(_c);
+			}
+			else if (temp_e == e->getTwin()) {
+				count++;
+				e->getTwin()->getIncidentFace()->addInner(temp_e);
+				if (!f->isOutMost()) {//e->getTwin()->incidentFace() isn't outerFace
+					e->getTwin()->getIncidentFace()->setOuter(e->getTwin());
+					e->getTwin()->getIncidentFace()->setFaceKey(f->getFaceKey());
+				}
+				else {
+					e->getTwin()->getIncidentFace()->setFaceKey(f->getFaceKey());
+				}
+				_str = 'f' + std::to_string(this->getFaces()->size());
+				_c = &_str[0];
+				e->getIncidentFace()->setOuter(e);
+				e->getIncidentFace()->setFaceKey(_c);
+
+			}
+			else if(count >= 2){ //temp_e == start_e
+				SimplePolygon sp_f1 = SimplePolygon();
+				HEdge* h_e = e;
+				do {
+					sp_f1.getEdges()->push_back(h_e);
+					h_e = h_e->getNext();
+				} while (h_e == e);
+				if (sp_f1.inPolygon(temp_e->gets()) == 1) {///if temp_e in f1
+					f1->getInners()->push_back(temp_e);
+				}
+				else {
+					f2->getInners()->push_back(temp_e);
+				}
+			}
+		}
 
 		HEdge* temp = e->getNext();
 		while (temp != e) {
@@ -451,11 +523,12 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 			temp = temp->getNext();
 		}
 		temp = e->getTwin()->getNext();
-		while (temp != e) {
+		while (temp != e->getTwin()) {
 			temp->setIncidentFace(f2);
 			temp = temp->getNext();
 		}
 		//face inner setting
+		/*
 		for (auto temp_e : *inners) {
 			SimplePolygon sp_f1 = SimplePolygon();
 			HEdge* h_e = e;
@@ -470,22 +543,46 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 				f2->getInners()->push_back(temp_e);
 			}
 		}
+		*/
 
+		//delete f
 		int iter = 0;
-		for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();) {
+		for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end(); i++) {
 			Face* _f = *i;
 			if (f == _f) {
 				this->getFaces()->erase(i);
+				break;
 			}
 		}
+		//add f1 f2
+		this->getFaces()->push_back(f1);
+		this->getFaces()->push_back(f2);
 
 	}
 	//new face is not made
 	else if (_e == e->getTwin()) {
-		e->setIncidentFace(e->getNext()->getIncidentFace());
-		e->getTwin()->setIncidentFace(e->getIncidentFace());
+		e->setIncidentFace(f);
+		e->getTwin()->setIncidentFace(f);
 	}
+	//when 2 inner components are merged
+	HEdge* temp = e;
+	int count = 0;
+	do {
+		std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp);
+		if (i != inners->end()) { //temp is in inner
+			count++;
+			if (count == 2) {
+				inners->erase(i);//delete that one from inners
+				break;
+			}
+		}
+		temp = temp->getNext();
+		std::cout << temp->getHedgeKey();
+	} while (temp != e || count != 2);
+
+	//add edge
 	this->getHedges()->push_back(e);
+	
 }
 
 void DCEL::deleteEdge(HEdge* _e) {
