@@ -3,40 +3,41 @@
 
 //this class defines a point in 2D space
 
-template <typename T>
-Point<T>::Point() {
-	this->x = T(0.);
-	this->y = T(0.);
+Point::Point() {
+	this->x = 0.;
+	this->y = 0.;
 }
-template <typename T>
-Point<T>::Point(T _x, T _y) {
+Point::Point(double _x, double _y) {
 	this->x = _x;
 	this->y = _y;
 }
-template <typename T>
-Point<T>::Point(Point<T>* _p) {
+Point::Point(Point* _p) {
 	this->x = _p->getx();
 	this->y = _p->gety();
 }
-template <typename T>
-Point<T>::~Point() {}
+Point::~Point() {}
 
-template <typename T>
-bool Point<T>::operator==(Point<T> _p) {
+bool Point::operator==(Point _p) {
 	return this->x == _p.getx() && this->y == _p.gety();
 }
 
-template <typename T>
-T Point<T>::getx() {
+double Point::getx() {
 	return this->x;
 }
 
-template <typename T>
-T Point<T>::gety() {
+void Point::setx(double _x) {
+	this->x = _x;
+}
+
+
+double Point::gety() {
 	return this->y;
 }
 
-template <typename T>
-double Point<T>::distance(Point<T> _p) {
+void Point::sety(double _y) {
+	this->y = _y;
+}
+
+double Point::distance(Point _p) {
 	return sqrt(pow(_p.x - this->x, 2) + pow(_p.y - this->y, 2));
 }
