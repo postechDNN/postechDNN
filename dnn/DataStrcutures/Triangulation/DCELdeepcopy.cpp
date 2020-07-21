@@ -15,7 +15,7 @@ class DCELdeepcopyContext{
 		bool check(Vertex * v){
 			if(cv.find(v)!=cv.end()) return true;
 			else {
-				vm.insert(v);
+				cv.insert(v);
 				return false;
 			}
 		}
@@ -23,7 +23,7 @@ class DCELdeepcopyContext{
 		bool check(HEdge * e){
 			if(ce.find(e)!=ce.end()) return true;
 			else {
-				em.insert(e);
+				ce.insert(e);
 				return false;
 			}
 		}
@@ -31,7 +31,7 @@ class DCELdeepcopyContext{
 		bool check(Face * f){
 			if(cf.find(f)!=cf.end()) return true;
 			else {
-				fm.insert(f);
+				cf.insert(f);
 				return false;
 			}
 		}
@@ -39,7 +39,7 @@ class DCELdeepcopyContext{
 		
 		Face * find(Face *f){
 			auto it=fm.find(f); 
-			if(it!=fm.end()) return *it;
+			if(it!=fm.end()) return it->second;
 			else {
 				fm[f]=new Face();
 				return fm[f];
@@ -48,7 +48,7 @@ class DCELdeepcopyContext{
 
 		HEdge* find(HEdge *e){
 			auto it=em.find(e); 
-			if(it!=em.end()) return *it;
+			if(it!=em.end()) return it->second;
 			else {
 				em[e]=new HEdge();
 				return em[e];
@@ -57,7 +57,7 @@ class DCELdeepcopyContext{
 		
 		Vertex* find(Vertex *v){
 			auto it=vm.find(v);
-			if(it!=vm.end()) return *it;
+			if(it!=vm.end()) return it->second;
 			else {
 				vm[v]=new Vertex(v);
 				return vm[v];
@@ -65,14 +65,14 @@ class DCELdeepcopyContext{
 		}
 
 		
-		Edge * DCE(Edge * e){
+		HEdge * DCE(HEdge * e){
 			if(check(e)) return find(e);
 			HEdge * te=find(e);
-			te->setOrigin(find(e->getOringin()));
+			te->setOrigin(find(e->getOrigin()));
 			te->setNext(find(e->getNext()));
 			te->setPrev(find(e->getPrev()));
-			te->setTwin(find(e->setTwin()));
-			te->setIncidentFace(find(e->setIncidentFace()));
+			te->setTwin(find(e->getTwin()));
+			te->setIncidentFace(find(e->getIncidentFace()));
 			return te;
 		}
 
@@ -83,16 +83,18 @@ class DCELdeepcopyContext{
 			HEdge *te=f->getOuter();
 			do{
 				DCE(te);
-				te=te->next;
-			}while(te!=tf->getOuter())
-			tf->setOuter=DCE(f->getOuter());
+				te=te->getNext();
+			}while(te!=tf->getOuter());
+			
+			tf->setOuter(DCE(f->getOuter()));
 
 			for(auto it=f->getInners()->begin();it!=f->getInners()->end();it++){
 				te=*it;
 				do{
 					DCE(te);
-					te=te->next;
-				}while(te!=*it)
+					te=te->getNext();
+				}while(te!=*it);
+				
 				tf->addInner(DCE(*it));	
 			}
 			return tf;
@@ -100,7 +102,13 @@ class DCELdeepcopyContext{
 
 
 
-}
+};
 
+
+
+DCEL * DCELdeepcopy(DCEL * o){
+	DCELdeepcopyContext DC;
+	DCEL * result=new DCEL();
+}
 
 
