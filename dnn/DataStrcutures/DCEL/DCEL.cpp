@@ -1022,6 +1022,14 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 		if (!curv || !(*curv == *curevent->value.eventPoint)) {
 			curv = new Vertex(curevent->value.eventPoint);
 			merged->getVertices()->push_back(curv);
+			if (!merged->lmost || (merged->lmost->getx() > curv->getx()))
+				merged->lmost = curv;
+			if (!merged->rmost || (merged->rmost->getx() < curv->getx()))
+				merged->rmost = curv;
+			if (!merged->tmost || (merged->tmost->gety() < curv->gety()))
+				merged->tmost = curv;
+			if (!merged->bmost || (merged->bmost->gety() > curv->gety()))
+				merged->bmost = curv;
 			curx = curv->getx();
 		}
 		switch (curevent->value.ty) {
