@@ -13,6 +13,7 @@ public:
 	Point(Point*);
 	~Point();
 	bool operator==(Point);
+	Point operator- (Point);
 	double getx(void);
 	void setx(double);
 	double gety(void);

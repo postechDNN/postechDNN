@@ -464,10 +464,8 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		int count = 0;
 		for (auto temp_e : *inners) {
 			HEdge* start_e = temp_e;
-			std::cout << "addedge "<< temp_e->getHedgeKey() << "\n";
 			do {
 				temp_e = temp_e->getNext();
-				std::cout << "addedge " << temp_e->getHedgeKey() << "\n";
 			} while (count < 2 && (temp_e != e && temp_e != e->getTwin() && temp_e != start_e));
 
 			if (temp_e == e) {
@@ -527,23 +525,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 			temp->setIncidentFace(f2);
 			temp = temp->getNext();
 		}
-		//face inner setting
-		/*
-		for (auto temp_e : *inners) {
-			SimplePolygon sp_f1 = SimplePolygon();
-			HEdge* h_e = e;
-			do {
-				sp_f1.getEdges()->push_back(h_e);
-				h_e = h_e->getNext();
-			} while (h_e == e);
-			if (sp_f1.inPolygon(temp_e->gets()) == 1) {///if temp_e in f1
-				f1->getInners()->push_back(temp_e);
-			}
-			else {
-				f2->getInners()->push_back(temp_e);
-			}
-		}
-		*/
+
 
 		//delete f
 		int iter = 0;
