@@ -21,6 +21,11 @@ bool Point::operator==(Point _p) {
 	return this->x == _p.getx() && this->y == _p.gety();
 }
 
+Point Point::operator- (Point _p) {
+	Point p(this->x - _p.x, this->y - _p.y);
+	return p;
+}
+
 double Point::getx() {
 	return this->x;
 }
