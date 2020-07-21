@@ -98,9 +98,11 @@ class DCELdeepcopyContext{
 
 
 
-DCEL * DCELdeepcopy(DCEL * o){
+DCELFaceMap * DCELdeepcopy(DCEL * o){
 	DCELdeepcopyContext DC;
 	DCEL * result=new DCEL();
+	
+	DCELFaceMap * ret= new DCELFaceMap(result); 
 
 	auto af= o->getFaces();
 	std::vector<Face*>* nfs =new std::vector<Face*>();
@@ -124,7 +126,8 @@ DCEL * DCELdeepcopy(DCEL * o){
 		nvs->push_back(DC.find(*it));
 	}
 	o->setVertices(nvs);
-
+	ret->map_result=DC.fm;
+	return ret;
 }
 
 
