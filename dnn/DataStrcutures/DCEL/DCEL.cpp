@@ -350,6 +350,7 @@ Vertex* DCEL::getBmost() { return this->bmost; }
 
 void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 
+	//
 	if (_v1->getx() > _v2->getx()) {
 		std::swap(_v1, _v2);
 	}
@@ -357,9 +358,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		if (_v1->gety() > _v2->gety()) {
 			std::swap(_v1, _v2);
 		}
-		
 	}
-
 	double _x1 = _v1->getx();
 	double _y1 = _v1->gety();
 	double _x2 = _v2->getx();
@@ -371,7 +370,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	_str1 = _str1.substr(1);
 	_str2 = _str2.substr(1);
 	std::string _str = "e" + _str1 + "_" + _str2;
-	char* _c = &_str[0];// = new char[_str1.length() + _str1.length() + 2];
+	char* _c = &_str[0];
 	HEdge* e = new HEdge(_v1, _v2);
 	e->setHedgeKey(_c);
 	_str = "e" + _str2 + "_" + _str1;
@@ -380,29 +379,27 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	
 	HEdge* closest_e = nullptr;
 
-	//edges
-	
+	//EDGE
+	//get outgoing edges
 	std::vector<HEdge*> outgoing_v2 = this->getOutgoingHEdges(_v2);
 	std::vector<HEdge*> outgoing_v1 = this->getOutgoingHEdges(_v1);
-
-	//_v2를 공유하는 edge중에 더 기울기가 작은걸 찾음
+	//find cw closest edge of e1_2 (that has _v2 as origin)
+	double min_angle = 2 * M_PI;
+	double theta;
+	std::cout << "edge" << e->getHedgeKey() << "\n";
 	for (auto _e : outgoing_v2) {
-		double min_angle = 2 * M_PI;
-		double theta;
-
 		Vertex* _v3 = _e->getTwin()->getOrigin();
-		Vector* _v21 = new Vector(_v2, _v1);
-		Vector* _v23 = new Vector(_v2, _v3);
-		theta = acos(_v21->innerProdct(_v23) / (_v21->norm() * _v23->norm()));
-		double z = _v21->outerProdct(_v23);
+		Vector* _v21 = new Vector(*_v2, *_v1);
+		Vector* _v23 = new Vector(*_v2, *_v3);
+		theta = acos(_v21->innerProdct(*_v23) / (_v21->norm() * _v23->norm()));
+		double z = _v21->outerProdct(*_v23);
 		if (z > 0) {
-			theta += M_PI;
+			theta = 2*M_PI - theta;
 		}
 		if (theta < min_angle) {
 			min_angle = theta;
 			closest_e = _e;
 		}
-
 	}
 	if (closest_e == nullptr) {
 		e->setNext(e->getTwin());
@@ -415,31 +412,24 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		e->setNext(closest_e);
 		closest_e->setPrev(e);
 	}
-
-
+	//find cw closest edge of e2_1 (that has _v1 as origin)
 	closest_e = nullptr;
-	//_v1를 공유하는 edge중에 더 기울기가 작은걸 찾음
+	min_angle = 2 * M_PI;
+	theta = min_angle+1;
 	for (auto _e : outgoing_v1) {
-		double min_angle = 2 * M_PI;
-		double theta;
-		//if (_e->getTwin()->getOrigin() != _v2) {
 		Vertex* _v3 = _e->getTwin()->getOrigin();
-		Vector* _v12 = new Vector(_v1, _v2);
-		Vector* _v13 = new Vector(_v1, _v3);
-		theta = acos(_v12->innerProdct(_v13) / (_v12->norm() * _v13->norm()));
-		double z = _v12->outerProdct(_v13);
+		Vector* _v12 = new Vector(*_v1, *_v2);
+		Vector* _v13 = new Vector(*_v1, *_v3);
+		theta = acos(_v12->innerProdct(*_v13) / (_v12->norm() * _v13->norm()));
+		double z = _v12->outerProdct(*_v13);
 		if (z > 0) {
-			theta += M_PI;
+			theta = 2*M_PI - theta;
 		}
 		if (theta < min_angle) {
 			min_angle = theta;
 			closest_e = _e;
-			//closest_e->setPrev(_e->getPrev());
 		}
-		
 	}
-	std::cout << closest_e->getHedgeKey() << "\n";
-	std::cout << closest_e->getPrev()->getHedgeKey() << "\n";
 	if (closest_e == nullptr) {
 		e->setPrev(e->getTwin());
 		e->getTwin()->setNext(e);
@@ -451,7 +441,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		closest_e->setPrev(e->getTwin());
 	}
 
-	//faces
+	//FACE
 	Face* f = e->getNext()->getIncidentFace();
 	std::vector<HEdge*>* inners = f->getInners();
 	HEdge* outer = f->getOuter();
@@ -465,7 +455,6 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		Face* f2 = new Face(); //twin(e)->getNext's new incident face
 		e->setIncidentFace(f1);
 		e->getTwin()->setIncidentFace(f2);
-
 		//set outer, face key
 		int count = 0;
 		for (auto temp_e : *inners) {
@@ -484,11 +473,32 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 				else {
 					e->getIncidentFace()->setFaceKey(f->getFaceKey());
 				}
+				do {
+					temp_e = temp_e->getNext();
+				} while (temp_e != e && temp_e != start_e && temp_e != outer);
+				//case1
+				if (temp_e == outer) {
+					//delete this inner
+					temp_e->getPrev()->getPrev()->getTwin();
+					HEdge* temp_e2 = temp_e->getPrev()->getPrev()->getTwin();
+					int count = 0;
+					do {
+						std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp_e2);
+						if (i != inners->end()) { //temp is in inner
+							inners->erase(i);//delete that one from inners
+							break;
+						}
+						temp_e2 = temp_e2->getNext();
+					} while (temp_e2 != e || count != 2);
+
+				}
 				_str = 'f' + std::to_string(this->getFaces()->size());
 				_c = &_str[0];
 				e->getTwin()->getIncidentFace()->setOuter(e->getTwin());
 				e->getTwin()->getIncidentFace()->setFaceKey(_c);
+
 			}
+			//case2
 			else if (temp_e == e->getTwin()) {
 				count++;
 				e->getTwin()->getIncidentFace()->addInner(temp_e);
@@ -505,6 +515,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 				e->getIncidentFace()->setFaceKey(_c);
 
 			}
+			//case3
 			else if(count >= 2){ //temp_e == start_e
 				SimplePolygon sp_f1 = SimplePolygon();
 				HEdge* h_e = e;
@@ -520,7 +531,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 				}
 			}
 		}
-
+		//set incident faces of edges
 		HEdge* temp = e->getNext();
 		while (temp != e) {
 			temp->setIncidentFace(f1);
@@ -531,9 +542,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 			temp->setIncidentFace(f2);
 			temp = temp->getNext();
 		}
-
-
-		//delete f
+		//delete f from faces<*>*
 		int iter = 0;
 		for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end(); i++) {
 			Face* _f = *i;
@@ -542,35 +551,37 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 				break;
 			}
 		}
-		//add f1 f2
+		//add f1 f2 to faces<*>*
 		this->getFaces()->push_back(f1);
 		this->getFaces()->push_back(f2);
-
 	}
+
 	//new face is not made
 	else if (_e == e->getTwin()) {
 		e->setIncidentFace(f);
 		e->getTwin()->setIncidentFace(f);
-	}
-	//when 2 inner components are merged
-	HEdge* temp = e;
-	int count = 0;
-	do {
-		std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp);
-		if (i != inners->end()) { //temp is in inner
-			count++;
-			if (count == 2) {
-				inners->erase(i);//delete that one from inners
-				break;
-			}
-		}
-		temp = temp->getNext();
-		std::cout << temp->getHedgeKey();
-	} while (temp != e || count != 2);
-
-	//add edge
-	this->getHedges()->push_back(e);
 	
+		//when 2 inner components are merged or 1 inner cc is deleted, or nothing changes
+		if (e->getNext() != e->getTwin() && e->getPrev() != e->getTwin()) {
+			HEdge* temp = e;
+			int count = 0;
+			do {
+				std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp);
+				if (i != inners->end()) { //temp is in inner
+					std::cout << "temp" << temp->getHedgeKey() << "\n";
+					std::cout << "cnt" << count << "\n";
+					count++;
+					if (count == 1) {
+						inners->erase(i);//delete that one from inners
+						break;
+					}
+				}
+				temp = temp->getNext();
+			} while (temp != e);
+		}
+	}
+	//add edge to edges<*>*
+	this->getHedges()->push_back(e);
 }
 
 void DCEL::deleteEdge(HEdge* _e) {
