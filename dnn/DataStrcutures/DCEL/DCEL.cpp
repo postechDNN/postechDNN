@@ -585,95 +585,233 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 }
 
 void DCEL::deleteEdge(HEdge* _e) {
+	std::vector<HEdge*>* inners = _e->getIncidentFace()->getInners();
+	//case1-(1)
 	if (_e->getNext() == _e->getTwin()) {
-		HEdge* _prev = _e->getPrev();
 		_e->getPrev()->setNext(_e->getTwin()->getNext());
 		_e->getTwin()->getNext()->setPrev(_e->getPrev());
-		//delete e
-		for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
-			Edge* temp = *i;
+		for (std::vector<HEdge*>::iterator i = inners->begin(); i != inners->end();i++) {
+			HEdge* temp = *i;
 			if (temp == _e || temp == _e->getTwin()) {
-				this->getHedges()->erase(i);
+				inners->erase(i);
+				inners->push_back(_e->getPrev());
+				break;
 			}
 		}
 	}
+	//case1-(2)
 	else if (_e->getPrev() == _e->getTwin()) {
 		_e->getNext()->setPrev(_e->getTwin()->getPrev());
 		_e->getTwin()->getPrev()->setNext(_e->getNext());
-		for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
-			Edge* temp = *i;
+		for (std::vector<HEdge*>::iterator i = inners->begin(); i != inners->end();i++) {
+			HEdge* temp = *i;
 			if (temp == _e || temp == _e->getTwin()) {
-				this->getHedges()->erase(i);
+				inners->erase(i);
+				inners->push_back(_e->getNext());
+				break;
 			}
 		}
 	}
+	//
 	else {
-		HEdge* _temp = _e;
-		do {
-			_temp = _temp->getNext();
-		} while (_temp == _e || _temp == _e->getTwin());
-
-		//or maybe just compare their incident faces
-		if (_temp == _e) {
-			Face* f1 = _e->getIncidentFace();
-			Face* f2 = _e->getTwin()->getIncidentFace();
+		//compare incident faces of _e and _e->twin
+		Face* f1 = _e->getIncidentFace();
+		Face* f2 = _e->getTwin()->getIncidentFace();
+		//set edge info
+		_e->getNext()->setPrev(_e->getTwin()->getPrev());
+		_e->getTwin()->getPrev()->setNext(_e->getNext());
+		_e->getPrev()->setNext(_e->getTwin()->getNext());
+		_e->getTwin()->getNext()->setPrev(_e->getPrev());
+		//case4 : 2 faces get merged
+		if (f1 != f2) {
 			Face* f = new Face();
+			f->setFaceKey(f1->getFaceKey());
+
+			//set outer
 			f->setOuter(_e->getNext());
-			HEdge* _temp2 = _e;
-			do {
-				_temp2->setIncidentFace(f);
-				_temp2 = _temp2->getNext();
-			} while (_temp2 == _e);
-
-			_temp2 = _e->getTwin();
-			do {
-				_temp2->setIncidentFace(f);
-				_temp2 = _temp2->getNext();
-			} while (_temp2 == _e->getTwin());
-
-
-			for (auto e : *(f1->getInners())) {
-				f->addInner(_e);
+			HEdge * e_f1_outer = f1->getOuter();
+			HEdge* e_f2_outer = f2->getOuter();
+			HEdge* temp_e = e_f1_outer;
+			bool flag3 = false;
+			if (e_f1_outer == nullptr || e_f2_outer == nullptr) {
+				f->setOuter(nullptr);
 			}
-			for (auto e : *(f2->getInners())) {
-				f->addInner(_e);
-			}
-			//face가 지워지는 경우
-			_e->getNext()->setPrev(_e->getTwin()->getPrev());
-			_e->getTwin()->getPrev()->setNext(_e->getNext());
-			_e->getPrev()->setNext(_e->getTwin()->getNext());
-			_e->getTwin()->getNext()->setPrev(_e->getPrev());
-			//_e지움
-			for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
-				Edge* temp = *i;
-				if (temp == _e || temp == _e->getTwin()) {
-					this->getHedges()->erase(i);
+			else {
+				do {
+					if (temp_e == nullptr) {
+						break;
+					}
+					if (temp_e == _e) {
+						flag3 = true; // _e is part of outer
+						break;
+					}
+					temp_e = temp_e->getNext();
+
+				} while (e_f1_outer != temp_e);
+
+				temp_e = e_f2_outer;
+				bool flag4 = false;
+				do {
+					if (temp_e == nullptr) {
+						break;
+					}
+					if (temp_e == _e->getTwin()) {
+						flag4 = true; // _e->twin is part of outer
+						break;
+					}
+					temp_e = temp_e->getNext();
+				} while (e_f2_outer != temp_e);
+
+				if (flag3 && flag4) {
+					if (f1->getOuter() == _e) {
+						f->setOuter(_e->getNext());
+					}
+					else {
+						f->setOuter(f1->getOuter());
+					}
+				}
+				else if (flag3) {
+					f->setOuter(f2->getOuter());
+				}
+				else if (flag4) {
+					f->setOuter(f1->getOuter());
 				}
 			}
-			//f1,f2지움
-			for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();) {
-				Face* _f = *i;
-				if (_f == f1 || _f == f2) {
+			//set Incident Face
+			HEdge* start = _e->getNext();
+			HEdge* temp = _e->getNext();
+			do {
+				temp->setIncidentFace(f);
+				temp = temp->getNext();
+			} while (temp != start);
+			//add inners
+			for (auto i : *(f1->getInners())) {
+				if (i == _e) {
+					f->addInner(_e->getNext());
+				}
+				else {
+					f->addInner(i);
+				}
+			}
+			for (auto i : *(f2->getInners())) {
+				if (i == _e->getTwin()) {
+					f->addInner(_e->getTwin()->getNext());
+				}
+				else {
+					f->addInner(i);
+				}
+			}
+			//delete f1 f2
+			
+			for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();i++) {
+				Face* temp_f = *i;
+				if (temp_f == f1 || temp_f == f2) {
 					this->getFaces()->erase(i);
+					break;
+				}
+			}
+			for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();i++) {
+				Face* temp_f = *i;
+				if (temp_f == f1 || temp_f == f2) {
+					this->getFaces()->erase(i);
+					break;
+				}
+			}
+			//add f
+			this->getFaces()->push_back(f);
+		}
+		//case 2 and 3: face stays the same
+		else {
+			HEdge* _e_next = _e->getNext();
+			HEdge* _e_prev = _e->getPrev();
+
+			SimplePolygon sp1 = SimplePolygon();
+			SimplePolygon sp2 = SimplePolygon();
+			int flag = 0;
+			HEdge* temp = _e_next;
+			do {
+				sp1.getEdges()->push_back(temp);
+				//std::cout << "sp" << temp->getHedgeKey() << "\n";
+				temp = temp->getPrev()->getTwin();
+			} while (temp != _e_next);
+			//std::cout << "o " << _e->getOrigin()->getVertexKey() << "\n";
+			//std::cout << sp1.inPolygon(_e->getOrigin()) << '\n';
+			//std::cout << "flagggg" << sp1.inPolygon(_e->getOrigin());
+			if (sp1.inPolygon(_e->getOrigin()) == 1) {///if _e_origin in f1
+				flag = 1;
+			}
+			else {
+				temp = _e_prev;
+				do {
+					sp2.getEdges()->push_back(temp);
+					temp = temp->getNext();
+				} while (temp != _e_prev);
+				if (sp2.inPolygon(_e->getTwin()->getOrigin()) == 1) {
+					flag = 2;
+				}
+			}
+			//case 3
+			if (flag == 1 || flag == 2) {
+				if (flag == 1) {
+					f1->setOuter(_e_next);
+					f1->addInner(_e_prev);
+				}
+				else {
+					f1->setOuter(_e_prev);
+					f1->addInner(_e_next);
+				}
+			}
+			//case 2
+			else {
+				//face inner setting
+				//check if ~next~ is in inner
+				temp = _e_next;
+				bool flag2 = false;
+				do {
+					std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp);
+					if (i != inners->end()) { //temp is in inner
+						flag2 = true;
+					}
+					temp = temp->getNext();
+				} while (temp != _e_next);
+				if (!flag2) {//if not in inner
+					f1->addInner(_e_next);
+				}
+				//check if ~prev~ is in inner
+				flag2 = false;
+				temp = _e_prev;
+				do {
+					std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp);
+					if (i != inners->end()) { //temp is in inner
+						flag = true;
+					}
+					temp = temp->getNext();
+				} while (temp != _e_prev);
+				if (!flag) {//if not in inner
+					f1->addInner(_e_prev);
+				}
+				//check if _e, _e->twin is in inner
+				std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), _e);
+				if (i != inners->end()) {
+					inners->erase(i);
+				}
+				i = std::find(inners->begin(), inners->end(), _e->getTwin());
+				if (i != inners->end()) {
+					inners->erase(i);
 				}
 			}
 
+			
 		}
-		else {
-			//face가 지워지지 않는 경우
-			_e->getNext()->setPrev(_e->getTwin()->getPrev());
-			_e->getTwin()->getPrev()->setNext(_e->getNext());
-			_e->getPrev()->setNext(_e->getTwin()->getNext());
-			_e->getTwin()->getNext()->setPrev(_e->getPrev());
-			//face에 혹시 
-			_e->getIncidentFace()->setOuter(_e->getNext());
-			//_e지움
-			for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();) {
-				Edge* temp = *i;
-				if (temp == _e || temp == _e->getTwin()) {
-					this->getHedges()->erase(i);
-				}
-			}
+	}
+
+	//_e or _e->twin() 지움
+	int count = 0;
+	for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();i++) {
+		HEdge* temp = *i;
+		if (temp == _e || temp == _e->getTwin()) {
+			this->getHedges()->erase(i);
+			break;
 		}
 	}
 }
