@@ -36,6 +36,7 @@ protected:
 public:
 	HEdge();
 	HEdge(Vertex*, Vertex*);
+	HEdge(Point*, Point*);
 	~HEdge();
 
 	char* getHedgeKey();

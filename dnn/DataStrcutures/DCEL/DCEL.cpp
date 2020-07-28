@@ -68,7 +68,7 @@ HEdge::HEdge() : Edge() {
 	this->twin = nullptr;
 }
 
-HEdge::HEdge(Vertex *_v1, Vertex *_v2) : Edge(_v1, _v2) {
+HEdge::HEdge(Vertex* _v1, Vertex* _v2) : Edge(_v1, _v2) {
 	this->origin = _v1;
 	this->twin = new HEdge();
 	this->twin->origin = _v2;
@@ -80,6 +80,24 @@ HEdge::HEdge(Vertex *_v1, Vertex *_v2) : Edge(_v1, _v2) {
 	this->twin->prev = this;
 	this->twin->s = _v2;
 	this->twin->t = _v1;
+}
+
+HEdge::HEdge(Point* _p1, Point* _p2) {
+	Vertex* v1 = new Vertex(_p1);
+	Vertex* v2 = new Vertex(_p2);
+	this->s = v1;
+	this->t = v2;
+	this->origin = v1;
+	this->twin = new HEdge();
+	this->twin->origin = v2;
+	this->twin->twin = this;
+	this->incidentFace = nullptr;
+	this->next = this->twin;
+	this->prev = this->twin;
+	this->twin->next = this;
+	this->twin->prev = this;
+	this->twin->s = v2;
+	this->twin->t = v1;
 }
 
 HEdge::~HEdge() {
@@ -307,6 +325,14 @@ DCEL::DCEL(FILE* readFile) {
 		(*this->hedges)[i]->setNext(this->searchHedge(token));
 		token = strtok(NULL, "\t, \n");
 		(*this->hedges)[i]->setPrev(this->searchHedge(token));
+	}
+
+	// Set Edge information of HEdges
+	for (int i = 0; i < num_hedges; i++) {
+		(*this->hedges)[i]->sets((*this->hedges)[i]->getOrigin());
+		(*this->hedges)[i]->sett((*this->hedges)[i]->getTwin()->getOrigin());
+		(*this->hedges)[i]->getTwin()->sets((*this->hedges)[i]->getTwin()->getOrigin());
+		(*this->hedges)[i]->getTwin()->sett((*this->hedges)[i]->getOrigin());
 	}
 }
 
@@ -912,7 +938,7 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 			Point ts = *this->he->gets();
 			Point tt = *this->he->gett();
 			Point es = *_e.he->gets();
-			Point et = *_e.he->gets();
+			Point et = *_e.he->gett();
 			double ty, ey;
 			if (ts.getx() == tt.getx())
 				ty = ts.gety();
@@ -924,7 +950,7 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 				ey = (et.gety() - es.gety()) / (et.getx() - es.getx())*(*curx - es.getx()) + es.gety();
 			if (ty == ey) {
 				if (ts.getx() == tt.getx())
-					return true;
+					return false;
 				else if (es.getx() == et.getx())
 					return false;
 				else {
@@ -994,6 +1020,8 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 		henode->value.e1 = het;
 		henode->value.e2 = nullptr;
 		henode->value.ty = START;
+		henode->l = nullptr;
+		henode->r = nullptr;
 		het->curx = &curx;
 		if (he->gets()->getx() == he->gett()->getx())
 			if (he->gets()->gety() > he->gett()->gety())
@@ -1030,6 +1058,10 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 		events.insert(henode);
 	}
 	Vertex* curv = nullptr;
+	AVLTreeNode<struct Edgetype>* upedge = nullptr;
+	AVLTreeNode<struct Edgetype>* downedge = nullptr;
+	AVLTreeNode<struct Edgetype>* curedge = nullptr;
+	HEdge* hedge = nullptr;
 	while (!events.isEmpty()) {
 		AVLTreeNode<struct Eventtype>*curevent = events.pop();
 		if (!curv || !(*curv == *curevent->value.eventPoint)) {
@@ -1047,14 +1079,14 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 		}
 		switch (curevent->value.ty) {
 		case START:
-			AVLTreeNode<struct Edgetype>*curedge = new AVLTreeNode<struct Edgetype>();
-			HEdge*hedge = new HEdge(curevent->value.e1->he->gets(), curevent->value.e1->he->gett());
+			curedge = new AVLTreeNode<struct Edgetype>();
+			hedge = new HEdge(curevent->value.e1->he->gets(), curevent->value.e1->he->gett());
 			curevent->value.e1->he = hedge;
 			curedge->value = *curevent->value.e1;
 			curedge->value.cd = nullptr;
 			curedge->value.cu = nullptr;
 			curedges.insert(curedge);
-			AVLTreeNode<struct Edgetype>*upedge = curedges.getLeftNode(curedge->value);
+			upedge = curedges.getLeftNode(curedge->value);
 			if (upedge) {
 				Point* cp = hedge->crossing(upedge->value.he, false);
 				if (cp) {
@@ -1072,7 +1104,7 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 					events.insert(ce);
 				}
 			}
-			AVLTreeNode<struct Edgetype>*downedge = curedges.getRightNode(curedge->value);
+			downedge = curedges.getRightNode(curedge->value);
 			if (downedge) {
 				Point* cp = hedge->crossing(downedge->value.he, false);
 				if (cp) {
@@ -1091,9 +1123,18 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 			}
 			break;
 		case END:
-			merged->addEdge(curevent->value.e1->he->gets(), curevent->value.e1->he->gett());
-			AVLTreeNode<struct Edgetype>*upedge = curedges.getLeftNode(curedge->value);
-			AVLTreeNode<struct Edgetype>*downedge = curedges.getRightNode(curedge->value);
+			Vertex* v1, * v2;
+			v1 = nullptr;
+			v2 = nullptr;
+			for (int i = 0;i < merged->getVertices()->size();i++) {
+				if (*(*merged->getVertices())[i] == *(curevent->value.e1->he->gets()))
+					v1 = (*merged->getVertices())[i];
+				if (*(*merged->getVertices())[i] == *(curevent->value.e1->he->gett()))
+					v2 = (*merged->getVertices())[i];
+			}
+			merged->addEdge(v1, v2);
+			upedge = curedges.getLeftNode(*curevent->value.e1);
+			downedge = curedges.getRightNode(*curevent->value.e1);
 			if (upedge&&downedge) {
 				Point* cp = downedge->value.he->crossing(upedge->value.he, false);
 				if (cp) {

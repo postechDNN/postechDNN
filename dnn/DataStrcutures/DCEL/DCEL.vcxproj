@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{D1542810-6B29-40EA-8189-1CC35EE332E3}</ProjectGuid>
     <RootNamespace>DCEL</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -135,6 +135,7 @@
     <ClCompile Include="ConformingSubdivision.cpp" />
     <ClCompile Include="DCEL.cpp" />
     <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="PolygonalDomain.cpp" />
     <ClCompile Include="SimplePolygon.cpp" />

@@ -14,6 +14,7 @@ public:
 	Point* crossing(Edge*, bool);
 	Point* gets();
 	Point* gett();
+	void sets(Point*);
 	void sett(Point*);
 	double length();
 };

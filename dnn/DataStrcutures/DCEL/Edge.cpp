@@ -23,6 +23,10 @@ Edge::~Edge() {
 
 }
 
+bool Edge::operator==(Edge _e) {
+	return (*(this->gett()) == _e.gett()) && (*(this->gets()) == _e.gets()) || (*(this->gett()) == _e.gets()) && (*(this->gets()) == _e.gett());
+}
+
 bool Edge::on(Point* p) {
 	double s_x = this->gets()->getx();
 	double s_y = this->gets()->gety();
@@ -105,6 +109,13 @@ Point* Edge::gett() {
 	return this->t;
 }
 
+void Edge::sets(Point* _p) {
+	this->s = _p;
+}
+
+void Edge::sett(Point* _p) {
+	this->t = _p;
+}
 
 double Edge::length() {
 	return this->s->distance(*this->t);
