@@ -1,6 +1,8 @@
 #include "compressed_quadtree.h"
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 typedef double type_point;
 
@@ -59,7 +61,7 @@ Point* readPoints(char* path, int& size, int& k) {
 	return points;
 }
 
-#define EPSILON		0.1
+#define EPSILON		0.05
 
 int main(int argc, char** argv) {
 	/*
@@ -99,14 +101,43 @@ int main(int argc, char** argv) {
 	double epsilon = EPSILON;
 
 	// query
-	for (int i = 0; i < query_size; i++) {
-		list<pair<Point*, double>> query = tree.knn(k, queries[i], epsilon);
-		printf("query #%d: (%g, %g)\n", i + 1, queries[i].coords[X], queries[i].coords[Y]);
+	int path_len = strlen(argv[2]) + 2;
+	char* path = (char*)calloc(path_len, sizeof(char));
+	path[0] = 'a';
+	strcpy_s(path + 1, path_len, argv[2]);
 
-		for (list<pair<Point*, double>>::iterator i = query.begin(); i != query.end(); i++)
-			printf("(%g, %g)\n", (*i->first)[X], (*i->first)[Y]);
-		printf("\n");
+	FILE* output = NULL;
+	fopen_s(&output, path, "w");
+	fprintf(output, "%d\n", query_size);
+
+	char* path_time = (char*)calloc(path_len, sizeof(char));
+	path_time[0] = 'q';
+	strcpy_s(path_time + 1, path_len, argv[2]);
+
+	FILE* output_time = NULL;
+	fopen_s(&output_time, path_time, "w");
+
+	system_clock::time_point start, end;
+	duration<double> sec;
+	printf("q:%d\n", query_size);
+
+	for (int i = 0; i < query_size; i++) {
+		start = system_clock::now();
+		list<pair<Point*, double>> query = tree.knn(k, queries[i], epsilon);
+		end = system_clock::now();
+		sec = end - start;
+		fprintf(output_time, "%g\n", sec);
+
+		// printf("query #%d: (%g, %g)\n", i + 1, queries[i].coords[X], queries[i].coords[Y]);
+
+		for (list<pair<Point*, double>>::iterator i = query.begin(); i != query.end(); i++) {
+			// printf("(%g, %g)\n", (*i->first)[X], (*i->first)[Y]);
+			fprintf(output, "%g %g\n", (*i->first)[X], (*i->first)[Y]);
+		}
+		// printf("\n");
 	}
+	fclose(output);
+	fclose(output_time);
 
 	printf("done.\n");
 	END(0);

@@ -1,6 +1,5 @@
-dnn/.vs
-dnn/DNN.vcxproj*
-dnn/main.cpp
-
-
+**/.vs/
+**/Debug/
+**/main.cpp
+**/Release/
 

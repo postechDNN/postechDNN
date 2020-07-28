@@ -1,5 +1,3 @@
-// Ipelet for finding convex hull using graham scan
-
 #include "ipelet.h"
 #include "ipepath.h"
 #include "ipepage.h"
