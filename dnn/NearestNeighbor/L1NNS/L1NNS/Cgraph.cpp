@@ -112,7 +112,7 @@ vector<double> Cgraph::Dijkstra(int s)
 	vector<double> dist(n, INF);
 	vector<bool> check(n, bool(false));
 	pq.push(make_pair(0.0,s));
-	for (int t = 0; t < n - 1; t++)
+	while(!pq.empty())
 	{
 		int index = pq.top().second;
 		int cost = pq.top().first;

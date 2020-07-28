@@ -24,7 +24,8 @@ PPP endpoint;
 PPP lb;
 PPP rt;
 PPP previ;
-PPP previn;
+vector<PPP> previn;
+vector<Point_Distance> nearest;
 int width = 1024;
 int height = 768;
 vector<Rect> input;
@@ -32,6 +33,9 @@ double rad = 0.5;
 int printcount;
 int processing;
 RectangularDomain D;
+int K=1;
+int pcnt;
+int printtoggle = 0;
 
 bool med(double x,double y,double l,double r,double t,double b)
 {
@@ -59,31 +63,9 @@ void Printf()
 		printf("Rectangles %lf, %lf, %lf, %lf\n", input[printcount].getl(), input[printcount].getr(), input[printcount].getb(), input[printcount].gett());
 }
 
-void DrawRect()
-{
-//	if (mouse_cond == MAKERECT)
-//	{
-//		glEnable(GL_LINE_STIPPLE);
-		//glLineStipple(1, 0x0101); // 점선의 모양 결정
-		// 0x0101 은 16진수 숫자로써 점선의 패턴을 만들어내는 코드 이다
-//		glBegin(GL_LINE_LOOP);
-//		glVertex2f(lb.x, lb.y);
-//		glVertex2f(rt.x, lb.y);
-//		glVertex2f(rt.x, rt.y);
-//		glVertex2f(lb.x, rt.y);
-//		glEnd();
-//	}
-	if (mouse_cond == IDLE)
-	{
-		//		glDisable(GL_LINE_STIPPLE);
-	};
-}
-
 void DisplayWindow()
 {
 //	glClear(GL_COLOR_BUFFER_BIT);
-
-	DrawRect();
 	glFlush();
 //	glutSwapBuffers();
 }
@@ -118,8 +100,32 @@ void MouseClick(int button, int state, int x, int y)
 		if(-width / 2 <= endpoint.x && endpoint.x <= -width / 2 + 50 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
 		{
 			processing = QUERY;
+			if (printtoggle == 1)
+			{
+				Cgraph Tempo = D.getcarrier(2);
+				int nnn = Tempo.edgecnt();
+				glColor3f(1.0, 1.0, 1.0);
+				for (int i = 0; i < nnn; i++)
+				{
+					glBegin(GL_LINE_LOOP);
+					glVertex2f(Tempo.getedge(i)->gets()->getx(), Tempo.getedge(i)->gets()->gety());
+					glVertex2f(Tempo.getedge(i)->gett()->getx(), Tempo.getedge(i)->gett()->gety());
+					glEnd();
+				}
+			}
 		//	printf("rudolfh, %lf %lf\n", endpoint.x,endpoint.y);
 			D = RectangularDomain(input);
+			Cgraph Tempo = D.getcarrier(2);
+			int nnn = Tempo.edgecnt();
+			glColor3f(1.0, 0.0, 0.0);
+			for (int i = 0; i < nnn; i++)
+			{
+				glBegin(GL_LINE_LOOP);
+				glVertex2f(Tempo.getedge(i)->gets()->getx(), Tempo.getedge(i)->gets()->gety());
+				glVertex2f(Tempo.getedge(i)->gett()->getx(), Tempo.getedge(i)->gett()->gety());
+				glEnd();
+			}
+			printtoggle = 1;
 		}
 
 		else if (-width / 2 + 100 <= endpoint.x && endpoint.x <= -width / 2 + 150 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
@@ -128,14 +134,19 @@ void MouseClick(int button, int state, int x, int y)
 			if (previ.x != HIGH)
 			{
 				glColor3f(1.0, 1.0, 1.0);
-				glPointSize(3.0);
+				glPointSize(5.0);
 				glBegin(GL_POINTS);
 				glVertex2f(previ.x, previ.y);
 				glEnd();
 				glColor3f(0.0, 0.0, 0.0);
-				glPointSize(3.0);
+				glPointSize(5.0);
 				glBegin(GL_POINTS);
-				glVertex2f(previn.x, previn.y);
+				int i = previn.size()-1;
+				for (; i >= 0; i--)
+				{
+					glVertex2f(previn[i].x, previn[i].y);
+					previn.pop_back();
+				}
 				glEnd();
 			}
 		}
@@ -163,7 +174,7 @@ void MouseClick(int button, int state, int x, int y)
 					if (possible)
 					{
 						glColor3f(0.0, 0.0, 0.0);
-						glPointSize(3.0);
+						glPointSize(5.0);
 						glBegin(GL_POINTS);
 						glVertex2f(lb.x, lb.y);
 						glEnd();
@@ -187,35 +198,42 @@ void MouseClick(int button, int state, int x, int y)
 						if (previ.x != HIGH)
 						{
 							glColor3f(1.0, 1.0, 1.0);
-							glPointSize(3.0);
+							glPointSize(5.0);
 							glBegin(GL_POINTS);
 							glVertex2f(previ.x, previ.y);
 							glEnd();
 							glColor3f(0.0, 0.0, 0.0);
-							glPointSize(3.0);
+							glPointSize(5.0);
 							glBegin(GL_POINTS);
-							glVertex2f(previn.x, previn.y);
+							int i = previn.size()-1;
+							for (; i >= 0; i--)
+							{
+								glVertex2f(previn[i].x, previn[i].y);
+								previn.pop_back();
+							}
 							glEnd();
 						}
 						glColor3f(0.0, 0.0, 1.0);
-						glPointSize(3.0);
+						glPointSize(5.0);
 						glBegin(GL_POINTS);
 						glVertex2f(lb.x, lb.y);
 						glEnd();
-						Point *nearest = D.NNS(Point(lb.x, lb.y)).p;
+						nearest = D.kNNS(Point(lb.x, lb.y),K);
 						glColor3f(1.0, 0.0, 1.0);
-						glPointSize(3.0);
+						glPointSize(5.0);
 						glBegin(GL_POINTS);
-						glVertex2f(nearest->getx(), nearest->gety());
+						for (int i = 0; i < nearest.size(); i++)
+						{
+							glVertex2f(nearest[i].p->getx(), nearest[i].p->gety());
+							previn.push_back({ nearest[i].p->getx(),nearest[i].p->gety() });
+						}
 						glEnd();
 						previ.x = lb.x;
 						previ.y = lb.y;
-						previn.x = nearest->getx();
-						previn.y = nearest->gety();
 					}
 				}
 			}
-			else if (processing == INSERTION && lb.x < rt.x && lb.y < rt.y)
+			else if (processing == INSERTION && lb.x + 5 < rt.x && lb.y + 5 < rt.y)
 			{
 				bool possible = true;
 				for (int i = 0; i < input.size(); i++)
@@ -240,14 +258,6 @@ void MouseClick(int button, int state, int x, int y)
 	DisplayWindow();
 }
 
-void Reshape(int w, int h) 
-{
-	glMatrixMode(GL_PROJECTION);
-	glViewport(0, 0, w, h);
-	glLoadIdentity();
-	gluOrtho2D(-w / 2, w / 2, -h / 2, h / 2);
-}
-
 void MouseDrag(int x,int y) 
 {
 	if (mouse_cond == MAKERECT)
@@ -259,14 +269,47 @@ void MouseDrag(int x,int y)
 	glutPostRedisplay();
 }
 
+void Menu(int value) 
+{
+	switch (value) {
+	case 1:
+		K = 1;
+		break;
+	case 2:
+		K = 2;
+		break;
+	case 3:
+		K = 3;
+		break;
+	case 4:
+		K = -1;
+		break;
+	}
+	glutPostRedisplay();
+}
+
 void main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-//	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("L1NNS in RectDomain");
 	gluOrtho2D(-width / 2, width / 2, -height / 2, height / 2);
+
+
+
+	GLint kNNMenu = glutCreateMenu(Menu);
+	glutAddMenuEntry("2-NNS", 2);
+	glutAddMenuEntry("3-NNS", 3);
+	glutAddMenuEntry("Farthest", 4);
+
+	glutCreateMenu(Menu);
+	glutAddMenuEntry("NNS", 1);
+
+	glutAddSubMenu("k-NNS", kNNMenu);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+
+
 
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -279,35 +322,7 @@ void main(int argc, char** argv)
 	glRectf(-width / 2 + 100, -height / 2, -width / 2 + 150, -height / 2 + 50);
 
 	glutDisplayFunc(DisplayWindow);
-//	glutReshapeFunc(Reshape);
 	glutMouseFunc(MouseClick);
 	glutMotionFunc(MouseDrag);
 	glutMainLoop();
 }
-
-/*
-int main()
-{
-	//MAKE RECTDomain
-	RectangularDomain RD;
-
-	//query
-
-	//Point *nearest = RD.NNS(Point(-3.3, 13.6)).p;
-
-	//printf("%lf %lf\n",nearest->getx(),nearest->gety());
-
-
-	//query
-	Point *nearest = RD.NNS(Point(351.678,424.72)).p;
-	printf("%lf %lf\n",nearest->getx(),nearest->gety());
-
-	nearest = RD.NNS(Point(152.921,175.87)).p;
-	printf("%lf %lf\n", nearest->getx(), nearest->gety());
-
-	nearest = RD.NNS(Point(414.16, 146.245)).p;
-	printf("%lf %lf\n", nearest->getx(), nearest->gety());
-
-	system("pause");
-}
-;*/

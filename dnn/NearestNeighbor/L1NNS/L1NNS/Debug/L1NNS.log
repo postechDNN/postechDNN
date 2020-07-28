@@ -33,29 +33,4 @@ d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\cgraph.cpp(849): warning C
 d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\cgraph.cpp(871): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
 d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\cgraph.cpp(896): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
 d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\cgraph.cpp(918): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-  Rect.cpp
-  RectangularDomain.cpp
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(64): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(95): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(345): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(355): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(358): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(396): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(406): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(409): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(447): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(457): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(460): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(498): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(508): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(511): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-  main.cpp
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\main.cpp(58): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\main.cpp(154): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\main.cpp(176): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\main.cpp(221): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\main.cpp(263): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
-  코드를 생성하고 있습니다...
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(133): warning C4715: 'RectangularDomain::getcarrier': 모든 제어 경로에서 값을 반환하지는 않습니다.
-d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\l1nns\rectangulardomain.cpp(144): warning C4715: 'RectangularDomain::incidentcheck': 모든 제어 경로에서 값을 반환하지는 않습니다.
   L1NNS.vcxproj -> D:\Lab\DNN\postechDNN\dnn\Debug\L1NNS.exe

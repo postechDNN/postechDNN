@@ -16,6 +16,7 @@ RectangularDomain::RectangularDomain()
 	rectset.push_back(Rect(new Point(16.22, 5.7)));
 	*/
 	//Rect은 lrtb입니다
+	/*
 	rectset.push_back(Rect(107.136, 161, 410.177, 363.854));
 	rectset.push_back(Rect(177.698, 261.725, 456.5, 386.477));
 	rectset.push_back(Rect(290.812, 376.994, 408.561, 285.213));
@@ -53,6 +54,22 @@ RectangularDomain::RectangularDomain()
 	rectset.push_back(Rect(new Point(202.475, 276.056)));
 	rectset.push_back(Rect(new Point(259.032, 318.07)));
 	rectset.push_back(Rect(new Point(217.018, 363.854)));
+	construct();*/
+}
+
+RectangularDomain::RectangularDomain(vector<Rect> arr)
+{
+	for (int i = 0; i < arr.size(); i++)
+	{
+		double ll = arr[i].getl();
+		double rr = arr[i].getr();
+		double tt = arr[i].gett();
+		double bb = arr[i].getb();
+		if (ll == rr && tt == bb)
+			rectset.push_back(new Point(ll, bb));
+		else
+			rectset.push_back(Rect(ll, rr, tt, bb));
+	}
 	construct();
 }
 
@@ -90,21 +107,6 @@ void RectangularDomain::construct()
 	makecheck();
 }
 
-RectangularDomain::RectangularDomain(vector<Rect> arr)
-{
-	for (int i = 0; i < arr.size(); i++)
-	{
-		double ll = arr[i].getl();
-		double rr = arr[i].getr();
-		double tt = arr[i].gett();
-		double bb = arr[i].getb();
-		if (ll == rr && tt == bb)
-			rectset.push_back(new Point(ll,bb));
-		else
-			rectset.push_back(Rect(ll,rr,tt,bb));
-	}
-	construct();
-}
 
 Rect RectangularDomain::getboundary()
 {
@@ -626,6 +628,10 @@ vector<Point_Distance> RectangularDomain::kNNS(Point query,int k)
 	}
 
 	sort(result.begin(),result.end(),comparedist);
+	printf("%lf,%lf\n",result[np-1].p->getx(), result[np - 1].p->gety());
 
-	return result; //slicing
+	if (k == -1)
+		return vector<Point_Distance>(result.begin() + np - 1, result.begin() + np);
+	else
+		return vector<Point_Distance>(result.begin(), result.begin() + k);
 }
