@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <cmath>
 #define M_PI 3.14159265358979323846
 #define BUFFERSIZE 1000
 
@@ -239,9 +240,12 @@ DCEL::DCEL(FILE* readFile) {
 	for (int i = 0; i < num_faces; i++) {
 		(*this->faces)[i] = new Face();
 	}
-	this->hedges = new std::vector<HEdge*>(num_hedges);
-	for (int i = 0; i < num_hedges; i++) {
+	this->hedges = new std::vector<HEdge*>(num_hedges/2);
+	for (int i = 0; i < num_hedges/2; i++) {
 		(*this->hedges)[i] = new HEdge();
+		HEdge *twin = new HEdge();
+		(*this->hedges)[i]->setTwin(twin);
+		twin->setTwin((*this->hedges)[i]);
 	}
 
 	//Set Keys of Faces, HEdges, and Vertices
@@ -265,13 +269,17 @@ DCEL::DCEL(FILE* readFile) {
 	}
 
 	fgets(buffer, BUFFERSIZE, readFile);
+
 	token = strtok(buffer, "\t, \n");
 	(*this->hedges)[0]->setHedgeKey(token);
+	token = strtok(NULL, "\t, \n");
+	(*this->hedges)[0]->getTwin()->setHedgeKey(token);
 
-	for (int i = 1; i < this->num_hedges; i++) {
+	for (int i = 1; i < this->num_hedges/2; i++) {
 		token = strtok(NULL, "\t, \n");
 		(*this->hedges)[i]->setHedgeKey(token);
-
+		token = strtok(NULL, "\t, \n");
+		(*this->hedges)[i]->getTwin()->setHedgeKey(token);
 	}
 
 	// Set Vertex information
@@ -313,22 +321,25 @@ DCEL::DCEL(FILE* readFile) {
 
 	// Set Half Edge information
 	for (int i = 0; i < num_hedges; i++) {
+		HEdge *he;
+		if(i %2 == 0) he = (*this->hedges)[i/2];
+		else he = (*this->hedges)[i/2]->getTwin();
 		fgets(buffer, BUFFERSIZE, readFile);
 		token = strtok(buffer, "\t, \n");
 		token = strtok(NULL, "\t, \n");
-		(*this->hedges)[i]->setOrigin(this->searchVertex(token));
+		he->setOrigin(this->searchVertex(token));
 		token = strtok(NULL, "\t, \n");
-		(*this->hedges)[i]->setTwin(this->searchHedge(token));
+		he->setTwin(this->searchHedge(token));
 		token = strtok(NULL, "\t, \n");
-		(*this->hedges)[i]->setIncidentFace(this->searchFace(token));
+		he->setIncidentFace(this->searchFace(token));
 		token = strtok(NULL, "\t, \n");
-		(*this->hedges)[i]->setNext(this->searchHedge(token));
+		he->setNext(this->searchHedge(token));
 		token = strtok(NULL, "\t, \n");
-		(*this->hedges)[i]->setPrev(this->searchHedge(token));
+		he->setPrev(this->searchHedge(token));
 	}
 
 	// Set Edge information of HEdges
-	for (int i = 0; i < num_hedges; i++) {
+	for (int i = 0; i < num_hedges/2; i++) {
 		(*this->hedges)[i]->sets((*this->hedges)[i]->getOrigin());
 		(*this->hedges)[i]->sett((*this->hedges)[i]->getTwin()->getOrigin());
 		(*this->hedges)[i]->getTwin()->sets((*this->hedges)[i]->getTwin()->getOrigin());
@@ -844,10 +855,10 @@ void DCEL::deleteEdge(HEdge* _e) {
 
 HEdge* DCEL::searchHedge(char* key) {
 	for (int i = 0; i < this->getHedges()->size(); i++) {
-
-		if (strcmp((*this->getHedges())[i]->getHedgeKey(), key) == 0) {
+		if (strcmp((*this->getHedges())[i]->getHedgeKey(), key) == 0)
 			return (*this->getHedges())[i];
-		}
+		if(strcmp((*this->getHedges())[i]->getTwin()->getHedgeKey(), key) == 0)
+			return (*this->getHedges())[i]->getTwin();
 	}
 	return nullptr;
 }
@@ -1029,7 +1040,10 @@ void DCEL::printHedgeTab() {
 	std::cout << "Half-edge " << " Origin " << "  Twin" << "  IncidentFace" << "  Next" << "    Prev" << "\n";
 	for (int i = 0; i < this->hedges->size(); i++)
 	{
-		std::cout << std::setw(7) << (*this->hedges)[i]->getHedgeKey() << std::setw(8) << (*this->hedges)[i]->getOrigin()->getVertexKey() << std::setw(9) << (*this->hedges)[i]->getTwin()->getHedgeKey() << "\t" << (*this->hedges)[i]->getIncidentFace()->getFaceKey() << "\t" << (*this->hedges)[i]->getNext()->getHedgeKey() << "\t" << (*this->hedges)[i]->getPrev()->getHedgeKey() << std::endl;
+		HEdge* he = (*this->hedges)[i];
+		std::cout << std::setw(7) << he->getHedgeKey() << std::setw(8) << he->getOrigin()->getVertexKey() << std::setw(9) << he->getTwin()->getHedgeKey() << "\t" << he->getIncidentFace()->getFaceKey() << "\t" << he->getNext()->getHedgeKey() << "\t" << he->getPrev()->getHedgeKey() << std::endl;
+		he = he->getTwin();
+		std::cout << std::setw(7) << he->getHedgeKey() << std::setw(8) << he->getOrigin()->getVertexKey() << std::setw(9) << he->getTwin()->getHedgeKey() << "\t" << he->getIncidentFace()->getFaceKey() << "\t" << he->getNext()->getHedgeKey() << "\t" << he->getPrev()->getHedgeKey() << std::endl;
 	}
 }
 
