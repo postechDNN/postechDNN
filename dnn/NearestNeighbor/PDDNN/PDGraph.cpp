@@ -1,6 +1,4 @@
 #include "PDGraph.h"
-#include "PDNode.h"
-#include <map>
 
 PDgraph::PDgraph() {
 	this->nodes = new std::vector<PDNode*>();
@@ -9,7 +7,6 @@ PDgraph::PDgraph() {
 PDgraph::PDgraph(PolygonalDomain* pd) {
 
 	this->nodes = new std::vector<PDNode*>();
-
 	for (int i = 0; i < pd->getObstacles()->size(); i++) {
 		SimplePolygon* sp = (*pd->getObstacles())[i];
 		for (int j = 0; j < sp->getEdges()->size(); j++) {
@@ -23,18 +20,15 @@ PDgraph::PDgraph(PolygonalDomain* pd) {
 
 	for (int i = 0; i < this->nodes->size(); i++) {
 		for (int j = i + 1; j < this->nodes->size(); j++) {
-
-			if (((*this->nodes)[i]->issite() == true) && ((*this->nodes)[j]->issite() == true)) {
-				Edge* ne = new Edge((*this->nodes)[i]->getPoint(), (*this->nodes)[j]->getPoint());
-				bool flag = true;
-				for (int k = 0; k < pd->getObstacles()->size(); k++) {
-					SimplePolygon* sp = (*pd->getObstacles())[k];
-					for (int l = 0; l < sp->getEdges()->size(); l++) {
-						Edge* te = (*sp->getEdges())[l];
-						if (!((*ne) == (*te)) && ne->crossing(te, false)) {
-							flag = false;
-							break;
-						}
+			Edge* ne = new Edge((*this->nodes)[i]->p, (*this->nodes)[j]->p);
+			bool flag = true;
+			for (int k = 0; k < pd->getObstacles()->size(); k++) {
+				SimplePolygon* sp = (*pd->getObstacles())[k];
+				for (int l = 0; l < sp->getEdges()->size(); l++) {
+					Edge* te = (*sp->getEdges())[l];
+					if (!((*ne) == (*te)) && ne->crossing(te, false)) {
+						flag = false;
+						break;
 					}
 					if (!flag)
 						break;

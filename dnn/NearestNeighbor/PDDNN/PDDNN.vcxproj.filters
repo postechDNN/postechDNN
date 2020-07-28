@@ -18,12 +18,15 @@
     <ClCompile Include="PDGraph.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="PDNode.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+=======
+>>>>>>> DCEL
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PDGraph.h">

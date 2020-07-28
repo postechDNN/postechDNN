@@ -1,6 +1,8 @@
 #pragma once
-#include "PDNode.h"
 #include "../../DataStrcutures/DCEL/PolygonalDomain.h"
+#include "../../DataStrcutures/DCEL/Point.h"
+#include "../../DataStrcutures/DCEL/SimplePolygon.h"
+#include "PDNode.h"
 
 class PDgraph{
 public:
@@ -15,6 +17,7 @@ public:
 			}
 		}
 	};
+
 	PDgraph();
 	PDgraph(PolygonalDomain*);
 	std::vector<PDNode*>* getNodes();
