@@ -108,6 +108,11 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 			cur = cur->getNext();
 		}while(cur != e_p);
 	}
+	
+	for(auto v_p : *(dcel.getVertices())){
+		ipe::Vector p(v_p->getx()/width * ipe_width + ipe_x, v_p->gety()/width * ipe_height + ipe_y);
+		points.Draw_point(data,helper,p);
+	}
 
 	return true;
 }
