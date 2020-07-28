@@ -1,7 +1,9 @@
-dnn/.vs
-dnn/DNN.vcxproj*
-dnn/main.cpp
-dnn/UpgradeLog2.htm
-dnn/DataStructures/DCEL/DCEL.vcxproj.filters
-
-
+**/.vs/
+**/Debug/
+**/main.cpp
+*.log
+*.tlog
+*.obj
+*.obj.enc
+*.ilk
+*.pdb
