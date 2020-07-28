@@ -41,7 +41,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SegTree", "DataStrcutures\S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DDNN", "NearestNeighbor\DDNN\DDNN.vcxproj", "{3EA50F92-0002-41F9-A73D-64507C67F98B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "L1NNS", "NearestNeighbor\L1NNS\L1NNS\L1NNS.vcxproj", "{7078B110-E5E8-461B-9052-564ED92353B6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "L1NNS", "NearestNeighbor\L1NNS\L1NNS.vcxproj", "{7078B110-E5E8-461B-9052-564ED92353B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

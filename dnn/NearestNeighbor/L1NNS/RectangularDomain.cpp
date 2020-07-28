@@ -1,6 +1,11 @@
 #include"RectangularDomain.h"
 RectangularDomain::RectangularDomain()
 {
+	n = 0;
+	xpos = new Cgraph();
+	ypos = new Cgraph();
+	xneg = new Cgraph();
+	yneg = new Cgraph();
 	//input()
 	/*
 	rectset.push_back(Rect(1.6, 5.7, 12.4, 5.9));
@@ -98,15 +103,34 @@ void RectangularDomain::construct()
 	}
 
 	system("pause");*/
-	xpos = Cgraph(rectset, bbox, 0);
-	xneg = Cgraph(rectset, bbox, 1);
-	ypos = Cgraph(rectset, bbox, 2);
-	yneg = Cgraph(rectset, bbox, 3);
+	xpos = new Cgraph(rectset, bbox, 0);
+	xneg = new Cgraph(rectset, bbox, 1);
+	ypos = new Cgraph(rectset, bbox, 2);
+	yneg = new Cgraph(rectset, bbox, 3);
 
 	makeshadow();
 	makecheck();
 }
 
+RectangularDomain::~RectangularDomain()
+{
+	delete xpos;
+	delete ypos;
+	delete xneg;
+	delete yneg;
+	for (int i = 0; i < n; i++)
+	{
+		if(rectset[i].isPoint() == true)
+			delete rectset[i].getp();
+		else 
+		{
+			delete rectset[i].getlb();
+			delete rectset[i].getlt();
+			delete rectset[i].getrb();
+			delete rectset[i].getrt();
+		}
+	}
+}
 
 Rect RectangularDomain::getboundary()
 {
@@ -123,7 +147,7 @@ Rect RectangularDomain::getrect(int i)
 	return this->rectset[i];
 }
 
-Cgraph RectangularDomain::getcarrier(int i)
+Cgraph* RectangularDomain::getcarrier(int i)
 {
 	switch(i)
 	{
@@ -324,7 +348,7 @@ void RectangularDomain::makecheck()
 	vector<vector<double>> mat;
 	//reachable checking and has from 
 	lcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
-	mat = xpos.getmatrix();
+	mat = xpos->getmatrix();
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < n; j++)
@@ -375,7 +399,7 @@ void RectangularDomain::makecheck()
 	}
 
 	rcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
-	mat = xneg.getmatrix();
+	mat = xneg->getmatrix();
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < n; j++)
@@ -426,7 +450,7 @@ void RectangularDomain::makecheck()
 	}
 
 	bcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
-	mat = ypos.getmatrix();
+	mat = ypos->getmatrix();
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < n; j++)
@@ -477,7 +501,7 @@ void RectangularDomain::makecheck()
 	}
 
 	tcheck = vector<vector<Wake>>(n, vector<Wake>(n));// i번의 Rect의 lwake에 j번 정점이 속하는가?
-	mat = yneg.getmatrix();
+	mat = yneg->getmatrix();
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < n; j++)

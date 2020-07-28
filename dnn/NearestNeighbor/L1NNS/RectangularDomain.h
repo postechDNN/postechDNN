@@ -31,17 +31,18 @@ private:
 	int n;
 	int np;
 	double INF;
-	Cgraph xpos,xneg,ypos,yneg;
+	Cgraph *xpos,*xneg,*ypos,*yneg;
 	void makeshadow();
 	void makecheck();
 	void construct();
 public:
 	RectangularDomain();
 	RectangularDomain(vector<Rect>);
+	~RectangularDomain();
 	Rect getboundary();
 	Rect getrect(int);
 	int rectcnt();
-	Cgraph getcarrier(int);
+	Cgraph* getcarrier(int);
 	bool incidentcheck(int,int,int);
 	Point_Distance NNS(Point);
 	vector<Point_Distance> kNNS(Point,int);

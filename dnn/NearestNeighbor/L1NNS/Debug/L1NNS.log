@@ -1,0 +1,43 @@
+﻿  Cgraph.cpp
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(101): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(127): warning C4244: '초기화 중': 'const _Ty1'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+          with
+          [
+              _Ty1=double
+          ]
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(179): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(204): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(226): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(255): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(277): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(302): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(324): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(379): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(404): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(426): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(456): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(478): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(503): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(525): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(580): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(605): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(627): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(657): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(679): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(704): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(726): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(781): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(806): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(828): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(858): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(880): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(905): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\cgraph.cpp(927): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  opengl_gui.cpp
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\opengl_gui.cpp(56): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\opengl_gui.cpp(166): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\opengl_gui.cpp(187): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\opengl_gui.cpp(224): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+d:\lab\dnn\postechdnn\dnn\nearestneighbor\l1nns\opengl_gui.cpp(238): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  코드를 생성하고 있습니다...
+  L1NNS.vcxproj -> D:\Lab\DNN\postechDNN\dnn\Debug\L1NNS.exe

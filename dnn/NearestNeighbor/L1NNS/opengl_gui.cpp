@@ -12,7 +12,7 @@
 #define MAKERECT 1
 #define INSERTION 0
 #define QUERY 1
-#define HIGH 2147483746
+#define HIGH 2147483647
 typedef struct ppp {
 	double x;
 	double y;
@@ -32,32 +32,26 @@ vector<Rect> input;
 double rad = 0.5;
 int printcount;
 int processing;
-RectangularDomain D;
-int K=1;
+RectangularDomain *D = new RectangularDomain();
+int K = 1;
 int pcnt;
 int printtoggle = 0;
 
-bool med(double x,double y,double l,double r,double t,double b)
+bool med(double x, double y, double l, double r, double t, double b)
 {
 	return l <= x && x <= r && b <= y && y <= t;
 }
 
-bool intersect(Rect A, Rect B) 
+bool intersect(Rect A, Rect B)
 {
 	double l = B.getl();
 	double r = B.getr();
 	double t = B.gett();
 	double b = B.getb();
-	printf("in intersect %lf %f %lf %lf\n", l, r, t, b);
-	if (med(A.getl(), A.getb(), l, r, t, b)) printf("t"); else printf("f");
-	if (med(A.getl(), A.gett(), l, r, t, b)) printf("t"); else printf("f");
-	if (med(A.getr(), A.getb(), l, r, t, b)) printf("t"); else printf("f");
-	if (med(A.getr(), A.gett(), l, r, t, b)) printf("t"); else printf("f");
-	printf("\n");
 	return med(A.getl(), A.getb(), l, r, t, b) || med(A.getl(), A.gett(), l, r, t, b) || med(A.getr(), A.getb(), l, r, t, b) || med(A.getr(), A.gett(), l, r, t, b);
 }
 
-void Printf() 
+void Printf()
 {
 	for (; printcount < input.size(); printcount++)
 		printf("Rectangles %lf, %lf, %lf, %lf\n", input[printcount].getl(), input[printcount].getr(), input[printcount].getb(), input[printcount].gett());
@@ -65,9 +59,9 @@ void Printf()
 
 void DisplayWindow()
 {
-//	glClear(GL_COLOR_BUFFER_BIT);
+	//	glClear(GL_COLOR_BUFFER_BIT);
 	glFlush();
-//	glutSwapBuffers();
+	//	glutSwapBuffers();
 }
 
 void ClassifyCorner(void)
@@ -91,16 +85,16 @@ void MouseClick(int button, int state, int x, int y)
 	}
 	if (mouse_cond == MAKERECT && button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
-	//	printf("state = %d\n", processing);
+		//	printf("state = %d\n", processing);
 		mouse_cond = IDLE;
 		endpoint.x = x - width / 2;
 		endpoint.y = height / 2 - y;
 		ClassifyCorner();
 
-		if(-width / 2 <= endpoint.x && endpoint.x <= -width / 2 + 50 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
+		if (-width / 2 <= endpoint.x && endpoint.x <= -width / 2 + 50 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
 		{
 			processing = QUERY;
-			if (printtoggle == 1)
+			/*if (printtoggle == 1)
 			{
 				Cgraph Tempo = D.getcarrier(2);
 				int nnn = Tempo.edgecnt();
@@ -112,10 +106,11 @@ void MouseClick(int button, int state, int x, int y)
 					glVertex2f(Tempo.getedge(i)->gett()->getx(), Tempo.getedge(i)->gett()->gety());
 					glEnd();
 				}
-			}
-		//	printf("rudolfh, %lf %lf\n", endpoint.x,endpoint.y);
-			D = RectangularDomain(input);
-			Cgraph Tempo = D.getcarrier(2);
+			}*/
+			//	printf("rudolfh, %lf %lf\n", endpoint.x,endpoint.y);
+			delete D;
+			D = new RectangularDomain(input);
+			/*Cgraph Tempo = D.getcarrier(2);
 			int nnn = Tempo.edgecnt();
 			glColor3f(1.0, 0.0, 0.0);
 			for (int i = 0; i < nnn; i++)
@@ -125,7 +120,7 @@ void MouseClick(int button, int state, int x, int y)
 				glVertex2f(Tempo.getedge(i)->gett()->getx(), Tempo.getedge(i)->gett()->gety());
 				glEnd();
 			}
-			printtoggle = 1;
+			printtoggle = 1;*/
 		}
 
 		else if (-width / 2 + 100 <= endpoint.x && endpoint.x <= -width / 2 + 150 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
@@ -141,7 +136,7 @@ void MouseClick(int button, int state, int x, int y)
 				glColor3f(0.0, 0.0, 0.0);
 				glPointSize(5.0);
 				glBegin(GL_POINTS);
-				int i = previn.size()-1;
+				int i = previn.size() - 1;
 				for (; i >= 0; i--)
 				{
 					glVertex2f(previn[i].x, previn[i].y);
@@ -151,10 +146,16 @@ void MouseClick(int button, int state, int x, int y)
 			}
 		}
 
+		else if (width / 2 - 50 <= endpoint.x && endpoint.x <= width / 2 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
+		{
+			delete D;
+			exit(0);
+		}
+
 		else
 		{
 			Rect X(lb.x, rt.x, rt.y, lb.y);
-		//	printf("X = %lf %f %lf %lf\n", X.getl(), X.getr(), X.getb(), X.gett());
+			//	printf("X = %lf %f %lf %lf\n", X.getl(), X.getr(), X.getb(), X.gett());
 
 			if (lb.x == rt.x && lb.y == rt.y)
 			{
@@ -167,7 +168,6 @@ void MouseClick(int button, int state, int x, int y)
 						if (intersect(X, input[i]) || intersect(input[i], X))
 						{
 							possible = false;
-							printf("ttt");
 							break;
 						}
 					}
@@ -181,7 +181,7 @@ void MouseClick(int button, int state, int x, int y)
 						input.push_back(X);
 					}
 				}
-				else if(processing == QUERY)
+				else if (processing == QUERY)
 				{
 					bool possible = true;
 					for (int i = 0; i < input.size(); i++)
@@ -189,7 +189,6 @@ void MouseClick(int button, int state, int x, int y)
 						if (intersect(X, input[i]) || intersect(input[i], X))
 						{
 							possible = false;
-							printf("ttt");
 							break;
 						}
 					}
@@ -205,7 +204,7 @@ void MouseClick(int button, int state, int x, int y)
 							glColor3f(0.0, 0.0, 0.0);
 							glPointSize(5.0);
 							glBegin(GL_POINTS);
-							int i = previn.size()-1;
+							int i = previn.size() - 1;
 							for (; i >= 0; i--)
 							{
 								glVertex2f(previn[i].x, previn[i].y);
@@ -218,7 +217,7 @@ void MouseClick(int button, int state, int x, int y)
 						glBegin(GL_POINTS);
 						glVertex2f(lb.x, lb.y);
 						glEnd();
-						nearest = D.kNNS(Point(lb.x, lb.y),K);
+						nearest = D->kNNS(Point(lb.x, lb.y), K);
 						glColor3f(1.0, 0.0, 1.0);
 						glPointSize(5.0);
 						glBegin(GL_POINTS);
@@ -251,14 +250,14 @@ void MouseClick(int button, int state, int x, int y)
 					input.push_back(X);
 				}
 			}
-	//		Printf();
+			//		Printf();
 		}
 	}
 	glutPostRedisplay();
 	DisplayWindow();
 }
 
-void MouseDrag(int x,int y) 
+void MouseDrag(int x, int y)
 {
 	if (mouse_cond == MAKERECT)
 	{
@@ -269,7 +268,7 @@ void MouseDrag(int x,int y)
 	glutPostRedisplay();
 }
 
-void Menu(int value) 
+void Menu(int value)
 {
 	switch (value) {
 	case 1:
@@ -288,14 +287,13 @@ void Menu(int value)
 	glutPostRedisplay();
 }
 
-void main(int argc, char** argv)
+void L1NNS(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("L1NNS in RectDomain");
 	gluOrtho2D(-width / 2, width / 2, -height / 2, height / 2);
-
 
 
 	GLint kNNMenu = glutCreateMenu(Menu);
@@ -320,9 +318,18 @@ void main(int argc, char** argv)
 	glRectf(-width / 2, -height / 2, -width / 2 + 50, -height / 2 + 50);
 	glColor3f(0.0, 1.0, 0.0);
 	glRectf(-width / 2 + 100, -height / 2, -width / 2 + 150, -height / 2 + 50);
+	glColor3f(0.0, 0.0, 0.0);
+	glRectf(width / 2 - 50, -height / 2, width / 2, -height / 2 + 50);
 
 	glutDisplayFunc(DisplayWindow);
 	glutMouseFunc(MouseClick);
 	glutMotionFunc(MouseDrag);
 	glutMainLoop();
+}
+
+
+int main(int argc, char** argv)
+{
+	L1NNS(argc, argv);
+	return 0;
 }

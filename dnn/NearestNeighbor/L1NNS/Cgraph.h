@@ -10,6 +10,7 @@ class Cgraph {
 public:
 	Cgraph();
 	Cgraph(vector<Rect>, Rect, int);
+	~Cgraph();
 	int edgecnt();
 	int vertexcnt();
 	Edge* getedge(int);

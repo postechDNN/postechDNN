@@ -28,7 +28,16 @@ vector<vector<double>> Cgraph::getmatrix()
 	return this->matrix;
 }
 
-Cgraph::Cgraph(vector<Rect> rset, Rect bbox, int dir) {
+Cgraph::~Cgraph()
+{/*
+	for (int i = 0; i < elist.size(); i++)
+		delete elist[i];
+	for (int i = 0; i < vlist.size(); i++)
+		delete vlist[i];*/
+}
+
+Cgraph::Cgraph(vector<Rect> rset, Rect bbox, int dir)
+{
 	vcnt = 0;
 	switch(dir)
 	{

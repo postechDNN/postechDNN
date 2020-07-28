@@ -33,6 +33,9 @@
     <ClCompile Include="Rect.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="opengl_gui.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RectangularDomain.h">

@@ -118,6 +118,7 @@
   <ItemGroup>
     <ClCompile Include="Cgraph.cpp" />
     <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="opengl_gui.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="RectangularDomain.cpp" />
