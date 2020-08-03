@@ -29,7 +29,7 @@ Class Point
 |Functions||
 |:---|:---|
 |[operator==](#operator)|Test if the given vectors has same x,y values.|
-|[operator-](#operator--1)|Returns a vector which is difference of two vectors.|
+|[operator-](#operator-1)|Returns a vector which is difference of two vectors.|
 |[norm(void)](#norm)|Returns a Euclidean norm of vector.|
 |[innerProduct(Vector)](#innerProduct)|Return an inner product of two vectors.|
 |[outerProduct(Vector)](#outerProduct)|Return an outer product of two vectors.|
@@ -146,8 +146,8 @@ double innerProduct(Vector _v);
 ```
 
 #### Parameters
-*_v*
-Vector object to calculate the inner product
+*_v*  
+Vector object to calculate the inner product.
 
 ### outerProduct
 Calculate an outer product of two vectors in Vector object.
@@ -156,5 +156,5 @@ Vector outerProduct(Vector _v);
 ```
 
 #### Parameters
-*_v*
-Vector object to calculate the outer product
+*_v*  
+Vector object to calculate the outer product.
