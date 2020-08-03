@@ -1,6 +1,6 @@
 # Class Vector v1.1
 
-Voint class is a class for a 2D vector. Vector stores its x,y coordinate values in double type. It inherit from the class Point
+Voint class is a class for a 2D vector. Vector stores its x,y values in double type. It inherits from the class Point
 
 ## Dependencies in postechDNN
 Class Point
