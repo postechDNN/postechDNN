@@ -15,10 +15,12 @@ Class Point, Edge
 |[tmost](#tmost)|Stores the pointer of the top-most vertex.|
 |[bmost](#bmost)|Stores the pointer of the bottom-most vertex.|
 |[rmost](#rmost)|Stores the pointer of the right-most vertex.|
+
 |Constructors & Destructors||
 |:---|:---|
 |[DCEL](#DCEL)|Construct a DCEL of one outer face or of a dcel file.|
 |[~DCEL](#DCEL-1)|Delete a DCEL object.|
+
 |Getters & Setters||
 |:---|:---|
 |[getFaces](#getFaces)|Returns ```faces``` vector.|
@@ -31,6 +33,7 @@ Class Point, Edge
 |[getRmost](#getRmost)|Returns ```rmost``` vertex.|
 |[getTmost](#getTmost)|Returns ```tmost``` vertex.|
 |[getBmost](#getBmost)|Returns ```bmost``` vertex.|
+
 |Functions||
 |:---|:---|
 |[addEdge](#addEdge)|Add the edge that connects the given vertices.|
@@ -47,6 +50,7 @@ Class Point, Edge
 |[printVertexTab](#printVertexTab)|Print the vertex table of DCEL.|
 |[printHedgeTab](#printHedgeTab)|Print the hedge table of DCEL.|
 |[printFaceTab](#printFaceTab)|Print the face table of DCEL.|
+
 ### num_faces
 Stores the number of faces as int type.
 ```
