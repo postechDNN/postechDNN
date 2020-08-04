@@ -131,20 +131,6 @@ void setFaces(std::vector<Face*>* _f);
 *_f*  
 Pointer of vector that contains the face records.
 ```
-### getFaces
-Returns pointer of vector faces.
-```
-std::vector<Face*>* getFaces();
-```
-### setFaces
-Sets faces.
-```
-void setFaces(std::vector<Face*>* _f);
-```
-#### Parameters
-*_f*  
-Pointer of vector that contains the face records.
-```
 ### getHedges
 Returns pointer of vector hedges.
 ```
