@@ -292,7 +292,7 @@ Class Point
 |[getx](#getx)|Returns ```x``` coordinate.|
 |[setx](#setx)|Sets ```x``` coordinate.|
 |[gety](#gety)|Returns ```y``` coordinate.|
-|[sety](#gety)|Returns ```y``` coordinate.|
+|[sety](#sety)|Returns ```y``` coordinate.|
 
 |Functions||
 |:---|:---|
@@ -393,7 +393,7 @@ HEdge *getIncidentEdge()
 ```
 
 ### setIncidentEdge
-Sets half edge to the incident edge of this vertex
+Sets half edge to the incident edge of this vertex.
 ```
 void setIncidentEdge(HEdge *_e)
 ```
