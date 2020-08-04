@@ -439,3 +439,107 @@ void setIncidentEdge(HEdge *_e)
 *_e*  
 A pointer of half edge which has this vertex as origin.
 
+# Class HEdge v1.1
+
+# Class Face v1.1
+## Dependencies in postechDNN
+None
+## Members
+|Protected Variables||
+|:---|:---|
+|[face_key](#face_key)|Stores ID of Face.|
+|[outer](#outer)|Stores one half-edge of the outer boundary.|
+|[inners](#inners)|Stores one half-edge for every inner boundary.|
+
+|Constructors & Destructors||
+|:---|:---|
+|[Face(void)](#Face)|Construct a face object.|
+|[~Face](#Face-1)|Delete a face object.|
+
+|Getters & Setters||
+|:---|:---|
+|[getFaceKey](#getFaceKey)|Returns ```face_key```.|
+|[setFaceKey](#setFaceKey)|Sets ```face_key```.|
+|[getOuter](#getOuter)|Returns ```outer```.|
+|[setOuter](#setOuter)|Sets ```outer```.|
+|[getInners](#getInners)|Returns ```inners```.|
+
+|Functions||
+|:---|:---|
+|[isOutMost](#isOutMost)|Returns true if this face is the out-most face, false otherwise.|
+|[addInner](#addInner)|Adds given half-edge to ```inners```.|
+
+
+### face_key
+Stores ID of Face.
+```
+char* face_key;
+```
+### outer
+Stores one half-edge of the outer boundary.
+```
+HEdge* outer;
+```
+### inners
+Stores one half-edge for every inner boundary.
+```
+std::vector<HEdge*>* inners;
+```
+
+
+### Face
+Constructs a face object.
+```
+Face();
+```
+#### Remarks
+A constructor with no input will make a Face object that is a nullptr.
+
+### ~Face
+Deletes a Face object.
+```
+~Face();
+```
+#### Remarks
+
+### getFaceKey
+Returns ```face_key```.
+```
+char* getFaceKey();
+```
+### Remarks
+
+### setFaceKey
+Sets ```face_key```.
+```
+void setFaceKey(char* _key);
+```
+### Parameters
+*_key*
+Face ID to be changed. 
+### Remarks
+
+
+### getOuter
+Returns ```outer```.
+```
+HEdge* getOuter();
+```
+### Remarks
+
+### setOuter
+Sets ```outer```.
+```
+HEdge* setOuter(HEdge * _e);
+```
+### Parameters
+*_e*
+Face ID to be changed. 
+### Remarks
+
+### getInners
+Returns ```inners```
+```
+std::vector<HEdge*>* getInners();
+```
+### Remarks
