@@ -130,7 +130,6 @@ void setFaces(std::vector<Face*>* _f);
 #### Parameters
 *_f*  
 Pointer of vector that contains the face records.
-```
 ### getHedges
 Returns pointer of vector hedges.
 ```
@@ -144,7 +143,6 @@ void setHedges(std::vector<HEdge*>* _h);
 #### Parameters
 *_h*  
 Pointer of vector that contains the hedge records.
-```
 ### getVertices
 Returns pointer of vector vertices.
 ```
@@ -158,7 +156,6 @@ void setVertices(std::vector<Vertex*>* _v);
 #### Parameters
 *_v*  
 Pointer of vector that contains the vertex records.
-```
 ### getLmost
 Returns pointer of the left-most vertex.
 ```
@@ -191,7 +188,6 @@ Pointer of vertex object that connects one side of the added edge.
 Pointer of vertex object that connects the other side of the added edge.
 #### Remarks
 This function only receives vertiecs that are already in the member variable *vertices* of this object. 
-```
 ### deleteEdge
 Delete the given edge.
 ```
@@ -203,7 +199,6 @@ Pointer of the desired edge.
 #### Remarks
 This function only deletes edges that are already in the member variable *hedges* of this object.
 Even though it receives one half-edge, it will also delete its twin.
-```
 ### mergeDCEL
 ```
 DCEL* mergeDCEL(DCEL*);
@@ -211,7 +206,7 @@ DCEL* mergeDCEL(DCEL*);
 #### Parameters
 
 #### Remarks
-```
+
 ### searchHedge
 Return the hedge object with the given key.
 ```
@@ -221,7 +216,7 @@ HEdge* searchHedge(char* key);
 *key*  
 
 #### Remarks
-```
+
 ### searchVertex
 Return the vertex object with the given key.
 ```
@@ -231,7 +226,7 @@ Vertex* searchVertex(char* key);
 *key*  
 
 #### Remarks
-```
+
 ### searchFace
 Return the face object with the given key.
 ```
@@ -241,7 +236,7 @@ Face* searchFace(char* key);
 *key*  
 
 #### Remarks
-```
+
 
 ### getOutgoingHEdges
 Return a vector containing all hedge objects that has given vertex as origin.
@@ -254,7 +249,6 @@ Pointer of the vertex object to compute all half-edges that has it as origin.
 
 #### Remarks
 
-```
 
 ### getIncomingHEdges
 Return a vector containing all hedge objects whose twin has given vertex as origin.
