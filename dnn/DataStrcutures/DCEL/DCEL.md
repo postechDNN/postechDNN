@@ -7,7 +7,7 @@ Class Point, Edge
 |:---|:---|
 |[num_faces](#num_faces)|Stores the number of faces.|
 |[num_hedges](#num_hedges)|Stores the number of half-edges.|
-|[num_vertices](#num_verticecs)|Stores the number of vertices.|
+|[num_vertices](#num_vertices)|Stores the number of vertices.|
 |[faces](#faces)|Stores the pointers of faces.|
 |[hedges](#hedges)|Stores the pointers of hedges.|
 |[faces](#vertices)|Stores the pointers of vertices.|
@@ -44,8 +44,7 @@ Class Point, Edge
 |[searchFace](#searchFace)|Return the face object with the given key.|
 |[getOutgoingHEdges](#getOutgoingHEdges)|Return a vector containing all hedge objects that has given vertex as origin.|
 |[getIncomingHEdges](#getIncomingHEdges)|Return a vector containing all hedge objects whose twin has given vertex as origin.|
-|[inPolygon](#inPolygon)|Return 1 if given point is in the polygon defined by given hedges, 
-0 if the point is on the boundary of the polygon, -1 otherwise.|
+|[inPolygon](#inPolygon)|Return 1 if given point is in the polygon defined by given hedges, 0 if the point is on the boundary of the polygon, -1 otherwise.|
 |[DCELtotext](#DCELtotext)|Create a text file of DCEL.|
 |[printVertexTab](#printVertexTab)|Print the vertex table of DCEL.|
 |[printHedgeTab](#printHedgeTab)|Print the hedge table of DCEL.|
@@ -268,3 +267,138 @@ Pointer of the vertex object to compute all half-edges whose twin has it as orig
 |[printVertexTab](#printVertexTab)|Print the vertex table of DCEL.|
 |[printHedgeTab](#printHedgeTab)|Print the hedge table of DCEL.|
 |[printFaceTab](#printFaceTab)|Print the face table of DCEL.|
+
+# Class Vertex v1.1
+## Dependencies in postechDNN
+Class Point
+## Members
+|Protected Variables||
+|:---|:---|
+|[vertex_key](#vertex_key)|Stores ID of Vertex.|
+|[incidentEdge](#incidentEdge)|Stores half edge whose origin is this vertex.|
+
+|Constructors & Destructors||
+|:---|:---|
+|[Vertex(void)](#Vertex)|Construct a Vertex of (0,0).|
+|[Vertex(Point*)](#Vertex-1)|Construct a Vertex whose coordinate is same with a point|
+|[~Vertex](#Vertex-2)|Delete a DCEL object.|
+
+|Getters & Setters||
+|:---|:---|
+|[getVertexKey](#getVertexKey)|Returns ```vertex_key```.|
+|[setVertexKey](#setVertexKey)|Sets ```vertex_key```.|
+|[getIncidentEdge](#getIncidentEdge)|Returns ```incidentEdge```.|
+|[setIncidentEdge](#setIncidentEdge)|Sets ```incidentEdge```.|
+|[getx](#getx)|Returns ```x``` coordinate.|
+|[setx](#setx)|Sets ```x``` coordinate.|
+|[gety](#gety)|Returns ```y``` coordinate.|
+|[sety](#gety)|Returns ```y``` coordinate.|
+
+|Functions||
+|:---|:---|
+|||
+
+### x
+Stores the x-coordinate of vertex.
+```
+double x;
+```
+### y
+Stores the y-coordinate of vertex.
+```
+double y;
+```
+### vertex_key
+Stores ID of vertex in an array of char
+```
+char *vertex_key;
+```
+### incidentEdge
+Stores a half edge whose origin is this vertex.
+```
+HEdge *incidentEdge;
+```
+
+### Vertex
+Constructs a vertex object.
+```
+Vertex();
+Vertex(Point* _p);
+```
+
+#### Parameters
+*_p* 
+Pointer of the point object to copy its coordinate to a vertex object.
+
+#### Remarks
+A constructor with no input will make a Vertex object with (0.0, 0.0).
+
+### ~Vertex
+Deletes a Vertex object with its ID.
+```
+~Vertex();
+```
+
+### getx
+Returns x-coordinate value.
+```
+double getx();
+```
+
+### setx
+Sets x-coordinate value.
+```
+double setx(double _x);
+```
+
+#### Parameters
+*_x*  
+x-coordinate value to be changed.
+
+### gety
+Returns y-coordinate value.
+```
+double gety();
+```
+
+### sety
+Sets y-coordinate value.
+```
+double sety();
+```
+
+#### Parameters
+*_y*  
+y-coordinate value to be changed.
+
+### getVertexKey
+Returns vertex ID.
+```
+char *getVertexKey();
+```
+
+### setVertexKey
+Allocates memeory to store Vertex ID and sets ID.
+```
+void setVertexKey(char *_k)
+```
+#### Parameters
+*_k*  
+An array of char to be copied to vertex ID.
+
+### getIncidentEdge
+Returns the pointer of half edge whose origin is this vertex.
+```
+HEdge *getIncidentEdge()
+```
+
+### setIncidentEdge
+Sets half edge to the incident edge of this vertex
+```
+void setIncidentEdge(HEdge *_e)
+```
+
+#### Parameters
+*_e*  
+A pointer of half edge which has this vertex as origin.
+
