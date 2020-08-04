@@ -44,7 +44,7 @@ Class Point, Edge
 |[searchFace](#searchFace)|Return the face object with the given key.|
 |[getOutgoingHEdges](#getOutgoingHEdges)|Return a vector containing all hedge objects that has given vertex as origin.|
 |[getIncomingHEdges](#getIncomingHEdges)|Return a vector containing all hedge objects whose twin has given vertex as origin.|
-|[inPolygon](#inPolygon)|Return 1 if given point is in the polygon defined by given hedges, 0 if the point is on the boundary of the polygon, -1 otherwise.|
+|[inPolygon](#inPolygon)|Return 1 if given point is in the simple polygon defined by given hedges, 0 if the point is on the boundary of the simple polygon, -1 otherwise.|
 |[DCELtotext](#DCELtotext)|Create a text file of DCEL.|
 |[printVertexTab](#printVertexTab)|Print the vertex table of DCEL.|
 |[printHedgeTab](#printHedgeTab)|Print the hedge table of DCEL.|
@@ -260,13 +260,50 @@ Pointer of the vertex object to compute all half-edges whose twin has it as orig
 
 #### Remarks
 
+### inPolygon
+Return 1 if given point is in the polygon defined by given hedges, 0 if the point is on the boundary of the simple polygon, -1 otherwise.
+```
+int inPolygon(std::vector<HEdge*>* hedges, Point p);
+```
+#### Parameters
+*hedges*
+Pointer of the vector that contains pointers of half-edges defining the simple polygon.
+*p*
+Point object to compute whether it is in the simple polygon or not.
 
-|[inPolygon](#inPolygon)|Return 1 if given point is in the polygon defined by given hedges, 
-0 if the point is on the boundary of the polygon, -1 otherwise.|
-|[DCELtotext](#DCELtotext)|Create a text file of DCEL.|
-|[printVertexTab](#printVertexTab)|Print the vertex table of DCEL.|
-|[printHedgeTab](#printHedgeTab)|Print the hedge table of DCEL.|
-|[printFaceTab](#printFaceTab)|Print the face table of DCEL.|
+#### Remarks
+*hedges* should be a non-intersecting, continuous polygonal chain. That is, the edges should be given in the order that it appears in the boundary of the simple polygon.
+
+### DCELtotext
+Create a text file of DCEL.
+```
+void DCELtotext(FILE* readfile);
+```
+#### Parameters
+*readfile*
+
+#### Remarks
+
+### printVertexTab
+Print the vertex table of DCEL.
+```
+void printVertexTab();
+```
+#### Remarks
+
+### printHedgeTab
+Print the half-edge table of DCEL.
+```
+void printHedgeTab();
+```
+#### Remarks
+This function prints all half-edges, including the twins.
+### printFaceTab
+Print the face table of DCEL.
+```
+void printFaceTab();
+```
+
 
 # Class Vertex v1.1
 ## Dependencies in postechDNN
