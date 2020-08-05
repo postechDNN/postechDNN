@@ -440,6 +440,204 @@ void setIncidentEdge(HEdge *_e)
 A pointer of half edge which has this vertex as origin.
 
 # Class HEdge v1.1
+## Dependencies in postechDNN
+Class Edge
+## Members
+|Protected Variables||
+|:---|:---|
+|[hedge_key](#hedge_key)|Stores ID of Half Edge.|
+|[origin](#origin)|Stores origin vertex of Half Edge.|
+|[next](#next)|Stores next Half Edge.|
+|[prev](#prev)|Stores previous Half Edge.|
+|[twin](#twin)|Stores twin Half Edge.|
+|[incidentFace](#incidentFace)|Stores face which is left to Half Edge.|
+
+|Constructors & Destructors||
+|:---|:---|
+|[HEdge(void)](#Hedge)|Construct a Half Edge object.|
+|[HEdge(Vertex*, Vertex*)](#Hedge-1)|Construct a Half Edge object using two existing vertices.|
+|[HEdge(Point*, Point*)](#Hedge-2)|Construct a Half Edge object using two points.|
+|[~HEdge](#Hedge-3)|Delete a Half Edge object.|
+
+|Getters & Setters||
+|:---|:---|
+|[getHedgeKey](#getHedgeKey)|Returns ```hedge_key```.|
+|[setHedgeKey](#setHedgeKey)|Sets ```hedge_key```.|
+|[getOrigin](#getOrigin)|Returns ```origin```.|
+|[setOrigin](#setOrigin)|Sets ```origin```.|
+|[getNext](#getNext)|Returns ```next```.|
+|[setNext](#setNext)|Sets ```next```.|
+|[getPrev](#getPrev)|Returns ```prev```.|
+|[setPrev](#setPrev)|Sets ```prev```.|
+|[getTwin](#getTwin)|Returns ```twin```.|
+|[setTwin](#setTwin)|Sets ```twin```.|
+|[getIncidentFace](#getIncidentFace)|Returns ```incidentFace```.|
+|[setIncidentFace](#setIncidentFace)|Sets ```incidentFace```.|
+
+|Functions||
+|:---|:---|
+|||
+
+### hedge_key
+Stores ID of Half Edge.
+```
+char* hedge_key;
+```
+
+### origin
+Stores origin vertex of half edge.
+```
+Vertex *origin;
+```
+
+### next
+Stores next half edge.
+```
+Hedge *next;
+```
+
+### prev
+Stores previous half edge.
+```
+Hedge *prev;
+```
+
+### twin
+Stores twin half edge.
+```
+Hedge *twin;
+```
+
+### incidentFace
+Stores face which is left to Half Edge.
+```
+Face *incidentFace;
+```
+
+### HEdge
+Construct a Half Edge object.
+```
+Hedge();
+Hedge(Vertex *_v1,Vertex *_v2);
+Hedge(Point *_p1, Point *_p2);
+```
+
+#### Parameters
+*_v1*
+A vertex which is origin of Half Edge.
+*_v2*  
+A vertex which is destination of Half Edge.
+*_p1*  
+A point which is origin of Half Edge.
+*_p2*  
+A point which is destination of Half Edge.
+
+#### Remarks
+When point parameters are given, it create two vertex objects. 
+It create corespoinding twin Half Edge automatically.
+
+### ~HEdge
+Delete two Half Edges object.
+```
+~Hedge()
+```
+
+#### Remarks
+It delete coresponding twin Half Edge automatically.
+
+### getHedgeKey
+Returns ID of Half Edge.
+```
+char *getHedgeKey();
+```
+
+### setHedgeKey
+Sets ID of Half Edge.
+```
+void setHedgeKey(char *_k);
+```
+#### Parameters
+*_k*  
+An array of char which has ID of Half Edge.
+
+### getOrigin
+Returns origin vertex of Half Edge.
+```
+Vertex *getOrigin();
+```
+
+### setOrigin
+Sets origin vertex of Half Edge.
+```
+void setOrigin(Vertex* _v);
+```
+
+#### Parameters
+*_v*  
+A pointer of vertex to be stored as origin.
+
+### getNext
+Returns next Half Edge of it.
+```
+HEdge *getNext();
+```
+
+### setNext
+Sets next Half Edge of it.
+```
+void setNext(HEdge *_e);
+```
+
+#### Parameters
+*_e*  
+A Half Edge to be stored as next half edge.
+
+### getPrev
+Returns previous Half Edge of it.
+```
+HEdge *getPrev();
+```
+
+### setPrev
+Sets previous Half Edge of it.
+```
+void setPrev(HEdge *_e);
+```
+#### Parameters
+*_e*  
+A Half Edge to be stored as previous half edge.
+
+### getTwin
+Returns twin Half Edge of it.
+```
+HEdge *getTwin();
+```
+
+### setTwin
+Sets twin Half Edge of it.
+```
+void setTwin(Hedge *_e);
+```
+
+#### Parameters
+*_e*  
+A Half Edge to be stored as twin Half Edge.
+
+### getIncidentFace
+Return a face which is left to the Half Edge.
+```
+Face *getIncidentFace();
+```
+
+### setIncidentFace
+Sets a face to be incident face.
+```
+void setIncidentFace(Face *_f);
+```
+
+#### Parameters
+*_f*  
+A face which is left to the Half Edge.
 
 # Class Face v1.1
 ## Dependencies in postechDNN
@@ -514,8 +712,8 @@ Sets ```face_key```.
 ```
 void setFaceKey(char* _key);
 ```
-### Parameters
-*_key*
+#### Parameters
+*_key*   
 Face ID to be changed. 
 ### Remarks
 
@@ -532,8 +730,8 @@ Sets ```outer```.
 ```
 HEdge* setOuter(HEdge * _e);
 ```
-### Parameters
-*_e*
+#### Parameters
+*_e*  
 Face ID to be changed. 
 ### Remarks
 
