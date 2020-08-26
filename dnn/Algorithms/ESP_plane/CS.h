@@ -22,8 +22,6 @@ struct i_box {
 	int i; // = i_quad.i
 };
 
-bool operator==(i_box a, i_box b);
-
 struct i_quad {
 	int i; // level
 	i_box lower_left; // upper-left
@@ -32,8 +30,6 @@ struct i_quad {
 	bool alone;
 	// core는 get_core()를 통해서 필요할 때마다 i_quad로부터 뽑아내면 됨.
 };
-
-bool operator==(i_quad a, i_quad b);
 
 struct core {
 	i_box lower_left;
@@ -47,6 +43,10 @@ struct line_segment { // represents a line segment. Either p1.x < p2.x or p1.y >
 	Point p2;
 	int i; // i_box의 단위 edge 길이짜리 line segment  
 };
+
+bool operator==(i_box a, i_box b);
+bool operator==(i_quad a, i_quad b);
+bool operator==(core a, core b);
 
 class conforming_subdivision {
 public: // 변수
@@ -75,7 +75,7 @@ public: // 함수
 	bool ATM(i_quad, i_quad); // about to merge
 	void draw_SPBD(i_quad);
 	bool contained(i_box, vector<core>);
-	bool contained(i_box, i_quad);
+	bool contained(i_box, vector<i_quad>);
 	void draw_CXBD(i_box);
 	void fill_R1R2(vector<core>, vector<i_quad>);
 	void fill_R1S(vector<core>, vector<i_quad>);
@@ -83,17 +83,3 @@ public: // 함수
 	void dedup(); // deduplication
 };
 
-// void add_edge(i_quad, i_quad); // class 변수를 변경할 것이므로 void
-// vector<i_quad> growth(i_quad); // growth(q)
-// bool outer_boundary(vector<int>); // size가 1인 것과 iff인 것 같아서 우선 지움
-
-/*
-struct Q {
-	int level;
-	vector<i_quad> set;
-};
-*/
-
-// vector set_union(vector<i_quad>, vector<i_quad>);
-// vector<i_quad> ind2quads(vector<int>, vector<i_quad>); // 각 equivalence class를 의미하는 index 집합을 실제 i-quad들의 집합으로 바꾸는 함수
-// bool isSimple(i_quad, Q, Q);

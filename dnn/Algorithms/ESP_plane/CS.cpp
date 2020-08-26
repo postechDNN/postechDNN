@@ -20,13 +20,17 @@ bool operator==(i_quad a, i_quad b) {
 	return a.i == b.i && a.lower_left == b.lower_left;
 }
 
+bool operator==(core a, core b) {
+	return a.parent_quad == b.parent_quad; 
+}
+
 conforming_subdivision::conforming_subdivision(vector<Point> _pts) {
 	pts = _pts;
 	Q_oldest = Q_prev = Q_curr = {};
 }
 
 core conforming_subdivision::get_core(i_quad q) {
-	return core{ i_box{q.lower_left.k + 1, q.lower_left.l + 1, q.i}, i_box{q.upper_right.k - 1, q.upper_right.l - 1, q.i}, q };
+	return core{ i_box{q.lower_left.k + 1, q.lower_left.l + 1, q.i}, i_box{q.upper_right.k - 1, q.upper_right.l - 1, q.i}, q, q.i };
 }
 
 bool conforming_subdivision::contained(i_quad q1, i_quad q2) { // check if (q1 set_union q2) can be contained in a 2 * 2 array of (i+2) boxes
@@ -288,17 +292,23 @@ void conforming_subdivision::draw_SPBD(i_quad q) { // draw simple boundary
 	}
 }
 
-bool conforming_subdivision::contained(i_box B, vector<core> R1) { // box size가 큰 경우와 작은 경우 모두 커버 가능.
+bool conforming_subdivision::contained(i_box B, vector<core> R1) {
+	assert(B.i == R1[0].i);
 	for (core C : R1) {
-		double x_box = pow(2, B.i) * B.k, y_box = pow(2, B.i) * B.l, x_C = pow(2, C.i) * C.lower_left.k, y_C = pow(2, C.i) * C.lower_left.l;
-		if (x_C <= x_box && x_box <= x_C + 2 * pow(2, C.i) && y_C <= y_box && y_box <= y_C + 2 * pow(2, C.i)) { return true; }
+		int x_diff = B.k - C.lower_left.k, y_diff = B.l - C.lower_left.l;
+		if (0 <= x_diff && x_diff <= 1 && 0 <= y_diff && y_diff <= 1) { return true; }
 	}
 	return false;
 }
 
-bool conforming_subdivision::contained(i_box B, i_quad Q) {
-	double x_box = pow(2, B.i) * B.k, y_box = pow(2, B.i) * B.l, x_Q = pow(2, Q.i) * Q.lower_left.k, y_Q = pow(2, Q.i) * Q.lower_left.l;
-	if (x_Q <= x_box && x_box <= x_Q + 4 * pow(2, Q.i) && y_Q <= y_box && y_box <= y_Q + 4 * pow(2, Q.i)) { return true; }
+bool conforming_subdivision::contained(i_box B, vector<i_quad> Qs) {
+	assert(B.i == Qs[0].i);
+
+	for (auto Q : Qs) {
+		int x_diff = B.k - Q.lower_left.k, y_diff = B.l - Q.lower_left.l;
+		if (0 <= x_diff && x_diff <= 3 && 0 <= y_diff && y_diff <= 3) { return true; }
+	}
+
 	return false;
 }
 
@@ -315,15 +325,11 @@ void conforming_subdivision::draw_CXBD(i_box B) { // draw complex boundary
 void conforming_subdivision::fill_R1R2(vector<core> R1, vector<i_quad> R2) { 
 	// R1의 level = R2의 level + 2
 	// R1과 R2에서 같은 index의 원소들은 1대1 대응 관계임
-
-	double unit_length = pow(2, R1[0].i - 2);
-
-	for (unsigned int ind1 = 0; ind1 < R1.size(); ind1++) { // for each core
+	for (core r1 : R1) {
 		for (int ind2 = 0; ind2 < 8; ind2++) {
-			for (int ind3 = 0; ind2 < 8; ind2++) {
-				i_box B = { int(4 * pow(2, R1[ind1].i) * R1[ind1].lower_left.k + unit_length * ind2), 
-				int(4 * pow(2, R1[ind1].i) * R1[ind1].lower_left.l + unit_length * ind3), R1[ind1].i - 2 };
-				if (!contained(B, R2[ind1])) { draw_CXBD(B); } // draw edges. 4개의 edge를 추가함으로써 반영.
+			for (int ind3 = 0; ind3 < 8; ind3++) {
+				i_box B = { 4 * r1.lower_left.k + ind2, 4 * r1.lower_left.l + ind3, r1.i - 2 };
+				if (!contained(B, R2)) { draw_CXBD(B); } // draw edges. 4개의 edge를 추가함으로써 반영.
 			}
 		}
 	}
@@ -331,16 +337,15 @@ void conforming_subdivision::fill_R1R2(vector<core> R1, vector<i_quad> R2) {
 
 void conforming_subdivision::fill_R1S(vector<core> R1, vector<i_quad> S_region) {
 
-	double unit_length = pow(2, R1[0].lower_left.i);
-
 	for (i_quad q : S_region) {
 		for (int ind1 = 0; ind1 < 4; ind1++) {
 			for (int ind2 = 0; ind2 < 4; ind2++) {
-				i_box B = { int(pow(2, q.i) * q.lower_left.k + unit_length * ind1), int(pow(2, q.i) * q.lower_left.l + unit_length * ind1), q.i };
+				i_box B = { q.lower_left.k + ind1, q.lower_left.l + ind2, q.i };
 				if (!contained(B, R1)) { draw_CXBD(B); } // intersection 여부를 모든 core에 대해 검사해야 함.
 			}
 		}
 	}
+
 }
 
 void conforming_subdivision::build_subdivision() {	// inefficient
@@ -352,8 +357,12 @@ void conforming_subdivision::build_subdivision() {	// inefficient
 		Q_prev.push_back(i_quad{ -2, i_box{int(floor(pt.x / 0.25) - 1), int(floor(pt.y / 0.25) - 2), -2}, i_box{int(floor(pt.x / 0.25) + 2), int(floor(pt.y / 0.25) + 1), -2} });
 	}
 
-	for (auto q : Q_prev) {
-		draw_SPBD(q);
+	for (auto pt : pts) {
+		double init_x = floor(pt.x / 0.25) * 0.25, init_y = floor(pt.y / 0.25) * 0.25;
+		BD.push_back(line_segment{ Point{init_x, init_y}, Point{init_x + 0.25, init_y} });
+		BD.push_back(line_segment{ Point{init_x, init_y + 0.25}, Point{init_x + 0.25, init_y + 0.25} });
+		BD.push_back(line_segment{ Point{init_x, init_y}, Point{init_x, init_y + 0.25} });
+		BD.push_back(line_segment{ Point{init_x + 0.25, init_y}, Point{init_x + 0.25, init_y + 0.25} });
 	}
 
 	while (Q_prev.size() > 1) {
@@ -424,7 +433,9 @@ void conforming_subdivision::build_subdivision() {	// inefficient
 				// (* R1 := union of cores of growth(q) *)
 				vector<core> R1 = {};
 				for (i_quad q : S_prime) {
-					R1.push_back(get_core(*q.G));
+					core temp = get_core(*q.G);
+					vector<core>::iterator it = find(R1.begin(), R1.end(), temp);
+					if (it == R1.end()) { R1.push_back(temp); }
 				}
 
 				// (* R2 := the region covered by q. *)
@@ -455,6 +466,5 @@ void conforming_subdivision::build_subdivision() {	// inefficient
 
 void conforming_subdivision::dedup() { // 앞에서부터 읽어나가면서 중복된 line segment 무시
 	/* realizes breaking each cell boundary with an endpoint incident to R1 into four edges of length 2^(i-2), to satisfy Invariant 1. */
-
-
+	
 }
