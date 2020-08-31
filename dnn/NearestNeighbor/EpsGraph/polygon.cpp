@@ -5,10 +5,11 @@
 
 using namespace std;
 
-Polygon::Polygon() { x_min = x_max = y_min = y_max = 0; }
+Polygon::Polygon() { x_min = x_max = y_min = y_max = 0; encl_pts = {}; ord = -1; }
 
-Polygon::Polygon(vector <Point> _vers) {
+Polygon::Polygon(vector <Point> _vers, int _ord) {
 	vers = _vers;	// vertices are sorted CW 
+
 	double temp_xmax = DBL_MIN, temp_xmin = DBL_MAX;
 	double temp_ymax = DBL_MIN, temp_ymin = DBL_MAX;
 
@@ -22,15 +23,19 @@ Polygon::Polygon(vector <Point> _vers) {
 	}
 	x_max = temp_xmax; x_min = temp_xmin;
 	y_max = temp_ymax; y_min = temp_ymin;
+
+	encl_pts = {};
+
+	ord = _ord;
 }
 
-bool Polygon::intersect(Point p1, Point p2, bool parallel) { // filters out easy-to-detect non-intersecting cases
+bool Polygon::intersect(Point p1, Point p2, bool direc) { // filters out easy-to-detect non-intersecting cases
 	for (unsigned int i = 0; i < vers.size(); i++)
 	{
 		unsigned int j = (i + 1) % vers.size();
 
 		double min_one, max_one, the_other, i_one, i_other, j_one, j_other;
-		if (parallel == X)
+		if (direc == X)
 		{
 			min_one = min(p1.x, p2.x), max_one = max(p1.x, p2.x), the_other = p1.y;
 			i_one = vers[i].x, i_other = vers[i].y, j_one = vers[j].x, j_other = vers[j].y;
@@ -46,7 +51,7 @@ bool Polygon::intersect(Point p1, Point p2, bool parallel) { // filters out easy
 			the_other <= min(i_other, j_other) || max(i_other, j_other) <= the_other) {
 		} // does not intersect
 		else {
-			if (i_one != j_one) // one can then obtain the slope of the line
+			if (i_one != j_one) // calculate the slope of the line
 			{
 				double m = (j_other - i_other) / (j_one - i_one), n = i_other - m * i_one; // needs to check once again
 				double inter_one = (the_other - n) / m;
@@ -56,13 +61,15 @@ bool Polygon::intersect(Point p1, Point p2, bool parallel) { // filters out easy
 				if (min_one < i_one && i_one < max_one) { return true; }
 			}
 		}
-
-		return false;
 	}
+
+	return false;
 }
 
 int Polygon::ray(Point p) // shoots a ray from the point to the right. computes the sum of # of intersections with the polygons
-{
+{	
+	if (x_max < p.x || x_min > p.x || y_max < p.y || y_min > p.y) { return -1; }
+
 	int inter = 0;
 	double p_a, p_b, i_a, i_b, j_a, j_b;
 	for (unsigned int i = 0; i < vers.size(); i++)
@@ -129,9 +136,3 @@ int Polygon::ray(Point p) // shoots a ray from the point to the right. computes 
 	return inter;
 }
 
-/*
-long double Polygon::get_xmin() { return x_min; }
-long double Polygon::get_xmax() { return x_max; }
-long double Polygon::get_ymin() { return y_min; }
-long double Polygon::get_ymax() { return y_max; }
-*/
