@@ -9,37 +9,37 @@ using namespace std;
 
 class Polygon;
 
-struct indices	// 이건 묶고, right와 lower는 그대로 두는 게 제일 낫네.
+struct indices
 {
 	int row;
 	int column;
 };
 
-struct incid_pts {
-	bool right;		// to represent edges
+struct incid_pts { // shows if a gridpoint has edges with adjacent ones
+	bool right;		
 	bool lower;
 	bool left;
 	bool upper;
 };
 
 class Point {
-public:	// variables
-	double x, y;	// x- and y- coordinates
+public:	
+	double x, y; // x- and y- coordinates
 	int encl; // tells if it lies on the interior of an obstacle polygon
 
-public:	// functions
+public:
 	Point();
 	Point(double, double);
-	bool operator==(const Point& other) const {	// 오버로딩 제대로 됐나?
+	bool operator==(const Point& other) const {
 		return !(*this == other);
 	}
 	void print();
 };
 
-class Free_Point : public Point {
-	// 딱히 Point에서 더 추가할 건 없지만, gridpoint와의 확실한 구별을 위해. 나중에 NN 추가할 수도 있고.
+class Free_Point : public Point { // is the class representing points in the point set P (= non-grid points)
 public:
-	int host; // denotes gridpoint hosting it
+	int host; // denotes the index of a gridpoint on which it cast anchor.
+			  // if the free point is in the interior of an obstacle polygon, host = -1
 
 public:
 	Free_Point();
@@ -48,13 +48,12 @@ public:
 
 class Grid_Point : public Point {
 public:
-	indices ind;	// its location on the grid
+	indices ind;	// its matrix-index on the grid 
 	incid_pts ip;
 	int num;
 
 	vector<Free_Point*> anchored;	// free points anchored to it
-
-	vector<int> cros; // crossings
+	vector<int> cros; // # of crossings of the ray with each polygon. The ray moves rightward originating from the grid point.
 
 public:
 	Grid_Point();
