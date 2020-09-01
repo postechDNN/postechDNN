@@ -8,7 +8,7 @@ To be concrete, given background data (P, O, ɛ), it returns k approximate neare
   ɛ := sidelength of orthogonal grid cells.
   
 ## The algorithm 
-An orthogonal square grid enclosing P is constructed.  
+An orthogonal square grid enclosing P∪O is constructed.  
 Then, each point in P casts 'anchor' on each grid point.  
 Finally, with the presence of obstacles, the algorithm returns k nearest neighbors obtained by implementing BFS on the grid and  
 taking out points anchored to the grid points nearby.
