@@ -1,7 +1,7 @@
 # Epsilon-Graph(EG)
 
 ## About EG
-It is a graph-based structure that supports approximate nearest neighbor queries in the plane.  
+It is a graph-based structure that supports dynamic approximate nearest neighbor queries in the plane.  
 To be concrete, given background data (P, O, ɛ), it returns k approximate nearest neighbors of p∈P for a given query (p, k), where  
   P := set of points in the plane,  
   O := set of polygonal obstacles, and  
