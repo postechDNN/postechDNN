@@ -9,6 +9,7 @@ To be concrete, given background data (P, O, ɛ), it returns k approximate neare
   
 ## The algorithm 
 An orthogonal square grid enclosing P∪O is constructed.  
+To check if grid edges are present or not, the algorithm counts # of intersections between each polygon and rightward rays originating from each gridpoint.  
 Then, each point in P casts 'anchor' on each grid point.  
 Finally, with the presence of obstacles, the algorithm returns k nearest neighbors obtained by implementing BFS on the grid and  
 taking out points anchored to the grid points nearby.
