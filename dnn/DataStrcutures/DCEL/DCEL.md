@@ -1,7 +1,7 @@
 # Class DCEL v1.1
 DCEL class is a class for a DCEL(doubly-connected edge list). DCEL stores pointers of its face, half-edge, vertex records in pointer of vector type.
 ## Dependencies in postechDNN
-Class Point, Edge
+DataStructures/AVLTree
 ## Members
 |Protected Variables||
 |:---|:---|
