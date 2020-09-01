@@ -1,5 +1,6 @@
 #include "Eps_Graph.h"
 #include <queue>
+#include <assert.h>
 
 #define X true // ray direction
 #define Y false
@@ -157,7 +158,6 @@ void Eps_Graph::delete_edge(indices ind1, indices ind2) {
 }
 
 
-
 bool Eps_Graph::cmpNadd(indices ind, bool direc) { // checks if the line connecting the gridpoint and its neighboring one is blocked by any polygon. if is not, add an edge between them.
 
 	Grid_Point A = grid[ind2num(ind)], B;
@@ -260,7 +260,6 @@ void Eps_Graph::add_freepts(vector<Free_Point> p_vec) { // add points to the poi
 		fr_pts.push_back(p);
 
 		Free_Point& pt = fr_pts.back();
-		anchor(pt);
 
 		for (Polygon& pol : pols) {
 			int cro = pol.ray(pt);
@@ -270,28 +269,28 @@ void Eps_Graph::add_freepts(vector<Free_Point> p_vec) { // add points to the poi
 				pol.encl_pts.push_back(pt);
 			}
 		}
+
+		anchor(pt);
 	}
 }
 
 void Eps_Graph::delete_freept(int ind) { // delete a point from P, specified by its index
+	if (ind < 0 || fr_pts.size() - 1 < ind) { return; }
+	
 	list<Free_Point>::iterator iter = fr_pts.begin();
 	advance(iter, ind);
 	Free_Point& p = *iter;
 
-	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
-		if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
-			grid[p.host].anchored.erase(it);
-			break;
+	if (p.host != -1) {
+		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+			if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
+				grid[p.host].anchored.erase(it);
+				break;
+			}
 		}
 	}
 
-	for (list<Free_Point>::iterator it = fr_pts.begin(); it != fr_pts.end(); ++it) {
-		if ((*it).x == p.x && (*it).y == p.y) {
-			fr_pts.erase(it);
-			break;
-		}
-	}
-
+	fr_pts.erase(iter);
 }
 
 void Eps_Graph::anchor(Free_Point& p) { // cast anchor onto a grid point from a free point
@@ -303,10 +302,10 @@ void Eps_Graph::anchor(Free_Point& p) { // cast anchor onto a grid point from a 
 	// else
 
 	if (p.host != -1) {
-		vector<Free_Point*> vec = grid[p.host].anchored;
-		for (vector<Free_Point*>::iterator it = vec.begin(); it != vec.end(); ++it) {
+		assert(0 <= p.host && p.host < grid.size());
+		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
 			if (p.x == (*(*it)).x && p.y == (*(*it)).y) {
-				grid[p.host].anchored.erase(grid[p.host].anchored.begin() + distance(it, vec.begin()));
+				grid[p.host].anchored.erase(grid[p.host].anchored.begin() + distance(it, grid[p.host].anchored.begin()));
 			}
 		}
 	}
@@ -337,7 +336,7 @@ void Eps_Graph::anchor(Free_Point& p) { // cast anchor onto a grid point from a 
 			}
 		}
 		
-		for (Grid_Point& gr_pt : gr_pts) {
+		for (Grid_Point gr_pt : gr_pts) {
 		
 		if (gr_pt.encl == -1) {
 			p.host = gr_pt.num;
@@ -368,15 +367,26 @@ void Eps_Graph::add_pol(Polygon P) { // add a polygon to the set of obstacles O
 		gr_pt.cros.push_back(cro);
 		if (cro > 0 && cro % 2 == 1) { // assert(!gr_pt.encl)
 			gr_pt.encl = P.ord;
+			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end(); ++it) {
+				anchor(*(*it));
+			}
+			vector<Free_Point*>().swap(gr_pt.anchored);
 		}
 	}
 
 	for (Free_Point& pt : fr_pts) {
-		if (pt.encl == -1) {
-			int cro = P.ray(pt);
-			if (cro > 0 && cro % 2 == 1) { 
-				pt.encl = P.ord;
+		if (pt.encl != -1) { continue; }
+
+		int cro = P.ray(pt);
+		if (cro > 0 && cro % 2 == 1) { 
+			pt.encl = P.ord;
+			for (vector<Free_Point*>::iterator it = grid[pt.host].anchored.begin(); it != grid[pt.host].anchored.end(); ++it) {
+				if ((*(*it)).x == pt.x && (*(*it)).y == pt.y) {
+					grid[pt.host].anchored.erase(it);
+					break;
+				}
 			}
+			pt.host = -1; // anchor(pt);
 		}
 	}
 
@@ -387,8 +397,6 @@ void Eps_Graph::add_pol(Polygon P) { // add a polygon to the set of obstacles O
 
 	int lm_col = diagonal[0].column;
 	int rm_col = diagonal[1].column;
-
-	std::vector<int> rows, cols;
 
 	// update grid edges among gridpoints in the effective region
 	for (int i = tm_row; i < bm_row; i++) {
@@ -423,12 +431,7 @@ void Eps_Graph::add_pol(Polygon P) { // add a polygon to the set of obstacles O
 		}
 	}
 
-	Grid_Point p1 = grid[ind2num(bm_row, lm_col)];
-	Grid_Point p2 = grid[ind2num(tm_row, rm_col)];
-	for (Free_Point& fr_pt : fr_pts) {
-		if (p1.x <= fr_pt.x && fr_pt.x <= p2.x && p1.y <= fr_pt.y && fr_pt.y <= p2.y) 
-		{ anchor(fr_pt); }
-	}
+
 }
 
 void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by its index
@@ -441,13 +444,12 @@ void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by i
 		}
 	}
 
+	if (it == pols.end()) { return; }
+
+	// release them free; for gridpoints and free points that was enclosed by the polygon
 	int ind = distance(pols.begin(), it);
 	for (Grid_Point& gr_pt : grid) {
 		gr_pt.cros.erase(gr_pt.cros.begin() + ind);
-	}
-
-	// release them free; for gridpoints and free points that was enclosed by the polygon
-	for (Grid_Point& gr_pt : grid) {
 		if (gr_pt.encl == ord) {
 			gr_pt.encl = -1;
 		}
@@ -456,6 +458,7 @@ void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by i
 	for (Free_Point& pt : fr_pts) {
 		if (pt.encl == ord) {
 			pt.encl = -1;
+			anchor(pt);
 		}
 	}
 
@@ -466,8 +469,6 @@ void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by i
 
 	int lm_col = diagonal[0].column;
 	int rm_col = diagonal[1].column;
-
-	std::vector<int> rows, cols;
 
 	// update grid edges among gridpoints in the effective region
 	for (int i = tm_row; i < bm_row; i++) {
@@ -503,12 +504,6 @@ void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by i
 	}
 
 	pols.erase(it);
-
-	for (Free_Point& fr_pt : fr_pts) {
-		Grid_Point p1 = grid[ind2num(bm_row, lm_col)];
-		Grid_Point p2 = grid[ind2num(tm_row, rm_col)];
-		if (p1.x <= fr_pt.x && fr_pt.x <= p2.x && p1.y <= fr_pt.y && fr_pt.y <= p2.y) { anchor(fr_pt); }
-	}
 }
 
 indices* Eps_Graph::eff_region(Polygon P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
@@ -578,7 +573,7 @@ vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximat
 			for (auto pt_pointer : grid[closest[ind1]].anchored) {
 				added_pts.push_back(*pt_pointer);
 			}
-			{ vector<Free_Point>::iterator it = temp.insert(temp.end(), added_pts.begin(), added_pts.end()); }
+			vector<Free_Point>::iterator it = temp.insert(temp.end(), added_pts.begin(), added_pts.end());
 		}
 
 		sort(temp.begin(), temp.end(), [=](Free_Point first, Free_Point second)
