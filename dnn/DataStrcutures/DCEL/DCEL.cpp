@@ -209,6 +209,9 @@ DCEL::DCEL() {
 	this->faces = new std::vector<Face*>();
 	this->hedges = new std::vector<HEdge*>();
 	this->vertices = new std::vector<Vertex*>();
+	this->num_faces = 0;
+	this->num_hedges = 0;
+	this->num_vertices = 0;
 	lmost = nullptr;
 	tmost = nullptr;
 	bmost = nullptr;
@@ -1035,6 +1038,7 @@ void DCEL::printVertexTab() {
 		std::cout << std::setw(4) << (*this->vertices)[i]->getVertexKey() << std::setw(6) << "(" << std::setw(2) << (*this->vertices)[i]->getx() << ", " << std::setw(2) << (*this->vertices)[i]->gety() << ")" << std::setw(14) << (*this->vertices)[i]->getIncidentEdge()->getHedgeKey() << std::endl;
 	}
 }
+
 void DCEL::printHedgeTab() {
 	std::cout << "\n" << "****************** Half-edge Table ******************" << "\n";
 	std::cout << "Half-edge " << " Origin " << "  Twin" << "  IncidentFace" << "  Next" << "    Prev" << "\n";
