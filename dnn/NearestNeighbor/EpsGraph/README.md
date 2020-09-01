@@ -1,5 +1,6 @@
-# AVLTree
+# Epsilon Graph
 
+Given a set of points $P$ and a set of polygonal obstacles $O$ in the plane
 This project is an implementation of AVLTree which can support various kinds of line-sweep algorithms such as line sweep intersection, constructing point location datastructure, etc.  
 There is no corresponding paper.
 
@@ -22,9 +23,3 @@ AVLTree supports these kinds of queries below.
 - AVLTreeNode<T>* getRoot(): return root node of the tree. If the tree is empty, return nullptr.
 - AVLTreeNode<T>* pop(): pop a node with the smallest value and return. If the tree is empty, return nullptr.
 - AVLTreeNode<T>* pop(T t): pop a node with a certain value t and return. If there is no such node, return nullptr.
-
-## Before use it 
-### Setup the project
-none
-### Dependent project
-none
