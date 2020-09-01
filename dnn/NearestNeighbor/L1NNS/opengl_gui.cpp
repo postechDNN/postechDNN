@@ -1,16 +1,14 @@
 #include "RectangularDomain.h"
-#include<vector>
-#include<algorithm>
-#include<queue>
 #include <stdio.h>
 #include <windows.h>
-#include <math.h>
 #include <gl/gl.h>
 #include <gl/glut.h>
+using namespace std;
 
 #define IDLE 0
 #define MAKERECT 1
 #define INSERTION 0
+#define DELETION 2
 #define QUERY 1
 #define HIGH 2147483647
 typedef struct ppp {
@@ -32,7 +30,7 @@ vector<Rect> input;
 double rad = 0.5;
 int printcount;
 int processing;
-RectangularDomain *D = new RectangularDomain();
+unique_ptr<RectangularDomain> D;
 int K = 1;
 int pcnt;
 int printtoggle = 0;
@@ -108,8 +106,7 @@ void MouseClick(int button, int state, int x, int y)
 				}
 			}*/
 			//	printf("rudolfh, %lf %lf\n", endpoint.x,endpoint.y);
-			delete D;
-			D = new RectangularDomain(input);
+			D.reset(new RectangularDomain(input));
 			/*Cgraph Tempo = D.getcarrier(2);
 			int nnn = Tempo.edgecnt();
 			glColor3f(1.0, 0.0, 0.0);
@@ -146,11 +143,32 @@ void MouseClick(int button, int state, int x, int y)
 			}
 		}
 
-		else if (width / 2 - 50 <= endpoint.x && endpoint.x <= width / 2 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
+		else if (-width / 2 + 200 <= endpoint.x && endpoint.x <= -width / 2 + 250 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
 		{
-			delete D;
-			exit(0);
+			processing = DELETION;
+			if (previ.x != HIGH)
+			{
+				glColor3f(1.0, 1.0, 1.0);
+				glPointSize(5.0);
+				glBegin(GL_POINTS);
+				glVertex2f(previ.x, previ.y);
+				glEnd();
+				glColor3f(0.0, 0.0, 0.0);
+				glPointSize(5.0);
+				glBegin(GL_POINTS);
+				int i = previn.size() - 1;
+				for (; i >= 0; i--)
+				{
+					glVertex2f(previn[i].x, previn[i].y);
+					previn.pop_back();
+				}
+				glEnd();
+			}
+			//On Construction
 		}
+
+		else if (width / 2 - 50 <= endpoint.x && endpoint.x <= width / 2 && -height / 2 <= endpoint.y && endpoint.y <= -height / 2 + 50)
+			exit(0);
 
 		else
 		{
@@ -183,52 +201,103 @@ void MouseClick(int button, int state, int x, int y)
 				}
 				else if (processing == QUERY)
 				{
-					bool possible = true;
-					for (int i = 0; i < input.size(); i++)
-					{
-						if (intersect(X, input[i]) || intersect(input[i], X))
+					int checkcnt = 0;
+					for (int i = 0; i < input.size(); i++) {
+						if (input[i].getl() == input[i].getr() && input[i].getb() == input[i].gett())
+							checkcnt++;
+					}
+					if (checkcnt != 0) {
+						bool possible = true;
+						for (int i = 0; i < input.size(); i++)
 						{
-							possible = false;
-							break;
+							if (intersect(X, input[i]) || intersect(input[i], X))
+							{
+								possible = false;
+								break;
+							}
+						}
+						if (possible)
+						{
+							if (previ.x != HIGH)
+							{
+								glColor3f(1.0, 1.0, 1.0);
+								glPointSize(5.0);
+								glBegin(GL_POINTS);
+								glVertex2f(previ.x, previ.y);
+								glEnd();
+								glColor3f(0.0, 0.0, 0.0);
+								glPointSize(5.0);
+								glBegin(GL_POINTS);
+								int i = previn.size() - 1;
+								for (; i >= 0; i--)
+								{
+									glVertex2f(previn[i].x, previn[i].y);
+									previn.pop_back();
+								}
+								glEnd();
+							}
+							glColor3f(0.0, 0.0, 1.0);
+							glPointSize(5.0);
+							glBegin(GL_POINTS);
+							glVertex2f(lb.x, lb.y);
+							glEnd();
+							nearest = D->kNNS(Point(lb.x, lb.y), K);
+							glColor3f(1.0, 0.0, 1.0);
+							glPointSize(5.0);
+							glBegin(GL_POINTS);
+							for (int i = 0; i < nearest.size(); i++)
+							{
+								glVertex2f(nearest[i].p->getx(), nearest[i].p->gety());
+								previn.push_back({ nearest[i].p->getx(),nearest[i].p->gety() });
+							}
+							glEnd();
+							previ.x = lb.x;
+							previ.y = lb.y;
 						}
 					}
-					if (possible)
-					{
-						if (previ.x != HIGH)
+				}
+				else if (processing == DELETION)
+				{
+					if (input.size() != 0) {
+						bool possible = true;
+						int index = 0;
+						for (int i = 0; i < input.size(); i++)
 						{
+							if (intersect(X, input[i]) || intersect(input[i], X))
+							{
+								possible = false;
+								index = i;
+								break;
+							}
+						}
+						if (possible)
+						{
+							index = -1;
+							double minvar = HIGH;
+							for (int i = 0; i < input.size(); i++)
+							{
+								if (input[i].getl() == input[i].getr() && input[i].getb() == input[i].gett())
+								{
+									if (fabs(lb.x - input[i].getl()) + fabs(lb.y - input[i].getb()) < minvar)
+									{
+										minvar = fabs(lb.x - input[i].getl()) + fabs(lb.y - input[i].getb());
+										index = i;
+									}
+								}
+							}
 							glColor3f(1.0, 1.0, 1.0);
 							glPointSize(5.0);
 							glBegin(GL_POINTS);
-							glVertex2f(previ.x, previ.y);
+							glVertex2f(input[index].getl(), input[index].getb());
 							glEnd();
-							glColor3f(0.0, 0.0, 0.0);
-							glPointSize(5.0);
-							glBegin(GL_POINTS);
-							int i = previn.size() - 1;
-							for (; i >= 0; i--)
-							{
-								glVertex2f(previn[i].x, previn[i].y);
-								previn.pop_back();
-							}
-							glEnd();
+							input.erase(input.begin() + index);
 						}
-						glColor3f(0.0, 0.0, 1.0);
-						glPointSize(5.0);
-						glBegin(GL_POINTS);
-						glVertex2f(lb.x, lb.y);
-						glEnd();
-						nearest = D->kNNS(Point(lb.x, lb.y), K);
-						glColor3f(1.0, 0.0, 1.0);
-						glPointSize(5.0);
-						glBegin(GL_POINTS);
-						for (int i = 0; i < nearest.size(); i++)
+						else
 						{
-							glVertex2f(nearest[i].p->getx(), nearest[i].p->gety());
-							previn.push_back({ nearest[i].p->getx(),nearest[i].p->gety() });
+							glColor3f(1.0, 1.0, 1.0);
+							glRectf(input[index].getl(), input[index].getb(), input[index].getr(), input[index].gett());
+							input.erase(input.begin() + index);
 						}
-						glEnd();
-						previ.x = lb.x;
-						previ.y = lb.y;
 					}
 				}
 			}
@@ -318,6 +387,8 @@ void L1NNS(int argc, char** argv)
 	glRectf(-width / 2, -height / 2, -width / 2 + 50, -height / 2 + 50);
 	glColor3f(0.0, 1.0, 0.0);
 	glRectf(-width / 2 + 100, -height / 2, -width / 2 + 150, -height / 2 + 50);
+	glColor3f(0.0, 0.0, 1.0);
+	glRectf(-width / 2 + 200, -height / 2, -width / 2 + 250, -height / 2 + 50);
 	glColor3f(0.0, 0.0, 0.0);
 	glRectf(width / 2 - 50, -height / 2, width / 2, -height / 2 + 50);
 

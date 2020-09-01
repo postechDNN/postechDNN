@@ -1,8 +1,7 @@
 #pragma once
 #include"CGraph.h"
-#include<vector>
+#include<memory>
 #include<algorithm>
-using namespace std;
 
 typedef struct temp {
 	bool reachable;
@@ -31,7 +30,7 @@ private:
 	int n;
 	int np;
 	double INF;
-	Cgraph *xpos,*xneg,*ypos,*yneg;
+	unique_ptr<Cgraph> xpos,xneg,ypos,yneg;
 	void makeshadow();
 	void makecheck();
 	void construct();
@@ -42,8 +41,8 @@ public:
 	Rect getboundary();
 	Rect getrect(int);
 	int rectcnt();
-	Cgraph* getcarrier(int);
 	bool incidentcheck(int,int,int);
 	Point_Distance NNS(Point);
+	Point_Distance FNS(Point);
 	vector<Point_Distance> kNNS(Point,int);
 };

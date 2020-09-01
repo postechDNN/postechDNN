@@ -130,7 +130,6 @@
     <ClInclude Include="Point.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="RectangularDomain.h" />
-    <ClInclude Include="Segment.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="domain.in" />

@@ -2,10 +2,10 @@
 RectangularDomain::RectangularDomain()
 {
 	n = 0;
-	xpos = new Cgraph();
-	ypos = new Cgraph();
-	xneg = new Cgraph();
-	yneg = new Cgraph();
+	xpos = unique_ptr<Cgraph>{ new Cgraph() };
+	ypos = unique_ptr<Cgraph>{ new Cgraph() };
+	xneg = unique_ptr<Cgraph>{ new Cgraph() };
+	yneg = unique_ptr<Cgraph>{ new Cgraph() };
 	//input()
 	/*
 	rectset.push_back(Rect(1.6, 5.7, 12.4, 5.9));
@@ -103,10 +103,10 @@ void RectangularDomain::construct()
 	}
 
 	system("pause");*/
-	xpos = new Cgraph(rectset, bbox, 0);
-	xneg = new Cgraph(rectset, bbox, 1);
-	ypos = new Cgraph(rectset, bbox, 2);
-	yneg = new Cgraph(rectset, bbox, 3);
+	xpos.reset(new Cgraph(rectset, bbox, 0));
+	xneg.reset(new Cgraph(rectset, bbox, 1));
+	ypos.reset(new Cgraph(rectset, bbox, 2));
+	yneg.reset(new Cgraph(rectset, bbox, 3));
 
 	makeshadow();
 	makecheck();
@@ -114,10 +114,6 @@ void RectangularDomain::construct()
 
 RectangularDomain::~RectangularDomain()
 {
-	delete xpos;
-	delete ypos;
-	delete xneg;
-	delete yneg;
 	for (int i = 0; i < n; i++)
 	{
 		if(rectset[i].isPoint() == true)
@@ -147,17 +143,6 @@ Rect RectangularDomain::getrect(int i)
 	return this->rectset[i];
 }
 
-Cgraph* RectangularDomain::getcarrier(int i)
-{
-	switch(i)
-	{
-	case 0: return xpos; break;
-	case 1: return xneg; break;
-	case 2: return ypos; break;
-	case 3: return yneg; break;
-	}
-}
-
 bool RectangularDomain::incidentcheck(int i,int j,int dir)
 {
 	switch (dir)
@@ -166,6 +151,7 @@ bool RectangularDomain::incidentcheck(int i,int j,int dir)
 	case 1: return rcheck[i][j].reachable; break;
 	case 2: return bcheck[i][j].reachable; break;
 	case 3: return tcheck[i][j].reachable; break;
+	default: printf("CRITICAL ERROR"); exit(1);
 	}
 }
 
@@ -559,6 +545,11 @@ bool comparedist(const Point_Distance &a, const Point_Distance &b) {
 Point_Distance RectangularDomain::NNS(Point query)
 {
 	return kNNS(query,1)[0];
+}
+
+Point_Distance RectangularDomain::FNS(Point query)
+{
+	return kNNS(query,-1)[0];
 }
 
 vector<Point_Distance> RectangularDomain::kNNS(Point query,int k)

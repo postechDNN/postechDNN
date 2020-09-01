@@ -41,9 +41,6 @@
     <ClInclude Include="RectangularDomain.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Segment.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Edge.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

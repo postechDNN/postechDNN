@@ -1,9 +1,6 @@
 #pragma once
-#include"Edge.h"
-#include"Point.h"
 #include"Rect.h"
 #include<queue>
-#include<vector>
 using namespace std;
 
 class Cgraph {
