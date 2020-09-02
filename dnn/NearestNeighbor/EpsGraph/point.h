@@ -7,6 +7,8 @@
 
 using namespace std;
 
+class Polygon;
+
 struct indices	// 이건 묶고, right와 lower는 그대로 두는 게 제일 낫네.
 {
 	int row;
@@ -23,6 +25,7 @@ struct incid_pts {
 class Point {
 public:	// variables
 	double x, y;	// x- and y- coordinates
+	int encl; // tells if it lies on the interior of an obstacle polygon
 
 public:	// functions
 	Point();
@@ -36,37 +39,25 @@ public:	// functions
 class Free_Point : public Point {
 	// 딱히 Point에서 더 추가할 건 없지만, gridpoint와의 확실한 구별을 위해. 나중에 NN 추가할 수도 있고.
 public:
-	double dist; // distance to the nearest gridpoint
-	// Grid_Point host;
+	int host; // denotes gridpoint hosting it
 
 public:
 	Free_Point();
 	Free_Point(double, double);
 };
 
-struct cmp {
-	bool operator()(Free_Point fp1, Free_Point fp2) {
-		return fp1.dist < fp2.dist;
-	}
-};
-
 class Grid_Point : public Point {
 public:
-	priority_queue <Free_Point, vector<Free_Point>, cmp> pq;
 	indices ind;	// its location on the grid
-	// vector<Free_Point> acd_pts;	// free points anchored to it
 	incid_pts ip;
 	int num;
 
+	vector<Free_Point*> anchored;	// free points anchored to it
+
+	vector<int> cros; // crossings
 
 public:
 	Grid_Point();
 	Grid_Point(int, int, double, double, double, int);
 };
 
-/*
-	long double getx();
-	long double gety();
-	int get_row();
-	int get_col();
-*/

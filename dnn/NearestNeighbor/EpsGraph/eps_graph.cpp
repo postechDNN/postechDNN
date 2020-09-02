@@ -1,349 +1,627 @@
-#include "eps_graph.h"
+#include "Eps_Graph.h"
+#include <queue>
+#include <assert.h>
 
 #define X true // ray direction
 #define Y false
 
 using namespace std;
 
-Eps_graph::Eps_graph(vector<Point> grid_points, vector<Free_Point> _free_points, vector<Polygon> figures) {
+Eps_Graph::Eps_Graph(list<Free_Point> _fr_pts, vector<_Polygon> _pols, double _eps) {
 
-	make_grid(grid_points);
-	
-	free_points = _free_points;
-	for (auto free_point : free_points) {
-		anchor(free_point);
+	fr_pts = _fr_pts;
+	pols = _pols;
+	eps = _eps;
+	NN_dist = {};
+
+	x_min = y_min = DBL_MAX;
+	x_max = y_max = DBL_MIN;
+
+	// among all points and polygons vertices, find the minimum/maximum x- and y-coordinate.
+	// this is to find a reasonably small bounding box for P \setunion O.
+
+	for (auto pol : pols) {
+		if (pol.x_max > this->x_max) { this->x_max = pol.x_max; }
+		if (pol.y_max > this->y_max) { this->y_max = pol.y_max; }
+
+		if (pol.x_min < this->x_min) { this->x_min = pol.x_min; }
+		if (pol.y_min < this->y_min) { this->y_min = pol.y_min; }
 	}
 
-	polygons = figures;
-	for (auto polygon : polygons) {
-		add_pol(polygon);
+	for (auto fr_pt : fr_pts) {
+		if (fr_pt.x > this->x_max) { this->x_max = fr_pt.x; }
+		if (fr_pt.y > this->y_max) { this->y_max = fr_pt.y; }
+
+		if (fr_pt.x < this->x_min) { this->x_min = fr_pt.x; }
+		if (fr_pt.y < this->y_min) { this->y_min = fr_pt.y; }
 	}
-		// polygons.push_back(figure);
-	
-	for (unsigned int i = 0; i < grid.size(); i++) {
-		dist_coll.push_back({});
-		visited.push_back(false);
+
+	init_grid();
+
+	for (Free_Point& fr_pt : fr_pts) {
+		anchor(fr_pt);
 	}
 }
 
-void Eps_graph::make_grid(std::vector<Point> grid_points) {
-	sort(grid_points.begin(), grid_points.end(), [](Point first, Point second)
-	{
-		return first.x < second.x;
-	});
-	Point u_l = grid_points[0]; // upper left point
-	Point s_f = grid_points[1]; // one step further(to the right)
-	Point l_r = grid_points[2]; // lower right point
+void Eps_Graph::init_grid() {
 
-	x_min = std::min({ u_l.x, s_f.x, l_r.x }); x_max = std::max({ u_l.x, s_f.x, l_r.x });
-	y_min = std::min({ u_l.y, s_f.y, l_r.y }); y_max = std::max({ u_l.y, s_f.y, l_r.y });
+	int x_ind = int(floor(x_min / eps)) - 1, y_ind = int(floor(y_min / eps)) - 1;
 
-	eps = s_f.x - u_l.x;
-	row_num = 1 + int((y_max - y_min) / eps);
-	col_num = 1 + int((x_max - x_min) / eps);
+	row_num = 2 + int(ceil(y_max / eps)) - y_ind;
+	col_num = 2 + int(ceil(x_max / eps)) - x_ind;
 
+	upper_left = Point(x_ind * eps, int(ceil(y_max / eps + 1)) * eps);
+
+	// initialization step for BFS
 	for (int i = 0; i < row_num * col_num; i++) {
-		grid.push_back(Grid_Point(num2ind(i).row, num2ind(i).column, x_min, y_max, eps, col_num));
+		dist.push_back(INT_MAX);
+		visited.push_back(false);
 	}
 
+	for (int i = 0; i < row_num * col_num; i++)
+	{
+		grid.push_back(Grid_Point(num2ind(i).row, num2ind(i).column, upper_left.x, upper_left.y, eps, col_num));
+	}
+
+	// for each grid & free point, count # of crossings of the rightward ray with each polygon
+	for (Grid_Point& pt : grid) {
+		for (_Polygon& pol : pols) {
+			int cro = pol.ray(pt);
+			pt.cros.push_back(cro);
+
+			if (cro > 0 && cro % 2 == 1) {
+				pt.encl = pol.ord;
+				pol.encl_pts.push_back(pt);
+			}
+		}
+	}
+
+	for (Free_Point& pt : fr_pts) {
+		for (_Polygon& pol : pols) {
+			int cro = pol.ray(pt);
+
+			if (cro > 0 && cro % 2 == 1) {
+				pt.encl = pol.ord;
+				pol.encl_pts.push_back(pt);
+			}
+		}
+	}
+
+	// draw grid edges
 	for (int i = 0; i < row_num; i++) {
 		for (int j = 0; j < col_num; j++) {
+			if (grid[ind2num(i, j)].encl != -1) { continue; }
+
 			if ((i != row_num - 1) && (j != col_num - 1)) {
-				add_edge(indices{ i, j }, indices{ i + 1, j }, 1); // 이미 add_edge 함수에서 양쪽 directed edge를 건드리므로, 여기서는 한 방향만 보면 됨.
-				add_edge(indices{ i, j }, indices{ i, j + 1 }, 1);
+				if (grid[ind2num(i + 1, j)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+				}
+				if (grid[ind2num(i, j + 1)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				}
 			}
 			else if (i != row_num - 1) {
-				add_edge(indices{ i, j }, indices{ i + 1,j }, 1);
+				if (grid[ind2num(i + 1, j)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+				}
 			}
 			else if (j != col_num - 1) {
-				add_edge(indices{ i, j }, indices{ i, j + 1 }, 1);
+				if (grid[ind2num(i, j + 1)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				}
 			}
 			else {}
 		}
 	}
 }
 
-Grid_Point Eps_graph::get_gridpt(indices ind) {
+Grid_Point Eps_Graph::get_gridpt(indices ind) {
 	return grid[ind2num(ind)];
 }
 
-
-int Eps_graph::ind2num(indices ind) {
+// one-to-one functions between 2-d indices and numbers
+int Eps_Graph::ind2num(indices ind) {
 	return ind.row * col_num + ind.column;
 }
 
-indices Eps_graph::num2ind(int num) {
+int Eps_Graph::ind2num(int row, int column) {
+	return row * col_num + column;
+}
+
+indices Eps_Graph::num2ind(int num) {
 	return indices{ num / col_num, num % col_num };
 }
 
-
-bool Eps_graph::is_edge(indices ind1, indices ind2) {
-	Point p1 = get_gridpt(ind1), p2 = get_gridpt(ind2);
-	if (std::min({ p1.x, p1.y, p2.x, p2.y }) < 0 || std::max(p1.x, p2.x) > eps * (double(col_num) - 1)	// any of the two input points is outside from the epsilon graph
-		|| std::max(p1.y, p2.y) > eps * (double(row_num) - 1)) {
-		return false;
-	}
-	else if (abs(p1.x - p2.x) + abs(p1.y - p2.y) != eps) { return false; }	// two input points are not adjacent
-	else {
-		bool flag;
-		if (abs(p1.x - p2.x) == eps) { flag = X; }	// their x-coordinates are the same
-		else { flag = Y; }	// their y-coordinates are the same
-		
-		for (unsigned int i = 0; i < polygons.size(); i++)
-		{
-			if (polygons[i].intersect(p1, p2, flag) == true) { return false; }
-			else {
-				int inter1 = polygons[i].ray(p1), inter2 = polygons[i].ray(p2);
-				if (inter1 == -2 && inter2 == -2) {
-					int mid_inter = polygons[i].ray(Point((p1.x + p2.x / 2), (p1.y, p2.y) / 2));
-					if (mid_inter % 2 == 1) { return false; }
-				}
-				else if (inter1 == -2) {
-					if (inter2 % 2 == 1) { return false; }
-				}
-				else if (inter2 == -2) {
-					if (inter1 % 2 == 1) { return false; }
-				}
-				else {
-					if (inter1 % 2 == 1 || inter2 % 2 == 1) { return false; }
-				}
-			}
-
-		}
-		return true;
-	}
-}
-
-void Eps_graph::add_edge(indices ind1, indices ind2, double weight) {
+// adds/deletes a grid edge
+void Eps_Graph::add_edge(indices ind1, indices ind2) {
 	int row1 = ind1.row; int column1 = ind1.column;
 	int row2 = ind2.row; int column2 = ind2.column;
 
 	if (row1 == row2) { grid[row1 * col_num + column1].ip.right = true; grid[row2 * col_num + column2].ip.left = true; }
 	else { grid[row1 * col_num + column1].ip.lower = true; grid[row2 * col_num + column2].ip.upper = true; }
-
-	/*
-	auto it = adj_list[row1 * col_num + column1].begin();
-	for (it = adj_list[row1 * col_num + column1].begin(); it != adj_list[row1 * col_num + column1].end(); it++) {
-		if (std::get<0>(*it) == row2 * col_num + column2) { break; }
-	}
-
-	if (it == adj_list[row1 * col_num + column1].end()) {
-	adj_list[row1 * col_num + column1].push_back(std::make_tuple(row2 * col_num + column2, weight));
-	}
-	*/
 }
 
-void Eps_graph::delete_edge(indices ind1, indices ind2) {
+void Eps_Graph::add_edge(int row, int column, bool direc) {
+	int row1 = row; int column1 = column;
+	int row2, column2;
+
+	if (direc == X) { row2 = row1; column2 = column1 + 1; }
+	else { row2 = row1 + 1; column2 = column1; }
+
+	if (row1 == row2) { grid[row1 * col_num + column1].ip.right = true; grid[row2 * col_num + column2].ip.left = true; }
+	else { grid[row1 * col_num + column1].ip.lower = true; grid[row2 * col_num + column2].ip.upper = true; }
+}
+
+void Eps_Graph::delete_edge(indices ind1, indices ind2) {
 	int row1 = ind1.row; int column1 = ind1.column;
 	int row2 = ind2.row; int column2 = ind2.column;
 
 	if (row1 == row2) { grid[row1 * col_num + column1].ip.right = false; grid[row2 * col_num + column2].ip.left = false; }
 	else { grid[row1 * col_num + column1].ip.lower = false; grid[row2 * col_num + column2].ip.upper = false; }
+}
 
-	/*
-	for (auto it = adj_list[row1 * col_num + column1].begin(); it != adj_list[row1 * col_num + column1].end(); it++) {
-		if (std::get<0>(*it) == row2 * col_num + column2) {
-			adj_list[row1 * col_num + column1].erase(it);
+
+bool Eps_Graph::cmpNadd(indices ind, bool direc) { // checks if the line connecting the gridpoint and its neighboring one is blocked by any polygon. if is not, add an edge between them.
+
+	Grid_Point A = grid[ind2num(ind)], B;
+	if (direc == X) { B = grid[ind2num(ind) + 1]; }
+	else { B = grid[ind2num(ind) + col_num]; }
+
+	for (unsigned int ind1 = 0; ind1 < pols.size(); ind1++) { // assert(pols.size() = A.cros.size() = B.cros.size())
+		auto pol = pols[ind1];
+
+		// if one of the two gridpoints lie outside the bounding box of a polygon, then the edge between them may be present
+		if (direc == X) {
+			if (B.x < pol.x_max || pol.x_min < A.x || pol.y_max < A.y || A.y < pol.y_min) { continue; } // assert(A.y = B.y)
+		}
+		else {
+			if (A.y < pol.y_max || pol.y_min < B.y || pol.x_max < A.x || A.x < pol.x_min) { continue; }
+		}
+
+		// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
+		if (direc == X) {
+			if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, X)) { return false; }
+		}
+		else {
+			if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, Y)) { return false; }
+		}
+
+		// else, compare the # of intersections with the ray.
+		if (A.cros[ind1] < 0 && B.cros[ind1] < 0) {
+			int mid_inter = pol.ray(Point((A.x + B.x / 2), (A.y, B.y) / 2));
+			if (mid_inter % 2 == 1) { return false; }
+		}
+		else if (A.cros[ind1] < 0) {
+			if (B.cros[ind1] % 2 == 1) { return false; }
+		}
+		else if (B.cros[ind1] < 0) {
+			if (A.cros[ind1] % 2 == 1) { return false; }
+		}
+		else {
+			if (A.cros[ind1] != B.cros[ind1]) { return false; }
+			else {}
+		}
+	}
+
+	return true;
+}
+
+bool Eps_Graph::cmpNadd_SinPol(indices ind, bool direc, int ord) { // do the same with a specific polygon.
+
+	_Polygon pol;
+	vector<_Polygon>::iterator it;
+
+	for (it = pols.end() - 1;; it--) {
+		if ((*it).ord == ord) {
+			pol = *it;
 			break;
 		}
 	}
-	*/
+
+	int index = distance(pols.begin(), it);
+
+	Grid_Point A = grid[ind2num(ind)], B;
+	if (direc == X) { B = grid[ind2num(ind) + 1]; }
+	else { B = grid[ind2num(ind) + col_num]; }
+
+	if (direc == X) {
+		if (B.x < pol.x_max || pol.x_min < A.x || pol.y_max < A.y || A.y < pol.y_min) { return true; }
+	}
+	else {
+		if (A.y < pol.y_max || pol.y_min < B.y || pol.x_max < A.x || A.x < pol.x_min) { return true; }
+	}
+
+	if (direc == X) {
+		if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, X)) { return false; }
+	}
+	else {
+		if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, Y)) { return false; }
+	}
+
+	int A_cro = A.cros[index], B_cro = B.cros[index];
+
+	if (A_cro < 0 && B_cro < 0) {
+		int mid_inter = pol.ray(Point((A.x + B.x / 2), (A.y, B.y) / 2));
+		if (mid_inter % 2 == 1) { return false; }
+	}
+	else if (A_cro < 0) {
+		if (B_cro % 2 == 1) { return false; }
+	}
+	else if (B_cro < 0) {
+		if (A_cro % 2 == 1) { return false; }
+	}
+	else {
+		if (A_cro != B_cro) { return false; }
+	}
+
+	return true;
 }
 
-void Eps_graph::update_grid(indices ind1, indices ind2) {
-	int lowermost_row = ind1.row;
-	int uppermost_row = ind2.row;
 
-	int leftmost_column = ind1.column;
-	int rightmost_column = ind2.column;
+void Eps_Graph::add_freepts(vector<Free_Point> p_vec) { // add points to the point set P
+	for (auto p : p_vec) {
+		fr_pts.push_back(p);
 
-	std::vector<int> rows, cols;
-	// for (int i = lower_bound; i < upper_bound + 1; i++) { // this for loop checks if the grid edges are still adjacent/not adjacent
-	// 	for (int j = left_bound; j < right_bound + 1; j++) {
-	for (int i = lowermost_row; i < uppermost_row; i++) {
-		for (int j = leftmost_column; j < rightmost_column; j++) {
+		Free_Point& pt = fr_pts.back();
+
+		for (_Polygon& pol : pols) {
+			int cro = pol.ray(pt);
+
+			if (cro > 0 && cro % 2 == 1) {
+				pt.encl = pol.ord;
+				pol.encl_pts.push_back(pt);
+			}
+		}
+
+		anchor(pt);
+	}
+}
+
+void Eps_Graph::delete_freept(int ind) { // delete a point from P, specified by its index
+	if (ind < 0 || fr_pts.size() - 1 < ind) { return; }
+
+	list<Free_Point>::iterator iter = fr_pts.begin();
+	advance(iter, ind);
+	Free_Point& p = *iter;
+
+	if (p.host != -1) {
+		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+			if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
+				grid[p.host].anchored.erase(it);
+				break;
+			}
+		}
+	}
+
+	fr_pts.erase(iter);
+}
+
+void Eps_Graph::anchor(Free_Point& p) { // cast anchor onto a grid point from a free point
+
+	if (p.encl != -1) {
+		p.host = -1;
+		return;
+	}
+	// else
+
+	if (p.host != -1) {
+		assert(0 <= p.host && p.host < grid.size());
+		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+			if (p.x == (*(*it)).x && p.y == (*(*it)).y) {
+				grid[p.host].anchored.erase(grid[p.host].anchored.begin() + distance(it, grid[p.host].anchored.begin()));
+			}
+		}
+	}
+
+	bool flag = false;
+	int row; int col;
+	row = int(ceil((upper_left.y - p.y) / eps - 0.5)); // points on the midline anchors upward
+	col = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
+
+
+	// find a nearest gridpoint not enclosed by any polygon
+	for (int step = 0; step < row_num + col_num; step++) {
+		vector<Grid_Point> gr_pts = {};
+		for (int x_step = 0; x_step <= step; x_step++) {
+			int y_step = step - x_step;
+
+			if (0 <= row + x_step && row + x_step < row_num && 0 <= col + y_step && col + y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row + x_step, col + y_step)]);
+			}
+			if (0 <= row + x_step && row + x_step < row_num && 0 <= col - y_step && col - y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row + x_step, col - y_step)]);
+			}
+			if (0 <= row - x_step && row - x_step < row_num && 0 <= col + y_step && col + y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row - x_step, col + y_step)]);
+			}
+			if (0 <= row - x_step && row - x_step < row_num && 0 <= col - y_step && col - y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row - x_step, col - y_step)]);
+			}
+		}
+
+		for (Grid_Point gr_pt : gr_pts) {
+
+			if (gr_pt.encl == -1) {
+				p.host = gr_pt.num;
+				Grid_Point& cur = grid[gr_pt.num];
+				cur.anchored.push_back(&p);
+				flag = true;
+				break;
+			}
+
+		}
+		if (flag) { break; }
+	}
+}
+
+Grid_Point Eps_Graph::query_anchor(Free_Point p) {
+	int row; int col;
+	row = int(ceil((upper_left.y - p.y) / eps - 0.5)); // 정 중앙에 있는 점은 위로 anchor됨
+	col = int(ceil((p.x - upper_left.x) / eps - 0.5)); // 정 중앙에 있는 점은 왼쪽으로 anchor됨
+	return grid[ind2num(indices{ row, col })];
+}
+
+
+void Eps_Graph::add_pol(_Polygon P) { // add a polygon to the set of obstacles O
+	pols.push_back(P);
+
+	for (Grid_Point& gr_pt : grid) {
+		int cro = P.ray(gr_pt);
+		gr_pt.cros.push_back(cro);
+		if (cro > 0 && cro % 2 == 1) { // assert(!gr_pt.encl)
+			gr_pt.encl = P.ord;
+			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end(); ++it) {
+				anchor(*(*it));
+			}
+			vector<Free_Point*>().swap(gr_pt.anchored);
+		}
+	}
+
+	for (Free_Point& pt : fr_pts) {
+		if (pt.encl != -1) { continue; }
+
+		int cro = P.ray(pt);
+		if (cro > 0 && cro % 2 == 1) {
+			pt.encl = P.ord;
+			for (vector<Free_Point*>::iterator it = grid[pt.host].anchored.begin(); it != grid[pt.host].anchored.end(); ++it) {
+				if ((*(*it)).x == pt.x && (*(*it)).y == pt.y) {
+					grid[pt.host].anchored.erase(it);
+					break;
+				}
+			}
+			pt.host = -1; // anchor(pt);
+		}
+	}
+
+	indices* diagonal = eff_region(P);
+
+	int tm_row = diagonal[1].row;
+	int bm_row = diagonal[0].row;
+
+	int lm_col = diagonal[0].column;
+	int rm_col = diagonal[1].column;
+
+	// update grid edges among gridpoints in the effective region
+	for (int i = tm_row; i < bm_row; i++) {
+		for (int j = lm_col; j < rm_col; j++) {
+
+			Grid_Point cur = grid[ind2num(i, j)];
+			if (cur.encl != -1) { continue; }
 
 			if ((i != row_num - 1) && (j != col_num - 1)) {
-				if (is_edge(indices{ i, j }, indices{ i + 1, j })) { add_edge(indices{ i, j }, indices{ i + 1, j }, 1);}
-				else {delete_edge(indices{ i, j }, indices{ i + 1, j });}
-
-				if (is_edge(indices{ i, j }, indices{ i, j + 1 })) {add_edge(indices{ i, j }, indices{ i, j + 1 }, 1);}
-				else {delete_edge(indices{ i, j }, indices{ i, j + 1 });}
+				if (cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
+					if (!cmpNadd_SinPol(indices{ i, j }, Y, P.ord)) { delete_edge(indices{ i, j }, indices{ i + 1, j }); }
+				}
+				if (cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
+					if (!cmpNadd_SinPol(indices{ i, j }, X, P.ord)) { delete_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				}
 			}
 
 			else if (i != row_num - 1) {
-				if (is_edge(indices{ i, j }, indices{ i + 1, j })) {add_edge(indices{ i, j }, indices{ i + 1, j }, 1);}
-				else {delete_edge(indices{ i, j }, indices{ i + 1, j });}
+				if (cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
+					if (!cmpNadd_SinPol(indices{ i, j }, Y, P.ord)) { delete_edge(indices{ i, j }, indices{ i + 1, j }); }
+				}
 			}
 
 			else if (j != col_num - 1) {
-				if (is_edge(indices{ i, j }, indices{ i, j + 1 })) {add_edge(indices{ i, j }, indices{ i, j + 1 }, 1);}
-				else {delete_edge(indices{ i, j }, indices{ i, j + 1 });}
+				if (cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
+					if (!cmpNadd_SinPol(indices{ i, j }, X, P.ord)) { delete_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				}
 			}
 
 			else {}
 
 		}
 	}
+
+
 }
 
+void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by its index
 
-void Eps_graph::add_freept(Free_Point p) {
-	free_points.push_back(p);
-}
+	vector<_Polygon>::iterator it;
 
-void Eps_graph::delete_freept(Free_Point p) {
-	for (vector<Free_Point>::iterator it = free_points.begin(); it != free_points.end(); ++it) {
-		if ((*it).x == p.x && (*it).y == p.y) {
-			free_points.erase(it);
+	for (it = pols.begin(); it != pols.end(); ++it) {
+		if ((*it).ord == ord) {
 			break;
 		}
 	}
+
+	if (it == pols.end()) { return; }
+
+	// release them free; for gridpoints and free points that was enclosed by the polygon
+	int ind = distance(pols.begin(), it);
+	for (Grid_Point& gr_pt : grid) {
+		gr_pt.cros.erase(gr_pt.cros.begin() + ind);
+		if (gr_pt.encl == ord) {
+			gr_pt.encl = -1;
+		}
+	}
+
+	for (Free_Point& pt : fr_pts) {
+		if (pt.encl == ord) {
+			pt.encl = -1;
+			anchor(pt);
+		}
+	}
+
+	indices* diagonal = eff_region(*it);
+
+	int tm_row = diagonal[1].row;
+	int bm_row = diagonal[0].row;
+
+	int lm_col = diagonal[0].column;
+	int rm_col = diagonal[1].column;
+
+	// update grid edges among gridpoints in the effective region
+	for (int i = tm_row; i < bm_row; i++) {
+		for (int j = lm_col; j < rm_col; j++) {
+
+			Grid_Point cur = grid[ind2num(i, j)];
+			if (cur.encl != -1) { continue; }
+
+			if ((i != row_num - 1) && (j != col_num - 1)) {
+				if (!cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+				}
+				if (!cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				}
+			}
+
+			else if (i != row_num - 1) {
+				if (!cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+				}
+			}
+
+			else if (j != col_num - 1) {
+				if (!cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
+					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				}
+			}
+
+			else {}
+
+		}
+	}
+
+	pols.erase(it);
 }
 
-void Eps_graph::delete_freept(int i) {
-	free_points.erase(free_points.begin() + i); // begin()은 이터레이터를 반환
-}
+indices* Eps_Graph::eff_region(_Polygon P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
+	static indices ret[2]; // ret[0] : lower left, ret[1] : upper right
 
+	ret[0].row = min(row_num - 1, int(ceil((upper_left.y - P.y_min) / eps)));
+	ret[0].column = max(0, int(floor((P.x_min - upper_left.x) / eps)));
 
-void Eps_graph::anchor(Free_Point p) {
-	int row; int col;
-	row = int(ceil((y_max - p.y) / eps - 0.5)); // 정 중앙에 있는 점은 위로 anchor됨
-	col = int(ceil((p.x - x_min) / eps - 0.5)); // 정 중앙에 있는 점은 왼쪽으로 anchor됨
-	Grid_Point& cur = grid[ind2num(indices{ row, col })];
-	cur.pq.push(p);
-	// p.host = cur;
-	p.dist = sqrt(pow(cur.x - p.x, 2) + pow(cur.y - p.y, 2));
-}
-
-Grid_Point Eps_graph::query_anchor(Free_Point p) {
-	int row; int col;
-	row = int(ceil((y_max - p.y) / eps - 0.5)); // 정 중앙에 있는 점은 위로 anchor됨
-	col = int(ceil((p.x - x_min) / eps - 0.5)); // 정 중앙에 있는 점은 왼쪽으로 anchor됨
-	return grid[ind2num(indices{ row, col })];
-}
-
-
-void Eps_graph::add_pol(Polygon P) {
-	polygons.push_back(P);
-
-	indices* diagonal = eff_region(P);
-	update_grid(diagonal[0], diagonal[1]);
-}
-
-void Eps_graph::delete_pol(int i) {
-	Polygon P = *(polygons.begin() + i);
-	polygons.erase(polygons.begin() + i);
-
-	indices* diagonal = eff_region(P); 
-	update_grid(diagonal[0], diagonal[1]); // erase한 뒤에 update하는 게 맞음. 순서 바꾸면 안됨
-}
-
-indices* Eps_graph::eff_region(Polygon P) {
-	indices ret[2];
-
-	ret[0].row = max(0, int(floor((y_max - P.y_max) / eps))); // lowermost row. 평면 상에서는 위쪽 부분임
-	ret[0].column = max(0, int(floor((P.x_min - x_min) / eps))); // 다 floor인 게 맞음.
-	
-	ret[1].row = min(row_num - 1, row_num - 1 - int(floor((P.y_min - y_min) / eps)));
-	ret[1].column = min(col_num - 1, col_num - 1 - int(floor((x_max - P.x_max) / eps)));
+	ret[1].row = max(0, int(floor((upper_left.y - P.y_max) / eps)));
+	ret[1].column = min(col_num - 1, int(ceil((P.x_max - upper_left.x) / eps)));
 
 	return ret;
 }
 
-void Eps_graph::dijkstra(Grid_Point p) {
-	for (int i = 0; i < row_num * col_num; i++) {
-		dist_coll[i] = {INT_MAX, i};
-		visited[i] = false;
+
+void Eps_Graph::BFS(Grid_Point s) { // BFS on grid
+
+	for (int& elem : dist) { elem = INT_MAX; }
+	for (unsigned int ind1 = 0; ind1 < visited.size(); ind1++) { visited[ind1] = false; }
+	closest = {};
+
+	queue<int> q;
+
+	dist[s.num] = 0;
+	q.push(s.num);
+
+	while (!q.empty()) {
+		int cur = q.front();
+		q.pop();
+		if (visited[cur] == true) { continue; }
+		closest.push_back(cur);
+		visited[cur] = true;
+
+		if (grid[cur].ip.right && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
+		if (grid[cur].ip.lower && visited[cur + col_num] == false) { dist[cur + col_num] = dist[cur] + 1; q.push(cur + col_num); }
+		if (grid[cur].ip.left && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
+		if (grid[cur].ip.upper && visited[cur - col_num] == false) { dist[cur - col_num] = dist[cur] + 1; q.push(cur - col_num); }
 	}
-	closest.clear();
 
-	// priority_queue<int, vector<int>, greater<int>> pq;
-
-	priority_queue<tuple<int, int>, vector<tuple<int, int>>, greater<tuple<int, int>>> pq;
-	dist_coll[p.num] = {0, p.num};
-	pq.push(dist_coll[p.num]);
-
-	while (!pq.empty()) {
-		int distance = get<0>(pq.top());
-		int node_num = get<1>(pq.top());
-		pq.pop();
-
-		if (!visited[node_num]) {
-			if (node_num != p.num) {
-				closest.push_back(node_num);
-			}
-			visited[node_num] = true;
-			dist_coll[node_num] = {distance, node_num};
-			Grid_Point gp = get_gridpt(num2ind(node_num));
-			if (gp.ip.right) { pq.push(std::make_tuple(distance + 1, node_num + 1)); }
-			if (gp.ip.lower) { pq.push(std::make_tuple(distance + 1, node_num + col_num)); }
-			if (gp.ip.left) { pq.push(std::make_tuple(distance + 1, node_num - 1)); }
-			if (gp.ip.upper) { pq.push(std::make_tuple(distance + 1, node_num - col_num)); }
-		}
-	}
 }
 
-vector<Free_Point> Eps_graph::kNN(Free_Point p, int k) {
+vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
-	vector<Free_Point> whole = free_points;
+	
+	vector<Free_Point> ret = {};
+	NN_dist = {};
 
-	/*
-	int sz = whole.size();
-	if (1 + k >= sz) {
-		for (vector<Free_Point>::iterator it = whole.begin(); it != whole.end(); ++it) {
-			if (*it == p) {
-				whole.erase(it);
-			}
-		}
-		return free_points;
-	}	// if k exceeds the number of free points, return all of them.
-	*/
+	BFS(query_anchor(p));
 
-	vector<Free_Point> ret;
-
-	dijkstra(query_anchor(p));
 	while (k > 0) {
 		if (closest.empty()) {
 			break;
 		}
-		int cur = closest[0];
-		// vector<Free_Point> pts = grid[cur].acd_pts;
-		priority_queue <Free_Point, vector<Free_Point>, cmp> pts_pq = grid[cur].pq;
-		int sz = pts_pq.size();
-		if (sz < k) {
-			k -= sz;
-			// ret.insert(ret.end(), grid[cur].acd_pts.begin(), grid[cur].acd_pts.end());
-			while (!pts_pq.empty()) {
-				ret.push_back(pts_pq.top());
-				pts_pq.pop();
+
+		int start = 0, end = 0;
+		int grid_dist = dist[closest[start]];
+
+		while (grid_dist == dist[closest[end]]) {
+			if (end == int(closest.size()) - 1) { break; }
+			else { end += 1; }
+		}
+
+		vector<Free_Point> temp = {};
+
+		for (int ind1 = start; ind1 <= end; ind1++) {
+			vector<Free_Point> added_pts = {};
+
+			for (auto pt_pointer : grid[closest[ind1]].anchored) {
+				added_pts.push_back(*pt_pointer);
 			}
+			vector<Free_Point>::iterator it = temp.insert(temp.end(), added_pts.begin(), added_pts.end());
+		}
+
+		sort(temp.begin(), temp.end(), [=](Free_Point first, Free_Point second)
+		{
+			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2);
+		});
+
+		vector<Free_Point> pts = {};
+
+		for (auto pt : temp) {
+			if (pt.encl == -1) {
+				pts.push_back(pt);
+			}
+		}
+
+		int sz = int(pts.size());
+
+		if (sz <= k) {
+			for (int ind2 = 0; ind2 < sz; ind2++) { NN_dist.push_back(grid_dist); }
+			k -= sz;
+			ret.insert(ret.end(), pts.begin(), pts.end());
 		}
 		else {
-			for (int i = 0; i < k; i++) {
-				ret.push_back(pts_pq.top());
-				// ret.insert(ret.begin(), pts_pq.top());
-				pts_pq.pop();
-			}
+			for (int ind2 = 0; ind2 < k; ind2++) { NN_dist.push_back(grid_dist); }
+			ret.insert(ret.end(), pts.begin(), pts.begin() + k);
 			k = 0;
+			
 		}
-		closest.erase(closest.begin());
+		closest.erase(closest.begin(), closest.begin() + end + 1);
 	}
 
 	return ret;
 }
 
 
-void Eps_graph::print_grid() {
+void Eps_Graph::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
 		cout << grid[i].ind.row << grid[i].ind.column << ' ' << '|' << grid[i].ip.right << ' ' << '|' << grid[i].ip.lower << ' ' << '|';
 		if (num2ind(i).column == col_num - 1) { cout << endl; }
-
 	}
 }
 
-void Eps_graph::print_edges() {
-	for (auto gp : grid) {	// gridpt
+void Eps_Graph::print_edges() {
+	for (auto gp : grid) {
 		if (gp.ip.right == true) {
 			cout << gp.ind.row << ' ' << gp.ind.column << '|' << gp.ind.row << ' ' << gp.ind.column + 1 << endl;
 		}
@@ -351,199 +629,37 @@ void Eps_graph::print_edges() {
 			cout << gp.ind.row << ' ' << gp.ind.column << '|' << gp.ind.row + 1 << ' ' << gp.ind.column << endl;
 		}
 	}
-	/*
-	for (auto edge : edges) {
-		cout << edge.p1.x << edge.p1.y << '|' << edge.p2.x << edge.p2.y << endl;
-	}
-	*/
 }
 
-void Eps_graph::print_dist() {
+void Eps_Graph::print_dist() {
 	for (int i = 0; i < row_num; i++) {
 		for (int j = 0; j < col_num; j++) {
-			if (get<0>(dist_coll[i * col_num + j]) == INT_MAX) { printf(" INF "); }
-			else { printf("%4.1d ", get<0>(dist_coll[i * col_num + j])); }
+			if (dist[i * col_num + j] == INT_MAX) { printf(" INF "); }
+			else { printf("%4.1d ", dist[i * col_num + j]); }
 		}
 		printf("\n");
 	}
 }
 
-void Eps_graph::print_kNN(Free_Point p, int k) {
+void Eps_Graph::print_kNN(Free_Point p, int k) {
 	vector<Free_Point> nbhd = kNN(p, k);
 	for (auto nb : nbhd) {
 		cout << nb.x << ' ' << nb.y << endl;
 	}
 }
-// remaining issue : 
 
 
-Eps_graph::Eps_graph() { row_num = col_num = 0; x_min = x_max = y_min = y_max = eps = 0; }
-/*
+Eps_Graph::Eps_Graph() { row_num = col_num = 0; x_min = x_max = y_min = y_max = eps = 0; }
 
-driver code
-
-int size[2] = { 6, 8 };
-Eps_graph G = Eps_graph(size, 0.5);
-
-std::vector <Point> vers = { Point(0.2, 2.3), Point(0.7, 2.3), Point(0.7, 1.8), Point(0.2, 1.8) };
-G.add_pol(Polygon(vers, 4)); vers.clear();
-std::vector <Point> vers2 = { Point(1.3, 1.6), Point(1.6, 1.1), Point(0.9, 0.9), Point(0.9, 1.3) };
-G.add_pol(Polygon(vers2, 4)); vers2.clear();
-std::vector <Point> vers3 = { Point(2, 2.5), Point(3, 2.5), Point(3, 1), Point(2, 1)};
-G.add_pol(Polygon(vers3, 4)); vers3.clear();
-
-*/
-
-/*
-
-	while (1)
-	{
-		int p_r, p_c;
-		std::cin >> p_r >> p_c;
-		int p_ind[2] = { p_r, p_c };
-
-		G.dijkstra(p_ind);
-		G.print_dist();
-	}
-
-*/
-
-/*
-	long double eps; // grid gap
-	int row_num, col_num; // # of points in each row/column of the bounding box
-	int pol_num; // polygon number
-	std::cin >> eps;
-	std::cin >> row_num >> col_num;
-	int size[2] = { row_num, col_num };
-	std::cin >> pol_num;
-	Eps_graph G = Eps_graph(size, eps);
-
-	std::vector <Point> vers;
-	for (int i = 0; i < pol_num; i++) {
-		int ver_num; // vertex number
-		std::cin >> ver_num;
-		long double x, y;
-		for (int j = 0; j < ver_num; j++) {
-			std::cin >> x >> y;
-			vers.push_back(Point(x, y));
-		}
-		G.add_pol(Polygon(vers, ver_num));
-		vers.clear();
-	}
-*/
-
-/*
-for (int i = 0; i < row_num * col_num; i++) {
-	std::vector<std::tuple<int, long double>> empty_vec;
-	adj_list.push_back(empty_vec);	// initialize the adj. list
+Free_Point Eps_Graph::get_free_point(int index) {
+	list<Free_Point>::iterator iter = fr_pts.begin();
+	std::advance(iter, index);
+	return *iter;
 }
-*/
-
-/*
-int Eps_graph::get_row_num()
-{return row_num;}
-
-int Eps_graph::get_col_num()
-{return col_num;}
-
-std::vector<edge> Eps_graph::get_edges() {
-	std::vector<edge> tmp_edges;
-	for (auto _gridpt : grid_mat) {
-		if (_gridpt.right == true) { tmp_edges.push_back(edge{get_gridpt(_gridpt.ind.row, _gridpt.ind.column), get_gridpt(_gridpt.ind.row, _gridpt.ind.column + 1)}); }
-		if (_gridpt.lower == true) { tmp_edges.push_back(edge{get_gridpt(_gridpt.ind.row, _gridpt.ind.column), get_gridpt(_gridpt.ind.row + 1, _gridpt.ind.column) });}
-	}
-	edges = tmp_edges;
-	return edges;
-}
-*/
-
-/*
-Eps_graph::Eps_graph(int* _size, long double _eps) {
-	row_num = _size[0]; col_num = _size[1];
-	eps = _eps;
-	pol_num = 0;
-
-	for (int i = 0; i < row_num * col_num; i++) {
-		std::vector<std::tuple<int, long double>> empty_vec;
-		adj_list.push_back(empty_vec);	// initialize the adj. list
-		long double dist = INT_MAX;	// for Dijkstra's
-		dist_coll.push_back(dist);
-		visited.push_back(false);
-	}
-
-	std::vector<int> rows, cols;
-	for (int i = 0; i < row_num; i++) {
-		for (int j = 0; j < col_num; j++) {
-			rows.clear();
-			cols.clear();
-			if (i == row_num - 1) {
-				if (j == col_num - 1) {}
-				else { rows.push_back(0); cols.push_back(1); }
-			}
-			else {
-				if (j == col_num - 1) { rows.push_back(1); cols.push_back(0); }
-				else { rows.push_back(0); rows.push_back(1); cols.push_back(1); cols.push_back(0); }
-			}
-
-			for (int k = 0; k < rows.size(); k++) {
-				int ind1[2] = { i, j };
-				int ind2[2] = { i + rows[k], j + cols[k] };
-				add_edge(indices{ i, j }, indices{ i + rows[k], j + cols[k] }, 1); add_edge(indices{ i + rows[k], j + cols[k] }, indices{ i, j }, 1);	// forms grid edges
-			}
+_Polygon Eps_Graph::get_polygon(int index) {
+	for (auto pol : pols) {
+		if (index == pol.ord) {
+			return pol;
 		}
 	}
 }
-
-
-typedef std::vector<std::vector<std::tuple<int, long double>>> adj;
-
-void Eps_graph::adj_edges(Point p)
-{
-	int row = p.row_num(), col = p.col_num();
-	int ind[2] = { row, col };
-	int upper[2] = { row - 1, col }, left[2] = { row, col - 1 }, right[2] = { row, col + 1 }, lower[2] = { row + 1, col };
-
-	printf("Current Location : (%lf, %lf)\n\n", p.x, p.y);
-	printf("     %d\n", is_edge(ind, upper));
-	printf("%d         %d\n", is_edge(ind, left), is_edge(ind, right));
-	printf("     %d\n", is_edge(ind, lower));
-
-}
-
-std::vector<gridpt> Eps_graph::get_grid_mat() {
-	return grid_mat;
-}
-
-std::vector<std::vector<std::tuple<int, long double>>> Eps_graph::get_adj_list()
-{
-	return adj_list;
-}
-*/
-
-/*
-typedef std::tuple<long double, int> dijk_elem;  // for heap elements in Dijkstra's
-
-void Eps_graph::dijkstra(int* ind) {
-	for (int i = 0; i < row_num * col_num; i++) {
-		dist_coll[i] = INT_MAX;
-		visited[i] = false;
-	}
-
-	std::priority_queue<dijk_elem, std::vector<dijk_elem>, std::greater<dijk_elem>> pq;
-	pq.push(std::make_tuple(0, ind[0] * col_num + ind[1]));
-	while (!pq.empty()) {
-		long double distance = std::get<0>(pq.top());
-		int node = std::get<1>(pq.top());
-		pq.pop();
-
-		if (!visited[node]) {
-			visited[node] = true;
-			dist_coll[node] = distance;
-			for (int i = 0; i < adj_list[node].size(); i++) {
-				pq.push(std::make_tuple(distance + get<1>(adj_list[node][i]), get<0>(adj_list[node][i])));
-			}
-		}
-	}
-}
-
-*/
