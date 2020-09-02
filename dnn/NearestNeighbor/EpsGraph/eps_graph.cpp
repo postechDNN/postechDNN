@@ -596,14 +596,15 @@ vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximat
 		int sz = int(pts.size());
 
 		if (sz <= k) {
+			for (int ind2 = 0; ind2 < sz; ind2++) { NN_dist.push_back(grid_dist); }
 			k -= sz;
 			ret.insert(ret.end(), pts.begin(), pts.end());
-			for (int ind2 = 0; ind2 < sz; ind2++) { NN_dist.push_back(grid_dist); }
 		}
 		else {
+			for (int ind2 = 0; ind2 < k; ind2++) { NN_dist.push_back(grid_dist); }
 			ret.insert(ret.end(), pts.begin(), pts.begin() + k);
 			k = 0;
-			for (int ind2 = 0; ind2 < k; ind2++) { NN_dist.push_back(grid_dist); }
+			
 		}
 		closest.erase(closest.begin(), closest.begin() + end + 1);
 	}
