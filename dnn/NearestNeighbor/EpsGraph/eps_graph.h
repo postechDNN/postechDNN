@@ -31,6 +31,7 @@ public: // variables
 	vector<int> dist;	// BFS distance
 	vector<bool> visited;
 	vector<int> closest; // gridpt indices in nondecreasing order of distance
+	vector<int> NN_dist;
 
 public:	// functions
 	Eps_Graph(list<Free_Point>, vector<_Polygon>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
@@ -52,7 +53,7 @@ public:	// functions
 
 	void anchor(Free_Point&);	// 중간에 있으면 왼쪽, 위로 가도록
 	Grid_Point query_anchor(Free_Point);
-	
+
 	void add_pol(_Polygon);
 	void delete_pol(int);
 	indices* eff_region(_Polygon); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
@@ -71,4 +72,3 @@ public:	// functions
 
 	Eps_Graph();
 };
-

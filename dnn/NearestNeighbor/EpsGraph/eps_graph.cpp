@@ -12,6 +12,7 @@ Eps_Graph::Eps_Graph(list<Free_Point> _fr_pts, vector<_Polygon> _pols, double _e
 	fr_pts = _fr_pts;
 	pols = _pols;
 	eps = _eps;
+	NN_dist = {};
 
 	x_min = y_min = DBL_MAX;
 	x_max = y_max = DBL_MIN;
@@ -463,7 +464,7 @@ void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by i
 			anchor(pt);
 		}
 	}
-	
+
 	indices* diagonal = eff_region(*it);
 
 	int tm_row = diagonal[1].row;
@@ -504,7 +505,7 @@ void Eps_Graph::delete_pol(int ord) { // delete a polygon from O, specified by i
 
 		}
 	}
-	
+
 	pols.erase(it);
 }
 
@@ -549,8 +550,9 @@ void Eps_Graph::BFS(Grid_Point s) { // BFS on grid
 
 vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
-
+	
 	vector<Free_Point> ret = {};
+	NN_dist = {};
 
 	BFS(query_anchor(p));
 
@@ -579,9 +581,9 @@ vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximat
 		}
 
 		sort(temp.begin(), temp.end(), [=](Free_Point first, Free_Point second)
-			{
-				return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2);
-			});
+		{
+			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2);
+		});
 
 		vector<Free_Point> pts = {};
 
@@ -596,10 +598,12 @@ vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximat
 		if (sz <= k) {
 			k -= sz;
 			ret.insert(ret.end(), pts.begin(), pts.end());
+			for (int ind2 = 0; ind2 < sz; ind2++) { NN_dist.push_back(grid_dist); }
 		}
 		else {
 			ret.insert(ret.end(), pts.begin(), pts.begin() + k);
 			k = 0;
+			for (int ind2 = 0; ind2 < k; ind2++) { NN_dist.push_back(grid_dist); }
 		}
 		closest.erase(closest.begin(), closest.begin() + end + 1);
 	}
