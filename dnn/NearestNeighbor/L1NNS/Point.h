@@ -1,20 +1,24 @@
 #pragma once
-
 //this class defines a point in 2D space
 
+//can use int, double
 class Point {
 protected:
 	double x, y;
-	int id;
+
 public:
+
 	Point();
 	Point(double, double);
 	Point(Point*);
 	~Point();
 	bool operator==(Point);
+	Point operator- (Point);
 	double getx(void);
+	void setx(double);
 	double gety(void);
+	void sety(double);
+
 	double distance(Point);
-	int getid(void);
-	void setid(int);
+	double L1distance(Point);
 };

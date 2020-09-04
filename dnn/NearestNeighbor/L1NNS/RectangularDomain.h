@@ -1,48 +1,58 @@
 #pragma once
-#include"CGraph.h"
-#include<memory>
+#include"CarrierGraph.h"
 #include<algorithm>
 
-typedef struct temp {
-	bool reachable;
-	double ul;
-	double br;
-}Wake;
-
-typedef struct temp2 {
-	Point* p;
-	double distance;
-}Point_Distance;
-/*
-shadow는 lwake의 shadow[0]부터 시계방향으로
- 6 7
-5   0
-4   1
- 3 2
-*/
-
 class RectangularDomain {
-private:
-	vector < Rect > rectset; // input Rects and points
-	Rect bbox;
-	vector<vector<Wake>> lcheck, rcheck, tcheck, bcheck;
-	vector < vector <Segment> > rup, urp, ulp, lup, ldp, dlp, drp, rdp;
-	int n;
-	int np;
-	double INF;
-	unique_ptr<Cgraph> xpos,xneg,ypos,yneg;
-	void makeshadow();
-	void makecheck();
-	void construct();
+protected:
+	typedef struct waketemp {
+		bool reachable;
+		double ld, lu, rd, ru;
+	}Wake;
+	enum constant{BOUNDINGBOX=-1};
+	const double INF = 2147483647.0;
+
+	vector < Rect* > obstacles;
+	vector < Rect* > lfromld, dfromld;
+	vector < Rect* > lfromlu, ufromlu;
+	vector < Rect* > rfromrd, dfromrd;
+	vector < Rect* > rfromru, ufromru;
+
+	vector < Point* > data;
+	vector < double > dist;
+	vector < Rect* > lfromp, rfromp, ufromp, dfromp;
+
+	vector < Point* > querylog;
+	Rect* bbox;
+
+	vector < vector < Wake* > > lwake, rwake, uwake, dwake;
+
+	CarrierGraph *xpos, *xneg, *ypos, *yneg;
+
+	int obscnt;
+	int datacnt;
+
+	void domainconstruct();
+	void setray();
+	void setlwake();
+	void setrwake();
+	void setuwake();
+	void setdwake();
+	void lwakeNNS(Point*);
+	void rwakeNNS(Point*);
+	void uwakeNNS(Point*);
+	void dwakeNNS(Point*);
+	Rect* getleftray(double, double);
+	Rect* getrightray(double, double);
+	Rect* getupray(double, double);
+	Rect* getdownray(double, double);
+	bool ishit(double, double, double);
+	bool isclosest(double, double, double);
+	double threemin(double, double, double);
 public:
 	RectangularDomain();
-	RectangularDomain(vector<Rect>);
+	RectangularDomain(vector<Rect*>, vector<Point*>);
 	~RectangularDomain();
-	Rect getboundary();
-	Rect getrect(int);
-	int rectcnt();
-	bool incidentcheck(int,int,int);
-	Point_Distance NNS(Point);
-	Point_Distance FNS(Point);
-	vector<Point_Distance> kNNS(Point,int);
+	Point* NNS(Point*);
+	Point* FNS(Point*);
+	vector<Point*> kNNS(Point*,int);
 };
