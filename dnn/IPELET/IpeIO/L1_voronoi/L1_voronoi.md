@@ -13,7 +13,7 @@ This function can draw a L-1 voronoi diagram of a point set given by user.
 Check the folder where mingw is installed. (e.g C:\Program Files\mingw-w64)
 #### 2) Put all ipe*.h files into the include folder of mingw
 (e.g C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include)
-ipe*.h header files can be found in the include folder of Ipe
+<br>ipe*.h header files can be found in the include folder of Ipe
 (e.g C:\ipe-7.2.17\include)
 #### 3) Modify the Makefile if a location of your ipe.exe is different.
 Open a Makefile in the folder and find the following part. (-LC:/ipe-7.2.17/bin)
