@@ -17,7 +17,7 @@ Check the folder where mingw is installed. (e.g C:\Program Files\mingw-w64)
 (e.g C:\ipe-7.2.17\include)
 #### 3) Modify the Makefile if a location of your ipe.exe is different.
 Open a Makefile in the folder and find the following part. (-LC:/ipe-7.2.17/bin)
-Modify this part by a location of your ipe.exe. (-L"your location")
+<br>Modify this part by a location of your ipe.exe. (-L"your location")
 #### 4) Open a prompt of command(cmd) at this folder and type a "make".
 Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.dll" file.
 #### 5) Move L1_voronoi.dll and L1_voronoi.lua files into ipelets folder. (e.g C:\ipe-7.2.17\ipelets)
