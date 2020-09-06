@@ -47,8 +47,8 @@ std::vector<SimplePolygon*> clipping(SimplePolygon& _P, SimplePolygon& _Q);
 ```
 
 #### Parameters
-*_P*
+*_P*  
 A simple polygon object to calculate intersection.  
 
-*_Q*
+*_Q*  
 A simple polygon object to calculate intersection.
