@@ -99,7 +99,7 @@ void setStart(Point _p);
 ```
 
 #### Parameters
-*_p*
+*_p*  
 Point object to be ```start``` endpoint.
 
 ### getEnd
@@ -115,7 +115,7 @@ void setEnd(Point _p);
 ```
 
 #### Parameters
-*_p*
+*_p*  
 Point object to be ```end``` endpoint.
 
 ### getSlope
@@ -131,7 +131,7 @@ void setSlope(double _d);
 ```
 
 #### Parameters
-*_d*
+*_d*  
 Double vlaue to be ```slope``` value.
 
 ### getIntercept
@@ -147,7 +147,7 @@ void setIntercept(double _d);
 ```
 
 #### Parameters
-*_d*
+*_d*  
 Double vlaue to be ```intercept``` value.
 
 ### operator ==
