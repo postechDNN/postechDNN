@@ -18,7 +18,7 @@ int checkInput(std::vector<_Segment>* input);
 ```
 
 #### Parameters
-*input*
+*input*  
 Array of input segments
 
 ### ComputeBoundary
@@ -28,10 +28,10 @@ void ComputeBoundary(double *boundary, std::vector<_Segment> inputSegments);
 ```
 
 #### Parameters
-*boundary*
+*boundary*  
 Address of array that stores result of computing boundary.
 
-*inputSegments*
+*inputSegments*  
 Array of input segments
 
 ### BFAlgorithm
@@ -41,13 +41,13 @@ void BFAlgorithm(std::vector<_Segment> *inputSegments, double boundary[], std::v
 ```
 
 #### Parameters
-*inputSegments*
+*inputSegments*  
 Array of input segments
 
-*boundary*
+*boundary*  
 Array of boundary of voronoi diagram.
 
-*Cells*
+*Cells*  
 Address of array that stores result of brute force algorithm.
 
 ### CellsIntersection
@@ -57,8 +57,8 @@ void CellsIntersection(std::vector<std::vector<SimplePolygon>*>* Cells, std::vec
 ```
 
 #### Parameters
-*Cells*
+*Cells*  
 Array of result of brute force algorithm.
 
-*Cells*
+*resultCells*  
 Address of array that stores result of cells intersection.
