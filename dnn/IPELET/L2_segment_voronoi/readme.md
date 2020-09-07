@@ -30,3 +30,7 @@ Let ```n``` denote the number of input segments and ```k``` be the complexity of
 Brute force algorithm can be computed in O(kn^2).  
 Polygon intersections can be computed in O(k^2n).  
 Total time complexity is O(kn(k+n)).  
+
+### degenerate cases
+If there is a intersection between the input segments, returns false.  
+Point input is not allowed. You can only insert segments.
