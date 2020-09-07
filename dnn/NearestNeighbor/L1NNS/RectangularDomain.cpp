@@ -2,6 +2,7 @@
 
 RectangularDomain::RectangularDomain() {
 	//sample data
+	/*
 	obstacles.push_back(new Rect(1.6, 5.7, 5.9,12.4));
 	obstacles.push_back(new Rect(3.4, 7.8, 13.5,17.0));
 	obstacles.push_back(new Rect(8.5, 13.4, 4.7, 9.7));
@@ -12,7 +13,7 @@ RectangularDomain::RectangularDomain() {
 	data.push_back(new Point(15.95, 14.8));
 	data.push_back(new Point(15.98, 13.6));
 	data.push_back(new Point(16.14, 9.9));
-	data.push_back(new Point(16.22, 5.7));
+	data.push_back(new Point(16.22, 5.7));*/
 	/*
 	obstacles.push_back(new Rect(107.136, 161, 410.177, 363.854));
 	obstacles.push_back(new Rect(177.698, 261.725, 456.5, 386.477));
@@ -52,28 +53,44 @@ RectangularDomain::RectangularDomain() {
 	data.push_back(new Point(259.032, 318.07));
 	data.push_back(new Point(217.018, 363.854));
 	*/
-	obscnt = obstacles.size();
-	datacnt = data.size();
-	for (int i = 0; i < obscnt; i++)
-		obstacles[i]->setid(i);
-	domainconstruct();
+	domainconstruct(INIT);
 }
 
 RectangularDomain::RectangularDomain(vector<Rect*> rinput, vector<Point*> pinput) {
-	obscnt = rinput.size();
-	datacnt = pinput.size();
-	for (int i = 0; i < obscnt; i++) {
-		rinput[i]->setid(i);
+	for (int i = 0; i < rinput.size(); i++)
 		obstacles.push_back(rinput[i]);
-	}
-	for (int i = 0; i < datacnt; i++)
+	for (int i = 0; i < pinput.size(); i++)
 		data.push_back(pinput[i]);
-	domainconstruct();
+	domainconstruct(INIT);
 }
 
-void RectangularDomain::domainconstruct() {
-	bbox = new Rect(-INF, INF, -INF, INF);
-	bbox->setid(BOUNDINGBOX);
+void RectangularDomain::domainconstruct(int state) {
+	obscnt = obstacles.size();
+	for (int i = 0; i < obscnt; i++)
+		obstacles[i]->setid(i);
+	datacnt = data.size();
+	if(state == INIT){
+		bbox = new Rect(-INF, INF, -INF, INF);
+		bbox->setid(BOUNDINGBOX);
+	}
+	if (state == DYNAMIC) {
+		dfromld.clear();
+		lfromld.clear();
+		ufromlu.clear();
+		lfromlu.clear();
+		dfromrd.clear();
+		rfromrd.clear();
+		ufromru.clear();
+		rfromru.clear();
+		lfromp.clear();
+		rfromp.clear();
+		ufromp.clear();
+		dfromp.clear();
+		delete xpos;
+		delete xneg;
+		delete yneg;
+		delete ypos;
+	}
 	setray();
 	setlwake();
 	setrwake();
@@ -406,6 +423,24 @@ Point* RectangularDomain::FNS(Point* query) {
 
 vector<Point*> RectangularDomain::kNNS(Point* query, int k)
 {
+	bool notinterrect = true, notinterpoint = true;
+	for (int j = 0; j < obscnt; j++) {
+		if (intersect(obstacles[j], query)) {
+			notinterrect = false;
+			break;
+		}
+	}
+	for (int j = 0; j < datacnt; j++) {
+		if (*query == *data[j]) {
+			notinterpoint = false;
+			break;
+		}
+	}
+	if (!(notinterrect && notinterpoint)) {
+		delete query;
+		return vector<Point*>(0);
+	}
+
 	querylog.push_back(query);
 	dist = vector<double>(datacnt, INF);
 	lwakeNNS(query);
@@ -522,4 +557,147 @@ double RectangularDomain::threemin(double a,double b,double c) {
 			return c;
 		return a;
 	}
+}
+
+bool RectangularDomain::intersect(Rect* a, Rect* b) {
+	return intersect(a,b->getlu()) || intersect(a,b->getld()) || intersect(a,b->getrd()) || intersect(a,b->getru());
+}
+
+bool RectangularDomain::intersect(Rect* a, Point* p) {
+	return a->getl() <= p->getx() && p->getx() <= a->getr() && a->getd() <= p->gety() && p->gety() <= a->getu();
+}
+
+int RectangularDomain::insertion(vector<Rect*> rins, vector<Point*> pins) {
+	int successcnt = 0, failcnt = 0;
+	for (int i = 0; i < rins.size(); i++) {
+		bool notinterrect = true, notinterpoint = true;
+		for (int j = 0; j < obstacles.size(); j++) {
+			if (intersect(rins[i],obstacles[j])) {
+				notinterrect = false;
+				break;
+			}
+		}
+		for (int j = 0; j < data.size(); j++) {
+			if (intersect(rins[i], data[j])) {
+				notinterpoint = false;
+				break;
+			}
+		}
+		if (notinterrect && notinterpoint) {
+			successcnt++;
+			obstacles.push_back(rins[i]);
+		}
+		else {
+			failcnt++;
+			delete rins[i];
+		}
+	}
+
+	for (int i = 0; i < pins.size(); i++) {
+		bool notinterrect = true, notinterpoint = true;
+		for (int j = 0; j < obstacles.size(); j++) {
+			if (intersect(obstacles[j], pins[i])) {
+				notinterrect = false;
+				break;
+			}
+		}
+		for (int j = 0; j < data.size(); j++) {
+			if (*pins[i] == *data[j]) {
+				notinterpoint = false;
+				break;
+			}
+		}
+		if (notinterrect && notinterpoint) {
+			successcnt++;
+			data.push_back(pins[i]);
+		}
+		else {
+			failcnt++;
+			delete pins[i];
+		}
+	}
+
+	if (successcnt > 0) {
+		domainconstruct(DYNAMIC);
+		return SUCCESS;
+	}
+	return FAIL;
+}
+
+int RectangularDomain::insertion(vector<Rect*> rins) {
+	return insertion(rins, vector<Point*>());
+}
+int RectangularDomain::insertion(vector<Point*> pins) {
+	return insertion(vector<Rect*>(), pins);
+}
+
+int RectangularDomain::deletion(vector<Rect*> rdel, vector<Point*> pdel) {
+	int successcnt = 0, failcnt = 0;
+	for (int i = 0; i < rdel.size(); i++) {
+		for (int j = 0; j < obstacles.size(); j++) {
+			if (*rdel[i] == *obstacles[j]) {
+				delete obstacles[j];
+				obstacles.erase(obstacles.begin()+j);
+				successcnt++;
+				failcnt--;
+				break;
+			}
+		}
+		delete rdel[i];
+		failcnt++;
+	}
+
+	for (int i = 0; i < pdel.size(); i++) {
+		for (int j = 0; j < data.size(); j++) {
+			if (*pdel[i] == *data[j]) {
+				delete data[j];
+				data.erase(data.begin() + j);
+				successcnt++;
+				failcnt--;
+				break;
+			}
+		}
+		delete pdel[i];
+		failcnt++;
+	}
+	if (successcnt > 0) {
+		domainconstruct(DYNAMIC);
+		return SUCCESS;
+	}
+	return FAIL;
+}
+
+int RectangularDomain::deletion(vector<Rect*> rins) {
+	return insertion(rins, vector<Point*>());
+}
+int RectangularDomain::deletion(vector<Point*> pins) {
+	return insertion(vector<Rect*>(), pins);
+}
+
+int RectangularDomain::getdatacnt() {
+	return datacnt;
+}
+
+int RectangularDomain::getobscnt() {
+	return obscnt;
+}
+
+vector<Rect*> RectangularDomain::getobstacles() {
+	return obstacles;
+}
+
+vector<Point*> RectangularDomain::getdata() {
+	return data;
+}
+
+Rect* RectangularDomain::getobstacle(int i) {
+	if(0 <= i && i < obscnt)
+		return obstacles[i];
+	return bbox;
+}
+
+Point* RectangularDomain::getdat(int i) {
+	if (0 <= i && i < datacnt)
+		return data[i];
+	return NULL;
 }

@@ -3,7 +3,7 @@
 
 class Edge {
 protected:
-	Point* s, *t;
+	Point* s, * t;
 public:
 	Edge();
 	Edge(Point* _s, Point* _t);

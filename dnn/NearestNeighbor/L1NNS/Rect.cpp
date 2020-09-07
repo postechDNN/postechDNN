@@ -37,6 +37,10 @@ double Rect::getd() {
 	return this->d;
 }
 
+bool Rect::operator==(Rect rect) {
+	return this->l == rect.getl() && this->r == rect.getr() && this->d == rect.getd() && this->u == rect.getu();
+}
+
 Point* Rect::getld() {
 	return this->ld;
 }

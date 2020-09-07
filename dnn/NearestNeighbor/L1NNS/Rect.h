@@ -15,6 +15,7 @@ public:
 	double getr(void);
 	double getu(void);
 	double getd(void);
+	bool operator==(Rect);
 	Point* getld(void);
 	Point* getlu(void);
 	Point* getrd(void);

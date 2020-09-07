@@ -1,6 +1,5 @@
 #pragma once
 #include"CarrierGraph.h"
-#include<algorithm>
 
 class RectangularDomain {
 protected:
@@ -8,7 +7,7 @@ protected:
 		bool reachable;
 		double ld, lu, rd, ru;
 	}Wake;
-	enum constant{BOUNDINGBOX=-1};
+	enum constant{BOUNDINGBOX=-1,FAIL,SUCCESS,INIT=0,DYNAMIC};
 	const double INF = 2147483647.0;
 
 	vector < Rect* > obstacles;
@@ -31,7 +30,7 @@ protected:
 	int obscnt;
 	int datacnt;
 
-	void domainconstruct();
+	void domainconstruct(int);
 	void setray();
 	void setlwake();
 	void setrwake();
@@ -48,6 +47,8 @@ protected:
 	bool ishit(double, double, double);
 	bool isclosest(double, double, double);
 	double threemin(double, double, double);
+	bool intersect(Rect*, Rect*);
+	bool intersect(Rect*, Point*);
 public:
 	RectangularDomain();
 	RectangularDomain(vector<Rect*>, vector<Point*>);
@@ -55,4 +56,16 @@ public:
 	Point* NNS(Point*);
 	Point* FNS(Point*);
 	vector<Point*> kNNS(Point*,int);
+	int insertion(vector<Rect*>, vector<Point*>);
+	int insertion(vector<Rect*>);
+	int insertion(vector<Point*>);
+	int deletion(vector<Rect*>, vector<Point*>);
+	int deletion(vector<Rect*>);
+	int deletion(vector<Point*>);
+	int getdatacnt();
+	int getobscnt();
+	vector<Rect*> getobstacles();
+	vector<Point*> getdata();
+	Rect* getobstacle(int);
+	Point* getdat(int);
 };
