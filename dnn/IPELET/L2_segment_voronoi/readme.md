@@ -25,12 +25,16 @@ Please read [readme](../readme.txt) of IPEIO
 Compute all of L2 segment voronoi cell of pairs of segments.(Brute force algorithm)  
 Compute intersection of voronoi cells of each segment.(Polygon intersection)  
 
-### time complexity
+### Time complexity
 Let ```n``` denote the number of input segments and ```k``` be the complexity of a voronoi cell.  
 Brute force algorithm can be computed in O(kn^2).  
 Polygon intersections can be computed in O(k^2n).  
 Total time complexity is O(kn(k+n)).  
 
-### degenerate cases
+### Degenerate cases
 If there is a intersection between the input segments, returns false.  
 Point input is not allowed. You can only insert segments.
+
+### Parabola expression
+This code draw parabola as several segments.  
+You can modify length of segments.
