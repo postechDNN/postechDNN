@@ -26,7 +26,7 @@ Compute all of L2 segment voronoi cell of pairs of segments.(Brute force algorit
 Compute intersection of voronoi cells of each segment.(Polygon intersection)  
 
 ### time complexity
-Let $$ n $$ denote the number of input segments and $$ k $$ be the complexity of a voronoi cell.
-Brute force algorithm can be computed in $ O(kn^2) $.
-Polygon intersections can be computed in O(k^2n)
-Total time complexity is $$ O(kn(k+n)) $$.
+Let ```n``` denote the number of input segments and ```k``` be the complexity of a voronoi cell.  
+Brute force algorithm can be computed in O(kn^2).  
+Polygon intersections can be computed in O(k^2n).  
+Total time complexity is O(kn(k+n)).  
