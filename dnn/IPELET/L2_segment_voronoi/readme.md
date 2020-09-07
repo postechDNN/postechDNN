@@ -17,11 +17,16 @@ Draw segments more than 2 with IPELET
 Select segments and run Ipelets->L2SegVoronoi
 
 ## How to compile
-First, move the folder inside the ipelet folder.  
-Then, compile in that folder.
-```console
->> g++ -c -O2 -DWIN32 -fno-exceptions -fno-rtti -Iinclude *.cpp
->> g++ -shared -o L2_seg_voronoi.dll *.o -L../bin -lipe
-```
-You can also using ```make``` command.  
-Move the L2_seg_voronoi.dll file to '../ipelets' and create an appropriate lua file(or move the L2_seg_voronoi.lua file to '/ipelets').
+Please read [readme](../readme.txt) of IPEIO
+
+## Implement Issues
+
+### Algorithms
+Compute all of L2 segment voronoi cell of pairs of segments.(Brute force algorithm)  
+Compute intersection of voronoi cells of each segment.(Polygon intersection)  
+
+### time complexity
+Let $$ n $$ denote the number of input segments and $$ k $$ be the complexity of a voronoi cell.
+Brute force algorithm can be computed in $$ O(kn^2) $$.
+Polygon intersections can be computed in O(k^2n)
+Total time complexity is $$ O(kn(k+n)) $$.
