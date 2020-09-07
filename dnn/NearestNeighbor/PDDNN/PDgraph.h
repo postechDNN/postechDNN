@@ -26,4 +26,5 @@ public:
 
 private:
 	std::vector<PDNode*>* nodes;
+	PolygonalDomain* space;
 };

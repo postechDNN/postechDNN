@@ -1,11 +1,14 @@
 #include "PDGraph.h"
+#include <queue>
+#include <map>
 
 PDgraph::PDgraph() {
 	this->nodes = new std::vector<PDNode*>();
+	this->space = nullptr;
 }
 
 PDgraph::PDgraph(PolygonalDomain* pd) {
-
+	this->space = pd;
 	this->nodes = new std::vector<PDNode*>();
 	for (int i = 0; i < pd->getObstacles()->size(); i++) {
 		SimplePolygon* sp = (*pd->getObstacles())[i];
