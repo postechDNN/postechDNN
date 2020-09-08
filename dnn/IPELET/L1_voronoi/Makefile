@@ -1,7 +1,7 @@
 CC = g++
 
 TARGET = L1_voronoi.dll
-OBJECTS = Edge.o L1voronoi.o Point.o Polygon.o PolygonClipping.o ..\ipeIO.o ipe_L1_voronoi.o
+OBJECTS = Edge.o L1voronoi.o Point.o Polygon.o PolygonClipping.o ..\IpeIO\ipeIO.o ipe_L1_voronoi.o
 
 
 all : $(TARGET)
