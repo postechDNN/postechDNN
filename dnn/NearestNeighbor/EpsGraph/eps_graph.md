@@ -18,6 +18,8 @@ Point p2;
 
 # Class Eps_Graph
 
+## Members
+
 |Public Variables||
 |:---|:---|
 |[eps](#eps)|stores the sidelength of a unit square in the Eps_Graph.|
@@ -31,6 +33,34 @@ Point p2;
 |[dist](#dist)|stores BFS distances of Grid_Points from a source Grid_Point.|
 |[visited](#visited)|tells if BFS algorithm has visited each Grid_Point.|
 |[closest](#closest)|stores Grid_Points in the increasing order of BFS distance.|
+
+|Constructors||
+|:---|:---|
+|[Eps_Graph](#Eps_Graph)|produces a Polygon with given set of vertices.|
+
+|Functions||
+|:---|:---|
+|[init_grid](#init_grid)|initalizes the Eps_Graph.|
+|[get_gridpt](#get_gridpt)|returns the Grid_Point specified by its row and column number.|
+|[ind2num](#ind2num)|converts an integer index into matrix-based index.|
+|[num2ind](#num2ind)|converts a matrix-based index into an integer index.|
+|[add_edge](#add_edge)|adds an edge between two adjacent Grid_Points.|
+|[delete_edge](#delete_edge)|deletes an edge between two adjacent Grid_Points.|
+|[cmpNadd](#cmpNadd)|checks if the line connecting the gridpoint and its neighboring one is blocked by any Polygon. If it's not, add an edge between them.|
+|[cmpNadd_SinPol](#cmpNadd_SinPol)|does [cmpNadd](#cmpNadd) with a single Polygon.|
+|[add_freepts](#add_freepts)|adds a Free_Point in the Eps_Graph.|
+|[delete_freept](#delete_freept)|deletes a Free_Point in the Eps_Graph.|
+|[anchor](#anchor)|finds a nearest Grid_Point that is not enclosed by any Polygon, for a given Free_Point. it also associates each other using pointers.|
+|[query_anchor](#query_anchor)|returns the nearest Grid_Point, for a given query Point.|
+|[add_pol](#add_pol)|adds a Polygon in the Eps_Graph.|
+|[delete_pol](#delete_pol)|deletes a Polygon in the Eps_Graph.|
+|[eff_region](#eff_region)|the minimum rectangular grid region enclosing the polygon.|
+|[BFS](#BFS)|implements BFS on the grid graph.|
+|[kNN](#kNN)|returns the approximate k-Nearest Neighbor for a given query Point.|
+|[print_grid](#print_grid)|print the presence of the edge between every adjacent pair of Grid_Points.|
+|[print_edges](#print_edges)|print the coordinates of two endpoints, for all existing edges.|
+|[print_dist](#print_dist)|print the BFS distances.|
+|[print_kNN](#print_kNN)|implements kNN, and prints the result.|
 
 ### eps
 stores the sidelength of a unit square in the Eps_Graph.
@@ -122,40 +152,12 @@ stores Grid_Points in the increasing order of BFS distance.
 vector<int> closest;
 ```
 
-|Constructors||
-|:---|:---|
-|[Eps_Graph](#Eps_Graph)|produces a Polygon with given set of vertices.|
-
 ### Eps_Graph
 produces a Polygon with given set of vertices.
 ```
 Eps_Graph();
 Eps_Graph(list<Free_Point>, vector<Polygon>, double)
 ```
-
-|Functions||
-|:---|:---|
-|[init_grid](#init_grid)|initalizes the Eps_Graph.|
-|[get_gridpt](#get_gridpt)|returns the Grid_Point specified by its row and column number.|
-|[ind2num](#ind2num)|converts an integer index into matrix-based index.|
-|[num2ind](#num2ind)|converts a matrix-based index into an integer index.|
-|[add_edge](#add_edge)|adds an edge between two adjacent Grid_Points.|
-|[delete_edge](#delete_edge)|deletes an edge between two adjacent Grid_Points.|
-|[cmpNadd](#cmpNadd)|checks if the line connecting the gridpoint and its neighboring one is blocked by any Polygon. If it's not, add an edge between them.|
-|[cmpNadd_SinPol](#cmpNadd_SinPol)|does [cmpNadd](#cmpNadd) with a single Polygon.|
-|[add_freepts](#add_freepts)|adds a Free_Point in the Eps_Graph.|
-|[delete_freept](#delete_freept)|deletes a Free_Point in the Eps_Graph.|
-|[anchor](#anchor)|finds a nearest Grid_Point that is not enclosed by any Polygon, for a given Free_Point. it also associates each other using pointers.|
-|[query_anchor](#query_anchor)|returns the nearest Grid_Point, for a given query Point.|
-|[add_pol](#add_pol)|adds a Polygon in the Eps_Graph.|
-|[delete_pol](#delete_pol)|deletes a Polygon in the Eps_Graph.|
-|[eff_region](#eff_region)|the minimum rectangular grid region enclosing the polygon.|
-|[BFS](#BFS)|implements BFS on the grid graph.|
-|[kNN](#kNN)|returns the approximate k-Nearest Neighbor for a given query Point.|
-|[print_grid](#print_grid)|print the presence of the edge between every adjacent pair of Grid_Points.|
-|[print_edges](#print_edges)|print the coordinates of two endpoints, for all existing edges.|
-|[print_dist](#print_dist)|print the BFS distances.|
-|[print_kNN](#print_kNN)|implements kNN, and prints the result.|
 
 ### init_grid
 initalizes the Eps_Graph.
