@@ -15,7 +15,8 @@ Using this property, we can compute each voronoi region for all sites. When ther
 Thus we can compute each voronoi region using simple polygon intersection algorithm.
 Specifically, there is a popular clipping algorithm, so called ` Weiler Atherton Polygon Clipping Algorithm` <sup>[[1]](#footnote_1)</sup>
 In manhattan environment, there are lots of degenerate case to compute voronoi region. For example two edges can be overlapped when we intersect them. Thus we write the algorithm which can deal with these degenerate situations referring to the paper. <sup>[[2]](#footnote_1)</sup>
-Note that the time to compute the intersection between two simple polygon is $O(nm)$ in `Weiler Atherton method`. Since the complexity of each <img src = "https://latex.codecogs.com/svg.latex?B(p,q)"> is <img src = "https://latex.codecogs.com/svg.latex?O(1)"> , the time to compute <img src = "https://latex.codecogs.com/svg.latex?Vor(p_i)"> is <img src = "https://latex.codecogs.com/svg.latex?\sum_j{(|Vor_{%3C%20j}(p_i)|%20*O(1))}%20=%20O(n^2)">. Thus total time complexity for n voronoi regions is <img src = "https://latex.codecogs.com/svg.latex?O(n^3)">.
+Note that the time to compute the intersection between two simple polygon is <img src="https://latex.codecogs.com/svg.latex?O(nm)"> in `Weiler Atherton method`. Since the complexity of each <img src = "https://latex.codecogs.com/svg.latex?B(p,q)"> is <img src = "https://latex.codecogs.com/svg.latex?O(1)"> , the time to compute <img src = "https://latex.codecogs.com/svg.latex?Vor(p_i)"> is <br>
+<img src = "https://latex.codecogs.com/svg.latex?\sum_j{(|Vor_{%3C%20j}(p_i)|%20*O(1))}%20=%20O(n^2)"><br> Thus total time complexity for n voronoi regions is <img src = "https://latex.codecogs.com/svg.latex?O(n^3)"><br>
 Although it has too big complexity compared to other efficient voronoi algorithms, it is simple to implement and there is no delay to draw voronoi diagram for small n. 
 
 <!--- ## 3. Build and Use
@@ -40,5 +41,5 @@ Then L1_voronoi function appears in the ipelets tab.
 ![L1_voronoi](https://user-images.githubusercontent.com/17876333/92321277-9d514900-f063-11ea-943c-154da99940a0.png)
 
 
-<a name="footnote_1">[1]</a>: https://en.wikipedia.org/wiki/Weiler%E2%80%93Atherton_clipping_algorithm
+<a name="footnote_1">[1]</a>: https://en.wikipedia.org/wiki/Weiler%E2%80%93Atherton_clipping_algorithm <br>
 <a name="footnote_2">[2]</a>: Foster, Erich & Hormann, Kai & Popa, Romeo. (2019). Clipping Simple Polygons with Degenerate Intersections. Computers & Graphics: X. 2. 100007. 10.1016/j.cagx.2019.100007.  
