@@ -1,8 +1,9 @@
 #pragma once
-#include "../../DataStrcutures/DCEL/PolygonalDomain.h"
-#include "../../DataStrcutures/DCEL/Point.h"
-#include "../../DataStrcutures/DCEL/SimplePolygon.h"
+#include "../../DataStructures/DCEL/PolygonalDomain.h"
+#include "../../DataStructures/DCEL/Point.h"
+#include "../../DataStructures/DCEL/SimplePolygon.h"
 #include "PDNode.h"
+#include <vector>
 
 class PDgraph{
 public:
@@ -19,7 +20,7 @@ public:
 	};
 
 	PDgraph();
-	PDgraph(PolygonalDomain*);
+	PDgraph(PolygonalDomain*, std::vector<Point*>*);
 	std::vector<PDNode*>* getNodes();
 	void Dijkstra(PDNode*);
 	void minimumDistance(std::vector <std::pair<PDNode*, double>>);

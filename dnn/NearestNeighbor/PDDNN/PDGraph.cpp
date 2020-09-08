@@ -1,10 +1,12 @@
 #include "PDGraph.h"
+#include <queue>
+#include <map>
 
 PDgraph::PDgraph() {
 	this->nodes = new std::vector<PDNode*>();
 }
 
-PDgraph::PDgraph(PolygonalDomain* pd) {
+PDgraph::PDgraph(PolygonalDomain* pd, std::vector<Point*>* pv) {
 
 	this->nodes = new std::vector<PDNode*>();
 	for (int i = 0; i < pd->getObstacles()->size(); i++) {
@@ -18,9 +20,16 @@ PDgraph::PDgraph(PolygonalDomain* pd) {
 		}
 	}
 
+	for (int i = 0; i < pv->size(); i++) {
+		PDNode* n = new PDNode();
+		n->setPoint((*pv)[i]);
+		n->setSite(true);
+		n->setAdj(new std::vector<PDNode*>());
+	}
+
 	for (int i = 0; i < this->nodes->size(); i++) {
 		for (int j = i + 1; j < this->nodes->size(); j++) {
-			Edge* ne = new Edge((*this->nodes)[i]->p, (*this->nodes)[j]->p);
+			Edge* ne = new Edge((*this->nodes)[i]->getPoint(), (*this->nodes)[j]->getPoint());
 			bool flag = true;
 			for (int k = 0; k < pd->getObstacles()->size(); k++) {
 				SimplePolygon* sp = (*pd->getObstacles())[k];

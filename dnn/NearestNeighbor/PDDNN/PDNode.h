@@ -1,5 +1,5 @@
 #pragma once
-#include "../../DataStrcutures/DCEL/PolygonalDomain.h"
+#include "../../DataStructures/DCEL/PolygonalDomain.h"
 
 class PDNode {
 private:
