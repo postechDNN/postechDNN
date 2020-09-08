@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+
 //Simple Polygon without holes =>Ring
 class SimplePolygon {
 private:
