@@ -67,5 +67,6 @@ public:
 	vector<Rect*> getobstacles();
 	vector<Point*> getdata();
 	Rect* getobstacle(int);
-	Point* getdat(int);
+	Point* getdatum(int);
+	Rect* getbbox();
 };

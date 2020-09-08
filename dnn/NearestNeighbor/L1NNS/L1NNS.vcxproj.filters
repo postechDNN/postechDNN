@@ -27,13 +27,13 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="opengl_gui.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Edge.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Point.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="exampleL1NNS.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

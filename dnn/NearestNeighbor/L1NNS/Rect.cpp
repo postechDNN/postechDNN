@@ -1,7 +1,5 @@
 #include"Rect.h"
 
-Rect::Rect() {}
-
 Rect::Rect(double x1, double x2, double y1, double y2)
 {
 	this->l = x1;
@@ -15,10 +13,10 @@ Rect::Rect(double x1, double x2, double y1, double y2)
 }
 
 Rect::~Rect() {
-	delete this->ld;
-	delete this->lu;
-	delete this->rd;
-	delete this->ru;
+	delete ld;
+	delete lu;
+	delete rd;
+	delete ru;
 }
 
 double Rect::getl() {
@@ -37,8 +35,8 @@ double Rect::getd() {
 	return this->d;
 }
 
-bool Rect::operator==(Rect rect) {
-	return this->l == rect.getl() && this->r == rect.getr() && this->d == rect.getd() && this->u == rect.getu();
+const bool Rect::operator==(Rect& _rect) {
+	return this->l == _rect.getl() && this->r == _rect.getr() && this->d == _rect.getd() && this->u == _rect.getu();
 }
 
 Point* Rect::getld() {

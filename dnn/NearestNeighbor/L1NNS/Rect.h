@@ -1,5 +1,5 @@
 #pragma once
-#include"Point.h"
+#include"../../DataStrcutures/DCEL/Point.h"
 using namespace std;
 
 class Rect {
@@ -8,14 +8,13 @@ protected:
 	Point *ld, *lu, *rd, *ru;
 	int id;
 public:
-	Rect();
 	Rect(double, double, double, double);
 	~Rect();
 	double getl(void);
 	double getr(void);
 	double getu(void);
 	double getd(void);
-	bool operator==(Rect);
+	const bool operator==(Rect&);
 	Point* getld(void);
 	Point* getlu(void);
 	Point* getrd(void);

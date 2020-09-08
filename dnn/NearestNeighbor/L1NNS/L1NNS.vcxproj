@@ -122,8 +122,8 @@
   <ItemGroup>
     <ClCompile Include="CarrierGraph.cpp" />
     <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="exampleL1NNS.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="opengl_gui.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="RectangularDomain.cpp" />

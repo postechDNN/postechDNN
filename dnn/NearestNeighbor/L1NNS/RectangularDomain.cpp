@@ -14,45 +14,6 @@ RectangularDomain::RectangularDomain() {
 	data.push_back(new Point(15.98, 13.6));
 	data.push_back(new Point(16.14, 9.9));
 	data.push_back(new Point(16.22, 5.7));*/
-	/*
-	obstacles.push_back(new Rect(107.136, 161, 410.177, 363.854));
-	obstacles.push_back(new Rect(177.698, 261.725, 456.5, 386.477));
-	obstacles.push_back(new Rect(290.812, 376.994, 408.561, 285.213));
-	obstacles.push_back(new Rect(114.139, 206.784, 333.152, 286.829));
-	obstacles.push_back(new Rect(78.05, 283.81, 259.897, 203.879));
-	obstacles.push_back(new Rect(383.996, 437.321, 343.925, 165.636));
-	obstacles.push_back(new Rect(249.875, 333.903, 180.717, 109.079));
-	obstacles.push_back(new Rect(365.682, 524.58, 127.392, 45.5194));
-	obstacles.push_back(new Rect(560.669, 585.985, 260.436, 75.6831));
-	obstacles.push_back(new Rect(478.258, 529.428, 381.629, 222.731));
-	obstacles.push_back(new Rect(334.441, 569.826, 474.275, 438.725));
-	obstacles.push_back(new Rect(137.3, 200.859, 166.713, 51.4444));
-	obstacles.push_back(new Rect(224.559, 327.978, 86.9945, 26.1284));
-	obstacles.push_back(new Rect(43.0386, 88.8228, 391.325, 299.218));
-	obstacles.push_back(new Rect(45.1931, 100.673, 185.027, 106.385));
-	data.push_back(new Point(294.582, 450.036));
-	data.push_back(new Point(412.544, 400.482));
-	data.push_back(new Point(421.162, 371.395));
-	data.push_back(new Point(460.483, 354.159));
-	data.push_back(new Point(455.096, 279.827));
-	data.push_back(new Point(555.283, 312.684));
-	data.push_back(new Point(504.112, 185.027));
-	data.push_back(new Point(545.587, 152.17));
-	data.push_back(new Point(574.674, 28.8216));
-	data.push_back(new Point(396.923, 22.8966));
-	data.push_back(new Point(219.712, 14.2784));
-	data.push_back(new Point(227.791, 110.156));
-	data.push_back(new Point(283.271, 99.3831));
-	data.push_back(new Point(327.439, 225.424));
-	data.push_back(new Point(156.152, 27.7444));
-	data.push_back(new Point(111.984, 88.0718));
-	data.push_back(new Point(72.6636, 60.0626));
-	data.push_back(new Point(23.6476, 231.888));
-	data.push_back(new Point(69.9704, 282.52));
-	data.push_back(new Point(202.475, 276.056));
-	data.push_back(new Point(259.032, 318.07));
-	data.push_back(new Point(217.018, 363.854));
-	*/
 	domainconstruct(INIT);
 }
 
@@ -449,7 +410,7 @@ vector<Point*> RectangularDomain::kNNS(Point* query, int k)
 	uwakeNNS(query);
 	for (int i = 0; i < datacnt; i++) {
 		if (dist[i] == INF)
-			dist[i] = data[i]->L1distance(query);
+			dist[i] = abs(data[i]->getx() - query->getx()) + abs(data[i]->gety() - query->gety());
 	}
 
 	vector<Point*> result;
@@ -637,7 +598,7 @@ int RectangularDomain::deletion(vector<Rect*> rdel, vector<Point*> pdel) {
 		for (int j = 0; j < obstacles.size(); j++) {
 			if (*rdel[i] == *obstacles[j]) {
 				delete obstacles[j];
-				obstacles.erase(obstacles.begin()+j);
+				obstacles.erase(obstacles.begin() + j);
 				successcnt++;
 				failcnt--;
 				break;
@@ -668,10 +629,10 @@ int RectangularDomain::deletion(vector<Rect*> rdel, vector<Point*> pdel) {
 }
 
 int RectangularDomain::deletion(vector<Rect*> rins) {
-	return insertion(rins, vector<Point*>());
+	return deletion(rins, vector<Point*>());
 }
 int RectangularDomain::deletion(vector<Point*> pins) {
-	return insertion(vector<Rect*>(), pins);
+	return deletion(vector<Rect*>(), pins);
 }
 
 int RectangularDomain::getdatacnt() {
@@ -696,8 +657,12 @@ Rect* RectangularDomain::getobstacle(int i) {
 	return bbox;
 }
 
-Point* RectangularDomain::getdat(int i) {
+Point* RectangularDomain::getdatum(int i) {
 	if (0 <= i && i < datacnt)
 		return data[i];
 	return NULL;
+}
+
+Rect* RectangularDomain::getbbox() {
+	return bbox;
 }

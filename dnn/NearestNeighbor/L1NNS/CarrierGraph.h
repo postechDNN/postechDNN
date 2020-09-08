@@ -1,5 +1,5 @@
 #pragma once
-#include"Edge.h"
+#include"../../DataStrcutures/DCEL/Edge.h"
 #include"Rect.h"
 #include<queue>
 #include<vector>
