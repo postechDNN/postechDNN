@@ -53,7 +53,7 @@ bool upper;
 |Public Variables||
 |:---|:---|
 |[x](#x), [y](#y)|store the x- and y- coordinate of the Point, respectively.|
-|[encl](#encl)|stores the [ord](#ord)(order) of the polygon that encloses the Point.|
+|[encl](#encl)|stores the ord(order) of the polygon that encloses the Point.|
 
 |Constructor||
 |:---|:---|
@@ -78,7 +78,7 @@ double y;
 ```
 
 ### encl
-stores the [ord](#ord) of the polygon that encloses the Point.
+stores the ord(order) of the polygon that encloses the Point.
 In other words, the Point lies on the interior of the polygon.
 If there is no such polygon, encl = -1.
 ```
@@ -110,10 +110,10 @@ void print();
 
 |Public Variables||
 |:---|:---|
-|[host](#host)|stores the index of the [Grid_Point](#Grid_Point) to which the Free_Point anchors.|
+|[host](#host)|stores the index of the Grid_Point to which the Free_Point anchors.|
 
 ### host
-stores the index of the [Grid_Point](#Grid_Point) to which the Free_Point anchors. If such Grid_Point does not exist, host = -1.
+stores the index of the Grid_Point to which the Free_Point anchors. If such Grid_Point does not exist, host = -1.
 ```
 int host;
 ```
@@ -138,7 +138,7 @@ The constructor with no input produces a Free_Point (0, 0).
 |[ind](#ind)|stores the row and column number of the Grid_Point on the Epsilon-Graph.|
 |[num](#num)|stores the index of the Grid_Point on the Epsilon-Graph. makes one-to-one correspondence with [ind](#ind).|
 |[ip](#ip)|tells if the Grid_Point is incident to incident gridpoints on the Epsilon-Graph.|
-|[anchored](#anchored)|stores the [Free_Point](#Free_Point)s anchored to it.|
+|[anchored](#anchored)|stores the Free_Points anchored to it.|
 |[cros](#cros)|stores # of crossings of each polygon with the ray moving rightward and originating from the Grid_Point.|
 
 ### ind
