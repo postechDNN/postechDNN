@@ -10,16 +10,15 @@ This function can draw a L-1 voronoi diagram of a point set given by user.
 
 ## 2. Algorithm and Analysis
 The algorithm to compute L1 voronoi diagram is based on the following basic property.
-$$Let\ P\ be\ a\ set\ of\ n\ points\ and\ let\ p_i\in P\\ 
-Vor(p_i) =  \cap_j  B(p_i,p_j)\\,where\ Vor(p)\ is\ a\ voronoi\ region\ of\ p\ and\\ B(p,q) = \{  r \in \R^2|d_1(r,p) \le d_1(r,q) \} ,\  d_1 :=Manhattan\ distance. $$
-Using this property, we can compute each voronoi region for all sites. When there is a large bounding box containing all points, we can represent each B(p,q) as bounded simple polygon.
+<img src="https://latex.codecogs.com/svg.latex?Let\%20P\%20be\%20a\%20set\%20of\%20n\%20points\%20and\%20let\%20p_i\in%20P\\Vor(p_i)%20=%20%20\cap_j%20%20B(p_i,p_j),where\%20Vor(p)\%20is\%20a\%20voronoi\%20region\%20of\%20p\%20and\\B(p,q)%20=%20\{%20r%20\in%20\mathbb{R}^2%20%20\},%20\%20%20d_1%20:=Manhattan\%20distance."><br>
+Using this property, we can compute each voronoi region for all sites. When there is a large bounding box containing all points, we can represent each <img src = "https://latex.codecogs.com/svg.latex?B(p,q)"> as bounded simple polygon.
 Thus we can compute each voronoi region using simple polygon intersection algorithm.
 Specifically, there is a popular clipping algorithm, so called ` Weiler Atherton Polygon Clipping Algorithm` <sup>[[1]](#footnote_1)</sup>
 In manhattan environment, there are lots of degenerate case to compute voronoi region. For example two edges can be overlapped when we intersect them. Thus we write the algorithm which can deal with these degenerate situations referring to the paper. <sup>[[2]](#footnote_1)</sup>
-Note that the time to compute the intersection between two simple polygon is $O(nm)$ in `Weiler Atherton method`. Since the complexity of each $B(p,q)$ is $O(1)$ , the time to compute $Vor(p_i)$ is $\sum_j{(|Vor_{< j}(p_i)| *O(1))} = O(n^2)$. Thus total time complexity for n voronoi regions is $O(n^3)$.
+Note that the time to compute the intersection between two simple polygon is $O(nm)$ in `Weiler Atherton method`. Since the complexity of each <img src = "https://latex.codecogs.com/svg.latex?B(p,q)"> is <img src = "https://latex.codecogs.com/svg.latex?O(1)"> , the time to compute <img src = "https://latex.codecogs.com/svg.latex?Vor(p_i)"> is <img src = "https://latex.codecogs.com/svg.latex?\sum_j{(|Vor_{%3C%20j}(p_i)|%20*O(1))}%20=%20O(n^2)">. Thus total time complexity for n voronoi regions is <img src = "https://latex.codecogs.com/svg.latex?O(n^3)">.
 Although it has too big complexity compared to other efficient voronoi algorithms, it is simple to implement and there is no delay to draw voronoi diagram for small n. 
 
-## 3. Build and Use
+<!--- ## 3. Build and Use
 ### 3.1 (Window)
 #### 1) Install a mingw(gcc for window). https://sourceforge.net/projects/mingw-w64/files/
 Check the folder where mingw is installed. (e.g C:\Program Files\mingw-w64)
@@ -36,7 +35,7 @@ Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.dll" fi
 Then L1_voronoi function appears in the ipelets tab.
 
 ### 3.2 (Linux)
-
+-->
 ## 3. Example
 ![L1_voronoi](https://user-images.githubusercontent.com/17876333/92321277-9d514900-f063-11ea-943c-154da99940a0.png)
 
