@@ -64,7 +64,6 @@ bool upper;
 |[operator==](#operator==)|checks if the Point coincides with another Point.|
 |[print](#print)|prints the x- and y-coordinate of the Point.|
 
-
 ### x
 stores the x-coordinate of the Point.
 ```
@@ -108,19 +107,21 @@ void print();
 
 # Class Free_Point : public Point
 
+## Members
+
 |Public Variables||
 |:---|:---|
 |[host](#host)|stores the index of the Grid_Point to which the Free_Point anchors.|
+
+|Constructor||
+|:---|:---|
+|[Free_Point](#Free_Point)|produces a Free_Point with a given x- and y-coordinate.|
 
 ### host
 stores the index of the Grid_Point to which the Free_Point anchors. If such Grid_Point does not exist, host = -1.
 ```
 int host;
 ```
-
-|Constructor||
-|:---|:---|
-|[Free_Point](#Free_Point)|produces a Free_Point with a given x- and y-coordinate.|
 
 ### Free_Point
 produces a Free_Point with a given x- and y-coordinate.
@@ -133,6 +134,8 @@ The constructor with no input produces a Free_Point (0, 0).
 
 # Class Grid_Point : public Point
 
+## Members
+
 |Public Variables||
 |:---|:---|
 |[ind](#ind)|stores the row and column number of the Grid_Point on the Epsilon-Graph.|
@@ -140,6 +143,10 @@ The constructor with no input produces a Free_Point (0, 0).
 |[ip](#ip)|tells if the Grid_Point is incident to incident gridpoints on the Epsilon-Graph.|
 |[anchored](#anchored)|stores the Free_Points anchored to it.|
 |[cros](#cros)|stores # of crossings of each polygon with the ray moving rightward and originating from the Grid_Point.|
+
+|Constructor||
+|:---|:---|
+|[Grid_Point](#Grid_Point)|produces a Grid_Point on the Epsilon-Graph, with given row and column number.|
 
 ### ind
 stores the row and column number of the Grid_Point on the Epsilon-Graph.
@@ -170,10 +177,6 @@ stores # of crossings of each polygon with the ray moving rightward and originat
 ```
 vector<int> cros;
 ```
-
-|Constructor||
-|:---|:---|
-|[Grid_Point](#Grid_Point)|produces a Grid_Point on the Epsilon-Graph, with given row and column number.|
 
 ### Grid_Point
 produces a Grid_Point(vertex) on the Epsilon-Graph, with given row and column number.
