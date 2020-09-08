@@ -1,11 +1,22 @@
 # Class Polygon
 
+# Members
+
 |Public Variables||
 |:---|:---|
 |[vers](#vers)|stores vertices of the polygon in clockwise order.|
 |[x_min](#x_min), [x_max](#x_max), [y_min](#y_min), [y_max](#y_max)|stores the minimum/maximum x-/y-coordinate value among Polygon vertices.|
 |[encl_pts](#encl_pts)|stores Free_Points and Grid_Points that are enclosed by the Polygon.|
 |[ord](#ord)|stores the unique number that indicates the Polygon.|
+
+|Constructors||
+|:---|:---|
+|[Polygon](#Polygon)|produces a Polygon with given set of vertices.|
+
+|Functions||
+|:---|:---|
+|[intersect](#intersect)|checks if a Polygon edge crosses the edge between two adjacent grid points.|
+|[ray](#ray)|shoots a rightward ray from the given point. computes the sum of # of intersections with the Polygon.|
 
 ### vers
 stores vertices of the polygon in clockwise order.
@@ -49,21 +60,12 @@ stores the unique number that indicates the Polygon.
 int ord;
 ```
 
-|Constructors||
-|:---|:---|
-|[Polygon](#Polygon)|produces a Polygon with given set of vertices.|
-
 ### Polygon
 produces a Polygon with given set of vertices.
 ```
 Polygon();
 Polygon(vector<Point> _vers, int _ord)
 ```
-
-|Functions||
-|:---|:---|
-|[intersect](#intersect)|checks if a Polygon edge crosses the edge between two adjacent grid points.|
-|[ray](#ray)|shoots a rightward ray from the given point. computes the sum of # of intersections with the Polygon.|
 
 ### intersect
 checks if a Polygon edge crosses the edge between two adjacent grid points.
