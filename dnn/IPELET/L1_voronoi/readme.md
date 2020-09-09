@@ -6,11 +6,11 @@ The Ipe extensible drawing editor is a tool used by computational geometry resea
 In the latest version ipe-7.2.20, there are already functions to draw a voronoi diagram(e.g order 1~3 voronoi diagram, furthest voronoi diagram and so on).
 However, there is no function to draw voronoi diagram with respect to L1(Manhattan) distance.
 It is a reason why we start the project which draw a L1 voronoi diagram using C++ ipelet framwork of Ipe.
-This function can draw a L-1 voronoi diagram of a point set given by user.
+This function can draw a L1 voronoi diagram of a point set given by user.
 
 ## 2. Algorithm and Analysis
 The algorithm to compute L1 voronoi diagram is based on the following basic property.
-<img src="https://latex.codecogs.com/svg.latex?Let\%20P\%20be\%20a\%20set\%20of\%20n\%20points\%20and\%20let\%20p_i\in%20P\\Vor(p_i)%20=%20%20\cap_j%20%20B(p_i,p_j),where\%20Vor(p)\%20is\%20a\%20voronoi\%20region\%20of\%20p\%20and\\B(p,q)%20=%20\{%20r%20\in%20\mathbb{R}^2%20%20\},%20\%20%20d_1%20:=Manhattan\%20distance."><br>
+<img src="https://latex.codecogs.com/svg.latex?\\Let\%20P\%20be\%20a\%20set\%20of\%20n\%20points\%20and\%20let\%20p_i\in%20P.\%20Then,\\%20Vor(p_i)%20=%20%20\cap_j%20%20B(p_i,p_j)\\,where\%20Vor(p)\%20is\%20a\%20voronoi\%20region\%20of\%20p\%20and\\%20B(p,q)%20=%20\{%20%20r%20\in%20\mathbb{R}^2|d_1(r,p)%20\le%20d_1(r,q)%20\}%20,\%20%20d_1%20:=Manhattan\%20distance."><br>
 Using this property, we can compute each voronoi region for all sites. When there is a large bounding box containing all points, we can represent each <img src = "https://latex.codecogs.com/svg.latex?B(p,q)"> as bounded simple polygon.
 Thus we can compute each voronoi region using simple polygon intersection algorithm.
 Specifically, there is a popular clipping algorithm, so called ` Weiler Atherton Polygon Clipping Algorithm` <sup>[[1]](#footnote_1)</sup>
