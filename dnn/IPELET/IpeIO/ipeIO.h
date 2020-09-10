@@ -12,7 +12,22 @@
 
 using namespace ipe;
 
-/**	Get marks on primary selected page (IPE) */
+/** 0x01:color  0x02:arrow  0x04:dash  0x08:value  
+0x10:point_size 0x11:point_style  0x20:pen_width  0x40:fill*/
+enum ATTR_FLAG
+{
+	FLAG_EMPTY=0x00,
+	FLAG_COLOR=0x01,
+	FLAG_ARROW=0x02,
+	FLAG_DASH=0x04,
+	FLAG_VALUE=0x08,
+	FLAG_POINT_SIZE=0x10,
+	FLAG_POINT_STYLE=0x11,
+	FLAG_PEN_WIDTH=0x20,
+	FLAG_FILL=0x40
+};
+
+/**	Get marks on the primary selected page (IPE) */
 bool Get_points(IpeletData *data, IpeletHelper *helper, 
 	std::vector<Vector> &ret);
 
@@ -22,8 +37,15 @@ bool Get_points(IpeletData *data, IpeletHelper *helper,
 bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpath, 
 	std::vector<CurveSegment> &ret);
 
+/** Get splines */
+bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegment> &ret);
+
 /**	Get polygons on primary selected page (IPE) */
 bool Get_polygons(IpeletData *data, IpeletHelper *helper, 
+	std::vector<const SubPath*> &ret);
+
+/** Get polylines on primary selected page (IPE) */
+bool Get_polylines(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret);
 
 /** Convert subpath object to set of point(Vector) (IPE) \n
@@ -40,7 +62,7 @@ Vector getSecond(CurveSegment cs);
 class IPEIO{
 private:
 	/** 0x01:color  0x02:arrow  0x04:dash  0x08:value  0x10:point_size  0x20:pen_width  0x40:fill*/
-	int Attr_flag;
+	ATTR_FLAG Attr_flag;
 
 	//common attrs
 	std::vector<Property> props;
@@ -72,8 +94,8 @@ public:
 	bool Draw_point(IpeletData *data, IpeletHelper *helper, Vector p);
 	bool Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second);
 	bool Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs);
-	bool Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
-	bool Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
+	bool Draw_poly(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
+	bool Draw_poly(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
 
 	/* Attribute setting */
 	void reset_attr(int flag);

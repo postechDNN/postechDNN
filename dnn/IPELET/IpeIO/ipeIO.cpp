@@ -14,6 +14,35 @@
 using namespace ipe;
 using namespace std;
 
+bool Get_poly_aux(IpeletData *data, IpeletHelper *helper, 
+	std::vector<const SubPath*> &ret, bool is_polygon){
+	Page *page = data->iPage;
+	int sel = page->primarySelection();
+	if(sel<0){
+		helper->message("No selection");
+		return false;
+	}
+	int n=page->count();
+	ret.clear();
+	//copy polygon(subpath)
+	for(int i=0;i<n;i++){
+		//check the object type is path
+		if(page->object(i)->type()!=Object::EPath) continue;
+		Path *path=page->object(i)->asPath();
+		const SubPath *sp = (path->shape()).subPath(0);
+		//check the closedness
+		if(is_polygon != (sp->closed())) continue;
+		//insert polygon(subpath) into ret
+		ret.push_back(sp);
+	}
+
+	if (ret.size()==0) {
+		helper->message("No selection");
+		return false;
+	}
+	else return true;
+}
+
 bool Get_points(IpeletData *data,IpeletHelper *helper,vector<Vector> &ret){
 	Page *page = data->iPage;
 	int sel = page->primarySelection();
@@ -63,6 +92,37 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 		const Curve *cv = sh.subPath(0)->asCurve();
 		//insert segments into ret
 		for(int j=0;j<cv->countSegments();j++){
+			if((cv->segment(j)).type!=ESegment) continue;
+			ret.push_back(cv->segment(j));
+		}
+	}
+
+	if (ret.size()==0) {
+		helper->message("No segment selection");
+		return false;
+	}
+	else return true;
+}
+bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegment> &ret){
+	Page *page = data->iPage;
+	int sel = page->primarySelection();
+	if(sel<0){
+		helper->message("No selection");
+		return false;
+	}
+	int n=page->count();
+	ret.clear();
+	//copy segment(path)
+	for(int i=0;i<n;i++){
+		//check the object type is path
+		if(page->object(i)->type()!=Object::EPath) continue;
+		Path *path=page->object(i)->asPath();
+		const Shape sh = path->shape();
+		if(sh.subPath(0)->closed()) continue;
+		const Curve *cv = sh.subPath(0)->asCurve();
+		//insert splines into ret
+		for(int j=0;j<cv->countSegments();j++){
+			if((cv->segment(j)).type!=ESpline) continue;
 			ret.push_back(cv->segment(j));
 		}
 	}
@@ -74,33 +134,12 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 	else return true;
 }
 bool Get_polygons(IpeletData *data,IpeletHelper *helper,vector<const SubPath*> &ret){
-	Page *page = data->iPage;
-	int sel = page->primarySelection();
-	if(sel<0){
-		helper->message("No selection");
-		return false;
-	}
-	int n=page->count();
-	ret.clear();
-	//copy polygon(subpath)
-	for(int i=0;i<n;i++){
-		//check the object type is path
-		if(page->object(i)->type()!=Object::EPath) continue;
-		Path *path=page->object(i)->asPath();
-		const SubPath *sp = (path->shape()).subPath(0);
-		//check the closedness
-		if(!(sp->closed())) continue;
-		//insert polygon(subpath) into ret
-		ret.push_back(sp);
-	}
-
-	if (ret.size()==0) {
-		helper->message("No polygon selection");
-		return false;
-	}
-	else return true;
+	return Get_poly_aux(data,helper,ret,true);
 }
 
+bool Get_polylines(IpeletData *data, IpeletHelper *helper,vector<const SubPath*> &ret){
+	return Get_poly_aux(data,helper,ret,false);
+}
 std::vector<Vector> SubPath2Vec(const SubPath *subpath, bool add_first){
 	std::vector<Vector> ret;
 	const Curve *cv = subpath->asCurve();
@@ -124,25 +163,25 @@ Vector getSecond(CurveSegment cs){
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-void IPEIO::reset_attr(int flag=0){
+void IPEIO::reset_attr(FLAG_POINT_SIZE flag=FLAG_EMPTY){
 	Attr_flag=flag;
 }
 void IPEIO::set_Attrs(Reference *obj){
-	if (Attr_flag&0x01) obj->setStroke(color_attr);
-	if (Attr_flag&0x10) obj->setSize(pts_size);
+	if (Attr_flag&FLAG_COLOR) obj->setStroke(color_attr);
+	if (Attr_flag&FLAG_POINT_SIZE) obj->setSize(pts_size);
 }
 void IPEIO::set_Attrs(Path *obj){
-	if (Attr_flag&0x01) obj->setStroke(color_attr);
-	if (Attr_flag&0x02){
+	if (Attr_flag&FLAG_COLOR) obj->setStroke(color_attr);
+	if (Attr_flag&FLAG_ARROW){
 		if (farrow) obj->setAttribute(EPropFArrow,construct.ARROW_NORMAL());
 		else obj->setAttribute(EPropRArrow,construct.ARROW_NORMAL());
 	}
-	if (Attr_flag&0x04) obj->setDashStyle(dash);
-	if (Attr_flag&0x08){
+	if (Attr_flag&FLAG_DASH) obj->setDashStyle(dash);
+	if (Attr_flag&FLAG_VALUE){
 		for (int i=0;i<props.size();i++) obj->setAttribute(props[i],vals[i]);
 	}
-	if (Attr_flag&0x20) obj->setAttribute(EPropPen,pen_width);
-	if (Attr_flag&0x40) {
+	if (Attr_flag&FLAG_PEN_WIDTH) obj->setAttribute(EPropPen,pen_width);
+	if (Attr_flag&FLAG_FILL) {
 		obj->setAttribute(EPropFillColor,fill);
 		if (mode) obj->setPathMode(EFilledOnly);
 		else obj->setPathMode(EStrokedAndFilled);
@@ -169,7 +208,7 @@ bool IPEIO::Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, V
 bool IPEIO::Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs){
 	return Draw_segment(data,helper,getFirst(cs),getSecond(cs));
 }
-bool IPEIO::Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed){
+bool IPEIO::Draw_poly(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed){
 	Curve *sp=new Curve;
 	for(int i=0;i<pts.size()-1;i++){
 		sp->appendSegment(pts[i],pts[i+1]);
@@ -183,13 +222,13 @@ bool IPEIO::Draw_polygon(IpeletData *data, IpeletHelper *helper, std::vector<Vec
 	data->iPage->append(ESecondarySelected, data->iLayer, obj);
 	return true;
 }
-bool IPEIO::Draw_polygon(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed){
-	return Draw_polygon(data,helper,SubPath2Vec(sp,false),closed);
+bool IPEIO::Draw_poly(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed){
+	return Draw_poly(data,helper,SubPath2Vec(sp,false),closed);
 }
 
 void IPEIO::set_color(string color){
 	color_attr=construct.makeColor(color.c_str(),color_attr);
-	Attr_flag|=0x01;
+	Attr_flag|=FLAG_COLOR;
 }
 void IPEIO::set_color(int r,int g,int b){
 	set_color(to_string((float)r/255)+" "+to_string((float)g/255)+" "+to_string((float)b/255));
@@ -218,7 +257,7 @@ void IPEIO::set_pts_style(int type){ //disk:0 circle:1  square:2 box:3  cross:4
 	pts_type=Attribute(true,style);
 }
 void IPEIO::set_arrow(bool forward=true){
-	Attr_flag|=0x02;
+	Attr_flag|=FLAG_ARROW;
 	farrow=forward;
 }
 void IPEIO::set_dash(int type){ // Dot:1  Dash:2  Dash&Dot:3  Dash&Dot&Dot:4  NO:other
@@ -231,7 +270,7 @@ void IPEIO::set_dash(int type){ // Dot:1  Dash:2  Dash&Dot:3  Dash&Dot&Dot:4  NO
 		default: style="";
 	}
 	dash=construct.makeDashStyle(style);
-	Attr_flag|=0x04;
+	Attr_flag|=FLAG_DASH;
 }
 void IPEIO::set_pen(int type){ //normal:0  heavier:1  fat:2  ultrafat:3
 	String style;
@@ -242,12 +281,12 @@ void IPEIO::set_pen(int type){ //normal:0  heavier:1  fat:2  ultrafat:3
 		default: style="normal";
 	}
 	pen_width=Attribute(true,style);
-	Attr_flag|=0x20;
+	Attr_flag|=FLAG_PEN_WIDTH;
 }
 void IPEIO::set_fill(std::string color,bool fillonly=false){
 	fill=construct.makeColor(color.c_str(),color_attr);
 	mode=fillonly;
-	Attr_flag|=0x40;
+	Attr_flag|=FLAG_FILL;
 }
 void IPEIO::set_fill(int r,int g,int b,bool fillonly=false){
 	set_fill(to_string((float)r/255)+" "+to_string((float)g/255)+" "+to_string((float)b/255),fillonly);
