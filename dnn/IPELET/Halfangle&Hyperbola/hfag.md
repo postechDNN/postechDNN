@@ -1,0 +1,16 @@
+## Half angle line
+
+### Summary
+You can draw a half angle line between two lines on the Ipelet.
+
+### How to use
+Place 'Marks' in three places in order. 
+- Displays one line that makes up the angle, the vertex where the two lines meet, and the other line in that order. 
+- After marking the marks, executing'HFAG' in the ipelet function draws a line segment with an arbitrary length to both sides.
+
+### Example
+![enter image description here](https://uc5f7c28995992363522c3440af5.previews.dropboxusercontent.com/p/thumb/AA5FXoJl3gXUdoKrFZ0bL39ynT0KOmx-V09rIIQvVSHZ19kM-gQsLY0qk-kpSqC1hYpudqT6jVSrP_7aflbPiY7KuX31DgIrxteNY7O9ImZ0BBjHYHiQYO4trWyrKwFZDxxob4Kr8SEEtBLARU2jUgCPKBSD9uFDf5OONTdiW1VYi64GYGHn7GeePUMraXRVLBD94h1jl6vbLcpnGbHne15mEZwk_wkMUF7jYbLrhnV1a8wctz8D3o6pFnmN8DyyI-kxidYNShC2QRoi2sLY1jO9f1L8r7DF_YyMLG7ZGkJkNA7wyPsnopxoYyDMlpxle1cOk3VbUKPfYj5TZsfLr_4ANAykxa-oDkR3hUncUhOY20NtKyil8TSlk-oVT9magpjsQvbFhueKd7DAdaXZSDMX/p.png?fv_content=true&size_mode=5)
+
+![enter image description here](https://uc3276eeade6c2ea839a5791fc82.previews.dropboxusercontent.com/p/thumb/AA6XR_eQhCkdHLaY16EfbduBF-1IGBNiK65mNa3lNfLDE1u_x7NQ1tL2w_YAHZpNAjJF-tUH0NqiENWUTgt20AFqhbptf1f0nYj86NbBwKfmFPqXaOb4xy3JY1qdhvzat9MJyrO_X8kSmDi8LguB-R-MMIi3KxlOVmIS-bsjub-CoA4K6XluBAVeEdMrEvEuQHU1OtgHAylONk_2n10KtVGU3PE2Zh00nCN915I1Luo6Y-ECTqT0L9jV2cyYO1wSVV4FbwZPam0977ez82QP_R6rPtFnouif0d9XqHu_UF-zRjNCMsTIrltPeeHBVrVAB1cPN3sHmQbhPazjToAezGbhaZ1udJVGGsEatmMDdrA8P7gloWdQOEknXPXQvX7MFaGHXILRDDClRRdRCFDOOZ3-/p.png?fv_content=true&size_mode=5)
+
+![enter image description here](https://uc95481782135b29f2509b02c360.previews.dropboxusercontent.com/p/thumb/AA7RzO9hJp8TjyEZ6gZsFWxInPjr2bCdJJUmmjCXYXPoM9Zb8BexHHd3Fdaowyl0wEWAOfqavlSvacqigzqSCvnt1g284mA6g3nuOmG-ScD032gWGZH5YrTvrX0Rmp0fkuW0RrFOt7mAudK5DZo29vB4onhFc5rR0cYIituw_GpMCR4_FHa4_YV7jGxptKuAj6gunbiXI3BqkSuanjaoqAvZVM4qGW9qX4Bt4Q1FEgeTpcSBBVf9iRGDNXKWdRTo33PEL-3SFLp-82xl2thLAZGnHpZkaz52IR7GGVA2l2wePe7cIh3Rbz26fUXEwgHztk2asPq_8qNM41FLyvmbvvdyJDF8OVNciSSRkcXS3Wtl_mByEBIWd5TK12oCgX1tGN2e0rbA_eDCkTJ68xTwsJ4d/p.png?size=2048x1536&size_mode=3)
