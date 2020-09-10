@@ -23,5 +23,3 @@ Grid_Point::Grid_Point(int _row_num, int _col_num, double x_min, double y_max, d
 
 	ip.right = ip.lower = ip.left = ip.upper = false;
 }
-
-
