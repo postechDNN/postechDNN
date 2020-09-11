@@ -64,3 +64,5 @@ bool PolygonalDomain::validPoint(Point p) {
 std::vector<SimplePolygon*>* PolygonalDomain::getObstacles() {
 	return this->obstacles;
 }
+
+PolygonalDomain::~PolygonalDomain(){}
