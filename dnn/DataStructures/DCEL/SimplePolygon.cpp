@@ -6,12 +6,22 @@ SimplePolygon::SimplePolygon() {
 	this->edges = new std::vector<Edge*>;
 }
 
-SimplePolygon::SimplePolygon(std::vector<Edge*>*) {
+SimplePolygon::SimplePolygon(std::vector<Edge*>* _e) {
 	this->edges = new std::vector<Edge*>;
-	for (std::vector<Edge*>::iterator i = edges->begin(); i != edges->end(); i++) {
+	for (std::vector<Edge*>::iterator i = _e->begin(); i != _e->end(); i++) {
 		this->edges->push_back(*i);
 	}
 }
+
+SimplePolygon::SimplePolygon(std::vector<Point*>* _p) {
+	this->edges = new std::vector<Edge*>;
+	for (int i = 0; i < _p->size()-1; i++) {
+		this->edges->push_back(new Edge((*_p)[i], (*_p)[i + 1]));
+	}
+	this->edges->push_back(new Edge((*_p)[_p->size() - 1], (*_p)[0]));
+}
+
+
 
 //The point p is inside polygon return 1
 //The point p is on boundary return 0
