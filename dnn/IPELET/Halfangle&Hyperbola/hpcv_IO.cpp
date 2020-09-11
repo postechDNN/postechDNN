@@ -90,6 +90,6 @@ bool HalfAngle::run(int, IpeletData *data, IpeletHelper *helper)
 // --------------------------------------------------------------------
 IPELET_DECLARE Ipelet *newIpelet()
 {
-  return new HalfAngle;
+  return new Hyperbola;
 }
 // --------------------------------------------------------------------
