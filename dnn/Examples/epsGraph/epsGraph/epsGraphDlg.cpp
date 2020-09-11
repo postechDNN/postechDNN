@@ -527,7 +527,6 @@ void CepsGraphDlg::OnBnClickedOpen()
 	if (IDOK == dlg.DoModal())
 	{
 		CString pathName = dlg.GetPathName();
-		MessageBox(pathName);
 		std::ifstream input_file(pathName);
 		
 		int n_pts, n_polys;
