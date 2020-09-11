@@ -4,6 +4,7 @@
 
 PDgraph::PDgraph() {
 	this->nodes = new std::vector<PDNode*>();
+	this->pd = new PolygonalDomain();
 }
 
 PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
