@@ -4,6 +4,9 @@
 #include <cmath>
 #include <algorithm>
 
+#define DBL_MAX 1e10
+#define DBL_MIN -1e10
+
 class _Polygon {
 private:
 

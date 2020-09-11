@@ -358,7 +358,35 @@ Grid_Point Eps_Graph::query_anchor(Free_Point p) {
 	int row; int col;
 	row = int(ceil((upper_left.y - p.y) / eps - 0.5)); // Á¤ Áß¾Ó¿¡ ÀÖ´Â Á¡Àº À§·Î anchorµÊ
 	col = int(ceil((p.x - upper_left.x) / eps - 0.5)); // Á¤ Áß¾Ó¿¡ ÀÖ´Â Á¡Àº ¿ÞÂÊÀ¸·Î anchorµÊ
-	return grid[ind2num(indices{ row, col })];
+
+	for (int step = 0; step < row_num + col_num; step++) {
+		vector<Grid_Point> gr_pts = {};
+		for (int x_step = 0; x_step <= step; x_step++) {
+			int y_step = step - x_step;
+
+			if (0 <= row + x_step && row + x_step < row_num && 0 <= col + y_step && col + y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row + x_step, col + y_step)]);
+			}
+			if (0 <= row + x_step && row + x_step < row_num && 0 <= col - y_step && col - y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row + x_step, col - y_step)]);
+			}
+			if (0 <= row - x_step && row - x_step < row_num && 0 <= col + y_step && col + y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row - x_step, col + y_step)]);
+			}
+			if (0 <= row - x_step && row - x_step < row_num && 0 <= col - y_step && col - y_step < col_num) {
+				gr_pts.push_back(grid[ind2num(row - x_step, col - y_step)]);
+			}
+		}
+
+		for (Grid_Point gr_pt : gr_pts) {
+
+			if (gr_pt.encl == -1) {
+				return gr_pt;
+			}
+
+		}
+	}
+	return Grid_Point();
 }
 
 
@@ -521,97 +549,84 @@ indices* Eps_Graph::eff_region(_Polygon P) { // returns a range indicating ortho
 	return ret;
 }
 
+vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
-void Eps_Graph::BFS(Grid_Point s) { // BFS on grid
+	for (_Polygon& pol : pols) {
+		int cro = pol.ray(p);
 
+		if (cro > 0 && cro % 2 == 1) {
+			return {};
+		}
+	}
+
+	vector<Free_Point> ret = {};
+	vector<int>().swap(NN_dist);
+
+	Grid_Point s = query_anchor(p);
 	for (int& elem : dist) { elem = INT_MAX; }
 	for (unsigned int ind1 = 0; ind1 < visited.size(); ind1++) { visited[ind1] = false; }
-	closest = {};
 
-	queue<int> q;
+	queue<int> q = {};
 
 	dist[s.num] = 0;
 	q.push(s.num);
+	int grid_dist = 0;
+	vector<Free_Point> FPs_temp = {};
+	vector<Free_Point> FPs = {};
 
-	while (!q.empty()) {
-		int cur = q.front();
-		q.pop();
-		if (visited[cur] == true) { continue; }
-		closest.push_back(cur);
-		visited[cur] = true;
+	while (k > 0 && !q.empty()) {
 
-		if (grid[cur].ip.right && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
-		if (grid[cur].ip.lower && visited[cur + col_num] == false) { dist[cur + col_num] = dist[cur] + 1; q.push(cur + col_num); }
-		if (grid[cur].ip.left && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
-		if (grid[cur].ip.upper && visited[cur - col_num] == false) { dist[cur - col_num] = dist[cur] + 1; q.push(cur - col_num); }
-	}
-
-}
-
-vector<Free_Point> Eps_Graph::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
-
-	
-	vector<Free_Point> ret = {};
-	NN_dist = {};
-
-	BFS(query_anchor(p));
-
-	while (k > 0) {
-		if (closest.empty()) {
-			break;
-		}
-
-		int start = 0, end = 0;
-		int grid_dist = dist[closest[start]];
-
-		while (grid_dist == dist[closest[end]]) {
-			if (end == int(closest.size()) - 1) { break; }
-			else { end += 1; }
-		}
-
-		vector<Free_Point> temp = {};
-
-		for (int ind1 = start; ind1 <= end; ind1++) {
-			vector<Free_Point> added_pts = {};
-
-			for (auto pt_pointer : grid[closest[ind1]].anchored) {
-				added_pts.push_back(*pt_pointer);
+		// q.empty() is indeed needed twice
+		while (!q.empty() && (dist[q.front()] == grid_dist)) {
+			if (visited[q.front()] == true) {
+				q.pop();
+				continue;
 			}
-			vector<Free_Point>::iterator it = temp.insert(temp.end(), added_pts.begin(), added_pts.end());
+			visited[q.front()] = true;
+
+			int cur = q.front();
+			if (grid[cur].ip.right && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
+			if (grid[cur].ip.lower && visited[cur + col_num] == false) { dist[cur + col_num] = dist[cur] + 1; q.push(cur + col_num); }
+			if (grid[cur].ip.left && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
+			if (grid[cur].ip.upper && visited[cur - col_num] == false) { dist[cur - col_num] = dist[cur] + 1; q.push(cur - col_num); }
+
+			for (auto FP : grid[q.front()].anchored) {
+				FPs_temp.push_back(*FP);
+			}
+			q.pop();
 		}
 
-		sort(temp.begin(), temp.end(), [=](Free_Point first, Free_Point second)
+		for (auto pt : FPs_temp) {
+			if (pt.encl == -1) {
+				FPs.push_back(pt);
+			}
+		}
+
+		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
 		{
 			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2);
 		});
 
-		vector<Free_Point> pts = {};
+		int sz = int(FPs.size());
 
-		for (auto pt : temp) {
-			if (pt.encl == -1) {
-				pts.push_back(pt);
-			}
-		}
-
-		int sz = int(pts.size());
-
-		if (sz <= k) {
+		if (sz < k) {
 			for (int ind2 = 0; ind2 < sz; ind2++) { NN_dist.push_back(grid_dist); }
 			k -= sz;
-			ret.insert(ret.end(), pts.begin(), pts.end());
+			ret.insert(ret.end(), FPs.begin(), FPs.end());
 		}
 		else {
 			for (int ind2 = 0; ind2 < k; ind2++) { NN_dist.push_back(grid_dist); }
-			ret.insert(ret.end(), pts.begin(), pts.begin() + k);
+			ret.insert(ret.end(), FPs.begin(), FPs.begin() + k);
 			k = 0;
-			
 		}
-		closest.erase(closest.begin(), closest.begin() + end + 1);
+
+		vector<Free_Point>().swap(FPs_temp);
+		vector<Free_Point>().swap(FPs);
+		grid_dist += 1;
 	}
 
 	return ret;
 }
-
 
 void Eps_Graph::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {

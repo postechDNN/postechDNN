@@ -299,7 +299,11 @@ void CepsGraphDlg::OnBnClickedquery()
 	for (int i = 0; i < k;i++) {
 		CString temp;
 		double dist = sqrt((results[i].x - x) * (results[i].x - x) + (results[i].y - y) * (results[i].y - y));
-		temp.Format(L"%lf %lf d : %lf\r\n", results[i].x, results[i].y, dist);
+		Grid_Point anchor_result = eps_graph->query_anchor(results[i]);
+		Grid_Point anchor_query = eps_graph->query_anchor(query_point);
+		double dist_result = sqrt((anchor_result.x - results[i].x) * (anchor_result.x - results[i].x) + (anchor_result.y - results[i].y) * (anchor_result.y - results[i].y));
+		double dist_query = sqrt((anchor_query.x - query_point.x) * (anchor_query.x - query_point.x) + (anchor_query.y - query_point.y) * (anchor_query.y - query_point.y));
+		temp.Format(L"%lf %lf d : %lf\r\n", results[i].x, results[i].y, eps_graph->NN_dist[i] * eps_graph->eps + dist_query + dist_result);
 		result = result + temp;
 	}
 	SetDlgItemText(IDC_query_result, result);

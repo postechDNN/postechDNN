@@ -4,12 +4,14 @@ PDNode::PDNode() {
 	this->setPoint(new Point());
 	this->setSite(true);
 	this->setAdj(new std::vector<PDNode*>());
+	this->dist = 0;
 }
 
 PDNode::PDNode(Point* p) {
 	this->setPoint(p);
 	this->setSite(true);
 	this->setAdj(new std::vector<PDNode*>());
+	this->dist = 0;
 }
 
 PDNode::PDNode(Point* p, std::vector<PDNode*>* adj) {
@@ -47,6 +49,14 @@ void PDNode::setPoint(Point* newPoint) {
 
 bool PDNode::issite() {
 	return this->site;
+}
+
+void PDNode::setDist(double _d) {
+	this->dist = _d;
+}
+
+double PDNode::getDist() {
+	return this->dist;
 }
 
 void PDNode::setSite(bool newSite) {

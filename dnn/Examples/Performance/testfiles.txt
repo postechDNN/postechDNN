@@ -1,0 +1,10 @@
+./uniform_distribution/uniform_distribution1.txt ./uniform_distribution/uniform_distribution1_query.txt ./output/uniform_distribution1_out.txt
+./uniform_distribution/uniform_distribution2.txt ./uniform_distribution/uniform_distribution2_query.txt ./output/uniform_distribution2_out.txt
+./uniform_distribution/uniform_distribution3.txt ./uniform_distribution/uniform_distribution3_query.txt ./output/uniform_distribution3_out.txt
+./uniform_distribution/uniform_distribution4.txt ./uniform_distribution/uniform_distribution4_query.txt ./output/uniform_distribution4_out.txt
+./uniform_distribution/uniform_distribution5.txt ./uniform_distribution/uniform_distribution5_query.txt ./output/uniform_distribution5_out.txt
+./uniform_distribution/uniform_distribution6.txt ./uniform_distribution/uniform_distribution6_query.txt ./output/uniform_distribution6_out.txt
+./uniform_distribution/uniform_distribution7.txt ./uniform_distribution/uniform_distribution7_query.txt ./output/uniform_distribution7_out.txt
+./uniform_distribution/uniform_distribution8.txt ./uniform_distribution/uniform_distribution8_query.txt ./output/uniform_distribution8_out.txt
+./uniform_distribution/uniform_distribution9.txt ./uniform_distribution/uniform_distribution9_query.txt ./output/uniform_distribution9_out.txt
+./uniform_distribution/uniform_distribution10.txt ./uniform_distribution/uniform_distribution10_query.txt ./output/uniform_distribution10_out.txt

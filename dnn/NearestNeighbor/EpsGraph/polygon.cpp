@@ -1,4 +1,4 @@
-#include "polygon.h"
+#include "Polygon.h"
 
 #define X true // ray direction
 #define Y false
@@ -8,7 +8,7 @@ using namespace std;
 _Polygon::_Polygon() { x_min = x_max = y_min = y_max = 0; encl_pts = {}; ord = -1; }
 
 _Polygon::_Polygon(vector <Point> _vers, int _ord) {
-	vers = _vers;	// vertices are sorted CW 
+	vers = _vers;	// vertices are always given CW 
 
 	double temp_xmax = DBL_MIN, temp_xmin = DBL_MAX;
 	double temp_ymax = DBL_MIN, temp_ymin = DBL_MAX;
@@ -29,7 +29,7 @@ _Polygon::_Polygon(vector <Point> _vers, int _ord) {
 	ord = _ord;
 }
 
-bool _Polygon::intersect(Point p1, Point p2, bool direc) { // filters out easy-to-detect non-intersecting cases
+bool _Polygon::intersect(Point p1, Point p2, bool direc) { // checks if a _Polygon edge crosses the line connecting two adjacent grid points (if so, they should be disconnected)
 	for (unsigned int i = 0; i < vers.size(); i++)
 	{
 		unsigned int j = (i + 1) % vers.size();
@@ -49,11 +49,11 @@ bool _Polygon::intersect(Point p1, Point p2, bool direc) { // filters out easy-t
 
 		if (max_one <= min(i_one, j_one) || max(i_one, j_one) <= min_one ||
 			the_other <= min(i_other, j_other) || max(i_other, j_other) <= the_other) {
-		} // does not intersect
+		} // the edge does not intersect
 		else {
-			if (i_one != j_one) // calculate the slope of the line
+			if (i_one != j_one) 
 			{
-				double m = (j_other - i_other) / (j_one - i_one), n = i_other - m * i_one; // needs to check once again
+				double m = (j_other - i_other) / (j_one - i_one), n = i_other - m * i_one; // calculate the slope of the line
 				double inter_one = (the_other - n) / m;
 				if (min_one < inter_one && inter_one < max_one) { return true; }
 			}
@@ -66,7 +66,7 @@ bool _Polygon::intersect(Point p1, Point p2, bool direc) { // filters out easy-t
 	return false;
 }
 
-int _Polygon::ray(Point p) // shoots a ray from the point to the right. computes the sum of # of intersections with the polygons
+int _Polygon::ray(Point p) // shoots a ray from the point to the right. computes the sum of # of intersections with the _Polygon
 {	
 	if (x_max < p.x || x_min > p.x || y_max < p.y || y_min > p.y) { return -1; }
 
@@ -79,7 +79,7 @@ int _Polygon::ray(Point p) // shoots a ray from the point to the right. computes
 		int j_prime = (j + 1) % vers.size();
 		p_a = p.x; p_b = p.y; i_a = vers[i].x; i_b = vers[i].y; j_a = vers[j].x; j_b = vers[j].y;
 
-		if (max(i_a, j_a) < p_a || p_b < min(i_b, j_b) || max(i_b, j_b) < p_b) {} // inter += 0
+		if (max(i_a, j_a) < p_a || p_b < min(i_b, j_b) || max(i_b, j_b) < p_b) {}
 		else {
 			if (i_a == j_a) {
 				if (p_a == i_a) { return -2; }
@@ -95,16 +95,16 @@ int _Polygon::ray(Point p) // shoots a ray from the point to the right. computes
 							{
 								inter += 1;
 							}
-							else {} // inter += 0
+							else {}
 						}
-					} // shape of '¤¡'
+					} // shape of 'Â¤Â¡'
 				}
 			}
 			else if (i_b == j_b) {
 				if (min(i_a, j_a) <= p_a && p_a < max(i_a, j_a)) { return -2; }
 				else {
 					if (p_b == j_b) {
-						if (vers[j_prime].y > j_b == vers[i_prime].y > i_b) {} // inter += 0
+						if (vers[j_prime].y > j_b == vers[i_prime].y > i_b) {}
 						else { inter += 1; }
 					}
 				} // shape of a morse code.
@@ -112,7 +112,7 @@ int _Polygon::ray(Point p) // shoots a ray from the point to the right. computes
 			else {
 				long double m = (j_b - i_b) / (j_a - i_a), n = i_b - m * i_a;
 				long double inter_x = (p_b - n) / m;
-				if (inter_x < p_a) {} // inter += 0
+				if (inter_x < p_a) {}
 				else if (inter_x == p_a) { return -2; }
 				else {
 					if (p_b != i_b && p_b != j_b)
@@ -125,7 +125,7 @@ int _Polygon::ray(Point p) // shoots a ray from the point to the right. computes
 							{
 								inter += 1;
 							}
-							else {} // inter += 0
+							else {}
 						}
 					} // shape of '45 degrees'
 				}
@@ -135,4 +135,3 @@ int _Polygon::ray(Point p) // shoots a ray from the point to the right. computes
 	}
 	return inter;
 }
-

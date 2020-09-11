@@ -24,7 +24,7 @@ int main() {
 	vector<Polygon> figures;
 	figures.push_back(Polygon{ vers, 0 });
 
-	Eps_Graph G = Eps_Graph(_fr_pts, figures, 0.5); // polygon ¾øÀÌ
+	Eps_Graph G = Eps_Graph(_fr_pts, figures, 0.5); // polygon ï¿½ï¿½ï¿½ï¿½
 
 	// test(G, _fr_pts.front());
 
