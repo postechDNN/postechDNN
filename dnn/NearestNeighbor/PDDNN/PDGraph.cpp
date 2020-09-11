@@ -6,8 +6,8 @@ PDgraph::PDgraph() {
 	this->nodes = new std::vector<PDNode*>();
 }
 
-PDgraph::PDgraph(PolygonalDomain* pd, std::vector<Point*>* pv) {
-
+PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
+	this->pd = _pd;
 	this->nodes = new std::vector<PDNode*>();
 	for (int i = 0; i < pd->getObstacles()->size(); i++) {
 		SimplePolygon* sp = (*pd->getObstacles())[i];
@@ -39,15 +39,15 @@ PDgraph::PDgraph(PolygonalDomain* pd, std::vector<Point*>* pv) {
 						flag = false;
 						break;
 					}
-					if (!flag)
-						break;
 				}
-				if (flag) {
-					(*this->nodes)[i]->getAdj()->push_back((*this->nodes)[j]);
-					(*this->nodes)[j]->getAdj()->push_back((*this->nodes)[i]);
-				}
-				delete(ne);
+				if (!flag)
+					break;
 			}
+			if (flag) {
+				(*this->nodes)[i]->getAdj()->push_back((*this->nodes)[j]);
+				(*this->nodes)[j]->getAdj()->push_back((*this->nodes)[i]);
+			}
+			delete(ne);
 		}
 	}
 }
@@ -57,95 +57,51 @@ std::vector<PDNode*>* PDgraph::getNodes() {
 	return this->nodes;
 }
 
-void PDgraph::Dijkstra(PDNode* startingPDNode) {
+std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 
-	std::priority_queue <std::pair<PDNode*, double>, std::vector <std::pair<PDNode*, double>>, cmp> PQ;
-	PQ.push({ startingPDNode, 0 });
-	std::vector <std::pair<PDNode*, double> > dist;
-	dist.resize(this->nodes->size());
+	std::priority_queue <std::pair<PDNode*, double>, std::vector <std::pair<PDNode*, double>>, struct cmp> PQ;
+	for (int i = 0; i < this->nodes->size(); i++) {
+		Edge* ne = new Edge((*this->nodes)[i]->getPoint(), start);
+		bool flag = true;
+		for (int j = 0; j < pd->getObstacles()->size(); j++) {
+			SimplePolygon* sp = (*pd->getObstacles())[j];
+			for (int k = 0; k < sp->getEdges()->size(); k++) {
+				Edge* te = (*sp->getEdges())[k];
+				if (!((*ne) == (*te)) && ne->crossing(te, false)) {
+					flag = false;
+					break;
+				}
+			}
+			if (!flag)
+				break;
+		}
+		if (flag) {
+			PQ.push(std::pair<PDNode*, double>((*this->nodes)[i], start->distance((*this->nodes)[i]->getPoint())));
+		}
+		delete(ne);
+	}
 	std::map <PDNode*, bool> visited;
+	std::vector<std::pair<Point*, double>>* nns = new std::vector<std::pair<Point*, double>>;
 
-	std::cout << "[dist vector initializes as -1]" << std::endl;
-	for (int i = 0; i < dist.size(); i++) {
-		dist[i] = std::make_pair((*this->nodes)[i], -1);
-	}
-
-	std::cout << dist.size() << std::endl << std::endl;
-
-
-	for (int i = 0; i < dist.size(); i++) {
-		std::cout << dist[i].first->getPoint()->getx() << "," << dist[i].first->getPoint()->gety() << std::endl;
-		std::cout << dist[i].second << std::endl << std::endl;
-
-	}
-
-
-	//int location = 0;
-	while (!PQ.empty()) {
+	while (!PQ.empty() && nns->size() < k) {
 		PDNode* here = PQ.top().first;
 		double cost = PQ.top().second;
-		std::cout << "here: [" << here->getPoint()->getx() << "," << here->getPoint()->gety() << "]: " << cost << std::endl << std::endl;
 
 		PQ.pop();
 
 		if (visited[here] == true) continue;
 
-		int location = 0;
-		for (int i = 0; i < dist.size(); i++) {
-			if (dist[i].first == here) {
-				location = i;
-				break;
-			}
+		visited[here] = true;
+		if (here->issite()) {
+			nns->push_back(std::pair<Point*, double>(here->getPoint(), cost));
 		}
 
-		dist[location].second = cost;
-		visited[here] = true;
-
-
-
-		std::cout << here->getAdj()->size() << std::endl;
-		here->printAdjlist();
-
-		location++;
-
-		here->printAdjlist();
-
 		for (int i = 0; i < here->getAdj()->size(); i++) {
-			//std::cout << "dddd" << std::endl;
-
-
-
-			//printf("\nnext index %d\n", i);
+			if (visited[(*here->getAdj())[i]] == true) continue;
 			PDNode* next = (*here->getAdj())[i];
 			double acost = (*here->getAdj())[i]->getPoint()->distance(here->getPoint()) + cost;
-
-			std::cout << "next: [" << next->getPoint()->getx() << "," << next->getPoint()->gety() << "]: " << acost << std::endl << std::endl;
-
-
-			if (visited[(*here->getAdj())[i]] == true) continue;
-
 			PQ.push({ next, acost });
 		}
 	}
-
-	minimumDistance(dist);
 }
 
-void PDgraph::minimumDistance(std::vector <std::pair<PDNode*, double> > dist) {
-	std::cout << "dist print" << std::endl;
-
-
-	for (int i = 0; i < dist.size(); i++) {
-		std::cout << dist[i].first->getPoint()->getx() << "," << dist[i].first->getPoint()->gety() << std::endl;
-		//std::cout << it->first->adjlist << std::endl;
-
-		if (dist[i].second == -1) {
-			std::cout << "INF" << std::endl;
-		}
-
-		else {
-			std::cout << dist[i].second << std::endl;
-		}
-		std::cout << std::endl;
-	}
-}

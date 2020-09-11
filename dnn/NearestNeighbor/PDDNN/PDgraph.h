@@ -22,9 +22,9 @@ public:
 	PDgraph();
 	PDgraph(PolygonalDomain*, std::vector<Point*>*);
 	std::vector<PDNode*>* getNodes();
-	void Dijkstra(PDNode*);
-	void minimumDistance(std::vector <std::pair<PDNode*, double>>);
+	std::vector<std::pair<Point*, double>>* knn(Point*, int);
 
 private:
 	std::vector<PDNode*>* nodes;
+	PolygonalDomain* pd;
 };
