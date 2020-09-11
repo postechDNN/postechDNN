@@ -13,6 +13,7 @@
 #include <ctime>
 #include <cmath>
 #include <list>
+#include <fstream>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -83,6 +84,7 @@ BEGIN_MESSAGE_MAP(CepsGraphDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_delete_polygon, &CepsGraphDlg::OnBnClickeddeletepolygon)
 	ON_BN_CLICKED(IDC_query_point, &CepsGraphDlg::OnBnClickedquerypoint)
 	ON_BN_CLICKED(IDC_query_polygon, &CepsGraphDlg::OnBnClickedquerypolygon)
+	ON_BN_CLICKED(IDC_Open, &CepsGraphDlg::OnBnClickedOpen)
 END_MESSAGE_MAP()
 
 
@@ -515,4 +517,61 @@ vector<Point> generatePolygon(double ctrX, double ctrY, double aveRadius, double
 		angle = angle + angleSteps[i];
 	}
 	return points;
+}
+
+
+void CepsGraphDlg::OnBnClickedOpen()
+{
+	static TCHAR BASED_CODE szFilter[] = _T("텍스트 파일(*.TXT) | *.TXT;|모든파일(*.*)|*.*||");
+	CFileDialog dlg(TRUE, _T("*.txt"), _T("text"), OFN_HIDEREADONLY, szFilter);
+	if (IDOK == dlg.DoModal())
+	{
+		CString pathName = dlg.GetPathName();
+		MessageBox(pathName);
+		std::ifstream input_file(pathName);
+		
+		int n_pts, n_polys;
+		std::list<Free_Point> pts;
+		std::vector<_Polygon> polys;
+		input_file >> n_pts >> n_polys;
+		for (int i = 0;i < n_pts;i++) {
+			double x, y;
+			input_file >> x >> y;
+			pts.push_back(Free_Point(x, y));
+		}
+		for (int i = 0; i < n_polys;i++) {
+			double x, y;
+			int n_vertices;
+			input_file >> n_vertices;
+			std::vector<Point> vertices;
+			for (int j = 0; j < n_vertices;j++) {
+				input_file >> x >> y;
+				vertices.push_back(Point(x, y));
+			}
+			polys.push_back(_Polygon(vertices, i));
+		}
+		double epsilon = 10;
+
+		CString buff;
+		GetDlgItemText(IDC_Epsilon, buff);
+		if(buff.IsEmpty() == false)
+			epsilon = _wtof(buff);
+
+		int K = 1;
+		
+		clock_t startTime = clock();
+		eps_graph = new Eps_Graph(pts, polys, epsilon);
+		clock_t endTime = clock();
+		int construction_time = endTime - startTime;
+		CString log, tmp;
+		log.Format(L"Epsilon(= %lf) Graph is open successfully.\r\n", epsilon);
+		tmp.Format(L"# of points = %d, # of polygons = %d\r\n", n_pts, n_polys);
+		log = log + tmp;
+		tmp.Format(L"Construction time : %d ms", construction_time);
+		log = log + tmp;
+		SetDlgItemText(IDC_log, log);
+
+		input_file.close();
+
+	}
 }

@@ -42,6 +42,8 @@ public:
 	afx_msg void OnBnClickeddeletepolygon();
 	afx_msg void OnBnClickedquerypoint();
 	afx_msg void OnBnClickedquerypolygon();
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedOpen();
 };
 
 vector<Point> generatePolygon(double ctrX, double ctrY, double aveRadius, double irregularity, double spikeyness, int numVerts);
