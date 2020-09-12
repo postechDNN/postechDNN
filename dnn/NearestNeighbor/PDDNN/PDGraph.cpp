@@ -37,7 +37,7 @@ PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
 				SimplePolygon* sp = (*pd->getObstacles())[k];
 				for (int l = 0; l < sp->getEdges()->size(); l++) {
 					Edge* te = (*sp->getEdges())[l];
-					if (*ne == *te || ne->crossing(te, true)) {
+					if (!(*ne == *te) &&  ne->crossing(te, false)) {
 						flag = false;
 						break;
 					}
@@ -69,7 +69,7 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 			SimplePolygon* sp = (*pd->getObstacles())[j];
 			for (int k = 0; k < sp->getEdges()->size(); k++) {
 				Edge* te = (*sp->getEdges())[k];
-				if (!((*ne) == (*te)) && ne->crossing(te, true)) {
+				if (!(*ne == *te) && ne->crossing(te, false)) {
 					flag = false;
 					break;
 				}
