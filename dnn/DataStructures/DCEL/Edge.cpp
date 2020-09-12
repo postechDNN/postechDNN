@@ -49,7 +49,14 @@ bool Edge::on(Point* p) {
 		else return false;
 	}
 }
-
+double inline middle_point_of_4(double num1, double num2, double num3, double num4){
+	if(num1>num2) std::swap(num1,num2);
+	if(num3>num4) std::swap(num3,num4);
+	if(num1>num3) std::swap(num1,num3);
+	if(num2>num4) std::swap(num2,num4);
+	if(num2>num3) std::swap(num2,num3);
+	return (num2 + num3)/2;
+}
 Point* Edge::crossing(Edge* _e, bool closed = true) {
 
 	double x_1 = this->gets()->getx();
@@ -64,21 +71,21 @@ Point* Edge::crossing(Edge* _e, bool closed = true) {
 	double d = (y_4 - y_3) * (x_2 - x_1) - (x_4 - x_3) * (y_2 - y_1);
 	double t = (x_4 - x_3) * (y_1 - y_3) - (y_4 - y_3) * (x_1 - x_3);	//(x1,y1) - (x3,y3) and (x3,y3) - (x4,y4)
 	double s = (x_2 - x_1) * (y_1 - y_3) - (y_2 - y_1) * (x_1 - x_3);
-	if (abs(d) < ERR) {
-		if (abs(t) < ERR && closed) {
-			if (this->on(_e->gets())) {
-				return _e->gets();
+	if (abs(d) < ERR) {	//two line segment have same slope.
+		if (abs(t) < ERR) {	//two line segment lies on same line.
+			if(abs(x_1-x_2) <ERR){	//Vertical Line
+				if(std::max(y_1,y_2) < std::min(y_3,y_4) || std::min(y_1,y_2) > std::max(y_3,y_4))	return nullptr;
+				else if(!closed && (abs(std::max(y_1,y_2) - std::min(y_3,y_4)) <ERR ||abs(std::min(y_1,y_2) - std::max(y_3,y_4))<ERR )) return nullptr;
+				else return new Point(x_1,middle_point_of_4(y_1,y_2,y_3,y_4));
 			}
-			else if (this->on(_e->gett())) {
-				return _e->gett();
+			else{
+				if(std::max(x_1,x_2) < std::min(x_3,x_4) || std::min(x_1,x_2) > std::max(x_3,x_4))	return nullptr;
+				else if(!closed && (abs(std::max(x_1,x_2) - std::min(x_3,x_4)) <ERR ||abs(std::min(x_1,x_2) - std::max(x_3,x_4))<ERR )) return nullptr;
+				else{
+					double mid_x = middle_point_of_4(x_1,x_2,x_3,x_4);
+					return new Point(mid_x, (y_1 -y_2) / (x_1-x_2) *(mid_x - x_1) + y_1);
+				}
 			}
-			else if (_e->on(this->gets())) {
-				return this->gets();
-			}
-			else if (_e->on(this->gett())) {
-				return this->gett();
-			}
-			else return nullptr;
 		}
 		else return nullptr;
 	}
