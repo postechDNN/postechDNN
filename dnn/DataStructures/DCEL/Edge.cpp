@@ -20,12 +20,11 @@ Edge::Edge(Edge* _e) {
 }
 
 Edge::~Edge() {
-	delete this->s;
-	delete this->t;
+
 }
 
 bool Edge::operator==(Edge _e) {
-	return (*(this->gett()) == _e.gett()) && (*(this->gets()) == _e.gets()) || (*(this->gett()) == _e.gets()) && (*(this->gets()) == _e.gett());
+	return  (*(this->gett()) == *(_e.gett()) && *(this->gets()) == *(_e.gets()) ) || ( *(this->gett()) == *(_e.gets()) && *(this->gets()) == *(_e.gett()) );
 }
 
 bool Edge::on(Point* p) {
@@ -44,7 +43,7 @@ bool Edge::on(Point* p) {
 	}
 	else {
 		double y = ((t_y - s_y) / d) * (p_x - s_x) + s_y;
-		if (abs(y - p_y) <= ERR && p_y <= std::max(t_y, s_y) && p_y >= std::min(t_y, s_y)) {
+		if (abs(y - p_y) <= ERR && p_x <= std::max(t_x, s_x) && p_x >= std::min(t_x, s_x)) {
 			return true;
 		}
 		else return false;
@@ -63,8 +62,10 @@ Point* Edge::crossing(Edge* _e, bool closed = true) {
 	double y_4 = _e->gett()->gety();
 
 	double d = (y_4 - y_3) * (x_2 - x_1) - (x_4 - x_3) * (y_2 - y_1);
-	if (d == 0) {
-		if (t == 0 && closed) {
+	double t = (x_4 - x_3) * (y_1 - y_3) - (y_4 - y_3) * (x_1 - x_3);	//(x1,y1) - (x3,y3) and (x3,y3) - (x4,y4)
+	double s = (x_2 - x_1) * (y_1 - y_3) - (y_2 - y_1) * (x_1 - x_3);
+	if (abs(d) < ERR) {
+		if (abs(t) < ERR && closed) {
 			if (this->on(_e->gets())) {
 				return _e->gets();
 			}
@@ -82,14 +83,13 @@ Point* Edge::crossing(Edge* _e, bool closed = true) {
 		else return nullptr;
 	}
 	else {
-		double t = (x_4 - x_3) * (y_1 - y_3) - (y_4 - y_3) * (x_1 - x_3);
-		double s = (x_2 - x_1) * (y_1 - y_3) - (y_2 - y_1) * (x_1 - x_3);
+
 		t = t / d;
 		s = s / d;
 		if (t > 1 || s > 1 || t < 0 || s < 0) {
 			return nullptr;
 		}
-		else if (((t == 0 || t == 1) || (s == 0 || s == 1)) && !closed) {
+		else if (((abs(t) < ERR || t == 1) || (abs(s) < ERR || abs(s-1) < ERR)) && !closed) {
 			//printf("if open");
 			return nullptr;
 		}

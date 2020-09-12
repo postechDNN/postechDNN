@@ -18,6 +18,7 @@ PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
 			n->setPoint(e->gets());
 			n->setSite(false);
 			n->setAdj(new std::vector<PDNode*>());
+			this->nodes->push_back(n);
 		}
 	}
 
@@ -26,8 +27,8 @@ PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
 		n->setPoint((*pv)[i]);
 		n->setSite(true);
 		n->setAdj(new std::vector<PDNode*>());
+		this->nodes->push_back(n);
 	}
-
 	for (int i = 0; i < this->nodes->size(); i++) {
 		for (int j = i + 1; j < this->nodes->size(); j++) {
 			Edge* ne = new Edge((*this->nodes)[i]->getPoint(), (*this->nodes)[j]->getPoint());
@@ -36,7 +37,7 @@ PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
 				SimplePolygon* sp = (*pd->getObstacles())[k];
 				for (int l = 0; l < sp->getEdges()->size(); l++) {
 					Edge* te = (*sp->getEdges())[l];
-					if (!((*ne) == (*te)) && ne->crossing(te, false)) {
+					if (*ne == *te || ne->crossing(te, true)) {
 						flag = false;
 						break;
 					}
@@ -60,6 +61,7 @@ std::vector<PDNode*>* PDgraph::getNodes() {
 
 std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 	std::priority_queue <std::pair<PDNode*, double>, std::vector <std::pair<PDNode*, double>>, struct cmp> PQ;
+	
 	for (int i = 0; i < this->nodes->size(); i++) {
 		Edge* ne = new Edge((*this->nodes)[i]->getPoint(), start);
 		bool flag = true;
@@ -67,7 +69,7 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 			SimplePolygon* sp = (*pd->getObstacles())[j];
 			for (int k = 0; k < sp->getEdges()->size(); k++) {
 				Edge* te = (*sp->getEdges())[k];
-				if (!((*ne) == (*te)) && ne->crossing(te, false)) {
+				if (!((*ne) == (*te)) && ne->crossing(te, true)) {
 					flag = false;
 					break;
 				}
@@ -81,7 +83,6 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 		delete(ne);
 	}
 	std::map <PDNode*, bool> visited;
-	
 	std::vector<std::pair<Point*, double>>* nns = new std::vector<std::pair<Point*, double>>;
 
 	while (!PQ.empty() && nns->size() < k) {
