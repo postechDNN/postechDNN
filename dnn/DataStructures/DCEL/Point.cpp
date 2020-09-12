@@ -18,7 +18,7 @@ Point::Point(Point* _p) {
 Point::~Point() {}
 
 bool Point::operator==(Point _p) {
-	return abs(this->x - _p.getx()) < ERR && abs(this->y - _p.gety()) < ERR;
+	return std::abs(this->x - _p.getx()) < ERR && std::abs(this->y - _p.gety()) < ERR;
 }
 
 Point Point::operator- (Point _p) {
