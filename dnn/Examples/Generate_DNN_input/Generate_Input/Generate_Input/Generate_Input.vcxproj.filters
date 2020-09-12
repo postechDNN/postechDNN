@@ -24,7 +24,7 @@
     <ClCompile Include="Edge.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="generate_input.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
