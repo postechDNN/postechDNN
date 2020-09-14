@@ -78,7 +78,7 @@ int main(int argc, char **argv){
 		    Grid_Point anchor_start = eps_graph.query_anchor(query_point);
 		    double dist_end = sqrt(pow(anchor_end.x - j.x,2) +pow(anchor_end.y - j.y ,2));
 		    double dist_start = sqrt(pow((anchor_start.x - query_point.x), 2) + pow(anchor_start.y - query_point.y, 2));
-            out_file << j.x <<" " << j.y <<" " << dist_start+dist_end + eps_graph.NN_dist[k++]<<std::endl;
+            out_file << j.x <<" " << j.y <<" " << dist_start+dist_end + eps_graph.NN_dist[k++] *epsilon <<std::endl;
         }
     }
     input_file.close();
