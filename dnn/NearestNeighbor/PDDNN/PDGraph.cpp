@@ -83,6 +83,9 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 		delete(ne);
 	}
 	std::map <PDNode*, bool> visited;
+	for (int i = 0; i < this->nodes->size(); i++)
+		visited[(*this->nodes)[i]] = false;
+
 	std::vector<std::pair<Point*, double>>* nns = new std::vector<std::pair<Point*, double>>;
 
 	while (!PQ.empty() && nns->size() < k) {
@@ -91,7 +94,7 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 
 		PQ.pop();
 
-		if (visited.find(here) != visited.end()) continue;
+		if (visited[here]) continue;
 
 		visited[here] = true;
 		if (here->issite()) {
@@ -99,7 +102,7 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 		}
 
 		for (int i = 0; i < here->getAdj()->size(); i++) {
-			if (visited[(*here->getAdj())[i]] == true) continue;
+			if (visited[(*here->getAdj())[i]]) continue;
 			PDNode* next = (*here->getAdj())[i];
 			double acost = (*here->getAdj())[i]->getPoint()->distance(here->getPoint()) + cost;
 			PQ.push({ next, acost });
