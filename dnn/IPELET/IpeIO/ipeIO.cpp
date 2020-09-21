@@ -28,10 +28,16 @@ bool Get_poly_aux(IpeletData *data, IpeletHelper *helper,
 	for(int i=0;i<n;i++){
 		//check the object type is path
 		if(page->object(i)->type()!=Object::EPath) continue;
+		if(page->select(i)!=EPrimarySelected && page->select(i)!=ESecondarySelected) continue;
 		Path *path=page->object(i)->asPath();
 		const SubPath *sp = (path->shape()).subPath(0);
 		//check the closedness
-		if(is_polygon != (sp->closed())) continue;
+		if(is_polygon && !(sp->closed())) continue;
+		if(!is_polygon && sp->closed()) continue;
+
+		const Curve *cv = sp->asCurve();
+		if((cv->segment(0)).type()!=CurveSegment::ESegment) continue;
+		if(cv->countSegments()<2) continue;
 		//insert polygon(subpath) into ret
 		ret.push_back(sp);
 	}
@@ -56,6 +62,7 @@ bool Get_points(IpeletData *data,IpeletHelper *helper,vector<Vector> &ret){
 	for(int i=0;i<n;i++){
 		//check the type is reference
 		if(page->object(i)->type()!=Object::EReference) continue;
+		if(page->select(i)!=EPrimarySelected && page->select(i)!=ESecondarySelected) continue;
 		Reference *ref=page->object(i)->asReference();
 
 		//check it is mark
@@ -84,6 +91,7 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 	for(int i=0;i<n;i++){
 		//check the object type is path
 		if(page->object(i)->type()!=Object::EPath) continue;
+		if(page->select(i)!=EPrimarySelected && page->select(i)!=ESecondarySelected) continue;
 		Path *path=page->object(i)->asPath();
 		const Shape sh = path->shape();
 		//check the singularity
@@ -92,7 +100,7 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 		const Curve *cv = sh.subPath(0)->asCurve();
 		//insert segments into ret
 		for(int j=0;j<cv->countSegments();j++){
-			if((cv->segment(j)).type!=ESegment) continue;
+			if((cv->segment(j)).type()!=CurveSegment::ESegment) continue;
 			ret.push_back(cv->segment(j));
 		}
 	}
@@ -116,13 +124,14 @@ bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegmen
 	for(int i=0;i<n;i++){
 		//check the object type is path
 		if(page->object(i)->type()!=Object::EPath) continue;
+		if(page->select(i)!=EPrimarySelected && page->select(i)!=ESecondarySelected) continue;
 		Path *path=page->object(i)->asPath();
 		const Shape sh = path->shape();
 		if(sh.subPath(0)->closed()) continue;
 		const Curve *cv = sh.subPath(0)->asCurve();
 		//insert splines into ret
 		for(int j=0;j<cv->countSegments();j++){
-			if((cv->segment(j)).type!=ESpline) continue;
+			if((cv->segment(j)).type()!=CurveSegment::ESpline) continue;
 			ret.push_back(cv->segment(j));
 		}
 	}
@@ -147,7 +156,7 @@ std::vector<Vector> SubPath2Vec(const SubPath *subpath, bool add_first){
 		const CurveSegment &tmp = cv->segment(i);
 		ret.push_back(tmp.cp(0));
 	}
-	ret.push_back((cv->closingSegment()).cp(0));
+	ret.push_back((cv->segment(cv->countSegments()-1)).cp(1));
 	if (add_first) ret.push_back(cv->segment(0).cp(0));
 	return ret;
 }
@@ -163,7 +172,7 @@ Vector getSecond(CurveSegment cs){
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-void IPEIO::reset_attr(FLAG_POINT_SIZE flag=FLAG_EMPTY){
+void IPEIO::reset_attr(int flag=FLAG_EMPTY){
 	Attr_flag=flag;
 }
 void IPEIO::set_Attrs(Reference *obj){
@@ -225,6 +234,18 @@ bool IPEIO::Draw_poly(IpeletData *data, IpeletHelper *helper, std::vector<Vector
 bool IPEIO::Draw_poly(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed){
 	return Draw_poly(data,helper,SubPath2Vec(sp,false),closed);
 }
+bool IPEIO::Draw_spline(IpeletData *data, IpeletHelper *helper, std::vector<Vector> spline){
+	Curve *sp=new Curve;
+	sp->appendSpline(spline);
+	Shape shape;
+	shape.appendSubPath(sp);
+	Path *obj = new Path(data->iAttributes, shape);
+	//obj->setStroke(color_attr);
+	set_Attrs(obj);
+	data->iPage->append(ESecondarySelected, data->iLayer, obj);
+	return true;
+}
+
 
 void IPEIO::set_color(string color){
 	color_attr=construct.makeColor(color.c_str(),color_attr);
@@ -242,7 +263,7 @@ void IPEIO::set_pts_size(int size){ //normal:0  large:1  small:-1  tiny:-2
 		default: style="normal";
 	}
 	pts_size=Attribute(true,style);
-	Attr_flag|=0x10;
+	Attr_flag|=FLAG_POINT_SIZE;
 }
 void IPEIO::set_pts_style(int type){ //disk:0 circle:1  square:2 box:3  cross:4
 	String style="mark/";

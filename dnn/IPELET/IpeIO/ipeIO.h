@@ -27,24 +27,24 @@ enum ATTR_FLAG
 	FLAG_FILL=0x40
 };
 
-/**	Get marks on the primary selected page (IPE) */
+/**	Get the selected marks on the primary selected page (IPE) */
 bool Get_points(IpeletData *data, IpeletHelper *helper, 
 	std::vector<Vector> &ret);
 
-/**	Get segments on primary selected page (IPE) \n
+/**	Get the selected segments on the primary selected page (IPE) \n
 	If only_single_subpath is true, it returns path contain sigle straight line segment. \n
 	Otherwise, it returns all path object including polygon. */
 bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpath, 
 	std::vector<CurveSegment> &ret);
 
-/** Get splines */
+/** Get selected splines on the primary selected page (IPE) */
 bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegment> &ret);
 
-/**	Get polygons on primary selected page (IPE) */
+/**	Get selected polygons on the primary selected page (IPE) */
 bool Get_polygons(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret);
 
-/** Get polylines on primary selected page (IPE) */
+/** Get selected polylines on the primary selected page (IPE) */
 bool Get_polylines(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret);
 
@@ -62,7 +62,7 @@ Vector getSecond(CurveSegment cs);
 class IPEIO{
 private:
 	/** 0x01:color  0x02:arrow  0x04:dash  0x08:value  0x10:point_size  0x20:pen_width  0x40:fill*/
-	ATTR_FLAG Attr_flag;
+	int Attr_flag;
 
 	//common attrs
 	std::vector<Property> props;
@@ -89,13 +89,14 @@ private:
 	void set_Attrs(Reference *obj);
 	void set_Attrs(Path *obj);
 public:
-	IPEIO(): Attr_flag(0),pts_type(true,String("mark/disk(sx)")),mode(false){};
+	IPEIO(): Attr_flag(FLAG_EMPTY),pts_type(true,String("mark/disk(sx)")),mode(false){};
 	/* Drawing tools */
 	bool Draw_point(IpeletData *data, IpeletHelper *helper, Vector p);
 	bool Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second);
 	bool Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs);
 	bool Draw_poly(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
 	bool Draw_poly(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
+	bool Draw_spline(IpeletData *data, IpeletHelper *helper, std::vector<Vector> spline);
 
 	/* Attribute setting */
 	void reset_attr(int flag);
