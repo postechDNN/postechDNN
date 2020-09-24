@@ -1,13 +1,13 @@
-#define REAL float
-//#define INTTYPE unsigned int
-#define INTTYPE int
-#define SEED_K 10
-
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
+
+#define REAL float
+//#define INTTYPE unsigned int
+#define INTTYPE int
+#define SEED_K 10
 
 using namespace std;
 
