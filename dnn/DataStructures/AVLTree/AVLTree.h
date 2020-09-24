@@ -7,19 +7,19 @@ template <typename T>
 struct AVLTreeNode {
 	AVLTreeNode();
 	~AVLTreeNode();
-	int rank;
-	T value;
-	AVLTreeNode *l, *r, *p;
+	int rank; // stores a rank of the node
+	T value; // stores a data
+	AVLTreeNode *l, *r, *p; // l stores left child, r stores right child, p stores parent. Initialized as nullptr
 };
 
 template <typename T>
 class AVLTree {
 private:
 	AVLTreeNode<T>* root;
-	void LRotate(AVLTreeNode<T>*);
-	void RRotate(AVLTreeNode<T>*);
-	void balance(AVLTreeNode<T>*);
-	void calRank(AVLTreeNode<T>*);
+	void LRotate(AVLTreeNode<T>*); // perform L rotate from subtree
+	void RRotate(AVLTreeNode<T>*); // perform R rotate from subtree
+	void balance(AVLTreeNode<T>*); // balance the subtree
+	void calRank(AVLTreeNode<T>*); // calculate rank for each subtrees
 public:
 	AVLTree();
 	~AVLTree();

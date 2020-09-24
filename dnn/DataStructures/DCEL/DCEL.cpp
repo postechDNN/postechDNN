@@ -1076,12 +1076,14 @@ void DCEL::printFaceTab() {
 }
 
 DCEL* DCEL::mergeDCEL(DCEL* _d) {
+	// Define events 
 	enum Event {
 		START,
 		END,
 		CROSS
 	};
 	struct Eventtype;
+	// Define Edgetype to store in AVLTree
 	struct Edgetype {
 		HEdge* he;
 		double* curx;
@@ -1118,6 +1120,7 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 			return *he == *_e.he;
 		}
 	};
+	// Define Eventtype to store in AVLTree
 	struct Eventtype {
 		struct Edgetype *e1, *e2;
 		Point* eventPoint;
@@ -1161,10 +1164,14 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 			return (*this->e1 == *_e.e1) && (*this->e2 == *_e.e2) && (*this->eventPoint == *_e.eventPoint) && (this->ty == _e.ty);
 		}
 	};
+	// new DCEL to store merged one
 	DCEL* merged = new DCEL();
+	// AVLTree to store events
 	AVLTree<struct Eventtype> events;
+	// AVLTree to store edges
 	AVLTree<struct Edgetype> curedges;
 	double curx;
+	// Add START events for each edges from 'this'
 	for (int i = 0; i < this->hedges->size(); i++) {
 		HEdge* he = (*this->hedges)[i];
 		Edgetype* het = new Edgetype();
@@ -1188,6 +1195,7 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 		henode->value.eventPoint = het->he->gets();
 		events.insert(henode);
 	}
+	// Add START events for each edges from '_d'
 	for (int i = 0; i < _d->hedges->size(); i++) {
 		HEdge* he = (*_d->hedges)[i];
 		Edgetype* het = new Edgetype();
