@@ -1,4 +1,4 @@
-# Class CarrierGraph v1.1
+# CarrierGraph v1.1
 CarrierGraph class is a class for a carrier graph explained in "Orthogonal Shortest Route Queries Among Axis Parallel Rectangular Obstacles" by Elgindy & Mitra. 
 Carrier graph is only constructed by axis-parallel rectangles and points, and it does not support insertion/deletion of edges not related to the rectangles. 
 CarrierGraph stores points and edges. 
