@@ -2,7 +2,7 @@
 
 #include "ipelet.h"
 #include "ipepage.h"
-#include "ipeIO.h"
+#include "../ipeIO.h"
 #include "L1voronoi.h"
 #include <vector>
 
