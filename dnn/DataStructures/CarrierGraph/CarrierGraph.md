@@ -17,7 +17,7 @@ DataStructures/DCEL/Edge.h
 |Constructors & Destructors||
 |:---|:---|
 |[CarrierGraph](#CarrierGraph)|Constructs a carrier graph.|
-|[~CarrierGraph](#~CarrierGraph)|Deletes a carrier graph.|
+|[~CarrierGraph](#CarrierGraph-1)|Deletes a carrier graph.|
 
 |Getters||
 |:---|:---|
