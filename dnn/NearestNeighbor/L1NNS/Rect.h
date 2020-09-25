@@ -1,5 +1,5 @@
 #pragma once
-#include"../../DataStrcutures/DCEL/Point.h"
+#include"../../DataStructures/DCEL/Point.h"
 using namespace std;
 
 class Rect {
