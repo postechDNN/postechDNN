@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{23500E32-E24A-4336-BD25-21E5E71C5477}</ProjectGuid>
+    <ProjectGuid>{756E600E-6C3C-4B4C-9096-D79ED8E3CEB1}</ProjectGuid>
     <RootNamespace>SegTree</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
