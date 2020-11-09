@@ -31,7 +31,7 @@ It supports GUI using openGL and is possible with left/right mouse click and dra
 ### "QUIT" button (Now the fourth green button)
 	- Exit the program
 
-## Before use it
+## Before compile and use it
 This field is for users who want to compile.   
 This program is developed using Microsoft Visual Studio 2019.  
 To compile the source code, you may need freeglut 3.0.0 MSVC Package in https://www.transmissionzero.co.uk/software/freeglut-devel/.   
