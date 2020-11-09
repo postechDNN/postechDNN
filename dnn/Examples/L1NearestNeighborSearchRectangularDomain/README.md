@@ -1,5 +1,9 @@
 # Example of $L_1$ Nearest Neighbor Search in Rectangular Domain (L1NNS)
 Sample execute file L1NNS.exe is available for $L_1$ Nearest Neighbor Search in Rectangular Domain (L1NNS.)
+To execute the file, you may need freeglut 3.0.0 MSVC Package in https://www.transmissionzero.co.uk/software/freeglut-devel/. 
+Unzip freeglut-MSVC-3.0.0-2.mp.zip file. You may see three folders, **bin**, **include**, and **lib**.
+and put **include** and **lib** folder into the directory in which L1NNS.exe is contained.
+Also, put freeglut.dll in *bin* folder into the above directory. 
 
 ## Operations
 It supports GUI using openGL and is possible with left/right mouse click and drag and drop partially.  
