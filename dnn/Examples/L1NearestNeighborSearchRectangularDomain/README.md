@@ -13,22 +13,22 @@ It supports GUI using openGL and is possible with left/right mouse click and dra
 |[right mouse click]| When displaying pop-up menu for changing NNS/2-NNS/3-NNS/FNS |
 |[drag and drop]| When inserting rectangles |
 
-### "QUERY" button
+### "QUERY" button (Now the first green button)
 	- Set up query point  
 	- If there is no data in rectangular domain, it does not work  
 	- Highlight the query and its nearest data  
 	- Also support 2-NNS, 3-NNS, and Farthest-NS  
 
-### Initial state or "INSERT" button
+### Initial state or "INSERT" button (Now the second green button)
 	- Insertion of point and rectangle  
 	- Overlap is impossible  
 
-### "DELETE" button
+### "DELETE" button (Now the third green button)
 	- Deletion of point and rectangle  
 	- The nearest object from pointed location is deleted  
 	- Pointed location is too far, there is no deletion  
 
-### "QUIT" button
+### "QUIT" button (Now the fourth green button)
 	- Exit the program
 
 ## Before use it
