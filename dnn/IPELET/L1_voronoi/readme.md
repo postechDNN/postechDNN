@@ -12,7 +12,8 @@ This function can draw a L1 voronoi diagram of a point set given by user.
 The algorithm to compute L1 voronoi diagram is based on the following basic property.
 ![image](https://user-images.githubusercontent.com/17876333/93000489-c726d600-f563-11ea-92ea-65644f1ba93f.png)
 <br>
-Using this property, we can compute each voronoi region for all sites. When there is a large bounding box containing all points, we can represent each <img src = "https://latex.codecogs.com/svg.latex?B(p,q)"> as bounded simple polygon.
+Using this property, we can compute each voronoi region for all sites. When there is a large bounding box containing all points, we can represent each ![vor_p_i](https://user-images.githubusercontent.com/17876333/98764058-58101580-241e-11eb-8134-ef2d1a3660f9.png)
+ as bounded simple polygon.
 Thus we can compute each voronoi region using simple polygon intersection algorithm.
 Specifically, there is a popular clipping algorithm, so called ` Weiler Atherton Polygon Clipping Algorithm` <sup>[[1]](#footnote_1)</sup>
 In manhattan environment, there are lots of degenerate case to compute voronoi region. For example two edges can be overlapped when we intersect them. Thus we write the algorithm which can deal with these degenerate situations referring to the paper. <sup>[[2]](#footnote_1)</sup>
