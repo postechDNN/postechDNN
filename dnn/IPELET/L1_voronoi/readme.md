@@ -44,3 +44,5 @@ Then L1_voronoi function appears in the ipelets tab.
 
 <a name="footnote_1">[1]</a>: https://en.wikipedia.org/wiki/Weiler%E2%80%93Atherton_clipping_algorithm <br>
 <a name="footnote_2">[2]</a>: Foster, Erich & Hormann, Kai & Popa, Romeo. (2019). Clipping Simple Polygons with Degenerate Intersections. Computers & Graphics: X. 2. 100007. 10.1016/j.cagx.2019.100007.  
+
+*This project is supported by the Institute of Information & communications Technology Planning & Evaluation(IITP) grant funded by the Korea government(MSIT) (No. 2017-0-00905, Software Star Lab (Optimal Data Structure and Algorithmic Applications in Dynamic Geometric Environment)) and (No. 2019-0-01906, Artificial Intelligence Graduate School Program(POSTECH))
