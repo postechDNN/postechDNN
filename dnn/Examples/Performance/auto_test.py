@@ -1,6 +1,6 @@
 import sys, os
 
-testfiles = open("testfiles.txt","r")
+testfiles = open("Experiment2_testfiles.txt","r")
 exec_files= ['DNN_pddnn.exe','DNN_eps.exe']
 output_dir = ['.\\output\\pddnn_output\\', '.\\output\\eps_output\\' ]
 DNN_dir = ['.\\DNN_pddnn\\','.\\DNN_eps\\']
@@ -21,18 +21,18 @@ for i in index:
     os.chdir(DNN_dir[i])
     os.system('make')
     os.chdir(current_dir)
-
+K = [10]
 while True:
     line = testfiles.readline()
     if not line : break
     input_file, query_file = line.split()
     out_file = (input_file.split('\\'))[-1]
+    #out_png = (out_file.split('.'))[0] +'_out.png'
     out_file = (out_file.split('.'))[0] +'_out.txt'
+    #os.system("python draw_input.py"+" "+input_file +" "+out_png)
     for i in index:
-        os.system(exec_files[i]+" "+input_file+" "+query_file+" "+output_dir[i]+out_file)
+        for k in K:
+            os.system(exec_files[i]+" "+input_file+" "+query_file+" "+output_dir[i]+out_file + " "+str(k))
     print(out_file,"is completed!\n")
-#for i in index:
-#    os.chdir(DNN_dir[i])
-#    os.system('make clean')
 
 testfiles.close()

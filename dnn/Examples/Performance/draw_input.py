@@ -44,7 +44,7 @@ while True:
     out_path = (out_path.split('.'))[0] +'.png'
     out_path = '\\'.join((input_path.split('\\'))[:-1]) +"\\"+out_path
 
-    img = np.zeros((1200,1200,3),np.uint8) + 255
+    img = np.zeros((1000,1000,3),np.uint8) + 255
     input_f = open(input_path)
     query_f = open(query_path)
     n_pts, n_polys = input_f.readline().split()

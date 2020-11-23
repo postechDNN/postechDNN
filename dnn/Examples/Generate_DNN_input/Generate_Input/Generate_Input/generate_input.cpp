@@ -4,8 +4,8 @@
 #include <fstream>
 #include <string>
 
-double MIN_X = 0.0, MAX_X = 1000.0;
-double MIN_Y = 0.0, MAX_Y = 1000.0;
+double MIN_X = 0.0, MAX_X = 10000.0;
+double MIN_Y = 0.0, MAX_Y = 10000.0;
 std::random_device rd;
 std::mt19937 gen(rd());
 
@@ -31,7 +31,7 @@ int main() {
 	std::cin >> n_files;
 	std::string uniform_fname("uniform_distribution");
 	std::string k_cluster_fname("k_cluster_distribution");
-	std::uniform_int_distribution<int> dis_K(1,10);
+	std::uniform_int_distribution<int> dis_K(3,10);
 	for (int i = 1;i <= n_files;i++) {
 		if (type == 1) {
 			generate_input(type, 1, n_points, n_polys,n_query ,uniform_fname + std::to_string(i) + std::string(".txt"), uniform_fname+ std::to_string(i) + std::string("_query") + std::string(".txt"));
@@ -42,7 +42,6 @@ int main() {
 		}
 		std::cout << i << " files is completed" << std::endl;
 	}
-
 	
 	return 0;
 }
