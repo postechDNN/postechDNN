@@ -25,10 +25,10 @@ Although it has too big complexity compared to other efficient voronoi algorithm
 ### 3.1. (Window)
  1) Install a mingw(gcc for window). https://sourceforge.net/projects/mingw-w64/files/<br>
  Check the gcc version in a prompt of command (gcc -v)
- 2) Check the path of ipe folder which is installed in your computer. (e.g C:\ipe-7.2.17)
- 3) Open a prompt of command(cmd) at `L1_voronoi\Window` folder and type a "make IPE=`the above path`". (e.g make IPE=C:\ipe-7.2.17)<br>
+ 2) Check the path of ipe folder which is installed in your computer. (e.g C:\ipe-7.2.20)
+ 3) Open a prompt of command(cmd) at `L1_voronoi\Window` folder and type a "make IPE=`the above path`". (e.g make IPE=C:\ipe-7.2.20)<br>
  Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.dll" file.
- 4) Move L1_voronoi.dll and L1_voronoi.lua files into ipelets folder. (e.g C:\ipe-7.2.17\ipelets)<br>
+ 4) Move L1_voronoi.dll and L1_voronoi.lua files into ipelets folder. (e.g C:\ipe-7.2.20\ipelets)<br>
  Then the L1_voronoi function appears in the ipelets tab.
 
 ### 3.2. (Mac)
