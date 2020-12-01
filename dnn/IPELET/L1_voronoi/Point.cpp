@@ -41,7 +41,7 @@ Point Point::operator- (Point operand) {
 }
 
 bool Point::operator == (Point operand) {
-	if (abs(this->x - operand.x) + abs(this->y - operand.y) < 1e-6)
+	if (std::abs(this->x - operand.x) + std::abs(this->y - operand.y) < 1e-6)
 		return true;
 	else
 		return false;
@@ -68,7 +68,7 @@ Point Point::operator+ (Point operand) {
 bool Point::operator< (Point operand) {
 	if (this->x + 1e-6 < operand.x)
 		return true;
-	else if (abs(this->x - operand.x) < 1e-6) return this->y+1e-6 < operand.y;
+	else if (std::abs(this->x - operand.x) < 1e-6) return this->y+1e-6 < operand.y;
 
 	return false;
 

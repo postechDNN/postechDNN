@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "Point.h"
+#include <cmath>
 
 class Edge {
 protected:
@@ -16,8 +17,10 @@ public:
 	Point getDir();
 
 	double turn_direction(Point op);
-	int intersect(Edge& op, double* i_x = NULL, double* i_y = NULL);
-	bool contain(Point p);
+	bool crossing(Edge& op,Point *P = nullptr, bool closed = true);
+	bool on(Point p);
+	bool parallel(Edge &op, bool dir = false);
+	Edge Union(Edge &op);
 	bool operator <(Edge& operand);
 	bool operator ==(Edge& operand);
 	friend std::ostream& operator<< (std::ostream& os, const Edge& op);

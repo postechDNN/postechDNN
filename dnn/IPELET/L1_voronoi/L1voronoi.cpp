@@ -8,7 +8,7 @@ void L1_Bisector::ConstructVertice() {
 }
 void L1_Bisector::DetermineCase(double p_x, double p_y, double q_x, double q_y, double dx, double dy) {
 	//Case 0 : they lie on the vertical line
-	if (abs(p_x - q_x) < 1e-6) {
+	if (std::abs(p_x - q_x) < 1e-6) {
 		Case = 0;
 		n_vertice = 4;
 		if (p_y > q_y) Subcase = 0;
@@ -16,7 +16,7 @@ void L1_Bisector::DetermineCase(double p_x, double p_y, double q_x, double q_y, 
 	}
 
 	//Case 1 : they lie on the horizontal line
-	else if (abs(p_y - q_y) < 1e-6) {
+	else if (std::abs(p_y - q_y) < 1e-6) {
 		Case = 1;
 		n_vertice = 4;
 		if (p_x > q_x) Subcase = 0;
@@ -56,7 +56,7 @@ L1_Bisector::L1_Bisector(Point& p, Point& q,double minX, double maxX, double min
 	double p_x = p.getx(), q_x = q.getx(), p_y = p.gety(), q_y = q.gety();
 	values[P_X] = p_x, values[P_Y] = p_y;
 	values[Q_X] = q_x, values[Q_Y] = q_y;
-	double dx = abs(p_x - q_x), dy = abs(p_y - q_y);
+	double dx = std::abs(p_x - q_x), dy = std::abs(p_y - q_y);
 	double L = (dx + dy) / 2;
 	values[MP_X] = ((dx - L) * q_x + L * p_x) / dx;
 	values[MQ_X] = ((dx - L) * p_x + L * q_x) / dx;
@@ -113,22 +113,54 @@ L1_voronoi::L1_voronoi(std::vector<Point>& vertices, double len_inf_edge) {
 }
 
 std::vector<Edge> L1_voronoi::getBoundary() {
-	std::vector<Edge> ret;
-
+	std::vector<Edge> tmp,ret;
+	
 	for (int i = 0; i < n_site;i++) {
 		std::vector<Edge> edges = diagram[i].cell.getEdges();
 		for (auto it : edges) {
 			Point s = it.getOrigin(), t = it.getDest();
 			int push_flag = 1;
-			if ((s - t).getx() < 1e-6 && (abs(s.getx() - minX) < 1e-6 || abs(s.getx() - maxX) < 1e-6))	//Vertical Segment
+			if (std::abs((s - t).getx()) < 1e-6 && (std::abs(s.getx() - minX) < 1e-6 || std::abs(s.getx() - maxX) < 1e-6))	//Vertical Segment
 				push_flag = 0;
-			if ((s - t).gety() < 1e-6 && (abs(s.gety() - minY) < 1e-6 || abs(s.gety() - maxY) < 1e-6))	//Horizontal Segment
+			if (std::abs((s - t).gety()) < 1e-6 && (std::abs(s.gety() - minY) < 1e-6 || std::abs(s.gety() - maxY) < 1e-6))	//Horizontal Segment
 				push_flag = 0;
-			if (push_flag) ret.push_back(it);
+			if (push_flag) tmp.push_back(it);
 		}
 	}
-	std::sort(ret.begin(), ret.end());
-	ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
+
+	//------Delete repeated edges----------
+
+	int *parent = new int[tmp.size()];  
+	//Initialize
+	for(int i = 0 ; i<tmp.size();i++)
+		parent[i] = i;
+
+	//union edges
+	for(int i = 0;i<tmp.size();i++){
+		for(int j = i+1;j<tmp.size();j++){
+			int i_k = i, j_k = j;
+			while(parent[i_k] != i_k) i_k = parent[i_k];
+			while(parent[j_k] != j_k) j_k = parent[j_k];
+			auto e_i = tmp[i_k], e_j = tmp[j_k];
+			if(e_i.parallel(e_j) && e_i.crossing(e_j)){
+				tmp[i_k] = e_i.Union(e_j);
+				parent[j_k] = i_k;
+			}
+		}
+	}
+
+	//push edges to ret vector
+	for(int i = 0 ; i<tmp.size();i++){
+		int j = i;
+		while(parent[j] != j && parent[j] != -1)
+			j = parent[j];
+		if(parent[j] != -1){
+			ret.push_back(tmp[j]);
+			parent[j] = -1;
+		}
+	}
+
+	delete[] parent;
 	return ret;
 }
 

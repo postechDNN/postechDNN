@@ -3,3 +3,5 @@
 **/main.cpp
 **/Release/
 
+*.txt
+*.png

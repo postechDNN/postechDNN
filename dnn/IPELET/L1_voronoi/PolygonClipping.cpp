@@ -36,10 +36,10 @@ void PolygonClipping::intersection_phase(std::list<__Node>& P, std::list<__Node>
 			circularNext(Q, next_it_j);
 			Q2 = next_it_j->p;
 			//If both edges are parallel, then they can intersect or rather overlap
-			if (abs(A_func(P1, Q1, Q2)) < 1e-6 && abs(A_func(P2, Q1, Q2)) < 1e-6 && abs(A_func(Q1, P1, P2)) < 1e-6 && abs(A_func(Q2, P1, P2)) < 1e-6) {
+			if (std::abs(A_func(P1, Q1, Q2)) < 1e-6 && std::abs(A_func(P2, Q1, Q2)) < 1e-6 && std::abs(A_func(Q1, P1, P2)) < 1e-6 && std::abs(A_func(Q2, P1, P2)) < 1e-6) {
 				overlap_case(P, it_i, Q, it_j);
 			}
-			if (abs(A_func(P1, Q1, Q2) - A_func(P2, Q1, Q2)) > 1e-6 && abs((A_func(Q1, P1, P2) - A_func(Q2, P1, P2))) > 1e-6) {
+			if (std::abs(A_func(P1, Q1, Q2) - A_func(P2, Q1, Q2)) > 1e-6 && std::abs((A_func(Q1, P1, P2) - A_func(Q2, P1, P2))) > 1e-6) {
 				double alpha = A_func(P1, Q1, Q2) / (A_func(P1, Q1, Q2) - A_func(P2, Q1, Q2));
 				double beta = A_func(Q1, P1, P2) / (A_func(Q1, P1, P2) - A_func(Q2, P1, P2));
 				if (-1e-6 <= alpha && alpha < 1- 1e-6 && -1e-6 <= beta && beta < 1- 1e-6) {
@@ -90,7 +90,7 @@ void PolygonClipping::intersection_case(std::list<__Node>& P, std::list<__Node>:
 	//T-intersection
 	//p1 lies on the edge [q1,q2] but does not coincide with q1 or q2
 	//Add a copy of p1 to polygon Q, and link it with p1
-	if (abs(alpha) < 1e-6 && 1e-6 < beta && beta < 1- 1e-6 && e_p->intersect == false) {
+	if (std::abs(alpha) < 1e-6 && 1e-6 < beta && beta < 1- 1e-6 && e_p->intersect == false) {
 		e_q++;
 		Q.insert(e_q, __Node(P1, true));
 		e_p->intersect = true;
@@ -104,7 +104,7 @@ void PolygonClipping::intersection_case(std::list<__Node>& P, std::list<__Node>:
 	//T-intersection
 	//q1 lies on the edge [p1,p2] but does not coincide with p1 or p2
 	//Add a copy of q1 to polygon P, and link it with q1
-	if (1e-6 < alpha && alpha < 1- 1e-6 && abs(beta) < 1e-6 && e_q->intersect == false) {
+	if (1e-6 < alpha && alpha < 1- 1e-6 && std::abs(beta) < 1e-6 && e_q->intersect == false) {
 		e_p++;
 		P.insert(e_p, __Node(Q1, true));
 		e_q->intersect = true;
@@ -117,7 +117,7 @@ void PolygonClipping::intersection_case(std::list<__Node>& P, std::list<__Node>:
 	//V-intersection
 	//both edges intersect at p1== q1
 	//We link p1 with q1
-	if (abs(alpha) < 1e-6 && abs(beta) < 1e-6) {
+	if (std::abs(alpha) < 1e-6 && std::abs(beta) < 1e-6) {
 		e_p->intersect = true;e_q->intersect = true;
 		e_p->link = e_q;
 		e_q->link = e_p;
@@ -186,7 +186,7 @@ void PolygonClipping::overlap_case(std::list<__Node>& P, std::list<__Node>::iter
 
 	//V-overlap
 	//p1 = q1 we link p1 with q1
-	if (abs(alpha) < 1e-6 && abs(beta) < 1e-6) {
+	if (std::abs(alpha) < 1e-6 && std::abs(beta) < 1e-6) {
 		e_p->intersect = true; e_q->intersect = true;
 		e_p->link = e_q;e_q->link = e_p;
 

@@ -13,7 +13,7 @@ SimplePolygon::SimplePolygon(std::vector<Point>& v, bool parallel) {
 
 			Point vec_a = v[i] - prev, vec_b = next - v[i];
 			double cosine = (vec_a * vec_b) / vec_a.norm() / vec_b.norm();
-			if (1 - abs(cosine) > 1e-6)
+			if (1 - std::abs(cosine) > 1e-6)
 				vertices.push_back(v[i]);
 		}
 		n_vertices = vertices.size();
@@ -59,14 +59,14 @@ int SimplePolygon::inPolygon(Point p) {
 		double x2 = dest.getx(), y2 = dest.gety();
 
 		//Point is on boundary line
-		if (abs((y1 - y2) * (x - x1) - (y - y1) * (x1 - x2)) < 1e-6) {
+		if (std::abs((y1 - y2) * (x - x1) - (y - y1) * (x1 - x2)) < 1e-6) {
 			if (std::min(y1, y2) - 1e-6 < y && y < std::max(y1, y2) + 1e-6 && std::min(x1, x2) - 1e-6 < x && x < std::max(x1, x2) + 1e-6) {
 				std::cout << x << ' ' << y <<' '<< x1 <<' '<< y1 <<' '<< x2<<' ' << y2 << std::endl;
 				return 0;
 			}
 		}
 		//y1 != y2
-		if (abs(y1 - y2) > 1e-6 && y1 < y - 1e-6 && y - 1e-6 < y2) {
+		if (std::abs(y1 - y2) > 1e-6 && y1 < y - 1e-6 && y - 1e-6 < y2) {
 			double tmp = (y - y1) * (x1 - x2) / (y1 - y2) + x1;
 			if (tmp > x) count++;
 		}
