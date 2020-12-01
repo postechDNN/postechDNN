@@ -25,17 +25,17 @@ Although it has too big complexity compared to other efficient voronoi algorithm
 ### 3.1. (Window)
  1) Install a mingw(gcc for window). https://sourceforge.net/projects/mingw-w64/files/<br>
  Check the gcc version in a prompt of command (gcc -v)
- 2) Check the path of ipe folder which is installed in your computer. (e.g C:/ipe-7.2.17)
- 3) Open a prompt of command(cmd) at this folder and type a "make IPE=`the above path`". (e.g make IPE=C:/ipe-7.2.17)<br>
+ 2) Check the path of ipe folder which is installed in your computer. (e.g C:\ipe-7.2.17)
+ 3) Open a prompt of command(cmd) at `L1_voronoi\Window` folder and type a "make IPE=`the above path`". (e.g make IPE=C:\ipe-7.2.17)<br>
  Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.dll" file.
- 4) Move L1_voronoi.dll and L1_voronoi.lua files into ipelets folder. (e.g C:/ipe-7.2.17/ipelets)<br>
+ 4) Move L1_voronoi.dll and L1_voronoi.lua files into ipelets folder. (e.g C:\ipe-7.2.17\ipelets)<br>
  Then the L1_voronoi function appears in the ipelets tab.
 
 ### 3.2. (Mac)
  1) Install gcc and GNU make.<br>
  Check the gcc, make version in a terminal (gcc -v, make -v)
  2) Check the path of ipe folder which is installed in your computer. (e.g /Applications/Ipe.app)
- 3) Open a terminal at this folder and type a "make IPE=`the above path`". (eg make IPE=/Applications/Ipe.app)<br>
+ 3) Open a terminal at `L1_voronoi/Mac` folder and type a "make IPE=`the above path`". (e.g make IPE=/Applications/Ipe.app)<br>
  Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.so" file.
  4) Move L1_voronoi.so and L1_voronoi.lua files into ipelets folder. (e.g /Applications/Ipe.app/Contents/Resources/ipelets)<br>
  Then the L1_voronoi function appears in the ipelets tab.
