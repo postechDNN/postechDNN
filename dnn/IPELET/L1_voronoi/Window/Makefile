@@ -1,8 +1,8 @@
 CC = g++
 
-TARGET = L1_voronoi.dll
+TARGET = ..\L1_voronoi.dll
 OBJECTS = ..\Edge.o ..\L1voronoi.o ..\Point.o ..\Polygon.o ..\PolygonClipping.o ..\..\IpeIO\ipeIO.o ..\ipe_L1_voronoi.o
-IPE=C:\ipe-7.2.17
+IPE=C:\ipe-7.2.20
 
 all : $(TARGET)
 

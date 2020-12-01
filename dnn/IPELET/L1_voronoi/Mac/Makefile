@@ -1,6 +1,6 @@
 CC = g++
 
-TARGET = L1_voronoi.so
+TARGET = ../L1_voronoi.so
 OBJECTS = ../Edge.o ../L1voronoi.o ../Point.o ../Polygon.o ../PolygonClipping.o ../../IpeIO/ipeIO.o ../ipe_L1_voronoi.o
 IPE = /Applications/Ipe.app
 
