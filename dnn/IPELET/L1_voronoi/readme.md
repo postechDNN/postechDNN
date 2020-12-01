@@ -21,25 +21,29 @@ Note that the time to compute the intersection between two simple polygon is <im
 <img src = "https://latex.codecogs.com/svg.latex?\sum_j{(|Vor_{%3C%20j}(p_i)|%20*O(1))}%20=%20O(n^2)"><br> Thus total time complexity for n voronoi regions is <img src = "https://latex.codecogs.com/svg.latex?O(n^3)"><br>
 Although it has too big complexity compared to other efficient voronoi algorithms, it is simple to implement and there is no delay to draw voronoi diagram for small n. 
 
-<!--- ## 3. Build and Use
-### 3.1 (Window)
-#### 1) Install a mingw(gcc for window). https://sourceforge.net/projects/mingw-w64/files/
-Check the folder where mingw is installed. (e.g C:\Program Files\mingw-w64)
-#### 2) Put all ipe*.h files into the include folder of mingw
-(e.g C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include)
-<br>ipe*.h header files can be found in the include folder of Ipe
-(e.g C:\ipe-7.2.17\include)
-#### 3) Modify the Makefile if a location of your ipe.exe is different.
-Open a Makefile in the folder and find the following part. (-LC:/ipe-7.2.17/bin)
-<br>Modify this part by a location of your ipe.exe. (-L"your location")
-#### 4) Open a prompt of command(cmd) at this folder and type a "make".
-Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.dll" file.
-#### 5) Move L1_voronoi.dll and L1_voronoi.lua files into ipelets folder. (e.g C:\ipe-7.2.17\ipelets)
-Then L1_voronoi function appears in the ipelets tab.
+## 3. Build and Use
+### 3.1. (Window)
+ 1) Install a mingw(gcc for window). https://sourceforge.net/projects/mingw-w64/files/<br>
+ Check the gcc version in a prompt of command (gcc -v)
+ 2) Check the path of ipe folder which is installed in your computer. (e.g C:/ipe-7.2.17)
+ 3) Open a prompt of command(cmd) at this folder and type a "make IPE=`the above path`". (e.g make IPE=C:/ipe-7.2.17)<br>
+ Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.dll" file.
+ 4) Move L1_voronoi.dll and L1_voronoi.lua files into ipelets folder. (e.g C:/ipe-7.2.17/ipelets)<br>
+ Then the L1_voronoi function appears in the ipelets tab.
 
-### 3.2 (Linux)
--->
-## 3. Example
+### 3.2. (Mac)
+ 1) Install gcc and GNU make.<br>
+ Check the gcc, make version in a terminal (gcc -v, make -v)
+ 2) Check the path of ipe folder which is installed in your computer. (e.g /Applications/Ipe.app)
+ 3) Open a terminal at this folder and type a "make IPE=`the above path`". (eg make IPE=/Applications/Ipe.app)<br>
+ Then L1 voronoi codes are built automatically and it outputs "L1_voronoi.so" file.
+ 4) Move L1_voronoi.so and L1_voronoi.lua files into ipelets folder. (e.g /Applications/Ipe.app/Contents/Resources/ipelets)<br>
+ Then the L1_voronoi function appears in the ipelets tab.
+
+### 3.3 (Linux)
+To be updated.
+
+## 4. Example
 ![L1_voronoi](https://user-images.githubusercontent.com/17876333/92321277-9d514900-f063-11ea-943c-154da99940a0.png)
 
 
