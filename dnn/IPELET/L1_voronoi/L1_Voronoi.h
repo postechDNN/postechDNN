@@ -1,5 +1,5 @@
-#ifndef __L1VORONOI_H__
-#define __L1VORONOI_H__
+#ifndef __L1_VORONOI_H__
+#define __L1_VORONOI_H__
 
 #include "Point.h"
 #include "Polygon.h"

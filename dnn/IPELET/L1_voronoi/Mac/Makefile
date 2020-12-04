@@ -1,7 +1,7 @@
 CC = g++
 
-TARGET = ../L1_voronoi.so
-OBJECTS = ../Edge.o ../L1voronoi.o ../Point.o ../Polygon.o ../PolygonClipping.o ../../IpeIO/ipeIO.o ../ipe_L1_voronoi.o
+TARGET = ../L1_Voronoi.so
+OBJECTS = ../Edge.o ../L1_Voronoi.o ../Point.o ../Polygon.o ../PolygonClipping.o ../../IpeIO/ipeIO.o ../ipe_L1_Voronoi.o
 IPE = /Applications/Ipe.app
 
 all : $(TARGET)

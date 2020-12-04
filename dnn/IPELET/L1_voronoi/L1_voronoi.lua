@@ -1,8 +1,6 @@
--- Lua wrapper for C++ ipelet "graham"
+label = "L1_Voronoi"
 
-label = "L1_voronoi"
-
-about = "This ipelet is for L1_voronoi"
+about = "This ipelet is for L1_Voronoi"
 
 -- this variable will store the C++ ipelet when it has been loaded
 ipelet = false

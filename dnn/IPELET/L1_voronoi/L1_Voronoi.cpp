@@ -1,4 +1,4 @@
-#include "L1voronoi.h"
+#include "L1_Voronoi.h"
 
 void L1_Bisector::ConstructVertice() {
 	for (int i = n_vertice - 1; i >= 0;i--) {
