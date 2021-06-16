@@ -3,7 +3,8 @@
 
 class dPoint{
 protected:
-	double x, y, z;
+	int d;
+	std::vector<double>* cds;
 public:
 	dPoint();
 	dPoint(double,double,double);
@@ -12,7 +13,9 @@ public:
 	~dPoint();
 
 	bool operator==(dPoint);
+	int getd();
 	double getx();
 	double gety();
 	double getz();
+	double getc(int i);
 }
