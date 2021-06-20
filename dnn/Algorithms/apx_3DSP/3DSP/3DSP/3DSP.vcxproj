@@ -124,6 +124,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dots.cpp" />
+    <ClCompile Include="propagation.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dots.h" />
+    <ClInclude Include="propagation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
