@@ -21,6 +21,9 @@
     <ClCompile Include="propagation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="3DSP.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="propagation.h">

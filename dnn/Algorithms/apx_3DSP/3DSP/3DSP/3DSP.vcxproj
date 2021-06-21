@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3DSP.cpp" />
     <ClCompile Include="dots.cpp" />
     <ClCompile Include="propagation.cpp" />
   </ItemGroup>

@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 
+const double EPS = 1e-10;
+
 struct Line {
 	double m;
 	double n;
@@ -22,34 +24,23 @@ public:
 		return sqrt(pow(this->x, 2) + pow(this->y, 2) + pow(this->z, 2));
 	}
 
-	MyVec operator + (MyVec& V) {
-		x = x + V.x;
-		y = y + V.y;
-		z = z + V.z;
-		return MyVec(x, y, z);
+	MyVec operator + (const MyVec& V) const{
+		return MyVec(x + V.x, y + V.y, z + V.z);
 	}
 
-	MyVec operator - (MyVec& V) {
-		x = x - V.x;
-		y = y - V.y;
-		z = z - V.z;
-		return MyVec(x, y, z);
+	MyVec operator - (const MyVec& V) const{
+		return MyVec(x - V.x, y - V.y, z - V.z);
 	}
 
-	MyVec operator * (double a) {
-		x = a * x;
-		y = a * y;
-		z = a * z;
-		return MyVec(x, y, z);
+	MyVec operator * (const double a) const{
+		return MyVec(a * x, a * y, a * z);
 	}
 
-	MyVec operator / (double a) {
-		x = x / a;
-		y = y / a;
-		z = z / a;
-		return MyVec(x, y, z);
+	MyVec operator / (const double a) const{
+		return MyVec(x / a, y / a, z / a);
 	}
 };
+
 
 // https://yeolco.tistory.com/119
 class Point {
@@ -64,18 +55,12 @@ public:
 		z = z_;
 	}
 
-	Point operator - (Point& P) {
-		x = x - P.x;
-		y = y - P.y;
-		z = z - P.z;
-		return Point(x, y, z);
+	Point operator - (const Point& P) const{
+		return Point(x - P.x, y - P.y, z - P.z);
 	}
 
-	Point operator + (MyVec& V) {
-		x = x + V.x;
-		y = y + V.y;
-		z = z + V.z;
-		return Point(x, y, z);
+	Point operator + (const MyVec& V) const{
+		return Point(x + V.x, y + V.y, z + V.z);
 	}
 
 	friend bool operator == (const Point& P1, const Point& P2) {
@@ -94,6 +79,10 @@ public:
 	}
 	*/
 };
+
+double VecSize(MyVec V);
+double PointsDist(Point P1, Point P2);
+double InnerProd(MyVec V1, MyVec V2);
 
 class Edge {
 public:
@@ -137,14 +126,8 @@ public:
 	}
 };
 
-MyVec Points2Vec(Point P1, Point P2) {
-	return MyVec(P2.x - P1.x, P2.y - P1.y, P2.z - P1.z);
-}
-
-MyVec OuterProd(MyVec V1, MyVec V2) {
-	double a1 = V1.x, a2 = V1.y, a3 = V1.z, b1 = V2.x, b2 = V2.y, b3 = V2.z;
-	return MyVec{ a2 * b3 - a3 * b2, -(a1 * b3 - a3 * b1), a1 * b2 - a2 * b1 };
-}
+MyVec Points2Vec(Point P1, Point P2);
+MyVec OuterProd(MyVec V1, MyVec V2);
 
 // ax + by + cz + d = 0
 class Plane {

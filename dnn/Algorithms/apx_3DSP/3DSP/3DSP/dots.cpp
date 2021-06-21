@@ -43,6 +43,15 @@ double InnerProd(MyVec V1, MyVec V2) {
 	return V1.x * V2.x + V1.y * V2.y + V1.z * V2.z;
 }
 
+MyVec Points2Vec(Point P1, Point P2) {
+	return MyVec(P2.x - P1.x, P2.y - P1.y, P2.z - P1.z);
+}
+
+MyVec OuterProd(MyVec V1, MyVec V2) {
+	double a1 = V1.x, a2 = V1.y, a3 = V1.z, b1 = V2.x, b2 = V2.y, b3 = V2.z;
+	return MyVec{ a2 * b3 - a3 * b2, -(a1 * b3 - a3 * b1), a1 * b2 - a2 * b1 };
+}
+
 double PointEdgeDist(Point P0p, Edge E) {
 	Point P1 = E.p1;
 	Point P2 = E.p2;
