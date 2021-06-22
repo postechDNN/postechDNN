@@ -47,6 +47,8 @@ public:
 		return X.size();
 	}
 	pair<double, double> Vinterval(int i, int i1, int lindex);
+	bool IsVvertex(int i, int i1, Segment& l1, double t);
+	bool IsContain(int i, int i1, Segment& l1, double t);
 };
 
 

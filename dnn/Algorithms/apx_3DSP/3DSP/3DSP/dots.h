@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-const double EPS = 1e-10;
+const double EPS = 1e-8;
 
 struct Line {
 	double m;
