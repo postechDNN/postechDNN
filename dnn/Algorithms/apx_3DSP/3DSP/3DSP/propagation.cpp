@@ -27,8 +27,8 @@ pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 	if (abs(A) < EPS)
 	{
 		double t = -C / B;
-		if (!IsVvertex(i,i1,l1,t))
-			return pair<double, double>(0,1);
+		if (!IsVvertex(i, i1, l1, t))
+			return pair<double, double>(0, 1);
 		if (IsVvertex(i, i1, l1, t + 1))
 			return pair<double, double>(t, 1);
 		return pair<double, double>(0, t);
@@ -45,6 +45,108 @@ pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 		return pair<double, double>(0, t1);
 	else
 		return pair<double, double>(1, 0);
+}
+
+void Segment::UpdateV(int i, int lindex)
+{
+	Segment l1 = *Adjs[lindex].first;
+	set<pair<double, int>>& addV = AddVoronoi[lindex];
+	// k번째 원소 O(log n)에 계산가능한 tree 구현해서 수정해야 함
+	vector<pair<double, int>> vList;
+	vList.assign(addV.begin(), addV.end());
+
+	int start = 0;
+	int end = addV.size() - 1;
+	int i2;
+	double x1, x2;
+	while (true)
+	{
+		if (end - start < 2)
+		{
+			pair<double, double> intv(0, 1);
+			for (int j = max(0,start-1); j <= min(end, static_cast<int>(addV.size() - 1)); j++)
+			{
+				pair<double, double> temp = Vinterval(i, vList[j].second, lindex);
+				intv.first = max(intv.first, temp.first);
+				intv.second = min(intv.second, temp.second);
+			}
+			if (intv.first > intv.second)
+				return;
+			x1 = intv.first;
+			break;
+		}
+		int mid = (start + end) / 2;
+		int mi = vList[mid].second;
+		auto D = [=](int n)->double {
+			return dist[n] + VecSize(l1.a + (l1.b - l1.a) * l1.X[mid] - a - (b - a) * X[n]);
+		};
+		if (D(mi) > D(i))
+		{
+			end = mid;
+			continue;
+		}
+		pair<double, double> intv(0, 1);
+		for (int j = mid-1; j < mid+1; j++)
+		{
+			pair<double, double> temp = Vinterval(i, vList[j].second, lindex);
+			intv.first = max(intv.first, temp.first);
+			intv.second = min(intv.second, temp.second);
+		}
+		if (intv.first > intv.second)
+			return ;
+		if (vList[mid].first > intv.first)
+			end = mid;
+		else
+			start = mid;
+	}
+	while (true)
+	{
+		if (end - start < 2)
+		{
+			pair<double, double> intv(0, 1);
+			for (int j = max(0, start - 1); j <= min(end, static_cast<int>(addV.size()-1)); j++)
+			{
+				pair<double, double> temp = Vinterval(i, vList[j].second, lindex);
+				intv.first = max(intv.first, temp.first);
+				intv.second = min(intv.second, temp.second);
+			}
+			if (intv.first > intv.second)
+				return;
+			x2 = intv.second;
+			i2 = vList[start].second;
+			break;
+		}
+		int mid = (start + end) / 2;
+		int mi = vList[mid].second;
+		auto D = [=](int n)->double {
+			return dist[n] + VecSize(l1.a + (l1.b - l1.a) * l1.X[mid] - a - (b - a) * X[n]);
+		};
+		if (D(mi) > D(i))
+		{
+			start = mid;
+			continue;
+		}
+		pair<double, double> intv(0, 1);
+		for (int j = mid - 1; j < mid + 1; j++)
+		{
+			pair<double, double> temp = Vinterval(i, vList[j].second, lindex);
+			intv.first = max(intv.first, temp.first);
+			intv.second = min(intv.second, temp.second);
+		}
+		if (intv.first > intv.second)
+			return;
+		if (vList[mid].first > intv.second)
+			end = mid;
+		else
+			start = mid;
+	}
+	
+	auto it = addV.lower_bound(pair<double, int>(x1, 0));
+	while (it != addV.lower_bound(pair<double, int>(x2, sizeX())))
+		it = addV.erase(it);
+	addV.emplace(x1, i);
+	addV.emplace(x2, i2);
+	return ;
 }
 
 bool Segment::IsVvertex(int i, int i1, Segment& l1, double t)
