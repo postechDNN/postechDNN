@@ -3,6 +3,7 @@
 
 const double EPS = 1e-8;
 
+
 struct Line {
 	double m;
 	double n;
@@ -19,6 +20,7 @@ public:
 		y = y_;
 		z = z_;
 	}
+
 
 	double size() {
 		return sqrt(pow(this->x, 2) + pow(this->y, 2) + pow(this->z, 2));
@@ -39,10 +41,11 @@ public:
 	MyVec operator / (const double a) const{
 		return MyVec(x / a, y / a, z / a);
 	}
+
+	friend MyVec operator*(const double a, const MyVec& V);
 };
 
 
-// https://yeolco.tistory.com/119
 class Point {
 public:
 	double x, y, z;
@@ -54,6 +57,8 @@ public:
 		y = y_;
 		z = z_;
 	}
+
+	operator MyVec() { return MyVec(x, y, z); }
 
 	Point operator - (const Point& P) const{
 		return Point(x - P.x, y - P.y, z - P.z);
@@ -70,14 +75,6 @@ public:
 	void print() {
 		std::cout << this->x << " " << this->y << " " << this->z << std::endl;
 	}
-	/*
-	Point operator + (Point& P) {
-		x = x + P.x;
-		y = y + P.y;
-		z = z + P.z;
-		return Point(x, y, z);
-	}
-	*/
 };
 
 double VecSize(MyVec V);

@@ -31,6 +31,11 @@ Point incircle_center(Tri T) {
 	return Point(a1 * t + x1, b1 * t + y1, c1 * t + z1);
 }
 
+MyVec operator*(const double a, const MyVec& V)
+{
+	return MyVec(a * V.x, a * V.y, a * V.z);
+}
+
 double VecSize(MyVec V) {
 	return sqrt(pow(V.x, 2) + pow(V.y, 2) + pow(V.z, 2));
 }

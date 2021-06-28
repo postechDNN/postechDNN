@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class PointOnSeg;
+struct PointOnSeg;
 
 class Segment {
 private:
@@ -23,6 +23,17 @@ private:
 	vector<vector<pair<double, double>>> AdjDiagram;
 	// k번째 원소 O(log n)에 계산가능한 tree 구현해서 수정해야 함
 	vector<set<pair<double,int>>> AddVoronoi; //set의 각 원소는 (vertex 상대위치, +방향 cell의 site)
+	vector<vector<double>> Near;
+	
+	//Steiner point generation 완성된 이후에 구현 예정
+	void SetAdjs() {};
+	void SetAdjDiagram();
+	void SetNear();
+
+	pair<double, double> Vinterval(int i, int i1, int lindex);
+	pair<double, double> Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment& l1);
+	bool IsVvertex(int i, int i1, Segment& l1, double t);
+	bool IsContain(int i, int i1, Segment& l1, double t);
 
 public:
 	Segment(MyVec _a, MyVec _b, vector<double> _X) {
@@ -32,15 +43,18 @@ public:
 		S.clear();
 		for (size_t i = 0; i < X.size(); i++)
 			Sbar.insert(i);
+		SetAdjs();
+		SetAdjDiagram();
+		SetNear();
 	}
 	int sizeX() {
 		return X.size();
 	}
-	pair<double, double> Vinterval(int i, int i1, int lindex);
-	bool IsVvertex(int i, int i1, Segment& l1, double t);
-	bool IsContain(int i, int i1, Segment& l1, double t);
+	
+	bool IsActive(int i);
 	void UpdateV(int i, int lindex);
 };
+
 
 
 struct PointOnSeg {
