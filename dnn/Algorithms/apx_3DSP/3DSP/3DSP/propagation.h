@@ -53,6 +53,7 @@ public:
 	
 	bool IsActive(int i);
 	void UpdateV(int i, int lindex);
+	void setdist(vector<double>);
 };
 
 

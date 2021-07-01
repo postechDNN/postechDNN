@@ -215,6 +215,10 @@ void Segment::UpdateV(int i, int lindex)
 	return ;
 }
 
+void Segment::setdist(vector<double> v) {
+	dist = v;
+}
+
 bool Segment::IsVvertex(int i, int i1, Segment& l1, double t)
 {
 	MyVec tv = l1.a * (1 - t) + l1.b * t;

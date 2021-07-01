@@ -2,8 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include "dots.h"
-
-
+#include "propagation.h"
 
 Point incircle_center(Tri T) {
 
@@ -46,6 +45,10 @@ double PointsDist(Point P1, Point P2) {
 
 double InnerProd(MyVec V1, MyVec V2) {
 	return V1.x * V2.x + V1.y * V2.y + V1.z * V2.z;
+}
+
+MyVec Point2Vec(Point P1) {
+	return MyVec{P1.x, P1.y, P1.z, P1.index};
 }
 
 MyVec Points2Vec(Point P1, Point P2) {
@@ -92,7 +95,7 @@ bool PointInsideTri(Tri T, Point P0) {
 	double f2 = InnerProd(OuterProd(V2, Points2Vec(P2, P0)), N_P);
 	double f3 = InnerProd(OuterProd(V3, Points2Vec(P3, P0)), N_P);
 
-	int outside;
+	// int outside;
 
 	if (f1 > 0 && f2 < 0) {
 		/*MyVec VA = Points2Vec(P0, P1), VB = Points2Vec(P0, P2);
@@ -114,8 +117,6 @@ bool PointInsideTri(Tri T, Point P0) {
 	}
 
 }
-
-
 
 double PointPlaneDist(Point P0, Plane PL) {
 	double x0 = P0.x, y0 = P0.y, z0 = P0.z;
@@ -193,7 +194,7 @@ Point TetraCenter(Tetra Tet1, Tetra Tet2, Tri T) {
 	return Point{ x0, y0, z0 };
 }
 
-
+/*
 int main() {
 
 	
@@ -211,3 +212,4 @@ int main() {
 
 	// Point center = tetra_center(Tet1, Tet2, T, 0);
 }
+*/
