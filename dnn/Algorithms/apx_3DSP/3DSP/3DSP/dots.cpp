@@ -51,6 +51,10 @@ MyVec Point2Vec(Point P1) {
 	return MyVec{P1.x, P1.y, P1.z, P1.index};
 }
 
+Point Vec2Point(MyVec V1) {
+	return Point{ V1.x, V1.y, V1.z, V1.index };
+}
+
 MyVec Points2Vec(Point P1, Point P2) {
 	return MyVec(P2.x - P1.x, P2.y - P1.y, P2.z - P1.z);
 }

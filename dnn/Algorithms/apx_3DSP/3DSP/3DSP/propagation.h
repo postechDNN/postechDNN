@@ -17,6 +17,7 @@ class Segment {
 private:
 	bool tetra;
 	MyVec a,b;
+	Tetra* tets;
 	vector<double> X;
 	vector<double> dist;
 	vector<PointOnSeg> prev;
@@ -62,6 +63,22 @@ public:
 	}
 	int sizeX() {
 		return X.size();
+	}
+
+	void setX(vector<double> _X) {
+		this->X = _X;
+	}
+
+	MyVec geta() {
+		return a;
+	}
+
+	MyVec getb() {
+		return b;
+	}
+
+	Tetra* get_tets() {
+		return tets;
 	}
 
 	bool IsTetra() {

@@ -21,7 +21,7 @@ void MarkPoints(Segment* e) {
 
 	double er_v = EPS * r_v;
 
-	// Tetra* Tets;
+	Tetra* Tets = e->get_tets();
 
 	vector<double> pts;
 	double value;
@@ -31,7 +31,7 @@ void MarkPoints(Segment* e) {
 	value = m_e;
 	while (value > er_v) {
 		pts.push_back(value);
-		// value -= EPS * MinDist(Tets, value);
+		value -= EPS * MinDist(Tets, Vec2Point((e->geta() * (1 - value)) + (e->getb() * value)));
 	}
 
 	value = m_e;
@@ -43,7 +43,7 @@ void MarkPoints(Segment* e) {
 	// there are two m_e's in pts 
 	sort(pts.begin(), pts.end());
 	
-	// e.setdist(v);
+	e->setX(pts);
 }
 
 Point Height(Point P1, Point P2, Point P3) {
@@ -86,19 +86,20 @@ void MarkPoints(Tetra Tet) {
 	*/
 
 // connected polyhedral domain D
-/*
+
 vector<PointOnSeg> MarkPoints(PolyDomain D) {
 
 	for (auto e : D.edges) {
 		MarkPoints(&e);
 	}
 
-	for (auto Tet : D.tets) {
-		MarkPoints(Tet);
+	for (auto tet : D.tets) {
+		MarkPoints(tet);
 	}
 	
+	return {};
 }
-*/
+
 
 // steiner points are placed on the edges of D and on the bisectors of the diheral angles of the tetrahedra in D.
 

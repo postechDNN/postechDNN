@@ -32,7 +32,7 @@ void Segment::SetAdjDiagram()
 	}
 }
 
-pair<double, double> Segment::Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment& l1)
+pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment& l1)
 {
 	MyVec v = (b - a) * X[i] + a;
 	MyVec n = OuterProd(v1 - v, v2 - v);

@@ -163,6 +163,7 @@ public:
 };
 
 MyVec Point2Vec(Point P1);
+Point Vec2Point(MyVec V1);
 MyVec Points2Vec(Point P1, Point P2);
 
 MyVec OuterProd(MyVec V1, MyVec V2);
@@ -210,6 +211,7 @@ double PlaneAngle(Plane PL1, Plane PL2);
 Point TetraCenter(Tetra Tet1, Tetra Tet2, Tri T);
 
 class PolyDomain {
+public:
 	// Segment* Ss;
 	vector<Point> pts;
 	vector<Segment> edges;
