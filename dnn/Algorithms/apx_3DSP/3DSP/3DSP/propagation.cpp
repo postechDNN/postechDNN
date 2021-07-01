@@ -32,7 +32,7 @@ void Segment::SetAdjDiagram()
 	}
 }
 
-pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment& l1)
+pair<double, double> Segment::Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment& l1)
 {
 	MyVec v = (b - a) * X[i] + a;
 	MyVec n = OuterProd(v1 - v, v2 - v);
@@ -72,7 +72,7 @@ pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 	if (abs(c) < EPS)
 	{
 		double t = InnerProd(b - a, a + ((b - a) * (X[i] + X[i1])) / 2 - l1.a) / InnerProd(b - a, l1.b - l1.a);
-		if (InnerProd(b - a, l1.b - l1.a) > 0) 
+		if (InnerProd(b - a, l1.b - l1.a) > 0)
 			return { t,1. };
 		else
 			return { 0.,t };
@@ -146,7 +146,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 		if (end - start < 2)
 		{
 			pair<double, double> intv(0., 1.);
-			for (int j = max(0,start); j <= min(end+1, static_cast<int>(addV.size() - 1)); j++)
+			for (int j = max(0, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
 			{
 				auto temp = Vinterval(i, vList[j].second, lindex);
 				intv.first = max(intv.first, temp.first);
@@ -168,7 +168,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 			continue;
 		}
 		pair<double, double> intv(0., 1.);
-		for (int j = mid; j < mid+2; j++)
+		for (int j = mid; j < mid + 2; j++)
 		{
 			auto temp = Vinterval(i, vList[j].second, lindex);
 			intv.first = max(intv.first, temp.first);
@@ -186,7 +186,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 		if (end - start < 2)
 		{
 			pair<double, double> intv(0, 1);
-			for (int j = max(0, start); j <= min(end+1, static_cast<int>(addV.size()-1)); j++)
+			for (int j = max(0, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
 			{
 				auto temp = Vinterval(i, vList[j].second, lindex);
 				intv.first = max(intv.first, temp.first);
@@ -240,7 +240,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 			SetRepr(itEnd->second, lindex, { x2,itEnd->first }, Reprs);
 	}
 	while (it != itEnd)
-		it = addV.erase(it); 
+		it = addV.erase(it);
 	addV.emplace(x1, i1);
 	addV.emplace(x2, i);
 	SetRepr(i, lindex, { x1,x2 }, Reprs);
@@ -283,7 +283,7 @@ pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv
 }
 
 void Segment::SetRepr(int i, int lindex, pair<double, double> intv, priority_queue<Repr, vector<Repr>>& Reprs)
-{   
+{
 	auto res = FindRepr(i, lindex, intv);
 	if (res.first == -1)
 		return;
@@ -314,10 +314,6 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>>& 
 		Sbar[X[i]] = i;
 	}
 	return;
-}
-
-void Segment::setdist(vector<double> v) {
-	dist = v;
 }
 
 bool Segment::IsVvertex(int i, int i1, Segment& l1, double t)
