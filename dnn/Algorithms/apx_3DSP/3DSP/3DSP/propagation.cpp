@@ -4,6 +4,8 @@
 #include <iterator>
 #include "propagation.h"
 
+#include <random>
+
 void Segment::SetAdjDiagram()
 {
 	for (size_t i = 0; i < X.size(); i++)
@@ -330,4 +332,36 @@ bool Segment::IsContain(int i, int i1, Segment& l1, double t)
 	MyVec v = l1.a * (1 - t) + l1.b * t;
 	MyVec v1 = l1.a * (1 - t) + l1.b * t;
 	return VecSize(tv - v) + dist[i] < VecSize(tv - v1) + dist[i1];
+}
+
+
+int main()
+{
+	std::random_device rd;
+	std::mt19937 g(rd());
+
+	AVLTree<int> tree;
+	int size = 1000000;
+	int intv = 10000;
+	vector<int> vec;
+	vector<int> evec;
+	for (size_t i = 0; i < size; i++)
+		vec.push_back(i);
+	for (size_t i = 0; i < size / 2; i++)
+		evec.push_back(i * 2 + 1);
+	shuffle(vec.begin(), vec.end(),g);
+	shuffle(evec.begin(), evec.end(), g);
+	for (int i:vec)
+		tree.insert(i);
+	for (size_t i = 0; i < size/intv; i++)
+		cout << tree.getkthNode(i*intv)->value << endl;
+	int count = 0;
+	for (int i : evec)
+	{
+		if (tree.pop(i) == nullptr)
+			count++;
+	}
+	for (size_t i = 0; i < size / (2*intv); i++)
+		cout << tree.getkthNode(i * intv)->value << endl;
+	return 0;
 }

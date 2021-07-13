@@ -114,6 +114,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 	return PolyDomain(pts, edges, faces, tetras);
 }
 
+/*
 int main()
 {
 	string FileName;
@@ -122,6 +123,7 @@ int main()
 	PolyDomain D = BuildPolyDomain(FileName);
 	return 0;
 }
+*/
 
 // tetgen 자료형과 클래스 간 대응 관계
 // node(node) - Point

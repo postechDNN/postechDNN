@@ -7,6 +7,7 @@
 #include <queue>
 #include <map>
 #include "dots.h"
+#include "..\..\..\..\DataStructures\AVLTree\AVLTree.h"
 
 using namespace std;
 
