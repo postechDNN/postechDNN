@@ -25,6 +25,7 @@ private:
 public:
 	AVLTree();
 	~AVLTree();
+	int size();
 	bool isEmpty();
 	void insert(T);
 	void insert(AVLTreeNode<T>*);
@@ -152,6 +153,11 @@ AVLTree<T>::~AVLTree() {
 template <typename T>
 bool AVLTree<T>::isEmpty() {
 	return !this->root;
+}
+
+template <typename T>
+int AVLTree<T>::size() {
+	return this->root->size;
 }
 
 template <typename T>

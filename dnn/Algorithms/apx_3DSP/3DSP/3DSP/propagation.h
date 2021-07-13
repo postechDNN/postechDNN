@@ -28,8 +28,8 @@ private:
 	vector<pair<Segment*, int>> Adjs;
 	vector<int> Revs; //Adjs[lindex].first.Adjs[Revs[lindex]].first == this, Adjs[lindex].first에서 Representative update하기 위해 필요
 	vector<vector<pair<double, double>>> AdjDiagram;
-	// k번째 원소 O(log n)에 계산가능한 tree 구현해서 수정해야 함, 아니면 operator 수정해서 decision 문제 해결 가능하게 만들기(x*<x판별하는 decision은 변수 1개 dummy로 만들면 됨)
-	vector<set<pair<double,int>>> AddVoronoi; //set의 각 원소는 (vertex 상대위치, -방향 cell의 site)
+	// k번째 원소 O(log n)에 계산가능한 tree 구현해서 수정해야 함(AVL Tree사용)
+	vector<AVLTree<pair<double,int>>> AddVoronoi; //set의 각 원소는 (vertex 상대위치, -방향 cell의 site)
 	vector<vector<double>> Near;
 	
 	//Steiner point generation 완성된 이후에 구현 예정

@@ -128,16 +128,13 @@ void Segment::Update(int i, double val, priority_queue<Repr, vector<Repr>>& Repr
 void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& Reprs)
 {
 	Segment& l1 = *Adjs[lindex].first;
-	set<pair<double, int>>& addV = AddVoronoi[lindex];
-	if (addV.empty())
+	AVLTree<pair<double, int>>& addV = AddVoronoi[lindex];
+	if (addV.isEmpty())
 	{
 		addV.insert({ 0.,-1 });
 		addV.insert({ 1.,i });
 		return;
 	}
-	// k번째 원소 O(log n)에 계산가능한 tree 구현해서 수정해야 함
-	vector<pair<double, int>> vList;
-	vList.assign(addV.begin(), addV.end());
 
 	int start = 0;
 	int end = addV.size() - 1;
@@ -150,7 +147,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 			pair<double, double> intv(0., 1.);
 			for (int j = max(0, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
 			{
-				auto temp = Vinterval(i, vList[j].second, lindex);
+				auto temp = Vinterval(i, addV.getkthNode(j)->value.second, lindex);
 				intv.first = max(intv.first, temp.first);
 				intv.second = min(intv.second, temp.second);
 			}
@@ -160,7 +157,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 			break;
 		}
 		int mid = (start + end) / 2;
-		int mi = vList[mid].second;
+		int mi = addV.getkthNode(mid)->value.second;
 		auto D = [=](int n)->double {
 			return dist[n] + VecSize(l1.a + (l1.b - l1.a) * l1.X[mid] - a - (b - a) * X[n]);
 		};
@@ -172,13 +169,13 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 		pair<double, double> intv(0., 1.);
 		for (int j = mid; j < mid + 2; j++)
 		{
-			auto temp = Vinterval(i, vList[j].second, lindex);
+			auto temp = Vinterval(i, addV.getkthNode(j)->value.second, lindex);
 			intv.first = max(intv.first, temp.first);
 			intv.second = min(intv.second, temp.second);
 		}
 		if (intv.first > intv.second)
 			return;
-		if (vList[mid].first > intv.first)
+		if (addV.getkthNode(mid)->value.first > intv.first)
 			end = mid;
 		else
 			start = mid;
@@ -190,7 +187,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 			pair<double, double> intv(0, 1);
 			for (int j = max(0, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
 			{
-				auto temp = Vinterval(i, vList[j].second, lindex);
+				auto temp = Vinterval(i, addV.getkthNode(j)->value.second, lindex);
 				intv.first = max(intv.first, temp.first);
 				intv.second = min(intv.second, temp.second);
 			}
@@ -200,7 +197,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 			break;
 		}
 		int mid = (start + end) / 2;
-		int mi = vList[mid].second;
+		int mi = addV.getkthNode(mid)->value.second;
 		auto D = [=](int n)->double {
 			return dist[n] + VecSize(l1.a + (l1.b - l1.a) * l1.X[mid] - a - (b - a) * X[n]);
 		};
@@ -212,13 +209,13 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 		pair<double, double> intv(0., 1.);
 		for (int j = mid; j < mid + 2; j++)
 		{
-			auto temp = Vinterval(i, vList[j].second, lindex);
+			auto temp = Vinterval(i, addV.getkthNode(j)->value.second, lindex);
 			intv.first = max(intv.first, temp.first);
 			intv.second = min(intv.second, temp.second);
 		}
 		if (intv.first > intv.second)
 			return;
-		if (vList[mid].first > intv.second)
+		if (addV.getkthNode(mid)->value.first > intv.second)
 			end = mid;
 		else
 			start = mid;
@@ -226,25 +223,28 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 	if (x1 >= x2)
 		return;
 	SetReprInv(i, lindex, Reprs);
-	auto it = addV.lower_bound({ x1, -1 });
-	i1 = it->second;
-	if (it != addV.begin())
+	auto it = addV.getRightNode({ x1, -1 });
+	i1 = it->value.second;
+	if (it != addV.getkthNode(0)) //it != addV.begin()
 	{
-		auto prev = FindRepr(i1, lindex, { std::prev(it)->first,it->first });
+		auto prev = FindRepr(i1, lindex, { addV.getLeftNode(it->value)->value.first,it->value.first }); //{ std::prev(it)->first,it->first }
 		if (prev.first != -1 && l1.X[prev.first] > x1)
-			SetRepr(i1, lindex, { std::prev(it)->first,x1 }, Reprs);
+			SetRepr(i1, lindex, { addV.getLeftNode(it->value)->value.first,x1 }, Reprs);
 	}
-	auto itEnd = addV.lower_bound({ x2, sizeX() });
-	if (itEnd != addV.end())
+	auto itEnd = addV.getRightNode({ x2, sizeX() });
+	if (itEnd != nullptr)
 	{
-		auto prev = FindRepr(itEnd->second, lindex, { std::prev(itEnd)->first,itEnd->first });
+		auto prev = FindRepr(itEnd->value.second, lindex, { addV.getLeftNode(itEnd->value)->value.first,itEnd->value.first });
 		if (prev.first != -1 && l1.X[prev.first] < x2)
-			SetRepr(itEnd->second, lindex, { x2,itEnd->first }, Reprs);
+			SetRepr(itEnd->value.second, lindex, { x2,itEnd->value.first }, Reprs);
 	}
-	while (it != itEnd)
-		it = addV.erase(it);
-	addV.emplace(x1, i1);
-	addV.emplace(x2, i);
+	while (it != addV.getRightNode({ x2, sizeX() }))
+	{
+		addV.pop(it->value);
+		it = addV.getRightNode(it->value);
+	}
+	addV.insert({ x1, i1 });
+	addV.insert({ x2, i });
 	SetRepr(i, lindex, { x1,x2 }, Reprs);
 	return;
 }
@@ -302,13 +302,13 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>>& 
 {
 	Segment& l1 = *Adjs[lindex].first;
 	auto& addV = l1.AddVoronoi[Revs[lindex]];
-	auto it = addV.lower_bound({ X[i],-1 });
+	auto it = addV.getRightNode({ X[i],-1 });
 	if (i == 0)
-		it = std::next(addV.begin());
-	if (it == addV.end())
-		it--;
-	pair<double, double> intv(std::prev(it)->first, it->first);
-	int index = it->second;
+		it = addV.getkthNode(1); //std::next(addV.begin());
+	if (it == nullptr) //it == addV.end()
+		it = addV.getkthNode(addV.size()-1);
+	pair<double, double> intv(addV.getLeftNode(it->value)->value.first, it->value.first); //intv(std::prev(it)->first, it->first);
+	int index = it->value.second;
 	if (i == l1.FindRepr(index, Revs[lindex], intv).first)
 	{
 		Sbar.erase(X[i]);
