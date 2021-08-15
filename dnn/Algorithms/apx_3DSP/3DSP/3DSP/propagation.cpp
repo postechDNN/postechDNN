@@ -8,17 +8,19 @@
 
 void Segment::SetAdjDiagram()
 {
-	for (size_t i = 0; i < X.size(); i++)
+	AdjDiagram.resize(Adjs.size());
+	for (size_t i = 0; i < Adjs.size(); i++)
 	{
-		for (size_t j = 0; j < Adjs.size(); j++)
+		AdjDiagram[i].resize(X.size());
+		for (size_t j = 0; j < X.size(); j++)
 		{
-			Segment& l1 = *Adjs[j].first;
-			if (Adjs[j].second == -1)
+			Segment& l1 = *Adjs[i].first;
+			if (Adjs[i].second == -1)
 			{
 				AdjDiagram[i][j] = { 0, 1 };
 				continue;
 			}
-			Tri f = Tris[Adjs[j].second];
+			Tri f = Tris[Adjs[i].second];
 			vector<MyVec> v;
 			v.push_back(f.p1);
 			v.push_back(f.p2);
@@ -26,7 +28,7 @@ void Segment::SetAdjDiagram()
 			pair<double, double> res(0., 1.);
 			for (size_t k = 0; k < 3; k++)
 			{
-				auto temp = Interval(i, v[k], v[(k + 1) % 3], v[(k + 2) % 3], f, l1);
+				auto temp = Interval(j, v[k], v[(k + 1) % 3], v[(k + 2) % 3], f, l1);
 				res = { max(res.first, temp.first), min(res.second, temp.second) };
 			}
 			AdjDiagram[i][j] = res;
@@ -54,8 +56,10 @@ pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tr
 
 void Segment::SetNear()
 {
+	Near.resize(Adjs.size());
 	for (size_t i = 0; i < Adjs.size(); i++)
 	{
+		Near[i].resize(X.size());
 		for (size_t j = 0; j < X.size(); j++)
 		{
 			Segment& l1 = *Adjs[i].first;
@@ -123,6 +127,14 @@ void Segment::Update(int i, double val, priority_queue<Repr, vector<Repr>>& Repr
 		UpdateSeg(i, lindex, Reprs);
 	S[X[i]] = i;
 	Sbar.erase(X[i]);
+}
+
+//Debug
+
+void Segment::AddAdjs(Segment* s, int i)
+{
+	Adjs.emplace_back(s, i);
+	AddVoronoi.push_back(AVLTree<pair<double, int>>());
 }
 
 void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& Reprs)
@@ -321,21 +333,21 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>>& 
 bool Segment::IsVvertex(int i, int i1, Segment& l1, double t)
 {
 	MyVec tv = l1.a * (1 - t) + l1.b * t;
-	MyVec v = l1.a * (1 - t) + l1.b * t;
-	MyVec v1 = l1.a * (1 - t) + l1.b * t;
+	MyVec v = l1.a * (1 - X[i]) + l1.b * X[i];
+	MyVec v1 = l1.a * (1 - X[i1]) + l1.b * X[i1];
 	return abs(VecSize(tv - v) + dist[i] - VecSize(tv - v1) - dist[i1]) < EPS;
 }
 
 bool Segment::IsContain(int i, int i1, Segment& l1, double t)
 {
 	MyVec tv = l1.a * (1 - t) + l1.b * t;
-	MyVec v = l1.a * (1 - t) + l1.b * t;
-	MyVec v1 = l1.a * (1 - t) + l1.b * t;
+	MyVec v = l1.a * (1 - X[i]) + l1.b * X[i];
+	MyVec v1 = l1.a * (1 - X[i1]) + l1.b * X[i1];
 	return VecSize(tv - v) + dist[i] < VecSize(tv - v1) + dist[i1];
 }
 
 
-int main()
+int main1()
 {
 	std::random_device rd;
 	std::mt19937 g(rd());
@@ -363,5 +375,55 @@ int main()
 	}
 	for (size_t i = 0; i < size / (2*intv); i++)
 		cout << tree.getkthNode(i * intv)->value << endl;
+	return 0;
+}
+
+int main()
+{
+	priority_queue<Repr, vector<Repr>> Reprs;
+	vector<shared_ptr<Segment>> S;
+	vector<MyVec> A, B;
+	vector<double> X;
+	int n = 10;
+	A.emplace_back(0., 0., 0.);
+	B.emplace_back(0., 0., 1.);
+	A.emplace_back(0., 1., 0.);
+	B.emplace_back(0., 1., 1.);
+	A.emplace_back(0., 2., 0.);
+	B.emplace_back(0., 2., 1.);
+	A.emplace_back(0., 3., 0.);
+	B.emplace_back(0., 3., 1.);
+	for (size_t i = 0; i <= n; i++)
+		X.push_back(static_cast<double>(i)/static_cast<double>(n));
+	for (size_t i = 0; i < A.size(); i++)
+	{
+		S.push_back(make_shared<Segment>(A[i], B[i], X));
+	}
+	for (size_t i = 0; i < A.size(); i++)
+	{
+		if (i != 0)
+			S[i]->AddAdjs(S[i - 1].get(), -1);
+		if (i != A.size()-1)
+			S[i]->AddAdjs(S[i + 1].get(), -1);
+	}
+	for (size_t i = 0; i < A.size(); i++)
+	{
+		S[i]->SetAdjDiagram();
+		S[i]->SetNear();
+
+	}
+	Repr start;
+	start.dst.l = S[0].get();
+	start.dst.index = 0;
+	Reprs.push(start);
+	while (!Reprs.empty())
+	{
+		Repr p = Reprs.top();
+		Segment* l = p.dst.l;
+		Reprs.pop();
+		if (l->IsActive(p.dst.index))
+			continue;
+		l->Update(p.dst.index, p.val, Reprs);
+	}
 	return 0;
 }
