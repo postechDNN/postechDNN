@@ -14,7 +14,7 @@ void Segment::SetAdjDiagram()
 		AdjDiagram[i].resize(X.size());
 		for (size_t j = 0; j < X.size(); j++)
 		{
-			Segment& l1 = *Adjs[i].first;
+			Segment* l1 = Adjs[i].first;
 			if (Adjs[i].second == -1)
 			{
 				AdjDiagram[i][j] = { 0, 1 };
@@ -36,19 +36,19 @@ void Segment::SetAdjDiagram()
 	}
 }
 
-pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment& l1)
+pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1)
 {
 	MyVec v = (b - a) * X[i] + a;
 	MyVec n = OuterProd(v1 - v, v2 - v);
-	if (abs(InnerProd(n, l1.b - l1.a)) < EPS)
+	if (abs(InnerProd(n, l1->b - l1->a)) < EPS)
 	{
-		if (InnerProd(n, v3 - v) * InnerProd(n, l1.a - v) > 0)
+		if (InnerProd(n, v3 - v) * InnerProd(n, l1->a - v) > 0)
 			return { 0., 1. };
 		else
 			return { 1., 0. };
 	}
-	double t = InnerProd(v - l1.a, n) / InnerProd(l1.b - l1.a, n);
-	if (InnerProd(l1.b - l1.a, n) * InnerProd(v3 - v, n) > 0)
+	double t = InnerProd(v - l1->a, n) / InnerProd(l1->b - l1->a, n);
+	if (InnerProd(l1->b - l1->a, n) * InnerProd(v3 - v, n) > 0)
 		return { t, 1. };
 	else
 		return { 0., t };
@@ -62,9 +62,9 @@ void Segment::SetNear()
 		Near[i].resize(X.size());
 		for (size_t j = 0; j < X.size(); j++)
 		{
-			Segment& l1 = *Adjs[i].first;
+			Segment* l1 = Adjs[i].first;
 			MyVec v = (b - a) * X[j] + a;
-			double t = InnerProd(l1.a - l1.b, l1.a - v) / InnerProd(l1.b - l1.a, l1.b - l1.a);
+			double t = InnerProd(l1->a - l1->b, l1->a - v) / InnerProd(l1->b - l1->a, l1->b - l1->a);
 			Near[i][j] = min(max(t, 0.), 1.);
 		}
 	}
@@ -120,34 +120,33 @@ bool Segment::IsActive(int i)
 	return static_cast<bool>(S.count(X[i]));
 }
 
-void Segment::Update(int i, double val, priority_queue<Repr, vector<Repr>>& Reprs)
+void Segment::Update(int i, double val, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
 {
 	dist[i] = val;
-	for (size_t lindex = 0; lindex < Adjs.size(); lindex++)
-		UpdateSeg(i, lindex, Reprs);
 	S[X[i]] = i;
 	Sbar.erase(X[i]);
+	for (size_t lindex = 0; lindex < Adjs.size(); lindex++)
+		UpdateSeg(i, lindex, Reprs);
 }
 
 //Debug
-
 void Segment::AddAdjs(Segment* s, int i)
 {
 	Adjs.emplace_back(s, i);
 	AddVoronoi.push_back(AVLTree<pair<double, int>>());
 }
 
-void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& Reprs)
+void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
 {
-	Segment& l1 = *Adjs[lindex].first;
-	AVLTree<pair<double, int>>& addV = AddVoronoi[lindex];
+	Segment* l1 = Adjs[lindex].first;
+	AVLTree<pair<double, int>> &addV = AddVoronoi[lindex];
 	if (addV.isEmpty())
 	{
 		addV.insert({ 0.,-1 });
 		addV.insert({ 1.,i });
+		SetRepr(i, lindex, { 0.,1. }, Reprs);
 		return;
 	}
-
 	int start = 0;
 	int end = addV.size() - 1;
 	int i1;
@@ -157,9 +156,9 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 		if (end - start < 2)
 		{
 			pair<double, double> intv(0., 1.);
-			for (int j = max(0, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
+			for (int j = max(1, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
 			{
-				auto temp = Vinterval(i, addV.getkthNode(j)->value.second, lindex);
+				auto temp = Vinterval(i, addV.getkthNode(j)->value.second, lindex); 
 				intv.first = max(intv.first, temp.first);
 				intv.second = min(intv.second, temp.second);
 			}
@@ -171,7 +170,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 		int mid = (start + end) / 2;
 		int mi = addV.getkthNode(mid)->value.second;
 		auto D = [=](int n)->double {
-			return dist[n] + VecSize(l1.a + (l1.b - l1.a) * l1.X[mid] - a - (b - a) * X[n]);
+			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * l1->X[mid] - a - (b - a) * X[n]);
 		};
 		if (D(mi) > D(i))
 		{
@@ -211,7 +210,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 		int mid = (start + end) / 2;
 		int mi = addV.getkthNode(mid)->value.second;
 		auto D = [=](int n)->double {
-			return dist[n] + VecSize(l1.a + (l1.b - l1.a) * l1.X[mid] - a - (b - a) * X[n]);
+			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * l1->X[mid] - a - (b - a) * X[n]);
 		};
 		if (D(mi) > D(i))
 		{
@@ -234,20 +233,20 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 	}
 	if (x1 >= x2)
 		return;
-	SetReprInv(i, lindex, Reprs);
+	SetReprInv(i, lindex, Reprs); 
 	auto it = addV.getRightNode({ x1, -1 });
 	i1 = it->value.second;
 	if (it != addV.getkthNode(0)) //it != addV.begin()
 	{
 		auto prev = FindRepr(i1, lindex, { addV.getLeftNode(it->value)->value.first,it->value.first }); //{ std::prev(it)->first,it->first }
-		if (prev.first != -1 && l1.X[prev.first] > x1)
+		if (prev.first != -1 && l1->X[prev.first] > x1)
 			SetRepr(i1, lindex, { addV.getLeftNode(it->value)->value.first,x1 }, Reprs);
 	}
 	auto itEnd = addV.getRightNode({ x2, sizeX() });
 	if (itEnd != nullptr)
 	{
 		auto prev = FindRepr(itEnd->value.second, lindex, { addV.getLeftNode(itEnd->value)->value.first,itEnd->value.first });
-		if (prev.first != -1 && l1.X[prev.first] < x2)
+		if (prev.first != -1 && l1->X[prev.first] < x2)
 			SetRepr(itEnd->value.second, lindex, { x2,itEnd->value.first }, Reprs);
 	}
 	while (it != addV.getRightNode({ x2, sizeX() }))
@@ -263,16 +262,16 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& R
 
 pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv)
 {
-	Segment& l1 = *Adjs[lindex].first;
+	Segment* l1 = Adjs[lindex].first;
 	intv = { max(intv.first,AdjDiagram[lindex][i].first), min(intv.second,AdjDiagram[lindex][i].second) };
-	auto it1 = l1.Sbar.lower_bound(intv.first);
-	auto it2 = l1.Sbar.upper_bound(intv.second);
-	if (intv.first > intv.second || it1->first > intv.second || it2 == l1.Sbar.begin())
+	auto it1 = l1->Sbar.lower_bound(intv.first);
+	auto it2 = l1->Sbar.upper_bound(intv.second);
+	if (intv.first > intv.second || it1->first > intv.second || it2 == l1->Sbar.begin())
 		return { -1,0. };
 	it2--;
 	int index;
 	auto D = [=](int n)->double {
-		return dist[i] + VecSize(l1.a + (l1.b - l1.a) * l1.X[n] - a - (b - a) * X[i]);
+		return dist[i] + VecSize(l1->a + (l1->b - l1->a) * l1->X[n] - a - (b - a) * X[i]);
 	};
 	if (Near[lindex][i] <= it1->first)
 		index = it1->second;
@@ -280,7 +279,7 @@ pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv
 		index = it2->second;
 	else
 	{
-		it2 = l1.Sbar.lower_bound(Near[lindex][i]);
+		it2 = l1->Sbar.lower_bound(Near[lindex][i]);
 		if (it2->first == Near[lindex][i])
 			index = it2->second;
 		else
@@ -296,7 +295,7 @@ pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv
 	return { index,D(index) };
 }
 
-void Segment::SetRepr(int i, int lindex, pair<double, double> intv, priority_queue<Repr, vector<Repr>>& Reprs)
+void Segment::SetRepr(int i, int lindex, pair<double, double> intv, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
 {
 	auto res = FindRepr(i, lindex, intv);
 	if (res.first == -1)
@@ -310,10 +309,10 @@ void Segment::SetRepr(int i, int lindex, pair<double, double> intv, priority_que
 	Reprs.push(p);
 }
 
-void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>>& Reprs)
+void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
 {
-	Segment& l1 = *Adjs[lindex].first;
-	auto& addV = l1.AddVoronoi[Revs[lindex]];
+	Segment* l1 = Adjs[lindex].first;
+	auto& addV = l1->AddVoronoi[Revs[lindex]];
 	auto it = addV.getRightNode({ X[i],-1 });
 	if (i == 0)
 		it = addV.getkthNode(1); //std::next(addV.begin());
@@ -321,10 +320,10 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>>& 
 		it = addV.getkthNode(addV.size()-1);
 	pair<double, double> intv(addV.getLeftNode(it->value)->value.first, it->value.first); //intv(std::prev(it)->first, it->first);
 	int index = it->value.second;
-	if (i == l1.FindRepr(index, Revs[lindex], intv).first)
+	if (i == l1->FindRepr(index, Revs[lindex], intv).first)
 	{
 		Sbar.erase(X[i]);
-		l1.SetRepr(index, Revs[lindex], intv, Reprs);
+		l1->SetRepr(index, Revs[lindex], intv, Reprs);
 		Sbar[X[i]] = i;
 	}
 	return;
@@ -378,9 +377,10 @@ int main1()
 	return 0;
 }
 
+//시작 위치의 이웃한 점 이외에는 Update가 제대로 되지 않음
 int main()
 {
-	priority_queue<Repr, vector<Repr>> Reprs;
+	priority_queue<Repr, vector<Repr>, greater<Repr>> Reprs;
 	vector<shared_ptr<Segment>> S;
 	vector<MyVec> A, B;
 	vector<double> X;
@@ -401,6 +401,7 @@ int main()
 	}
 	for (size_t i = 0; i < A.size(); i++)
 	{
+		S[i]->AddAdjs(S[i].get(), -1);
 		if (i != 0)
 			S[i]->AddAdjs(S[i - 1].get(), -1);
 		if (i != A.size()-1)
@@ -414,7 +415,8 @@ int main()
 	}
 	Repr start;
 	start.dst.l = S[0].get();
-	start.dst.index = 0;
+	start.dst.index = 5;
+	start.val = 0.;
 	Reprs.push(start);
 	while (!Reprs.empty())
 	{

@@ -34,13 +34,13 @@ private:
 	
 
 	pair<double, double> Vinterval(int i, int i1, int lindex);
-	pair<double, double> Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment& l1);
+	pair<double, double> Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1);
 	bool IsVvertex(int i, int i1, Segment& l1, double t);
 	bool IsContain(int i, int i1, Segment& l1, double t);
-	void UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>>& Reprs);
+	void UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs);
 	pair<int, double> FindRepr(int i, int lindex, pair<double, double> intv);
-	void SetRepr(int i, int lindex, pair<double,double> intv, priority_queue<Repr, vector<Repr>>& Reprs);
-	void SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>>& Reprs); //Sbar에서 vertex가 사라져 representative를 수정해야 하는 경우
+	void SetRepr(int i, int lindex, pair<double,double> intv, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs);
+	void SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs); //Sbar에서 vertex가 사라져 representative를 수정해야 하는 경우
 
 public:
 	//Steiner point generation 완성된 이후에 구현 예정, 추후에 private로 옮기기
@@ -91,7 +91,7 @@ public:
 	}
 	   
 	bool IsActive(int i);
-	void Update(int i, double val, priority_queue<Repr, vector<Repr>>& Reprs);
+	void Update(int i, double val, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs);
 
 	//Debug
 	void AddAdjs(Segment* s, int i);
@@ -113,8 +113,8 @@ struct Repr {
 	PointOnSeg src;
 	PointOnSeg dst;
 	double val;
-	bool operator<(const Repr& r2) const{
-		return this->val < r2.val;
+	bool operator>(const Repr& r2) const{
+		return this->val > r2.val;
 	}
 };
 
