@@ -3,7 +3,7 @@
 
 double ASP(Point v0) {
 	//RepresentativeµÈ¿« priority queue
-	priority_queue<Repr,vector<Repr>> Reprs;
+	priority_queue<Repr,vector<Repr>, greater<Repr>> Reprs;
 
 	while (!Reprs.empty())
 	{
