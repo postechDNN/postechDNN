@@ -6,6 +6,7 @@
 
 #include <random>
 
+
 void Segment::SetAdjDiagram()
 {
 	AdjDiagram.resize(Adjs.size());
@@ -132,8 +133,15 @@ void Segment::Update(int i, double val, priority_queue<Repr, vector<Repr>, great
 //Debug
 void Segment::AddAdjs(Segment* s, int i)
 {
+	Revs.push_back(s->Adjs.size());
 	Adjs.emplace_back(s, i);
 	AddVoronoi.push_back(AVLTree<pair<double, int>>());
+	if (this != s)
+	{
+		s->Revs.push_back(Adjs.size() - 1);
+		s->Adjs.emplace_back(this, i);
+		s->AddVoronoi.push_back(AVLTree<pair<double, int>>());
+	}	
 }
 
 void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
@@ -151,6 +159,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 	int end = addV.size() - 1;
 	int i1;
 	double x1, x2;
+	bool stop = false;
 	while (true)
 	{
 		if (end - start < 2)
@@ -163,7 +172,10 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 				intv.second = min(intv.second, temp.second);
 			}
 			if (intv.first > intv.second)
-				return;
+			{
+				stop = true;
+				break;
+			}
 			x1 = intv.first;
 			break;
 		}
@@ -185,7 +197,10 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 			intv.second = min(intv.second, temp.second);
 		}
 		if (intv.first > intv.second)
-			return;
+		{
+			stop = true;
+			break;
+		}
 		if (addV.getkthNode(mid)->value.first > intv.first)
 			end = mid;
 		else
@@ -196,14 +211,17 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 		if (end - start < 2)
 		{
 			pair<double, double> intv(0, 1);
-			for (int j = max(0, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
+			for (int j = max(1, start); j <= min(end + 1, static_cast<int>(addV.size() - 1)); j++)
 			{
 				auto temp = Vinterval(i, addV.getkthNode(j)->value.second, lindex);
 				intv.first = max(intv.first, temp.first);
 				intv.second = min(intv.second, temp.second);
 			}
 			if (intv.first > intv.second)
-				return;
+			{
+				stop = true;
+				break;
+			}
 			x2 = intv.second;
 			break;
 		}
@@ -225,15 +243,20 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 			intv.second = min(intv.second, temp.second);
 		}
 		if (intv.first > intv.second)
-			return;
+		{
+			stop = true;
+			break;
+		}
 		if (addV.getkthNode(mid)->value.first > intv.second)
 			end = mid;
 		else
 			start = mid;
 	}
-	if (x1 >= x2)
-		return;
+	if (!stop && x1 >= x2)
+		stop = true;
 	SetReprInv(i, lindex, Reprs); 
+	if (stop)
+		return;
 	auto it = addV.getRightNode({ x1, -1 });
 	i1 = it->value.second;
 	if (it != addV.getkthNode(0)) //it != addV.begin()
@@ -313,6 +336,8 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>, g
 {
 	Segment* l1 = Adjs[lindex].first;
 	auto& addV = l1->AddVoronoi[Revs[lindex]];
+	if (addV.isEmpty())
+		return;
 	auto it = addV.getRightNode({ X[i],-1 });
 	if (i == 0)
 		it = addV.getkthNode(1); //std::next(addV.begin());
@@ -320,11 +345,15 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>, g
 		it = addV.getkthNode(addV.size()-1);
 	pair<double, double> intv(addV.getLeftNode(it->value)->value.first, it->value.first); //intv(std::prev(it)->first, it->first);
 	int index = it->value.second;
+	Sbar[X[i]] = i;
 	if (i == l1->FindRepr(index, Revs[lindex], intv).first)
 	{
 		Sbar.erase(X[i]);
 		l1->SetRepr(index, Revs[lindex], intv, Reprs);
-		Sbar[X[i]] = i;
+	}
+	else
+	{
+		Sbar.erase(X[i]);
 	}
 	return;
 }
@@ -377,7 +406,7 @@ int main1()
 	return 0;
 }
 
-//시작 위치의 이웃한 점 이외에는 Update가 제대로 되지 않음
+//end iterator의 dereference
 int main()
 {
 	priority_queue<Repr, vector<Repr>, greater<Repr>> Reprs;
@@ -402,8 +431,6 @@ int main()
 	for (size_t i = 0; i < A.size(); i++)
 	{
 		S[i]->AddAdjs(S[i].get(), -1);
-		if (i != 0)
-			S[i]->AddAdjs(S[i - 1].get(), -1);
 		if (i != A.size()-1)
 			S[i]->AddAdjs(S[i + 1].get(), -1);
 	}

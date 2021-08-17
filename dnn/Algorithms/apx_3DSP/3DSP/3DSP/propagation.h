@@ -45,7 +45,7 @@ private:
 public:
 	//Steiner point generation 완성된 이후에 구현 예정, 추후에 private로 옮기기
 	void SetAdjs() {};//마지막에 AddVoronoi도 초기화해야함
-	void SetRevs() {};
+	void SetRevs() {}; //How to implement?
 	void SetAdjDiagram();
 	void SetNear();
 
