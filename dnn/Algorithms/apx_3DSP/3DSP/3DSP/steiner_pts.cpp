@@ -1,14 +1,35 @@
 #include <vector>
 #include <cmath>
+#include <algorithm>
 #include "dots.h"
 #include "propagation.h"
 
 // given a point x, compute d(x), the minimum euclidean distance from x to any point on the boundary of D(x)
-double MinDist(Tetra* Tets, Point P) {
-	return 1.0;
+double dist_x(PolyDomain PD, Point P) {
+	vector<Tri> Tris;
+	
+	for (int i : P.incid_tets) {
+		for (int j : PD.tets[i].incid_fcs) {
+			// the face is not incident to P
+			if (std::find(P.incid_fcs.begin(), P.incid_fcs.end(), j) != P.incid_fcs.end()) {
+				Tris.push_back(PD.faces[j]);
+			}
+			// the face is incident to P
+			else {}
+		}
+	}
+
+	for (Tri T : Tris) {
+
+	}
 }
 
-double ComputeRe(Tetra* Tets, Segment e) {
+double radius_v(PolyDomain PD, Point P) {
+
+	return dist_x(PD, P)/14;
+}
+
+double radius_e(PolyDomain PD, Segment e) {
 	return 1.0;
 }
 

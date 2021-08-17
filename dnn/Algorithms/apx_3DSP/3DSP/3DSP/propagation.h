@@ -15,6 +15,9 @@ struct Repr;
 
 class Segment {
 private:
+	int a_ind, b_ind;
+	vector<int> incid_fcs;
+	vector<int> incid_tets;
 	bool tetra;
 	MyVec a,b;
 	Tetra* tets;
@@ -47,10 +50,27 @@ private:
 	void SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>>& Reprs); //Sbar에서 vertex가 사라져 representative를 수정해야 하는 경우
 
 public:
+	Segment() {}
 	Segment(MyVec _a, MyVec _b, vector<double> _X) {
 		a = _a;
 		b = _b;
 		X = vector<double>(_X);
+		S.clear();
+		for (size_t i = 0; i < X.size(); i++)
+		{
+			Sbar[X[i]] = i;
+		}
+		SetAdjs();
+		SetRevs();
+		SetAdjDiagram();
+		SetNear();
+	}
+	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind) {
+		a = _a;
+		b = _b;
+		X = vector<double>(_X);
+		a_ind = _a_ind;
+		b_ind = _b_ind;
 		S.clear();
 		for (size_t i = 0; i < X.size(); i++)
 		{
@@ -75,6 +95,22 @@ public:
 
 	MyVec getb() {
 		return b;
+	}
+
+	int geta_ind() {
+		return a_ind;
+	}
+
+	int getb_ind() {
+		return b_ind;
+	}
+
+	void add_fc(int fc_num) {
+		incid_fcs.push_back(fc_num);
+	}
+
+	void add_tet(int tet_num) {
+		incid_tets.push_back(tet_num);
 	}
 
 	Tetra* get_tets() {

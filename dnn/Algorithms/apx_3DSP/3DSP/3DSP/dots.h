@@ -17,6 +17,7 @@ class MyVec {
 public:
 	double x, y, z;
 	int index;
+
 public:
 	MyVec() {
 		x = y = z = index = 0;
@@ -64,6 +65,9 @@ class Point {
 public:
 	double x, y, z;
 	int index;
+	vector<int> incid_egs;
+	vector<int> incid_fcs;
+	vector<int> incid_tets;
 
 public:
 	Point() {
@@ -111,6 +115,7 @@ public:
 	}
 };
 
+/*
 class Edge {
 public:
 	Point p1;
@@ -122,17 +127,30 @@ public:
 		p1 = P1_; p2 = P2_;
 	}
 };
+*/
 
 // triangular face of a tetrahedron
 class Tri {
 public:
 	Point p1, p2, p3;
 	MyVec v1, v2, v3;
+	int a, b, c; // node index
+	vector<int> incid_tets;
+
 public:
 	Tri() {};
 	Tri(Point P1_, Point P2_, Point P3_) {
 		p1 = P1_; p2 = P2_; p3 = P3_;
 		v1 = MyVec(p1.x, p1.y, p1.z); v2 = MyVec(p2.x, p2.y, p2.z); v3 = MyVec(p3.x, p3.y, p3.z);
+	}
+	Tri(Point P1_, Point P2_, Point P3_, int _a, int _b, int _c) {
+		p1 = P1_; p2 = P2_; p3 = P3_;
+		v1 = MyVec(p1.x, p1.y, p1.z); v2 = MyVec(p2.x, p2.y, p2.z); v3 = MyVec(p3.x, p3.y, p3.z);
+		a = _a; b = _b; c = _c;
+	}
+
+	void add_tet(int i) {
+		incid_tets.push_back(i);
 	}
 
 	friend bool operator == (const Tri& T1, const Tri& T2) {
@@ -146,15 +164,19 @@ public:
 // t1 : <p1, p2, p3>, t2 : <p2, p3, p4>, t3: <p3, p4, p1>, t4 : <p4, p1, p2>
 	Tri t1, t2, t3, t4;
 	Point p1, p2, p3, p4;
+	vector<int> incid_fcs;
+	vector<int> incid_tets;
+
 public:
 	Tetra() {};
 	Tetra(Tri T1_, Tri T2_, Tri T3_, Tri T4_) {
 		t1 = T1_; t2 = T2_, t3 = T3_, t4 = T4_;
 		p1 = t1.p1; p2 = t2.p1; p3 = t3.p1; p4 = t4.p1;
 	}
-	Tetra(Point P1_, Point P2_, Point P3_, Point P4_) {
+	Tetra(Point P1_, Point P2_, Point P3_, Point P4_, vector<int> _incid_fcs) {
 		p1 = P1_; p2 = P2_; p3 = P3_; p4 = P4_;
 		t1 = Tri(p1, p2, p3); t2 = Tri(p2, p3, p4); t3 = Tri(p3, p4, p1); t4 = Tri(p4, p1, p2);
+		incid_fcs = _incid_fcs;
 	}
 
 	friend bool operator == (const Tetra& Tet1, const Tetra& Tet2) {
@@ -204,7 +226,7 @@ double PointsDist(Point P1, Point P2);
 double InnerProd(MyVec V1, MyVec V2);
 
 
-double PointEdgeDist(Point P0p, Edge E);
+// double PointEdgeDist(Point P0p, Edge E);
 bool PointInsideTri(Tri T, Point P0);
 double PointPlaneDist(Point P0, Plane PL); 
 double PlaneAngle(Plane PL1, Plane PL2);
@@ -221,6 +243,7 @@ public:
 	PolyDomain() { pts = {}; edges = {}; faces = {}; tets = {};}
 	PolyDomain(vector<Point> pts_, vector<Segment> edges_, vector<Tri> faces_, vector<Tetra> tets_) {
 		pts = pts_; edges = edges_; faces = faces_; tets = tets_;
+
 	}
 };
 

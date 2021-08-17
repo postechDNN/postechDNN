@@ -64,6 +64,7 @@ MyVec OuterProd(MyVec V1, MyVec V2) {
 	return MyVec{ a2 * b3 - a3 * b2, -(a1 * b3 - a3 * b1), a1 * b2 - a2 * b1 };
 }
 
+/*
 double PointEdgeDist(Point P0p, Edge E) {
 	Point P1 = E.p1;
 	Point P2 = E.p2;
@@ -82,6 +83,7 @@ double PointEdgeDist(Point P0p, Edge E) {
 	else { return 3; } // P0 is closest to P2
 
 }
+*/
 
 // 3D 공간에서 삼각형이 (해당 삼각형이 정의되는) 평면 위의 한 점을 포함하는지 판단. reference : 3D Distance from a Point to a Triangle
 bool PointInsideTri(Tri T, Point P0) {
