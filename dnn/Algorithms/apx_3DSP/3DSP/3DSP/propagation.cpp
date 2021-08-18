@@ -71,6 +71,7 @@ void Segment::SetNear()
 	}
 }
 
+//Need to debug
 //dist[i]>=dist[i1] 이고 Segment l위의 site가 X[i] 와 X[i1]에 있을 때, X[i]가 차지하는 l1위의 구간을 구함
 pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 {
@@ -152,6 +153,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 	{
 		addV.insert({ 0.,-1 });
 		addV.insert({ 1.,i });
+		SetReprInv(i, lindex, Reprs);
 		SetRepr(i, lindex, { 0.,1. }, Reprs);
 		return;
 	}
@@ -286,6 +288,8 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv)
 {
 	Segment* l1 = Adjs[lindex].first;
+	if(l1->Sbar.empty())
+		return { -1,0. };
 	intv = { max(intv.first,AdjDiagram[lindex][i].first), min(intv.second,AdjDiagram[lindex][i].second) };
 	auto it1 = l1->Sbar.lower_bound(intv.first);
 	auto it2 = l1->Sbar.upper_bound(intv.second);
@@ -406,7 +410,7 @@ int main1()
 	return 0;
 }
 
-//end iterator의 dereference
+  
 int main()
 {
 	priority_queue<Repr, vector<Repr>, greater<Repr>> Reprs;
