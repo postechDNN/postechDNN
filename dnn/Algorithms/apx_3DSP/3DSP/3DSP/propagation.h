@@ -16,6 +16,9 @@ struct Repr;
 
 class Segment {
 private:
+	int a_ind, b_ind;
+	vector<int> incid_fcs;
+	vector<int> incid_tets;
 	bool tetra;
 	MyVec a,b;
 	Tetra* tets;
@@ -30,8 +33,6 @@ private:
 	vector<vector<pair<double, double>>> AdjDiagram;
 	vector<AVLTree<pair<double,int>>> AddVoronoi; //tree의 각 원소는 (vertex 상대위치, -방향 cell의 site)
 	vector<vector<double>> Near;
-	
-	
 
 	pair<double, double> Vinterval(int i, int i1, int lindex);
 	pair<double, double> Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1);
@@ -48,11 +49,27 @@ public:
 	void SetRevs() {}; //How to implement?
 	void SetAdjDiagram();
 	void SetNear();
-
+	Segment() {a_ind = b_ind = -1;}
 	Segment(MyVec _a, MyVec _b, vector<double> _X) {
 		a = _a;
 		b = _b;
 		X = vector<double>(_X);
+		S.clear();
+		for (size_t i = 0; i < X.size(); i++)
+		{
+			Sbar[X[i]] = i;
+		}
+		SetAdjs();
+		SetRevs();
+		SetAdjDiagram();
+		SetNear();
+	}
+	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind) {
+		a = _a;
+		b = _b;
+		X = vector<double>(_X);
+		a_ind = _a_ind;
+		b_ind = _b_ind;
 		S.clear();
 		for (size_t i = 0; i < X.size(); i++)
 		{
@@ -74,12 +91,52 @@ public:
 		this->X = _X;
 	}
 
+	vector<double> getX() {
+		return X;
+	}
+
+	void seta(MyVec _a) {
+		a = _a;
+	}
+
 	MyVec geta() {
 		return a;
 	}
 
+	void setb(MyVec _b) {
+		b = _b;
+	}
+
 	MyVec getb() {
 		return b;
+	}
+
+	vector<int> get_incid_fcs() {
+		return incid_fcs;
+	}
+
+	void set_incid_tets(vector<int> _incid_tets) {
+		incid_tets = _incid_tets;
+	}
+
+	vector<int> get_incid_tets() {
+		return incid_tets;
+	}
+
+	int geta_ind() {
+		return a_ind;
+	}
+
+	int getb_ind() {
+		return b_ind;
+	}
+
+	void add_fc(int fc_num) {
+		incid_fcs.push_back(fc_num);
+	}
+
+	void add_tet(int tet_num) {
+		incid_tets.push_back(tet_num);
 	}
 
 	Tetra* get_tets() {
