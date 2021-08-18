@@ -59,6 +59,7 @@ public:
 		{
 			Sbar[X[i]] = i;
 		}
+		dist.assign(X.size(), 0);
 		SetAdjs();
 		SetRevs();
 		SetAdjDiagram();

@@ -409,7 +409,6 @@ int main1()
 		cout << tree.getkthNode(i * intv)->value << endl;
 	return 0;
 }
-
   
 int main()
 {
@@ -460,5 +459,4 @@ int main()
 	}
 	return 0;
 }
-
 */
