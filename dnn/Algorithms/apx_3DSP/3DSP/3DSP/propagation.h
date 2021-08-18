@@ -33,8 +33,6 @@ private:
 	vector<vector<pair<double, double>>> AdjDiagram;
 	vector<AVLTree<pair<double,int>>> AddVoronoi; //tree의 각 원소는 (vertex 상대위치, -방향 cell의 site)
 	vector<vector<double>> Near;
-	
-	
 
 	pair<double, double> Vinterval(int i, int i1, int lindex);
 	pair<double, double> Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1);
@@ -46,16 +44,12 @@ private:
 	void SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs); //Sbar에서 vertex가 사라져 representative를 수정해야 하는 경우
 
 public:
-// <<<<<<< HEAD
-	Segment() {}
-// =======
 	//Steiner point generation 완성된 이후에 구현 예정, 추후에 private로 옮기기
 	void SetAdjs() {};//마지막에 AddVoronoi도 초기화해야함
 	void SetRevs() {}; //How to implement?
 	void SetAdjDiagram();
 	void SetNear();
-
-// >>>>>>> f2a1e93d66370f2cdd4c2ac4ddf26cea7c632dc6
+	Segment() {a_ind = b_ind = -1;}
 	Segment(MyVec _a, MyVec _b, vector<double> _X) {
 		a = _a;
 		b = _b;
@@ -97,12 +91,36 @@ public:
 		this->X = _X;
 	}
 
+	vector<double> getX() {
+		return X;
+	}
+
+	void seta(MyVec _a) {
+		a = _a;
+	}
+
 	MyVec geta() {
 		return a;
 	}
 
+	void setb(MyVec _b) {
+		b = _b;
+	}
+
 	MyVec getb() {
 		return b;
+	}
+
+	vector<int> get_incid_fcs() {
+		return incid_fcs;
+	}
+
+	void set_incid_tets(vector<int> _incid_tets) {
+		incid_tets = _incid_tets;
+	}
+
+	vector<int> get_incid_tets() {
+		return incid_tets;
 	}
 
 	int geta_ind() {

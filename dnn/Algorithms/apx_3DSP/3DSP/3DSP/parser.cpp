@@ -71,7 +71,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			sort(sg_info.begin()+1, sg_info.end()-1);
 
 			for (int i = 1; i < 3; i++) {
-				pts[sg_info[i]].incid_egs.push_back(sg_info[0]);
+				pts[sg_info[i]].add_incid_egs(sg_info[0]);
 			}
 
 			edges.push_back(Segment(Point2Vec(pts[sg_info[1]]), Point2Vec(pts[sg_info[2]]), {}, sg_info[1], sg_info[2]));
@@ -106,7 +106,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			sort(fc_info.begin()+1, fc_info.end()-1);
 
 			for (int i = 1; i < 4; i++) {
-				pts[fc_info[i]].incid_fcs.push_back(fc_info[0]);
+				pts[fc_info[i]].add_incid_fcs(fc_info[0]);
 			}
 
 			for (vector<Segment>::iterator it = edges.begin(); it != edges.end(); ++it) {
@@ -151,7 +151,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			sort(tet_info.begin()+1, tet_info.end());
 
 			for (int i = 1; i < 5; i++) {
-				pts[tet_info[i]].incid_tets.push_back(tet_info[0]);
+				pts[tet_info[i]].add_incid_tets(tet_info[0]);
 			}
 
 			for (vector<Segment>::iterator it = edges.begin(); it != edges.end(); ++it) {
@@ -163,7 +163,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			}
 
 			for (vector<Tri>::iterator it = faces.begin(); it != faces.end(); ++it) {
-				vector<int> Fvec = { it->a, it->b, it->c };
+				vector<int> Fvec = { it->geta(), it->getb(), it->getc() };
 
 				if (std::includes(tet_info.begin()+1, tet_info.end(), Fvec.begin(), Fvec.end())) {
 					it->add_tet(tet_info[0]);
@@ -172,8 +172,8 @@ PolyDomain BuildPolyDomain(string FileName) {
 
 			vector<int> _incid_fcs = {};
 
-			for (int i = 0; i < faces.size(); i++) {
-				if (tet_info[1] == faces[i].a && tet_info[2] == faces[i].b && tet_info[3] == faces[i].c) {
+			for (unsigned int i = 0; i < faces.size(); i++) {
+				if (tet_info[1] == faces[i].geta() && tet_info[2] == faces[i].getb() && tet_info[3] == faces[i].getc()) {
 					_incid_fcs.push_back(i);
 				}
 			}
@@ -182,7 +182,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			//{tet_info[1], tet_info[2], tet_info[4]}, {tet_info[1], tet_info[3], tet_info[4]}, 
 			//{tet_info[2], tet_info[3], tet_info[4]} };
 
-			tetras.push_back(Tetra(pts[tet_info[1]], pts[tet_info[2]], pts[tet_info[3]], pts[tet_info[4]], _incid_fcs));
+			tetras.push_back(Tetra(pts[tet_info[1]], pts[tet_info[2]], pts[tet_info[3]], pts[tet_info[4]], _incid_fcs, tet_info[0]));
 		}
 		readFile.close();
 	}
@@ -215,7 +215,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			vector<int>::iterator it;
 			for (it = tet_info2.begin() + 1; it != tet_info2.end(); it++) {
 				if (*it != -1) {
-					(tetras[tet_info2[0]].incid_tets).push_back(*it);
+					tetras[tet_info2[0]].add_incid_tets(*it);
 				}
 			}
 		}
@@ -225,7 +225,6 @@ PolyDomain BuildPolyDomain(string FileName) {
 	return PolyDomain(pts, edges, faces, tetras);
 }
 
-/*
 int main()
 {
 	string FileName;
@@ -234,7 +233,6 @@ int main()
 	PolyDomain D = BuildPolyDomain(FileName);
 	return 0;
 }
-*/
 
 // tetgen 자료형과 클래스 간 대응 관계
 // node(node) - Point

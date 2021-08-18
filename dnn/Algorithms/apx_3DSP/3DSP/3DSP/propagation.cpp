@@ -23,9 +23,9 @@ void Segment::SetAdjDiagram()
 			}
 			Tri f = Tris[Adjs[i].second];
 			vector<MyVec> v;
-			v.push_back(f.p1);
-			v.push_back(f.p2);
-			v.push_back(f.p3);
+			v.push_back(f.getp1());
+			v.push_back(f.getp2());
+			v.push_back(f.getp3());
 			pair<double, double> res(0., 1.);
 			for (size_t k = 0; k < 3; k++)
 			{
@@ -374,7 +374,7 @@ bool Segment::IsContain(int i, int i1, Segment& l1, double t)
 	return VecSize(tv - v) + dist[i] < VecSize(tv - v1) + dist[i1];
 }
 
-
+/*
 int main1()
 {
 	std::random_device rd;
@@ -456,3 +456,5 @@ int main()
 	}
 	return 0;
 }
+
+*/
