@@ -71,7 +71,7 @@ void Segment::SetNear()
 	}
 }
 
-//Need to debug
+
 //dist[i]>=dist[i1] 이고 Segment l위의 site가 X[i] 와 X[i1]에 있을 때, X[i]가 차지하는 l1위의 구간을 구함
 pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 {
@@ -91,10 +91,10 @@ pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 	double C = 4 * c * c * InnerProd(l1.a - a - (b - a) * X[i], l1.a - a - (b - a) * X[i]) - Bbar * Bbar;
 
 	double D = B * B - 4 * A * C;
-	if (D < EPS)
-		return { 1., 0. };
 	if (abs(A) < EPS)
 	{
+		if (abs(B) < EPS)
+			return { 1., 0. };
 		double t = -C / B;
 		if (!IsVvertex(i, i1, l1, t))
 			return { 0., 1. };
@@ -102,8 +102,12 @@ pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 			return { t, 1. };
 		return { 0., t };
 	}
+	if (D / abs(A) < EPS)
+		return { 1., 0. };
 	double t1 = (-B - sqrt(D)) / (2 * A);
 	double t2 = (-B + sqrt(D)) / (2 * A);
+	if (t1 > t2)
+		swap(t1, t2);
 	bool val1 = IsVvertex(i, i1, l1, t1);
 	bool val2 = IsVvertex(i, i1, l1, t2);
 	if (val1 && val2)
@@ -279,7 +283,8 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 		addV.pop(it->value);
 		it = addV.getRightNode(it->value);
 	}
-	addV.insert({ x1, i1 });
+	if (x1 != 0.)
+		addV.insert({ x1, i1 });
 	addV.insert({ x2, i });
 	SetRepr(i, lindex, { x1,x2 }, Reprs);
 	return;
@@ -288,12 +293,12 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv)
 {
 	Segment* l1 = Adjs[lindex].first;
-	if(l1->Sbar.empty())
+	if (l1->Sbar.empty())
 		return { -1,0. };
 	intv = { max(intv.first,AdjDiagram[lindex][i].first), min(intv.second,AdjDiagram[lindex][i].second) };
 	auto it1 = l1->Sbar.lower_bound(intv.first);
 	auto it2 = l1->Sbar.upper_bound(intv.second);
-	if (intv.first > intv.second || it1->first > intv.second || it2 == l1->Sbar.begin())
+	if (it1 == l1->Sbar.end() || it2 != l1->Sbar.end() && (intv.first > intv.second || it1->first > intv.second || it2 == l1->Sbar.begin()))
 		return { -1,0. };
 	it2--;
 	int index;
@@ -365,16 +370,16 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>, g
 bool Segment::IsVvertex(int i, int i1, Segment& l1, double t)
 {
 	MyVec tv = l1.a * (1 - t) + l1.b * t;
-	MyVec v = l1.a * (1 - X[i]) + l1.b * X[i];
-	MyVec v1 = l1.a * (1 - X[i1]) + l1.b * X[i1];
+	MyVec v = this->a * (1 - X[i]) + this->b * X[i];
+	MyVec v1 = this->a * (1 - X[i1]) + this->b * X[i1];
 	return abs(VecSize(tv - v) + dist[i] - VecSize(tv - v1) - dist[i1]) < EPS;
 }
 
 bool Segment::IsContain(int i, int i1, Segment& l1, double t)
 {
 	MyVec tv = l1.a * (1 - t) + l1.b * t;
-	MyVec v = l1.a * (1 - X[i]) + l1.b * X[i];
-	MyVec v1 = l1.a * (1 - X[i1]) + l1.b * X[i1];
+	MyVec v = this->a * (1 - X[i]) + this->b * X[i];
+	MyVec v1 = this->a * (1 - X[i1]) + this->b * X[i1];
 	return VecSize(tv - v) + dist[i] < VecSize(tv - v1) + dist[i1];
 }
 
@@ -409,7 +414,7 @@ int main1()
 		cout << tree.getkthNode(i * intv)->value << endl;
 	return 0;
 }
-  
+ 
 int main()
 {
 	priority_queue<Repr, vector<Repr>, greater<Repr>> Reprs;
@@ -418,13 +423,13 @@ int main()
 	vector<double> X;
 	int n = 10;
 	A.emplace_back(0., 0., 0.);
-	B.emplace_back(0., 0., 1.);
+	B.emplace_back(0., 0., 3.);
 	A.emplace_back(0., 1., 0.);
-	B.emplace_back(0., 1., 1.);
+	B.emplace_back(0., 1., 3.);
 	A.emplace_back(0., 2., 0.);
-	B.emplace_back(0., 2., 1.);
+	B.emplace_back(0., 2., 3.);
 	A.emplace_back(0., 3., 0.);
-	B.emplace_back(0., 3., 1.);
+	B.emplace_back(0., 3., 3.);
 	for (size_t i = 0; i <= n; i++)
 		X.push_back(static_cast<double>(i)/static_cast<double>(n));
 	for (size_t i = 0; i < A.size(); i++)
