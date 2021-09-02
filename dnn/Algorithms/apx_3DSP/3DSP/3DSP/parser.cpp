@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "dots.h"
 #include "propagation.h"
+#include "steiner_pts.h"
 
 using namespace std;
 
@@ -45,7 +46,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 	}
 
 	readFile.open(FileName + ".edge");
-	vector<Segment> edges = {};
+	vector<Segment> sgs = {};
 
 	if (readFile.is_open()) {
 		string str2;
@@ -71,16 +72,17 @@ PolyDomain BuildPolyDomain(string FileName) {
 			sort(sg_info.begin()+1, sg_info.end()-1);
 
 			for (int i = 1; i < 3; i++) {
-				pts[sg_info[i]].add_incid_egs(sg_info[0]);
+				pts[sg_info[i]].add_iegs(sg_info[0]);
 			}
 
-			edges.push_back(Segment(Point2Vec(pts[sg_info[1]]), Point2Vec(pts[sg_info[2]]), {}, sg_info[1], sg_info[2]));
+			sgs.push_back(Segment(Point2Vec(pts[sg_info[1]]), Point2Vec(pts[sg_info[2]]), {}, 
+						  sg_info[1], sg_info[2], sg_info[0]));
 		}
 		readFile.close();
 	}
 
 	readFile.open(FileName + ".face");
-	vector<Tri> faces = {};
+	vector<Tri> fcs = {};
 
 	if (readFile.is_open()) {
 		string str3;
@@ -106,10 +108,10 @@ PolyDomain BuildPolyDomain(string FileName) {
 			sort(fc_info.begin()+1, fc_info.end()-1);
 
 			for (int i = 1; i < 4; i++) {
-				pts[fc_info[i]].add_incid_fcs(fc_info[0]);
+				pts[fc_info[i]].add_ifcs(fc_info[0]);
 			}
 
-			for (vector<Segment>::iterator it = edges.begin(); it != edges.end(); ++it) {
+			for (vector<Segment>::iterator it = sgs.begin(); it != sgs.end(); ++it) {
 				vector<int> Svec = {it->geta_ind(), it->getb_ind() };
 				
 				if (std::includes(fc_info.begin()+1, fc_info.end()-1, Svec.begin(), Svec.end())) {
@@ -117,7 +119,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 				}
 			}
 
-			faces.push_back(Tri(pts[fc_info[1]], pts[fc_info[2]], pts[fc_info[3]], fc_info[1], fc_info[2], fc_info[3]));
+			fcs.push_back(Tri(pts[fc_info[1]], pts[fc_info[2]], pts[fc_info[3]], fc_info[1], fc_info[2], fc_info[3]));
 		}
 		readFile.close();
 	}
@@ -151,18 +153,27 @@ PolyDomain BuildPolyDomain(string FileName) {
 			sort(tet_info.begin()+1, tet_info.end());
 
 			for (int i = 1; i < 5; i++) {
-				pts[tet_info[i]].add_incid_tets(tet_info[0]);
+				pts[tet_info[i]].add_itets(tet_info[0]);
 			}
 
-			for (vector<Segment>::iterator it = edges.begin(); it != edges.end(); ++it) {
+			int ordered_sgs[6] = {0, };
+
+			for (vector<Segment>::iterator it = sgs.begin(); it != sgs.end(); ++it) {
 				vector<int> Svec = { it->geta_ind(), it->getb_ind() };
 
 				if (std::includes(tet_info.begin()+1, tet_info.end(), Svec.begin(), Svec.end())) {
 					it->add_tet(tet_info[0]);
 				}
+
+				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[2]) { ordered_sgs[0] = it->getind(); }
+				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[3]) { ordered_sgs[1] = it->getind(); }
+				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[4]) { ordered_sgs[2] = it->getind(); }
+				if (Svec[0] == tet_info[2] && Svec[1] == tet_info[3]) { ordered_sgs[3] = it->getind(); }
+				if (Svec[0] == tet_info[2] && Svec[1] == tet_info[4]) { ordered_sgs[4] = it->getind(); }
+				if (Svec[0] == tet_info[3] && Svec[1] == tet_info[4]) { ordered_sgs[5] = it->getind(); }
 			}
 
-			for (vector<Tri>::iterator it = faces.begin(); it != faces.end(); ++it) {
+			for (vector<Tri>::iterator it = fcs.begin(); it != fcs.end(); ++it) {
 				vector<int> Fvec = { it->geta(), it->getb(), it->getc() };
 
 				if (std::includes(tet_info.begin()+1, tet_info.end(), Fvec.begin(), Fvec.end())) {
@@ -170,19 +181,30 @@ PolyDomain BuildPolyDomain(string FileName) {
 				}
 			}
 
-			vector<int> _incid_fcs = {};
+			vector<int> _egs = {};
 
-			for (unsigned int i = 0; i < faces.size(); i++) {
-				if (tet_info[1] == faces[i].geta() && tet_info[2] == faces[i].getb() && tet_info[3] == faces[i].getc()) {
-					_incid_fcs.push_back(i);
+			for (unsigned int i = 0; i < sgs.size(); i++) {
+				vector<int> comp = { sgs[i].geta_ind(), sgs[i].getb_ind() };
+
+				if (std::includes(tet_info.begin()+1, tet_info.end(), comp.begin(), comp.end())) {
+					_egs.push_back(i);
 				}
 			}
-			
-			//{{tet_info[1], tet_info[2], tet_info[3]}, 
-			//{tet_info[1], tet_info[2], tet_info[4]}, {tet_info[1], tet_info[3], tet_info[4]}, 
-			//{tet_info[2], tet_info[3], tet_info[4]} };
 
-			tetras.push_back(Tetra(pts[tet_info[1]], pts[tet_info[2]], pts[tet_info[3]], pts[tet_info[4]], _incid_fcs, tet_info[0]));
+			vector<int> _fcs = {};
+
+			for (unsigned int i = 0; i < fcs.size(); i++) {
+				vector<int> comp = { fcs[i].geta(), fcs[i].getb(), fcs[i].getc() };
+
+				if (std::includes(tet_info.begin()+1, tet_info.end(), comp.begin(), comp.end())) {
+					_fcs.push_back(i);
+				}
+			}
+
+			vector<int> _nds_num = {tet_info[1], tet_info[2], tet_info[3], tet_info[4]};
+
+			tetras.push_back(Tetra(pts[tet_info[1]], pts[tet_info[2]], pts[tet_info[3]], pts[tet_info[4]], 
+								   _egs, _fcs, tet_info[0], _nds_num, ordered_sgs));
 		}
 		readFile.close();
 	}
@@ -215,24 +237,36 @@ PolyDomain BuildPolyDomain(string FileName) {
 			vector<int>::iterator it;
 			for (it = tet_info2.begin() + 1; it != tet_info2.end(); it++) {
 				if (*it != -1) {
-					tetras[tet_info2[0]].add_incid_tets(*it);
+					tetras[tet_info2[0]].add_itets(*it);
 				}
 			}
 		}
 		readFile.close();
 	}
 
-	return PolyDomain(pts, edges, faces, tetras);
+	return PolyDomain(pts, sgs, fcs, tetras);
 }
 
-int main()
-{
+/*
+int main(){
 	string FileName;
 	cout << "Enter tetgen file name: ";
 	cin >> FileName;
 	PolyDomain D = BuildPolyDomain(FileName);
+
+	// Point P1(1, 0, 0); // for test
+	// Point P2(2, 3, 0); // for test
+	// Point P3 = P1 + (P2 * 2); // for test
+	// Point P4 = P1 + (P2 - P3); // for test
+
+	vector<Segment> sgs = MarkPoints(D);
+	for (Segment sg : sgs) {
+		cout << sg.geta_ind() << sg.getb_ind() << endl;
+	}
 	return 0;
 }
+*/
+
 
 // tetgen 자료형과 클래스 간 대응 관계
 // node(node) - Point

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const double EPS = 1e-8;
+const double EPS = 0.5;
 
 class Segment;
 
@@ -71,9 +71,9 @@ class Point {
 private:
 	double x, y, z;
 	int index;
-	vector<int> incid_egs;
-	vector<int> incid_fcs;
-	vector<int> incid_tets;
+	vector<int> iegs;
+	vector<int> ifcs;
+	vector<int> itets;
 	int sur_tet; // tetrahedron surrounding the point
 
 public:
@@ -103,12 +103,12 @@ public:
 	double gety() const { return y; }
 	double getz() const { return z; }
 
-	vector<int> get_incid_egs() const { return incid_egs; }
-	void add_incid_egs(int eg) { incid_egs.push_back(eg); }
-	vector<int> get_incid_fcs() const { return incid_fcs; }
-	void add_incid_fcs(int fc) { incid_fcs.push_back(fc); }
-	vector<int> get_incid_tets() const { return incid_tets; }
-	void add_incid_tets(int tet) { incid_tets.push_back(tet); }
+	vector<int> get_iegs() const { return iegs; }
+	void add_iegs(int eg) { iegs.push_back(eg); }
+	vector<int> get_ifcs() const { return ifcs; }
+	void add_ifcs(int fc) { ifcs.push_back(fc); }
+	vector<int> get_itets() const { return itets; }
+	void add_itets(int tet) { itets.push_back(tet); }
 
 	int get_sur_tet() const { return sur_tet; }
 
@@ -116,6 +116,10 @@ public:
 
 	Point operator - (const Point& P) const{
 		return Point(x - P.x, y - P.y, z - P.z);
+	}
+
+	Point operator + (const Point& P) const {
+		return Point(x + P.x, y + P.y, z + P.z);
 	}
 
 	Point operator + (const MyVec& V) const{
@@ -139,27 +143,13 @@ public:
 	}
 };
 
-/*
-class Edge {
-public:
-	Point p1;
-	Point p2;
-
-public:
-	Edge() {};
-	Edge(Point P1_, Point P2_) {
-		p1 = P1_; p2 = P2_;
-	}
-};
-*/
-
 // triangular face of a tetrahedron
 class Tri {
 private:
 	Point p1, p2, p3;
 	MyVec v1, v2, v3;
 	int a, b, c; // node index
-	vector<int> incid_tets;
+	vector<int> itets;
 
 public:
 	Tri() {a = b = c = -1;}
@@ -182,7 +172,7 @@ public:
 	Point getp3() const { return p3; }
 
 	void add_tet(int i) {
-		incid_tets.push_back(i);
+		itets.push_back(i);
 	}
 
 	friend bool operator == (const Tri& T1, const Tri& T2) {
@@ -193,14 +183,16 @@ public:
 // tetrahedron
 class Tetra {
 private:
-// t1 : <p1, p2, p3>, t2 : <p2, p3, p4>, t3: <p3, p4, p1>, t4 : <p4, p1, p2>
+	// t1 : <p1, p2, p3>, t2 : <p2, p3, p4>, t3: <p3, p4, p1>, t4 : <p4, p1, p2>
 	Tri t1, t2, t3, t4;
 	Point p1, p2, p3, p4;
+	int a, b, c, d; // node indices
+	// sgs[0] : p1p2, sgs[1] : p1p3, sgs[2] : p1p4, sgs[3] : p2p3, sgs[4] : p2p4, sgs[5] : p3p4 
 	int sgs[6];
+	vector<int> egs;
 	vector<int> fcs;
-	vector<int> incid_tets;
+	vector<int> itets;
 	int index;
-	vector<int> segs;
 
 public:
 	Tetra() {};
@@ -208,21 +200,25 @@ public:
 		t1 = T1_; t2 = T2_, t3 = T3_, t4 = T4_;
 		p1 = t1.getp1(); p2 = t2.getp1(); p3 = t3.getp1(); p4 = t4.getp1();
 	}
-	Tetra(Point P1_, Point P2_, Point P3_, Point P4_, vector<int> _fcs, int _index) {
+	Tetra(Point P1_, Point P2_, Point P3_, Point P4_, vector<int> _egs, vector<int> _fcs, int _index, vector<int> nds_num, int* ordered_sgs) {
 		p1 = P1_; p2 = P2_; p3 = P3_; p4 = P4_;
 		t1 = Tri(p1, p2, p3); t2 = Tri(p2, p3, p4); t3 = Tri(p3, p4, p1); t4 = Tri(p4, p1, p2);
+		egs = _egs;
 		fcs = _fcs;
 		index = _index;
+		a = nds_num[0]; b = nds_num[1]; c = nds_num[2]; d = nds_num[3];
+		copy(ordered_sgs, ordered_sgs + 6, sgs);
 	}
 
 	Point getp1() {return p1;}
 	Point getp2() { return p2; }
 	Point getp3() { return p3; }
 	Point getp4() { return p4; }
+	int getsg(int num) { return sgs[num]; }
 	vector<int> get_fcs() {return fcs;}
 	int getindex() {return index;}
 
-	void add_incid_tets(int tet) { incid_tets.push_back(tet); }
+	void add_itets(int tet) { itets.push_back(tet); }
 
 	friend bool operator == (const Tetra& Tet1, const Tetra& Tet2) {
 		return Tet1.t1 == Tet2.t1 && Tet1.t2 == Tet2.t2 && Tet1.t3 == Tet2.t3 && Tet1.t4 == Tet2.t4;
@@ -275,7 +271,7 @@ double VecSize(MyVec V);
 double PointsDist(Point P1, Point P2);
 double InnerProd(MyVec V1, MyVec V2);
 
-double PointEdgeDist(Point P0p, Segment S);
+double PointSegDist(Point P0p, Segment S);
 double FacePointDist(Tri T, Point P0);
 
 // bool PointInsideTri(Tri T, Point P0);
@@ -287,29 +283,38 @@ class PolyDomain {
 private:
 	// Segment* Ss;
 	vector<Point> pts;
-	vector<Segment> edges;
-	vector<Tri> faces;
+	vector<Segment> sgs;
+	vector<Tri> fcs;
 	vector<Tetra> tets;
 public:
-	PolyDomain() { pts = {}; edges = {}; faces = {}; tets = {};}
-	PolyDomain(vector<Point>& pts_, vector<Segment>& edges_, vector<Tri>& faces_, vector<Tetra>& tets_) {
-		pts = pts_; edges = edges_; faces = faces_; tets = tets_;
+	PolyDomain() { pts = {}; sgs = {}; fcs = {}; tets = {};}
+	PolyDomain(vector<Point>& _pts, vector<Segment>& _sgs, vector<Tri>& _fcs, vector<Tetra>& _tets) {
+		pts = _pts; sgs = _sgs; fcs = _fcs; tets = _tets;
 	}
 	
 	vector<Point> get_pts() const {
 		return pts;
 	}
-	Segment* get_edge(int num) {
-		return &(edges[num]);
+	Point get_pt(int num) const {
+		return pts[num];
 	}
-	vector<Segment> get_edges() const {
-		return edges;
+	vector<Segment> get_sgs() const {
+		return sgs;
 	}
-	vector<Tri> get_faces() const {
-		return faces;
+	Segment* get_sg(int num) {
+		return &(sgs[num]);
+	}
+	vector<Tri> get_fcs() const {
+		return fcs;
+	}
+	Tri get_fc(int num) const {
+		return fcs[num];
 	}
 	vector<Tetra> get_tets() const{
 		return tets;
+	}
+	Tetra get_tet(int num) const {
+		return tets[num];
 	}
 };
 

@@ -71,7 +71,7 @@ double PlaneAngle(Plane PL1, Plane PL2) {
 	return abs(InnerProd(V1, V2)) / (VecSize(V1) * VecSize(V2));
 }
 
-double PointEdgeDist(Point P0p, Segment S) {
+double PointSegDist(Point P0p, Segment S) {
 	Point P1 = Vec2Point(S.geta());
 	Point P2 = Vec2Point(S.getb());
 
@@ -129,7 +129,7 @@ double FacePointDist(Tri T, Point P0) {
 	Segment S;
 	switch (outside) {
 	case -1:
-		return P0_P0p_len;
+		return abs(P0_P0p_len);
 	case 1:
 		S.seta(Point2Vec(P1)), S.setb(Point2Vec(P2));
 	case 2:
@@ -138,16 +138,16 @@ double FacePointDist(Tri T, Point P0) {
 		S.seta(Point2Vec(P3)), S.setb(Point2Vec(P1));
 	}
 
-	double PointEdgeRelation = PointEdgeDist(P0p, S);
-	if (PointEdgeRelation == 1) { // t < 0 in PointEdgeDistance()
+	double PointSegRelation = PointSegDist(P0p, S);
+	if (PointSegRelation == 1) { // t < 0 in PointSegDistance()
 		return VecSize(Points2Vec(Vec2Point(S.geta()), P0));
 	}
-	else if (PointEdgeRelation == 2) { // t > 1 in PointEdgeDistance()
+	else if (PointSegRelation == 2) { // t > 1 in PointSegDistance()
 		return VecSize(Points2Vec(Vec2Point(S.getb()), P0));
 	}
-	else //  0 <= t <= 1 in PointEdgeDistance()
+	else //  0 <= t <= 1 in PointSegDistance()
 	{
-		return sqrt(pow(PointEdgeRelation, 2) + pow(P0_P0p_len, 2));
+		return sqrt(pow(PointSegRelation, 2) + pow(P0_P0p_len, 2));
 	}
 
 	// still need to handle degenerate cases

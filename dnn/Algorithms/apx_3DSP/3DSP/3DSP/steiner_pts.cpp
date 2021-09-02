@@ -6,69 +6,121 @@
 #include "dots.h"
 #include "propagation.h"
 
-// given a point x, compute d(x), the minimum euclidean distance from x to any point on the boundary of D(x)
-double dist(PolyDomain PD, Point P, bool isVertex) {
+// all the 'dist' functions compute d(x) for a given point x, the minimum euclidean distance from x to any point on the boundary of D(x).
 
-	if (isVertex) {
-		vector<Tri> Tris;
+// when the input point is a vertex
+double dist(PolyDomain PD, int pt_num) { 
 
-		for (int i : P.get_incid_tets()) {
-			for (int j : PD.get_tets()[i].get_fcs()) { // 이래도 되나
-				// the face is not incident to P
-				if (std::find(P.get_incid_fcs().begin(), P.get_incid_fcs().end(), j) != P.get_incid_fcs().end()) {
-					Tris.push_back(PD.get_faces()[j]);
-				}
-				// the face is incident to P
-				else {}
+	Point P = PD.get_pt(pt_num);
+
+	vector<Tri> Tris;
+
+	vector<int> P_ifcs = P.get_ifcs();
+
+	for (int i : P.get_itets()) {
+		for (int j : PD.get_tet(i).get_fcs()) { // 이래도 되나
+			// the face is not incident to P
+			if (std::find(P_ifcs.begin(), P_ifcs.end(), j) == P_ifcs.end()) {
+				Tris.push_back(PD.get_fc(j));
 			}
+			// the face is incident to P
+			else {}
 		}
+	}
+
+	double val = DBL_MAX;
+	for (Tri T : Tris) {
+		double temp = FacePointDist(T, P);
+		if (val > temp) { val = temp; }
+	}
+
+	return val;
+}
+
+// when the input point is not a vertex (it either lies on the interior of a segment or not)
+double dist(PolyDomain PD, Point P, int num, bool onSeg) { 
+
+	if (onSeg) {
+		Segment S = *(PD.get_sg(num));
+
+		vector<int> S_ifcs = S.get_ifcs();
 
 		double val = DBL_MAX;
-		for (Tri T : Tris) {
-			double temp = FacePointDist(T, P);
-			if (val < temp) { val = temp; }
+		for (int i : S.get_itets()) {
+			if (std::find(S_ifcs.begin(), S_ifcs.end(), i) == S_ifcs.end()) {
+				double temp = FacePointDist(PD.get_fc(i), P);
+				if (val > temp) { val = temp; }
+			}
 		}
 
 		return val;
 	}
-
 	else {
 		double val = DBL_MAX;
-		for (int i : (PD.get_tets()[P.get_sur_tet()]).get_fcs()) {
-			double temp = FacePointDist(PD.get_faces()[i], P);
-			if (val < temp) { val = temp; }
+		for (int i : PD.get_tet(num).get_fcs()) {
+			double temp = FacePointDist(PD.get_fc(i), P);
+			if (val > temp) { val = temp; }
 		}
-
 		return val;
 	}
 }
 
-double radius(PolyDomain PD, Point P, bool isVertex) {
-	if (isVertex) { return dist(PD, P, true) / 14; }
-	else { return dist(PD, P, false) / 24; }
+double radius(PolyDomain PD, int pt_num) {
+	return dist(PD, pt_num) / 14;
 }
 
-double* radius_e(PolyDomain PD, Segment S) {
-	// dist_a, dist_b
-	double a = DBL_MAX; double b = DBL_MAX;
-	for (int i : S.get_incid_tets()) {
-		for (int j : PD.get_tets()[i].get_fcs()) {
-			vector<int> vec = S.get_incid_fcs();
-			if (std::find(vec.begin(), vec.end(), j) != vec.end()) {
-				if (FacePointDist(PD.get_faces()[j], Vec2Point(S.geta())) == 0) {
-					double temp = FacePointDist(PD.get_faces()[j], Vec2Point(S.getb()));
-					if (temp < b) { b = temp; }
-				}
-				else {
-					double temp = FacePointDist(PD.get_faces()[j], Vec2Point(S.geta()));
-					if (temp < a) { a = temp; }
-				}
+double radius(PolyDomain PD, Point P, int sg_num, bool onSeg) {
+	if (onSeg) { return dist(PD, P, sg_num, true) / 24; }
+	else { return dist(PD, P, sg_num, false) / 24; }
+}
+
+double* radius_e(PolyDomain PD, Segment S) { // radius of an edge in the polygonal domain
+
+	vector<double> As = {};
+	vector<double> Bs = {};
+
+	for (int i : S.get_itets()) { // for each tetrahedron that is incident to the segment
+		for (int j : PD.get_tets()[i].get_fcs()) { // among the faces that are incident to the tetrahedron 
+			// [c = b-a] for slope
+
+			vector<int> vec = S.get_ifcs();
+			if (std::find(vec.begin(), vec.end(), j) == vec.end()) { // if the face is not incident to the segment
+				As.push_back(FacePointDist(PD.get_fcs()[j], Vec2Point(S.geta()))); // calculate the distance between the face and the left endpoint of the segment
+				Bs.push_back(FacePointDist(PD.get_fcs()[j], Vec2Point(S.getb())));
+			}
+
+
+		}
+	}
+
+	vector<double> lines_inter = {0, 1}; // set of intersection points. 0 and 1 correspond to the endpoints of the segment
+	for (int i = 0; i < As.size(); i++) {
+		for (int j = i + 1; j < As.size(); j++) {
+			if (As[i] > Bs[i] && As[i + 1] < Bs[i + 1] || As[i] < Bs[i] && As[i + 1] > Bs[i + 1]) {
+				lines_inter.push_back((As[i + 1] - As[i]) / ((Bs[i] - As[i]) - (Bs[i + 1] - As[i + 1])));
 			}
 		}
 	}
 
-	// r_e, dMe, a, b
-	double ans[4] = {a * b / (a + b) * 24, a / (a + b), a, b};
+	double res_inter = -1;
+	double res = DBL_MIN;
+	for (double inter : lines_inter) {
+		double temp = DBL_MAX;
+		for (int i = 0; i < As.size(); i++) {
+			double val = (Bs[i] - As[i]) * inter + As[i];
+			if (temp > val) {temp = val;}
+		}
+		if (res < temp) { res = temp; res_inter = inter;}
+	}
+
+	res /= 24;
+	double a_rad = radius(PD, S.geta_ind()), b_rad = radius(PD, S.getb_ind());
+	if (res < a_rad) {res = a_rad; res_inter = 0;}
+	if (res < b_rad) {res = b_rad; res_inter = 1;}
+
+	double* ans = new double[2];
+	ans[0] = res_inter;
+	ans[1] = res;
 
 	return ans;
 }
@@ -84,12 +136,16 @@ Point perpen(Point A, Point B, Point P) {
 	return Vec2Point(ans);
 }
 
-vector<Segment> MarkPoints(PolyDomain PD, Point A, Point B, Point C, Point D, int Tet_index, int sg_num) {
+// sg_num is the index of the segment AB
+vector<Segment> MarkPoints(PolyDomain PD, int a, int b, int c, int d, int Tet_index, int sg_num) {
+	Point A = PD.get_pt(a); Point B = PD.get_pt(b); Point C = PD.get_pt(c); Point D = PD.get_pt(d);
+	// Segment S = *(PD.get_sg(sg_num)); // represents the segment AB
+	
 	Point P = (C + D) / 2;
 
 	Plane PL1(A, B, C), PL2(A, B, D);
 
-	double c = sqrt(EPS / 8) * sin(acos(PlaneAngle(PL1, PL2)) / 2);
+	double e = sqrt(EPS / 8) * sin(acos(PlaneAngle(PL1, PL2)) / 2);
 
 	Point H = perpen(A, B, P);
 	double dist_PH = PointsDist(P, H);
@@ -97,121 +153,120 @@ vector<Segment> MarkPoints(PolyDomain PD, Point A, Point B, Point C, Point D, in
 
 	vector<Segment> ans = {};
 
-	vector<double> Pi_s = { c/(1+c) };
+	vector<double> Pi_s = { e/(1.0+e) };
 	vector<int> ki_s = {};
+
+	int s_num = 0; // for test
 	
-	while (ans.empty() || !ans.back().getX().empty()) {
+	while (ans.empty() || !ans.back().getX().empty()) { // if ans.empty() = true, then it should be iterated
+		s_num += 1; // for test
+		// cout << s_num << endl; // for test
 
 		// First calculate P_{i+1}
 		double Pi = Pi_s.back();
-		double Pip1 = Pi + (1 - Pi) * c / (1 + c);
+		double Pip1 = Pi + (1 - Pi) * e/(1.0+e);
 		Pi_s.push_back(Pip1);
 
 		// Then calculate k_{i}
-		int ki = int(ceil((dist_AB * Pi) / (dist_PH * (Pip1 - Pi))));
+		int ki = 10; // for test
+		// int ki = int(ceil((dist_AB * Pi) / (dist_PH * (Pip1 - Pi))));
 		ki_s.push_back(ki);
 
-		Point Ai = P * Pi + A * (1 - Pi);
-		Point Bi = P * Pi + B * (1 - Pi);
+		Point Ai = P * (1 - Pi) + A * Pi;
+		Point Bi = P * (1 - Pi) + B * Pi;
 
+		Segment S(Ai, Bi, {});
+		S.set_itets({ Tet_index });
 		vector<double> Xi = {};
 
-		for (int i = 0; i < ki+2; i++) {
-			Point temp_pt = A + (B-A) * (i / (ki+1));
+		double rad_a = radius(PD, a);
+		double rad_b = radius(PD, b);
+		double rad_Seg = radius_e(PD, *(PD.get_sg(sg_num)))[1];
 
-			Segment S(A, B, {});
-			S.set_incid_tets({Tet_index});
+		// cout << endl;
+		// cout << endl;
+		// cout << endl;
+		// cout << dist_PH * (1 - Pi) << " " << rad_Seg << endl; // for test
+		// cout << endl;
 
-			if (PointsDist(temp_pt, A) >= radius(PD, A, true) && PointsDist(temp_pt, B) >= radius(PD, B, true)
-				&& dist_PH * (1 - Pi) >= radius(PD, perpen(Ai, Bi, temp_pt), false)) {
-				Xi.push_back(i / (ki+1));
-			}
-
-			Point Pi_pt = P + (H - P) * Pi;
-
-			Point inter_perpen, inter;
-
-			// PointsDist(temp_pt, A) == radius(PD, A, true)이면 Ai로서 이미 steiner point로 추가됨
-			if (PointsDist(temp_pt, A) < radius(PD, A, true)) {
-				// intersection point
-				
-				inter_perpen = A + (B-A) * sqrt(pow(radius(PD, A, true), 2) - 
-									 pow(PointsDist(Pi_pt, H), 2))/ Points2Vec(A, B).size();
-				inter = perpen(Ai, Bi, inter_perpen);
-				Xi.push_back(PointsDist(inter, Ai) / PointsDist(Ai, Bi));
-			}
+		// 같은 segment 위에서는 어떤 점이든 AB까지의 직선 거리가 같으므로 
+		if (dist_PH * (1 - Pi) >= rad_Seg) {
+			for (int i = 0; i < ki+2; i++) {
 			
-			if (PointsDist(temp_pt, B) < radius(PD, B, true)) {
-				inter_perpen = B + (A-B) * sqrt(pow(radius(PD, B, true), 2) -
-									 pow(PointsDist(Pi_pt, H), 2)) / Points2Vec(A, B).size();
-				inter = perpen(Ai, Bi, inter_perpen);
-				Xi.push_back(PointsDist(inter, Ai) / PointsDist(Ai, Bi));
-			}
+				// Point test1 = (Bi - Ai); // for test
+				// Point test2 = (Bi - Ai) * (i / (ki + 1)); // for test
 
-			double* r_e = radius_e(PD, *(PD.get_edge(sg_num)));
-			if (r_e[0] == PointsDist(H, Pi_pt)) {
-				inter_perpen = A + (B-A) * r_e[1];
-				inter = perpen(Ai, Bi, inter_perpen);
-				Xi.push_back(PointsDist(inter, Ai) / PointsDist(Ai, Bi));
-			}
-			else if (r_e[0] > PointsDist(H, Pi_pt)) {
-				inter_perpen = B + (A-B) * (PointsDist(Pi_pt, H) / r_e[2]);
-				inter = perpen(Ai, Bi, inter_perpen);
-				Xi.push_back(PointsDist(inter, Ai) / PointsDist(Ai, Bi));
+				Point temp_pt = Ai + ((Bi-Ai) * (i / (ki+1.0))); // a steiner point candidate (on the segment)
 
-				inter_perpen = A + (B-A) * (PointsDist(Pi_pt, H) / r_e[3]);
-				inter = perpen(Ai, Bi, inter_perpen);
-				Xi.push_back(PointsDist(inter, Ai) / PointsDist(Ai, Bi));
-			}
+				// cout << PointsDist(temp_pt, A) << " " << radius(PD, a) << endl; // for test
+				// cout << PointsDist(temp_pt, B) << " " << radius(PD, b) << endl; // for test
+				// cout << endl; // for test
+				
+				if (PointsDist(temp_pt, A) >= radius(PD, a) && PointsDist(temp_pt, B) >= radius(PD, b)) {
+					Xi.push_back(i / (ki+1.0));
+				}
+
+			}		
 		}
-
-		ans.push_back(Segment(Ai, Bi, Xi));
+		
+		S.setX(Xi);
+		ans.push_back(S);
 	}
 	return ans;
 }
 
 vector<Segment> MarkPoints(PolyDomain PD) {
-	vector<double> X;
 	
-	for (Segment S : PD.get_edges()) {
+	vector<Segment> ans = {};
+
+	for (Tetra Tet : PD.get_tets()) {
+
+		vector<int> pts = { Tet.getp1().getindex(), Tet.getp2().getindex(), Tet.getp3().getindex(), Tet.getp4().getindex() };
+		vector<vector<int>> perm = { {0,1,2,3}, {0,2,1,3}, {0,3,1,2}, {1,2,0,3}, {1,3,0,2}, {2,3,0,1} };
+
+		vector<Segment> temp;
+		int sg_num = 0;
+		for (vector<int> seq : perm) {
+			temp = MarkPoints(PD, pts[seq[0]], pts[seq[1]], pts[seq[2]], pts[seq[3]], Tet.getindex(), Tet.getsg(sg_num));
+			ans.insert(ans.end(), temp.begin(), temp.end());
+			sg_num += 1;
+		}
+		// s_num += 1; // for test
+		// cout << s_num << endl; // for test
+	}
+
+	// int s_num = 0; // for test
+
+	for (Segment S : PD.get_sgs()) {
+		vector<double> X = {};
+
+		double er_va = EPS * radius(PD, S.geta_ind());
+		double er_vb = EPS * radius(PD, S.getb_ind());
+
 		MyVec A = S.geta(); MyVec B = S.getb();
-		double er_va = EPS * radius(PD, Vec2Point(A), true);
-		double er_vb = radius(PD, Vec2Point(B), true);
 		double sz = (A - B).size();
 
 		X.push_back(er_va / sz); // A'
 		X.push_back(1 - er_vb / sz); // B'
 
 		double value;
-		
+
 		value = radius_e(PD, S)[1];
 		while (value > er_va / sz) {
 			X.push_back(value);
-			value -= EPS * radius(PD, Vec2Point(value * A + (1 - value) * B), false);
+			value -= EPS * radius(PD, Vec2Point(value * A + (1 - value) * B), S.getind(), true);
 		}
 
 		value = radius_e(PD, S)[1];
 		while (value < 1 - er_vb / sz) {
 			X.push_back(value);
-			value += EPS * radius(PD, Vec2Point(value * A + (1 - value) * B), false);
+			value += EPS * radius(PD, Vec2Point(value * A + (1 - value) * B), S.getind(), true);
 		}
+
+		// s_num += 1; // for test
+		// cout << s_num << endl;
+		PD.get_sg(S.getind())->setX(X);
 	}
-
-	vector<Segment> ans = {};
-
-	for (Tetra Tet : PD.get_tets()) {
-		
-		vector<Point> pts = {Tet.getp1(), Tet.getp2(), Tet.getp3(), Tet.getp4()};
-		vector<vector<int>> perm = {{0,1,2,3}, {0,2,1,3}, {0,3,1,2}, {1,2,0,3}, {1,3,0,2}, {2,3,0,1}};
-
-		vector<Segment> temp;
-		int sg_num = 0;
-		for (vector<int> seq : perm) {
-			temp = MarkPoints(PD, pts[seq[0]], pts[seq[1]], pts[seq[2]], pts[seq[3]], Tet.getindex(), sg_num);
-			ans.insert(ans.end(), temp.begin(), temp.end());
-			sg_num += 1;
-		}
-	} 
 
 	return ans;
 }
