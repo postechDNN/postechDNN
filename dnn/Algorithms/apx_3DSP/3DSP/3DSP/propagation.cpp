@@ -37,6 +37,7 @@ void Segment::SetAdjDiagram()
 	}
 }
 
+//Return the interval of segment l1 contained in the halfspace(side of v3) defined by X[i], v1 and v2
 pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1)
 {
 	MyVec v = (b - a) * X[i] + a;
@@ -55,6 +56,7 @@ pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tr
 		return { 0., t };
 }
 
+//Set the neareast positions
 void Segment::SetNear()
 {
 	Near.resize(Adjs.size());
@@ -126,6 +128,7 @@ bool Segment::IsActive(int i)
 	return static_cast<bool>(S.count(X[i]));
 }
 
+//Update informations(Additive Voronoi diagram, Set of representatives) related to i-th point
 void Segment::Update(int i, double val, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
 {
 	dist[i] = val;
@@ -149,6 +152,7 @@ void Segment::AddAdjs(Segment* s, int i)
 	}	
 }
 
+//Update informations of lindex-th segment
 void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
 {
 	Segment* l1 = Adjs[lindex].first;
@@ -290,6 +294,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 	return;
 }
 
+//Return the representative of i-th point for lindex-th segment
 pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv)
 {
 	Segment* l1 = Adjs[lindex].first;
@@ -327,6 +332,7 @@ pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv
 	return { index,D(index) };
 }
 
+//Find the representative and push to the priority queue
 void Segment::SetRepr(int i, int lindex, pair<double, double> intv, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs)
 {
 	auto res = FindRepr(i, lindex, intv);

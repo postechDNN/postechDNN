@@ -19,20 +19,20 @@ private:
 	int a_ind, b_ind;
 	vector<int> incid_fcs;
 	vector<int> incid_tets;
-	bool tetra;
-	MyVec a,b;
-	Tetra* tets;
-	vector<double> X;
-	vector<double> dist;
-	vector<PointOnSeg> prev;
-	map<double, int> S;
-	map<double, int> Sbar;
-	vector<Tri> Tris; //Segment를 정의하는 두 face
-	vector<pair<Segment*, int>> Adjs;
+	bool tetra;	            //Whether segment is an edge of tetrahedron or not
+	MyVec a,b;              //A:start point, b:end point
+	Tetra* tets;            //A tetrahedron which the segment contained in
+	vector<double> X;       //Relative position of each point(start:0, end:1)
+	vector<double> dist;    //Distance from origin to each point on the segment
+	//vector<PointOnSeg> prev;
+	map<double, int> S;     //Active elements in the segment
+	map<double, int> Sbar;  //Inactive elements in the segment
+	vector<Tri> Tris;       //Two faces which define the segment
+	vector<pair<Segment*, int>> Adjs;  
 	vector<int> Revs; //Adjs[lindex].first.Adjs[Revs[lindex]].first == this, Adjs[lindex].first에서 Representative update하기 위해 필요
 	vector<vector<pair<double, double>>> AdjDiagram;
 	vector<AVLTree<pair<double,int>>> AddVoronoi; //tree의 각 원소는 (vertex 상대위치, -방향 cell의 site)
-	vector<vector<double>> Near;
+	vector<vector<double>> Near; //The nearest positions from each point to other segments
 
 	pair<double, double> Vinterval(int i, int i1, int lindex);
 	pair<double, double> Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1);
@@ -45,11 +45,12 @@ private:
 
 public:
 	//Steiner point generation 완성된 이후에 구현 예정, 추후에 private로 옮기기
-	void SetAdjs() {};//마지막에 AddVoronoi도 초기화해야함
+	void SetAdjs() {}; //마지막에 AddVoronoi도 초기화해야함
 	void SetRevs() {}; //How to implement?
 	void SetAdjDiagram();
 	void SetNear();
 	Segment() {a_ind = b_ind = -1;}
+	//Constructor using two points and vector
 	Segment(MyVec _a, MyVec _b, vector<double> _X) {
 		a = _a;
 		b = _b;
