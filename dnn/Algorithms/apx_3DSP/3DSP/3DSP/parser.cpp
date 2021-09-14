@@ -254,15 +254,6 @@ int main(){
 	cin >> FileName;
 	PolyDomain D = BuildPolyDomain(FileName);
 
-	// Point P1(1, 0, 0); // for test
-	// Point P2(2, 3, 0); // for test
-	// Point P3 = P1 + (P2 * 2); // for test
-	// Point P4 = P1 + (P2 - P3); // for test
-
-	vector<Segment> sgs = MarkPoints(D);
-	for (Segment sg : sgs) {
-		cout << sg.geta_ind() << sg.getb_ind() << endl;
-	}
 	return 0;
 }
 */

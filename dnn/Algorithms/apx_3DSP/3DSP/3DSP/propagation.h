@@ -17,8 +17,9 @@ struct Repr;
 class Segment {
 private:
 	int a_ind, b_ind;
-	vector<int> incid_fcs;
-	vector<int> incid_tets;
+	int index;
+	vector<int> ifcs;
+	vector<int> itets;
 	bool tetra;	            //Whether segment is an edge of tetrahedron or not
 	MyVec a,b;              //A:start point, b:end point
 	Tetra* tets;            //A tetrahedron which the segment contained in
@@ -66,12 +67,13 @@ public:
 		SetAdjDiagram();
 		SetNear();
 	}
-	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind) {
+	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind, int _index) {
 		a = _a;
 		b = _b;
 		X = vector<double>(_X);
 		a_ind = _a_ind;
 		b_ind = _b_ind;
+		index = _index;
 		S.clear();
 		for (size_t i = 0; i < X.size(); i++)
 		{
@@ -113,16 +115,20 @@ public:
 		return b;
 	}
 
-	vector<int> get_incid_fcs() {
-		return incid_fcs;
+	vector<int> get_ifcs() {
+		return ifcs;
 	}
 
-	void set_incid_tets(vector<int> _incid_tets) {
-		incid_tets = _incid_tets;
+	vector<int> get_itets() {
+		return itets;
+	}
+
+	void set_itets(vector<int> _incid_tets) {
+		itets = _incid_tets;
 	}
 
 	vector<int> get_incid_tets() {
-		return incid_tets;
+		return itets;
 	}
 
 	int geta_ind() {
@@ -133,12 +139,16 @@ public:
 		return b_ind;
 	}
 
+	int getind() {
+		return index;
+	}
+
 	void add_fc(int fc_num) {
-		incid_fcs.push_back(fc_num);
+		ifcs.push_back(fc_num);
 	}
 
 	void add_tet(int tet_num) {
-		incid_tets.push_back(tet_num);
+		itets.push_back(tet_num);
 	}
 
 	Tetra* get_tets() {

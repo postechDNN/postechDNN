@@ -217,6 +217,9 @@ vector<Segment> MarkPoints(PolyDomain PD, int a, int b, int c, int d, int Tet_in
 
 vector<Segment> MarkPoints(PolyDomain PD) {
 	
+	// for test
+	int pt_num = 0;
+
 	vector<Segment> ans = {};
 
 	for (Tetra Tet : PD.get_tets()) {
@@ -231,11 +234,12 @@ vector<Segment> MarkPoints(PolyDomain PD) {
 			ans.insert(ans.end(), temp.begin(), temp.end());
 			sg_num += 1;
 		}
-		// s_num += 1; // for test
-		// cout << s_num << endl; // for test
 	}
 
-	// int s_num = 0; // for test
+	// for test
+	for (auto sgsg : ans) {
+		pt_num += sgsg.getX().size();
+	}
 
 	for (Segment S : PD.get_sgs()) {
 		vector<double> X = {};
@@ -263,10 +267,14 @@ vector<Segment> MarkPoints(PolyDomain PD) {
 			value += EPS * radius(PD, Vec2Point(value * A + (1 - value) * B), S.getind(), true);
 		}
 
-		// s_num += 1; // for test
-		// cout << s_num << endl;
 		PD.get_sg(S.getind())->setX(X);
+
+		// for test
+		pt_num += X.size();
 	}
+
+	// for test
+	cout << pt_num;
 
 	return ans;
 }
