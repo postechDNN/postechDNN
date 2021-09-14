@@ -1,10 +1,14 @@
 #ifndef DDCEL_UTIL
 #define DDCEL_UTIL
+
+#include <algorithm>
+#include <cassert>
+
 #include "dPoint.h"
 #include "dEdge.h"
-#include "dFace.h"
-#include "dDCEL.h"
-constexpr double ERR=1e-6
+
+
+constexpr double ERR = 1e-6;
 
 using namespace std;
 
@@ -22,9 +26,9 @@ bool dCoplanar(vector<dPoint*>);
 
 //require {min, max, <} operations
 template <typename T>
-bool is_between(T&,T&,T&);
+bool is_between(T,T,T);
 
-
+template <typename BinaryOperation>
 auto pts_fcn(dPoint* p1, dPoint* p2, BinaryOperation binary_op){
     assert(p1->getd()==p2->getd());
     auto *tmp= new vector<double>;
@@ -66,7 +70,11 @@ bool dCoplanar(vector<dEdge*> es){
 bool dCoplanar(dPoint* p1, dPoint* p2, dPoint* p3, dPoint* p4){
     assert(p1!=NULL && p2!=NULL && p3!=NULL && p4!=NULL);
     const int d = p1->getd();
-    double mat2d[3][d];
+    double **mat2d;
+	mat2d=new double*[3];
+	for(int i=0; i<3; i++){
+		mat2d[i]=new double[d];
+	}
     for(int i = 0; i<d;i++){
         double fixed=p4->getc(i);
         mat2d[0][i]=p1->getc(i)-fixed;
@@ -86,11 +94,13 @@ bool dCoplanar(dPoint* p1, dPoint* p2, dPoint* p3, dPoint* p4){
             for(int p=i+1;p<d;p++) mat2d[j][p]/=mat2d[j][i];
             for(int k=j+1;k<3;k++){
                 if(abs(mat2d[k][i])>ERR){
-                    for(int p=i+1;p<m;p++) mat2d[k][p]-=mat2d[j][p]*mat2d[k][i];
+                    for(int p=i+1;p<d;p++) mat2d[k][p]-=mat2d[j][p]*mat2d[k][i];
                 }
             }
         }
     }
+	for(int i=0; i<3; i++) delete mat2d[i];
+	delete mat2d;
     return rank<3;
 }
 bool dCoplanar(vector<dPoint*> pts){
@@ -102,7 +112,7 @@ bool dCoplanar(vector<dPoint*> pts){
 }
 
 template <typename T>
-bool is_between(T& a,T& b,T& x){
+bool is_between(T a,T b,T x){
     if (x<min(a,b) || max(a,b)<x) return false;
     return true;
 }

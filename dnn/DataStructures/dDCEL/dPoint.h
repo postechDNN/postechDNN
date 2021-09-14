@@ -18,4 +18,9 @@ public:
 	double gety();
 	double getz();
 	double getc(int i);
-}
+	
+	auto cbegin() const
+	{return this->cds->cbegin();}
+	auto cend() const
+	{return this->cds->cend();}	
+};
