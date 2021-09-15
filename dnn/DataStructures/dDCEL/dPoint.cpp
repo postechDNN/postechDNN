@@ -21,7 +21,7 @@ dPoint::dPoint(std::vector<double>* _cds){
 	this->d=_cds->size();
 	this->cds=new std::vector<double>();
 	for(int i=0;i<this->d;i++)
-		this->cds->push_back(*_cds[i]);
+		this->cds->push_back((*_cds)[i]);
 }
 
 dPoint::dPoint(dPoint* _dP){
@@ -36,10 +36,10 @@ dPoint::~dPoint(){
 }
 
 bool dPoint::operator==(dPoint _dP){
-	if(this->d!=_dP->getd())
+	if(this->d!=_dP.getd())
 		return false;
 	for(int i=0;i<this->d;i++)
-		if(*(this->cds)[i]!=_dP->getc(i))
+		if((*this->cds)[i]!=_dP.getc(i))
 			return false;
 	return true;
 }
@@ -49,17 +49,17 @@ int dPoint::getd(){
 }
 
 double dPoint::getx(){
-	return *(this->cds)[0];
+	return (*this->cds)[0];
 }
 
 double dPoint::gety(){
-	return *(this->cds)[1];
+	return (*this->cds)[1];
 }
 
 double dPoint::getz(){
-	return *(this->cds)[2];
+	return (*this->cds)[2];
 }
 
 double dPoint::getc(int i){
-	return *(this->cds)[i];
+	return (*this->cds)[i];
 }
