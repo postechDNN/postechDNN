@@ -123,6 +123,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dFace.cpp" />
+    <ClCompile Include="dPoint.cpp" />
+    <ClCompile Include="dUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dDCEL.h" />
+    <ClInclude Include="dEdge.h" />
+    <ClInclude Include="dFace.h" />
+    <ClInclude Include="dPoint.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

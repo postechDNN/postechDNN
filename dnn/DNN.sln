@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30320.27
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1622
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Algorithms", "Algorithms", "{8D7EB137-B703-4198-8645-9F7AF24AA394}"
 EndProject
@@ -44,6 +44,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SegL1Voronoi", "DataStructures\SegL1Voronoi\SegL1Voronoi.vcxproj", "{7F38A22B-FBD2-4038-B439-027339194A2E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SegTree", "DataStructures\SegTree\SegTree.vcxproj", "{756E600E-6C3C-4B4C-9096-D79ED8E3CEB1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dDCEL", "DataStructures\dDCEL\dDCEL.vcxproj", "{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -287,6 +289,20 @@ Global
 		{756E600E-6C3C-4B4C-9096-D79ED8E3CEB1}.Release|x64.Build.0 = Release|x64
 		{756E600E-6C3C-4B4C-9096-D79ED8E3CEB1}.Release|x86.ActiveCfg = Release|Win32
 		{756E600E-6C3C-4B4C-9096-D79ED8E3CEB1}.Release|x86.Build.0 = Release|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Debug|Win32.Build.0 = Debug|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Debug|x64.ActiveCfg = Debug|x64
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Debug|x64.Build.0 = Debug|x64
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Debug|x86.ActiveCfg = Debug|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Debug|x86.Build.0 = Debug|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Release|Any CPU.ActiveCfg = Release|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Release|Win32.ActiveCfg = Release|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Release|Win32.Build.0 = Release|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Release|x64.ActiveCfg = Release|x64
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Release|x64.Build.0 = Release|x64
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Release|x86.ActiveCfg = Release|Win32
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -308,6 +324,7 @@ Global
 		{D1542810-6B29-40EA-8189-1CC35EE332E3} = {C2B688A4-7732-4C7A-A55C-01F076D02A85}
 		{D4A2F35B-948D-4BF1-A48A-3DD68E28AE08} = {C2B688A4-7732-4C7A-A55C-01F076D02A85}
 		{7F38A22B-FBD2-4038-B439-027339194A2E} = {C2B688A4-7732-4C7A-A55C-01F076D02A85}
+		{FC574439-8C7E-43A2-A0E0-337FA61B5FF4} = {C2B688A4-7732-4C7A-A55C-01F076D02A85}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7B52001C-81DB-43BF-BABA-ECA69ACF706A}
