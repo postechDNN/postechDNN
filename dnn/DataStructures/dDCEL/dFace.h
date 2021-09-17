@@ -15,11 +15,14 @@ public:
 	std::vector<dEdge*>* getInnerEdges();
 	std::vector<dFace*>* getInnerFaces();
 	int getd();
-	
+
 	//setters
+	void setInnerEdges(std::vector<dEdge*>*);
+	void setInnerFaces(std::vector<dFace*>*);
+	//adders
 	void addInnerEdge(dEdge*);
 	void addInnerFace(dFace*);
-	
+
 	//dEdge* getOuter();
 	//void setOuter(dEdge*);
 	//void setInners(std::vector<dEdge*>*);
