@@ -94,7 +94,7 @@ dPoint* dEdge::crossing(const dEdge* _e, bool closed) const{
 
     	if (abs(s1*s+(1-s)*t1-s2*t+(1-t)*t2)>=ERR) return NULL;
     }
-	return pts_fcn(this->get_s(), this->get_t, 
+	return pts_fcn(this->get_s(), this->get_t(), 
 		[&s, &t](double v1, double v2){return s * v1 + (1 - s)*v2; }
 	);
     
