@@ -1,8 +1,6 @@
 #pragma once
 #include "Edge.h"
 #include "Point.h"
-#include <fstream>
-#include <sstream>
 #include <vector>
 
 class Vertex;
@@ -73,7 +71,7 @@ public:
 };
 
 class DCEL {
-private:
+protected:
 	int num_faces;
 	int num_hedges;
 	int num_vertices;
@@ -86,7 +84,7 @@ private:
 	Vertex* rmost;
 public:
 	DCEL();
-	DCEL(FILE*);
+	//DCEL(FILE*);
 	~DCEL();
 	std::vector<Face*>* getFaces();
 	void setFaces(std::vector<Face*>*);
@@ -109,8 +107,8 @@ public:
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
 	int inPolygon(std::vector<HEdge*>*, Point);
-	void DCELtotext(FILE*);
-	void printVertexTab();
-	void printHedgeTab();
-	void printFaceTab();
+	//void DCELtotext(FILE*);
+	//void printVertexTab();
+	//void printHedgeTab();
+	//void printFaceTab();
 };
