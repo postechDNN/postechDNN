@@ -1,47 +1,19 @@
-#ifndef DDCEL_UTIL
-#define DDCEL_UTIL
-
 #include <algorithm>
 #include <cassert>
 
 #include "dPoint.h"
 #include "dEdge.h"
+#include "dUtil.h"
 
-
-constexpr double ERR = 1e-6;
 
 using namespace std;
 
-template <typename BinaryOperation>
-auto pts_fcn(dPoint*, dPoint*, BinaryOperation);
 
-auto pts_sum(dPoint* , dPoint*);
-auto pts_dif(dPoint* , dPoint*);
-bool same_vec(dPoint*, dPoint*);
-
-bool dCoplanar(dEdge* , dEdge*);
-bool dCoplanar(vector<dEdge*>);
-bool dCoplanar(dPoint*, dPoint*, dPoint*, dPoint*);
-bool dCoplanar(vector<dPoint*>);
-
-//require {min, max, <} operations
-template <typename T>
-bool is_between(T,T,T);
-
-template <typename BinaryOperation>
-auto pts_fcn(dPoint* p1, dPoint* p2, BinaryOperation binary_op){
-    assert(p1->getd()==p2->getd());
-    auto *tmp= new vector<double>;
-    tmp->reserve(p1->getd());
-    transform(p1->cbegin(), p1->cend(), p2->cbegin(), 
-                   back_inserter(*tmp), binary_op);
-    return new dPoint(tmp);
-}
-auto pts_sum(dPoint* p1, dPoint* p2){
+dPoint* pts_sum(dPoint* p1, dPoint* p2){
     return pts_fcn(p1,p2,std::plus<double>());
 }
 
-auto pts_dif(dPoint* p1, dPoint* p2){
+dPoint* pts_dif(dPoint* p1, dPoint* p2){
     return pts_fcn(p1,p2,std::minus<double>());
 }
 
@@ -111,10 +83,3 @@ bool dCoplanar(vector<dPoint*> pts){
     return true;
 }
 
-template <typename T>
-bool is_between(T a,T b,T x){
-    if (x<min(a,b) || max(a,b)<x) return false;
-    return true;
-}
-
-#endif

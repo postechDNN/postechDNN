@@ -1,6 +1,6 @@
 #include "dEdge.h"
 #include "dPoint.h"
-#include "dUtil.cpp"
+#include "dUtil.h"
 #include <cmath>
 #include <cassert>
 #include <algorithm>
