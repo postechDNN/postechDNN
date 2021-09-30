@@ -83,3 +83,20 @@ bool dCoplanar(vector<dPoint*> pts){
     return true;
 }
 
+
+dPoint normal3d(dPoint* p1, dPoint* p2, dPoint* p3) {
+	assert(p1->getd() == 3);
+	assert(p2->getd() == 3);
+	assert(p3->getd() == 3);
+
+	double Qx, Qy, Qz, Px, Py, Pz;
+
+	Qx = p2->getx() - p1->getx();
+	Qy = p2->gety() - p1->gety();
+	Qz = p2->getz() - p1->getz();
+	Px = p3->getx() - p1->getx();
+	Py = p3->gety() - p1->gety();
+	Pz = p3->getz() - p1->getz();
+
+	return dPoint((Py*Qz-Pz*Qy), (Pz*Qx-Px*Qz), (Px*Qy-Py*Qx));
+}

@@ -27,6 +27,8 @@ bool dCoplanar(std::vector<dEdge*>);
 bool dCoplanar(dPoint*, dPoint*, dPoint*, dPoint*);
 bool dCoplanar(std::vector<dPoint*>);
 
+dPoint normal3d(dPoint*, dPoint*, dPoint*);
+
 //require {std::min, std::max, <} operations
 template <typename T>
 bool is_between(T a, T b, T x) {
