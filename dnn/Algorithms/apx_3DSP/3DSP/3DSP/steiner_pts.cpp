@@ -145,7 +145,7 @@ vector<Segment> MarkPoints(PolyDomain PD, int a, int b, int c, int d, int Tet_in
 
 	Plane PL1(A, B, C), PL2(A, B, D);
 
-	double e = sqrt(EPS / 8) * sin(acos(PlaneAngle(PL1, PL2)) / 2);
+	double e = sqrt(eps / 8) * sin(acos(PlaneAngle(PL1, PL2)) / 2);
 
 	Point H = perpen(A, B, P);
 	double dist_PH = PointsDist(P, H);
@@ -157,7 +157,18 @@ vector<Segment> MarkPoints(PolyDomain PD, int a, int b, int c, int d, int Tet_in
 	vector<int> ki_s = {};
 
 	int s_num = 0; // for test
-	
+	// int i1 = -1, i2p = -1, i2pp = -1;
+	// bool i1_set = false;
+
+	double rad_a = radius(PD, a);
+	double rad_b = radius(PD, b);
+	double rad_Seg = radius_e(PD, *(PD.get_sg(sg_num)))[1];
+
+
+
+	// Point M2p = 
+	// Point M2pp = 
+
 	while (ans.empty() || !ans.back().getX().empty()) { // if ans.empty() = true, then it should be iterated
 		s_num += 1; // for test
 		// cout << s_num << endl; // for test
@@ -179,17 +190,20 @@ vector<Segment> MarkPoints(PolyDomain PD, int a, int b, int c, int d, int Tet_in
 		S.set_itets({ Tet_index });
 		vector<double> Xi = {};
 
-		double rad_a = radius(PD, a);
-		double rad_b = radius(PD, b);
-		double rad_Seg = radius_e(PD, *(PD.get_sg(sg_num)))[1];
-
 		// cout << endl;
 		// cout << endl;
 		// cout << endl;
 		// cout << dist_PH * (1 - Pi) << " " << rad_Seg << endl; // for test
 		// cout << endl;
 
-		// 같은 segment 위에서는 어떤 점이든 AB까지의 직선 거리가 같으므로 
+		// 같은 segment 위에서는 어떤 점이든 AB까지의 직선 거리가 같으므로
+		
+		// if (dist_PH * (1 - Pi) >= rad_Seg) {i1 = s_num;}
+		// if (dist_PH * (1 - Pi) > ) {i2p = s_num;}
+		// if () {i2pp = s_num;}
+
+		// if (i1 == -1) {
+
 		if (dist_PH * (1 - Pi) >= rad_Seg) {
 			for (int i = 0; i < ki+2; i++) {
 			
@@ -205,9 +219,10 @@ vector<Segment> MarkPoints(PolyDomain PD, int a, int b, int c, int d, int Tet_in
 				if (PointsDist(temp_pt, A) >= radius(PD, a) && PointsDist(temp_pt, B) >= radius(PD, b)) {
 					Xi.push_back(i / (ki+1.0));
 				}
-
 			}		
 		}
+		// else {	
+		// }
 		
 		S.setX(Xi);
 		ans.push_back(S);
@@ -218,7 +233,7 @@ vector<Segment> MarkPoints(PolyDomain PD, int a, int b, int c, int d, int Tet_in
 vector<Segment> MarkPoints(PolyDomain PD) {
 	
 	// for test
-	int pt_num = 0;
+	// int pt_num = 0;
 
 	vector<Segment> ans = {};
 
@@ -237,15 +252,17 @@ vector<Segment> MarkPoints(PolyDomain PD) {
 	}
 
 	// for test
+	/*
 	for (auto sgsg : ans) {
 		pt_num += sgsg.getX().size();
 	}
+	*/
 
 	for (Segment S : PD.get_sgs()) {
 		vector<double> X = {};
 
-		double er_va = EPS * radius(PD, S.geta_ind());
-		double er_vb = EPS * radius(PD, S.getb_ind());
+		double er_va = eps * radius(PD, S.geta_ind());
+		double er_vb = eps * radius(PD, S.getb_ind());
 
 		MyVec A = S.geta(); MyVec B = S.getb();
 		double sz = (A - B).size();
@@ -258,23 +275,23 @@ vector<Segment> MarkPoints(PolyDomain PD) {
 		value = radius_e(PD, S)[1];
 		while (value > er_va / sz) {
 			X.push_back(value);
-			value -= EPS * radius(PD, Vec2Point(value * A + (1 - value) * B), S.getind(), true);
+			value -= eps * radius(PD, Vec2Point(value * A + (1 - value) * B), S.getind(), true);
 		}
 
 		value = radius_e(PD, S)[1];
 		while (value < 1 - er_vb / sz) {
 			X.push_back(value);
-			value += EPS * radius(PD, Vec2Point(value * A + (1 - value) * B), S.getind(), true);
+			value += eps * radius(PD, Vec2Point(value * A + (1 - value) * B), S.getind(), true);
 		}
 
 		PD.get_sg(S.getind())->setX(X);
 
 		// for test
-		pt_num += X.size();
+		// pt_num += X.size();
 	}
 
 	// for test
-	cout << pt_num;
+	// cout << pt_num;
 
 	return ans;
 }

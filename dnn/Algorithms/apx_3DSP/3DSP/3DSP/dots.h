@@ -4,7 +4,8 @@
 
 using namespace std;
 
-const double EPS = 0.5;
+const double EPS = 1e-8;
+const double eps = 0.5;
 
 class Segment;
 
