@@ -247,6 +247,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 	return PolyDomain(pts, sgs, fcs, tetras);
 }
 
+/*
 int main(){
 	string FileName;
 	cout << "Enter tetgen file name: ";
@@ -256,6 +257,7 @@ int main(){
 
 	return 0;
 }
+*/
 
 
 // tetgen 자료형과 클래스 간 대응 관계
