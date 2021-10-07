@@ -1,5 +1,6 @@
 #include "Point.h"
 #include <cmath>
+#define ERR 1e-6
 
 //this class defines a point in 2D space
 
@@ -18,7 +19,7 @@ Point::Point(Point* _p) {
 Point::~Point() {}
 
 bool Point::operator==(Point _p) {
-	return this->x == _p.getx() && this->y == _p.gety();
+	return std::abs(this->x - _p.getx()) < ERR && std::abs(this->y - _p.gety()) < ERR;
 }
 
 Point Point::operator- (Point _p) {
