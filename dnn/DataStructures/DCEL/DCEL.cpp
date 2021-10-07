@@ -24,19 +24,20 @@ Vertex::Vertex(HEdge* _e) : Point() {
 	this->incidentEdge = _e;
 }
 
-Vertex::Vertex(Point* _p) : Point(_p) {
+Vertex::Vertex(Point& _p) : Point(_p) {
 	this->vertex_key = nullptr;
 	this->incidentEdge = nullptr;
 }
 
-Vertex::Vertex(Point* _p, HEdge* _e) : Point(_p) {
+Vertex::Vertex(Point& _p, HEdge* _e) : Point(_p) {
 	this->vertex_key = nullptr;
 	this->incidentEdge = _e;
 }
 
 
 Vertex::~Vertex() {
-
+	if (this->vertex_key)
+		delete[] this->vertex_key;
 }
 
 char* Vertex::getVertexKey() {
@@ -59,6 +60,7 @@ HEdge* Vertex::getIncidentEdge() {
 }
 
 HEdge::HEdge() : Edge() {
+	this->hedge_key = nullptr;
 	this->origin = nullptr;
 	this->incidentFace = nullptr;
 	this->next = nullptr;
@@ -66,21 +68,22 @@ HEdge::HEdge() : Edge() {
 	this->twin = nullptr;
 }
 
-HEdge::HEdge(Vertex* _v1, Vertex* _v2) : Edge(_v1, _v2) {
+HEdge::HEdge(Vertex* _v1, Vertex* _v2) : Edge(*_v1,*_v2) {
+	this->hedge_key = nullptr;
 	this->origin = _v1;
 	this->twin = new HEdge();
-	this->twin->origin = _v2;
+	this->twin->origin =_v2;
 	this->twin->twin = this;
 	this->incidentFace = nullptr;
 	this->next = this->twin;
 	this->prev = this->twin;
 	this->twin->next = this;
 	this->twin->prev = this;
-	this->twin->s = _v2;
-	this->twin->t = _v1;
+	this->twin->s = *_v2;
+	this->twin->t = *_v1;
 }
-
-HEdge::HEdge(Point* _p1, Point* _p2) {
+/*
+HEdge::HEdge(Point& _p1, Point& _p2) {
 	Vertex* v1 = new Vertex(_p1);
 	Vertex* v2 = new Vertex(_p2);
 	this->s = v1;
@@ -97,11 +100,13 @@ HEdge::HEdge(Point* _p1, Point* _p2) {
 	this->twin->s = v2;
 	this->twin->t = v1;
 }
-
+*/
 HEdge::~HEdge() {
-	if (!this->twin) {
+	if (this->twin) {
 		delete(this->twin);
 	}
+	if (this->hedge_key)
+		delete[] this->hedge_key;
 }
 
 char* HEdge::getHedgeKey() {
@@ -161,14 +166,12 @@ void HEdge::setIncidentFace(Face *_f) {
 
 Face::Face() {
 	this->outer = nullptr;
-	this->inners = new std::vector<HEdge*>();
 }
 
 Face::~Face() {
-	delete(this->inners);
+	if(face_key)
+		delete[] face_key;
 }
-
-
 
 char* Face::getFaceKey() {
 	return this->face_key;
@@ -176,9 +179,9 @@ char* Face::getFaceKey() {
 
 void Face::setFaceKey(const char* _k) {
 	this->face_key = new char[strlen(_k) + 1];
-	for (int i = 0; i < strlen(_k) + 1; i++) {
+	for (int i = 0; i < strlen(_k) + 1; i++)
 		this->face_key[i] = _k[i];
-	}
+	
 }
 
 
@@ -194,18 +197,15 @@ HEdge* Face::getOuter() {
 	return this->outer;
 }
 
-std::vector<HEdge*>* Face::getInners() {
+std::vector<HEdge*> Face::getInners() {
 	return this->inners;
 }
 
 void Face::addInner(HEdge* _e) {
-	this->inners->push_back(_e);
+	this->inners.push_back(_e);
 }
 
 DCEL::DCEL() {
-	this->faces = new std::vector<Face*>();
-	this->hedges = new std::vector<HEdge*>();
-	this->vertices = new std::vector<Vertex*>();
 	this->num_faces = 0;
 	this->num_hedges = 0;
 	this->num_vertices = 0;
@@ -214,56 +214,60 @@ DCEL::DCEL() {
 	bmost = nullptr;
 	rmost = nullptr;
 	Face *of = new Face();
-	this->faces->push_back(of);
+	this->faces.push_back(of);
 }
 
 DCEL::~DCEL() {
-	delete(this->faces);
-	delete(this->hedges);
-	delete(this->vertices);
+	
 }
 
-std::vector<Face*>* DCEL::getFaces() {
+std::vector<Face*> DCEL::getFaces() {
 	return this->faces;
 }
 
-void DCEL::setFaces(std::vector<Face*>* _f) {
+void DCEL::setFaces(std::vector<Face*> _f) {
 	this->faces = _f;
 }
 
-std::vector<HEdge*>* DCEL::getHedges() {
+std::vector<HEdge*> DCEL::getHedges() {
 	return this->hedges;
 }
 
-void DCEL::setHedges(std::vector<HEdge*>* _e) {
+void DCEL::setHedges(std::vector<HEdge*> _e) {
 	this->hedges = _e;
 }
 
 
-std::vector<Vertex*>* DCEL::getVertices() {
+std::vector<Vertex*> DCEL::getVertices() {
 	return this->vertices;
 }
 
-void DCEL::setVertices(std::vector<Vertex*>* _v) {
+void DCEL::setVertices(std::vector<Vertex*> _v) {
 	this->vertices = _v;
 }
+
+/*
+void DCEL::pushFace(Face* _f){
+	this->faces.push_back(_f);
+}
+void DCEL::pushHEdge(HEdge* _he){
+	this->hedges.push_back(_he);
+}
+void DCEL::pushVertex(Vertex* _v){
+	this->vertices.push_back(_v);
+}*/
 
 Vertex* DCEL::getLmost() { return this->lmost; }
 Vertex* DCEL::getRmost() { return this->rmost; }
 Vertex* DCEL::getTmost() { return this->tmost; }
 Vertex* DCEL::getBmost() { return this->bmost; }
 
-void DCEL::addVertex(Point _p, const char* key){
-	Vertex *v = new Vertex;
+void DCEL::addVertex(Point& _p, const char* key){
+	Vertex *v = new Vertex(_p);
 	v->setVertexKey(key);
-	v->setx(_p.getx());
-	v->sety(_p.gety());
-
 }
 
 void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
-
-	//
 	if (_v1->getx() > _v2->getx()) {
 		std::swap(_v1, _v2);
 	}
@@ -356,7 +360,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 
 	//FACE
 	Face* f = e->getNext()->getIncidentFace();
-	std::vector<HEdge*>* inners = f->getInners();
+	std::vector<HEdge*> inners = f->getInners();
 	HEdge* outer = f->getOuter();
 	HEdge* _e = e->getNext();
 	while (_e != e && _e != e->getTwin()) {
@@ -370,7 +374,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		e->getTwin()->setIncidentFace(f2);
 		//set outer, face key
 		int count = 0;
-		for (auto temp_e : *inners) {
+		for (auto temp_e : inners) {
 			HEdge* start_e = temp_e;
 			do {
 				temp_e = temp_e->getNext();
@@ -396,16 +400,16 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 					HEdge* temp_e2 = temp_e->getPrev()->getPrev()->getTwin();
 					int count = 0;
 					do {
-						std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp_e2);
-						if (i != inners->end()) { //temp is in inner
-							inners->erase(i);//delete that one from inners
+						std::vector<HEdge*>::iterator i = std::find(inners.begin(), inners.end(), temp_e2);
+						if (i != inners.end()) { //temp is in inner
+							inners.erase(i);//delete that one from inners
 							break;
 						}
 						temp_e2 = temp_e2->getNext();
 					} while (temp_e2 != e || count != 2);
 
 				}
-				_str = 'f' + std::to_string(this->getFaces()->size());
+				_str = 'f' + std::to_string(this->faces.size());
 				_c = &_str[0];
 				e->getTwin()->getIncidentFace()->setOuter(e->getTwin());
 				e->getTwin()->getIncidentFace()->setFaceKey(_c);
@@ -422,7 +426,7 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 				else {
 					e->getTwin()->getIncidentFace()->setFaceKey(f->getFaceKey());
 				}
-				_str = 'f' + std::to_string(this->getFaces()->size());
+				_str = 'f' + std::to_string(this->faces.size());
 				_c = &_str[0];
 				e->getIncidentFace()->setOuter(e);
 				e->getIncidentFace()->setFaceKey(_c);
@@ -437,10 +441,10 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 					h_e = h_e->getNext();
 				} while (h_e == e);
 				if (sp_f1.inPolygon(temp_e->gets()) == 1) {///if temp_e in f1
-					f1->getInners()->push_back(temp_e);
+					f1->getInners().push_back(temp_e);
 				}
 				else {
-					f2->getInners()->push_back(temp_e);
+					f2->getInners().push_back(temp_e);
 				}
 			}
 		}
@@ -457,16 +461,16 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		}
 		//delete f from faces<*>*
 		int iter = 0;
-		for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end(); i++) {
+		for (std::vector<Face*>::iterator i = this->faces.begin(); i != this->faces.end(); i++) {
 			Face* _f = *i;
 			if (f == _f) {
-				this->getFaces()->erase(i);
+				this->faces.erase(i);
 				break;
 			}
 		}
 		//add f1 f2 to faces<*>*
-		this->getFaces()->push_back(f1);
-		this->getFaces()->push_back(f2);
+		this->faces.push_back(f1);
+		this->faces.push_back(f2);
 	}
 
 	//new face is not made
@@ -479,13 +483,13 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 			HEdge* temp = e;
 			int count = 0;
 			do {
-				std::vector<HEdge*>::iterator i = std::find(inners->begin(), inners->end(), temp);
-				if (i != inners->end()) { //temp is in inner
+				std::vector<HEdge*>::iterator i = std::find(inners.begin(), inners.end(), temp);
+				if (i != inners.end()) { //temp is in inner
 					std::cout << "temp" << temp->getHedgeKey() << "\n";
 					std::cout << "cnt" << count << "\n";
 					count++;
 					if (count == 1) {
-						inners->erase(i);//delete that one from inners
+						inners.erase(i);//delete that one from inners
 						break;
 					}
 				}
@@ -494,20 +498,22 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 		}
 	}
 	//add edge to edges<*>*
-	this->getHedges()->push_back(e);
+	this->hedges.push_back(e);
 }
 
+//Delete edge 다시 고려
+/*
 void DCEL::deleteEdge(HEdge* _e) {
-	std::vector<HEdge*>* inners = _e->getIncidentFace()->getInners();
+	std::vector<HEdge*> inners = _e->getIncidentFace()->getInners();
 	//case1-(1)
 	if (_e->getNext() == _e->getTwin()) {
 		_e->getPrev()->setNext(_e->getTwin()->getNext());
 		_e->getTwin()->getNext()->setPrev(_e->getPrev());
-		for (std::vector<HEdge*>::iterator i = inners->begin(); i != inners->end();i++) {
+		for (std::vector<HEdge*>::iterator i = inners.begin(); i != inners.end();i++) {
 			HEdge* temp = *i;
 			if (temp == _e || temp == _e->getTwin()) {
-				inners->erase(i);
-				inners->push_back(_e->getPrev());
+				inners.erase(i);
+				inners.push_back(_e->getPrev());
 				break;
 			}
 		}
@@ -616,22 +622,22 @@ void DCEL::deleteEdge(HEdge* _e) {
 			}
 			//delete f1 f2
 			
-			for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();i++) {
+			for (std::vector<Face*>::iterator i = this->faces.begin(); i != this->faces.end();i++) {
 				Face* temp_f = *i;
 				if (temp_f == f1 || temp_f == f2) {
-					this->getFaces()->erase(i);
+					this->faces.erase(i);
 					break;
 				}
 			}
-			for (std::vector<Face*>::iterator i = this->getFaces()->begin(); i != this->getFaces()->end();i++) {
+			for (std::vector<Face*>::iterator i = this->faces.begin(); i != this->faces.end();i++) {
 				Face* temp_f = *i;
 				if (temp_f == f1 || temp_f == f2) {
-					this->getFaces()->erase(i);
+					this->faces.erase(i);
 					break;
 				}
 			}
 			//add f
-			this->getFaces()->push_back(f);
+			this->faces.push_back(f);
 		}
 		//case 2 and 3: face stays the same
 		else {
@@ -720,38 +726,38 @@ void DCEL::deleteEdge(HEdge* _e) {
 
 	//_e or _e->twin() 지움
 	int count = 0;
-	for (std::vector<HEdge*>::iterator i = this->getHedges()->begin(); i != this->getHedges()->end();i++) {
+	for (std::vector<HEdge*>::iterator i = this->hedges.begin(); i != this->hedges.end();i++) {
 		HEdge* temp = *i;
 		if (temp == _e || temp == _e->getTwin()) {
-			this->getHedges()->erase(i);
+			this->hedges.erase(i);
 			break;
 		}
 	}
 }
-
+*/
 HEdge* DCEL::searchHedge(const char* key) {
-	for (int i = 0; i < this->getHedges()->size(); i++) {
-		if (strcmp((*this->getHedges())[i]->getHedgeKey(), key) == 0)
-			return (*this->getHedges())[i];
-		if(strcmp((*this->getHedges())[i]->getTwin()->getHedgeKey(), key) == 0)
-			return (*this->getHedges())[i]->getTwin();
+	for (int i = 0; i < this->hedges.size(); i++) {
+		if (strcmp((this->hedges)[i]->getHedgeKey(), key) == 0)
+			return (this->hedges)[i];
+		if(strcmp((this->hedges)[i]->getTwin()->getHedgeKey(), key) == 0)
+			return (this->hedges)[i]->getTwin();
 	}
 	return nullptr;
 }
 
 Vertex* DCEL::searchVertex(const char* key) {
-	for (int i = 0; i < this->getVertices()->size(); i++) {
-		if (strcmp((*this->getVertices())[i]->getVertexKey(), key) == 0) {
-			return (*this->getVertices())[i];
+	for (int i = 0; i < this->vertices.size(); i++) {
+		if (strcmp((this->vertices)[i]->getVertexKey(), key) == 0) {
+			return (this->vertices)[i];
 		}
 	}
 	return nullptr;
 }
 
 Face* DCEL::searchFace(const char* key) {
-	for (int i = 0; i < this->getFaces()->size(); i++) {
-		if (strcmp((*this->getFaces())[i]->getFaceKey(), key) == 0) {
-			return (*this->getFaces())[i];
+	for (int i = 0; i < this->faces.size(); i++) {
+		if (strcmp((this->faces)[i]->getFaceKey(), key) == 0) {
+			return(this->faces)[i];
 		}
 	}
 	return nullptr;
@@ -782,17 +788,20 @@ std::vector<HEdge*> DCEL::getIncomingHEdges(Vertex* v) {
 //The point p is inside polygon return 1
 //The point p is on boundary return 0
 //The point p is outside polygon return -1
-int DCEL::inPolygon(std::vector<HEdge*> *hedges, Point p) {
+int DCEL::inPolygon(std::vector<HEdge*> hedges, Point p) {
 	double min_x = 1e10;
 	double min_x2 = 1e10;
 	int idx = -1;
 	double x = p.getx(), y = p.gety();
-	for (int i = 0; i < hedges->size(); i++) {
-		Edge* _e = (*(hedges))[i];
+	for (int i = 0; i < hedges.size(); i++) {
+		Edge* _e = hedges[i];
 		Point origin = _e->gets(), dest = _e->gett();
 
-		if (origin.gety() > dest.gety())	//y1 <= y2
-			std::swap(origin, dest);
+		if (origin.gety() > dest.gety()){	//y1 <= y2
+			Point tmp = origin;
+			origin = dest;
+			dest = tmp;
+		}
 		double x1 = origin.getx(), y1 = origin.gety();
 		double x2 = dest.getx(), y2 = dest.gety();
 
@@ -816,13 +825,13 @@ int DCEL::inPolygon(std::vector<HEdge*> *hedges, Point p) {
 		}
 	}
 	if (idx == -1) return -1;
-	Point org = (*hedges)[idx]->gets();
-	Point dest = (*hedges)[idx]->gett();
+	Point org = hedges[idx]->gets();
+	Point dest = hedges[idx]->gett();
 	if ((dest - org).gety() > 0)
 		return -1;
 	else return 1;
 }
-
+/*
 DCEL* DCEL::mergeDCEL(DCEL* _d) {
 	enum Event {
 		START,
@@ -1093,3 +1102,4 @@ DCEL* DCEL::mergeDCEL(DCEL* _d) {
 	}
 	return merged;
 }
+*/

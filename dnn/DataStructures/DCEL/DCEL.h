@@ -14,8 +14,8 @@ protected:
 public:
 	Vertex();
 	Vertex(HEdge*);
-	Vertex(Point*);
-	Vertex(Point*, HEdge*);
+	Vertex(Point&);
+	Vertex(Point&, HEdge*);
 	~Vertex();
 
 	char* getVertexKey();
@@ -34,7 +34,7 @@ protected:
 public:
 	HEdge();
 	HEdge(Vertex*, Vertex*);
-	HEdge(Point*, Point*);
+	//HEdge(Point&, Point&);
 	~HEdge();
 
 	char* getHedgeKey();
@@ -55,7 +55,7 @@ class Face {
 protected:
 	char* face_key;
 	HEdge* outer;
-	std::vector<HEdge*>* inners;
+	std::vector<HEdge*> inners;
 public:
 	Face();
 	~Face();
@@ -65,7 +65,7 @@ public:
 	bool isOutMost();
 	void setOuter(HEdge*);
 	HEdge* getOuter();
-	std::vector<HEdge*>* getInners();
+	std::vector<HEdge*> getInners();
 	void addInner(HEdge*);
 	//void setInners(std::vector<HEdge*>*);
 };
@@ -75,9 +75,9 @@ protected:
 	int num_faces;
 	int num_hedges;
 	int num_vertices;
-	std::vector<Face*>* faces;
-	std::vector<HEdge*>* hedges;	//we store one hedge for each edges.
-	std::vector<Vertex*>* vertices;
+	std::vector<Face*> faces;
+	std::vector<HEdge*> hedges;	//we store one hedge for each edges.
+	std::vector<Vertex*> vertices;
 	Vertex* lmost;
 	Vertex* tmost;
 	Vertex* bmost;
@@ -86,12 +86,16 @@ public:
 	DCEL();
 	//DCEL(FILE*);
 	~DCEL();
-	std::vector<Face*>* getFaces();
-	void setFaces(std::vector<Face*>*);
-	std::vector<HEdge*>* getHedges();
-	void setHedges(std::vector<HEdge*>*);
-	std::vector<Vertex*>* getVertices();
-	void setVertices(std::vector<Vertex*>*);
+	std::vector<Face*> getFaces();
+	void setFaces(std::vector<Face*>);
+	std::vector<HEdge*> getHedges();
+	void setHedges(std::vector<HEdge*>);
+	std::vector<Vertex*> getVertices();
+	void setVertices(std::vector<Vertex*>);
+
+	//void pushFace(Face*);
+	//void pushHEdge(HEdge*);
+	//void pushVertex(Vertex*);
 
 	Vertex* getLmost();
 	Vertex* getRmost();
@@ -99,13 +103,13 @@ public:
 	Vertex* getBmost();
 
 	void addEdge(Vertex*, Vertex*);
-	void addVertex(Point, const char*);
+	void addVertex(Point&, const char*);
 	void deleteEdge(HEdge*);
-	DCEL* mergeDCEL(DCEL*);
+	//DCEL* mergeDCEL(DCEL*);
 	HEdge* searchHedge(const char* key);
 	Vertex* searchVertex(const char* key);
 	Face* searchFace(const char* key);
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
-	int inPolygon(std::vector<HEdge*>*, Point);
+	int inPolygon(std::vector<HEdge*>, Point);
 };
