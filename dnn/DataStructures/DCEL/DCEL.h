@@ -19,7 +19,7 @@ public:
 	~Vertex();
 
 	char* getVertexKey();
-	void setVertexKey(char*);
+	void setVertexKey(const char*);
 	void setIncidentEdge(HEdge*);
 	HEdge* getIncidentEdge();
 
@@ -38,7 +38,7 @@ public:
 	~HEdge();
 
 	char* getHedgeKey();
-	void setHedgeKey(char*);
+	void setHedgeKey(const char*);
 	Vertex* getOrigin();
 	void setOrigin(Vertex*);
 	HEdge* getNext();
@@ -61,7 +61,7 @@ public:
 	~Face();
 
 	char* getFaceKey();
-	void setFaceKey(char*);
+	void setFaceKey(const char*);
 	bool isOutMost();
 	void setOuter(HEdge*);
 	HEdge* getOuter();
@@ -99,16 +99,13 @@ public:
 	Vertex* getBmost();
 
 	void addEdge(Vertex*, Vertex*);
+	void addVertex(Point, const char*);
 	void deleteEdge(HEdge*);
 	DCEL* mergeDCEL(DCEL*);
-	HEdge* searchHedge(char* key);
-	Vertex* searchVertex(char* key);
-	Face* searchFace(char* key);
+	HEdge* searchHedge(const char* key);
+	Vertex* searchVertex(const char* key);
+	Face* searchFace(const char* key);
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
 	int inPolygon(std::vector<HEdge*>*, Point);
-	//void DCELtotext(FILE*);
-	//void printVertexTab();
-	//void printHedgeTab();
-	//void printFaceTab();
 };
