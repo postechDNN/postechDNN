@@ -12,9 +12,9 @@ Point::Point(double _x, double _y) {
 	this->x = _x;
 	this->y = _y;
 }
-Point::Point(Point* _p) {
-	this->x = _p->getx();
-	this->y = _p->gety();
+Point::Point(Point& _p) {
+	this->x = _p.getx();
+	this->y = _p.gety();
 }
 Point::~Point() {}
 
