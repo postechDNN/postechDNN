@@ -37,7 +37,7 @@ double dist(PolyDomain PD, int pt_num) {
 	return val;
 }
 
-// when the input point is not a vertex (it either lies on the interior of a segment or not)
+// when the input point is not a vertex (it either lies on the interior of a segment or on the interior of a face)
 double dist(PolyDomain PD, Point P, int num, bool onSeg) { 
 
 	if (onSeg) {
@@ -239,13 +239,16 @@ vector<Segment> MarkPoints(PolyDomain PD) {
 
 	for (Tetra Tet : PD.get_tets()) {
 
-		vector<int> pts = { Tet.getp1().getindex(), Tet.getp2().getindex(), Tet.getp3().getindex(), Tet.getp4().getindex() };
+		vector<int> pts = { Tet.getPoint(1).getindex(), Tet.getPoint(2).getindex(), Tet.getPoint(3).getindex(), Tet.getPoint(4).getindex() };
 		vector<vector<int>> perm = { {0,1,2,3}, {0,2,1,3}, {0,3,1,2}, {1,2,0,3}, {1,3,0,2}, {2,3,0,1} };
 
 		vector<Segment> temp;
 		int sg_num = 0;
 		for (vector<int> seq : perm) {
 			temp = MarkPoints(PD, pts[seq[0]], pts[seq[1]], pts[seq[2]], pts[seq[3]], Tet.getindex(), Tet.getsg(sg_num));
+			
+			// bis[sg_num]
+			
 			ans.insert(ans.end(), temp.begin(), temp.end());
 			sg_num += 1;
 		}

@@ -1,11 +1,12 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <tuple>
 
 using namespace std;
 
 const double EPS = 1e-8;
-const double eps = 0.5;
+const double eps = 0.5; // 0 <= eps <= 1 by the definition
 
 class Segment;
 
@@ -147,13 +148,17 @@ public:
 // triangular face of a tetrahedron
 class Tri {
 private:
+	int PD_index; // index of the Tri considered among the entire Tris in the PD
 	Point p1, p2, p3;
 	MyVec v1, v2, v3;
 	int a, b, c; // node index
 	vector<int> itets;
 
 public:
-	Tri() {a = b = c = -1;}
+	Tri() {
+		a = b = c = -1;
+		PD_index = -1;
+	}
 	Tri(Point P1_, Point P2_, Point P3_) {
 		p1 = P1_; p2 = P2_; p3 = P3_;
 		v1 = MyVec(p1.getx(), p1.gety(), p1.getz()); v2 = MyVec(p2.getx(), p2.gety(), p2.getz()); v3 = MyVec(p3.getx(), p3.gety(), p3.getz());
@@ -163,6 +168,9 @@ public:
 		v1 = MyVec(p1.getx(), p1.gety(), p1.getz()); v2 = MyVec(p2.getx(), p2.gety(), p2.getz()); v3 = MyVec(p3.getx(), p3.gety(), p3.getz());
 		a = _a; b = _b; c = _c;
 	}
+
+	void set_PDindex(int i) { PD_index = i; }
+	int get_PDindex() { return PD_index; }
 
 	int geta() {return a;}
 	int getb() { return b; }
@@ -195,11 +203,28 @@ private:
 	vector<int> itets;
 	int index;
 
+	vector<vector<tuple<int, int>>> bis; // bisectors. each bisector is defined as follows: bis[0] = p1p2p3 | p1p2p4, bis[1] = p1p3p2 | p1p3p4, ...
+                             // each bisector stores its neighbors.	                          
+
 public:
-	Tetra() {};
+	Tetra() { 
+		a = b = c = d = -1; 
+		index = -1;
+	}
 	Tetra(Tri T1_, Tri T2_, Tri T3_, Tri T4_) {
 		t1 = T1_; t2 = T2_, t3 = T3_, t4 = T4_;
 		p1 = t1.getp1(); p2 = t2.getp1(); p3 = t3.getp1(); p4 = t4.getp1();
+
+		vector<int> neigh_face_indices = { 1, 4, 1, 3, 4, 3, 1, 2, 4, 2, 3, 2 }; // neighboring face indices
+
+		vector<tuple<int, int>> temp = {};
+		for (int i = 0; i < neigh_face_indices.size(); i++) {
+			temp.push_back(make_tuple(i / 2, getTri(neigh_face_indices[i]).get_PDindex()));
+			if (i % 2 == 1) {
+				bis.push_back(temp);
+				temp.clear();
+			}
+		}
 	}
 	Tetra(Point P1_, Point P2_, Point P3_, Point P4_, vector<int> _egs, vector<int> _fcs, int _index, vector<int> nds_num, int* ordered_sgs) {
 		p1 = P1_; p2 = P2_; p3 = P3_; p4 = P4_;
@@ -209,12 +234,34 @@ public:
 		index = _index;
 		a = nds_num[0]; b = nds_num[1]; c = nds_num[2]; d = nds_num[3];
 		copy(ordered_sgs, ordered_sgs + 6, sgs);
+
+		vector<int> neigh_face_indices = { 1, 4, 1, 3, 4, 3, 1, 2, 4, 2, 3, 2 }; // neighboring face indices
+
+		vector<tuple<int, int>> temp = {};
+		for (int i = 0; i < neigh_face_indices.size(); i++) {
+			temp.push_back(make_tuple(i / 2, getTri(neigh_face_indices[i]).get_PDindex()));
+			if (i % 2 == 1) {
+				bis.push_back(temp);
+				temp.clear();
+			}
+		}
 	}
 
-	Point getp1() {return p1;}
-	Point getp2() { return p2; }
-	Point getp3() { return p3; }
-	Point getp4() { return p4; }
+	Tri getTri(int i) {
+		if (i == 1) return t1;
+		else if (i == 2) return t2;
+		else if (i == 3) return t3;
+		else if (i == 4) return t4;
+		else { throw "function Tetra::getTri(i) has input parameter range 1 <= i <= 4"; }
+	}
+
+	Point getPoint(int i) { 
+		if (i == 1) return p1;
+		else if (i == 2) return p2;
+		else if (i == 3) return p3;
+		else if (i == 4) return p4;
+		else { throw "function Tetra::getPoint(i) has input parameter range 1 <= i <= 4"; }
+	}
 	int getsg(int num) { return sgs[num]; }
 	vector<int> get_fcs() {return fcs;}
 	int getindex() {return index;}
