@@ -375,6 +375,7 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 
 		num_seg++;
 		Segment S(Ai, Bi, {}, num_seg, false, &(tets[i]), i, j);
+		sgs.push_back(S);
 		S.set_itets({i});
 		vector<double> Xi = {};
 
@@ -457,7 +458,9 @@ void PolyDomain::MarkPoints() {
 
 	// for test
 	// int pt_num = 0;
-
+	for (int i = 0; i < sgs.size(); i++) {
+		MarkPoints_Sg(i);
+	}
 
 	for (int i = 0; i < tets.size(); i++) {
 		Tetra Tet = tets[i];
@@ -467,10 +470,66 @@ void PolyDomain::MarkPoints() {
 			MarkPoints_Bi(i, j);
 		}
 	}
+}
 
-	for (int i = 0; i < sgs.size(); i++) {
-		MarkPoints_Sg(i);
+bool sort_S(const pair<Segment*, int>& a, const pair<Segment*, int>& b) {
+	return (get<0>(a)->getind() < get<0>(b)->getind());
+}
+
+bool sort_int(const pair<Segment*, int>& a, const pair<Segment*, int>& b) {
+	return get<1>(a) < get<1>(b);
+}
+
+/*
+bool sort_Adj(const pair<Segment*, int>& a, const pair<Segment*, int>& b) {
+	if (get<0>(a)->getind() < get<0>(b)->getind() || (get<0>(a)->getind() == get<0>(b)->getind() || get<1>(a) < get<1>(b))) {return false;}
+	else {return true;}
+	// return ;
+}
+*/
+
+vector<pair<Segment*, int>> Remove_Dup(vector<pair<Segment*, int>> ps) {
+	sort(ps.begin(), ps.end(), sort_int);
+	sort(ps.begin(), ps.end(), sort_S);
+	Segment* prev_S = NULL; int prev_int;
+	vector<pair<Segment*, int>>::iterator it = ps.begin();
+	for (; it != ps.end(); it++) {
+		if (prev_S == get<0>(*it) && prev_int == get<1>(*it)) {ps.erase(it); it--;}
+		else {prev_S = get<0>(*it); prev_int = get<1>(*it);}
 	}
+
+	return ps;
+}
+
+void PolyDomain::ConnectSgs() {
+	for (int i = 0; i < tets.size(); i++) {
+		Tetra& T = tets[i];
+		for (int j = 0; j < 6; j++) {
+			bi* B = T.get_bi_ptr(j);
+			for (Segment& S : B->bi_sgs) {
+
+				vector<pair<Segment*, int>> temp = {};
+
+				for (auto NB : B->neighbors) { // tuple<int, int, int>
+					bi* NBB = tets[get<0>(NB)].get_bi_ptr(get<1>(NB));
+					for (Segment& NBS : NBB->bi_sgs) {
+						temp.push_back(make_pair(&NBS, get<2>(NB)));
+					}
+				}
+				
+				temp = Remove_Dup(temp);
+
+				for (auto t : temp) {
+					// S.AddAdjs(get<0>(t), get<1>(t));
+					S.AddAdj(t);
+				}
+				
+			}
+			
+		}
+	}
+
+
 }
 
 // vertical projection of P on AB

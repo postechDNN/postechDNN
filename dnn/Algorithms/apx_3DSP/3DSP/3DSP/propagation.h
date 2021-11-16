@@ -179,9 +179,10 @@ public:
 
 	//Debug
 	void AddAdjs(Segment* s, int i);
+	void AddAdj(pair<Segment*, int> p) {
+		Adjs.push_back(p);
+	}
 };
-
-
 
 struct PointOnSeg {
 	Segment* l;

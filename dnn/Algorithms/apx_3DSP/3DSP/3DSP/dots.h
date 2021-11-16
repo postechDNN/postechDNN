@@ -424,7 +424,8 @@ public:
 	void MarkPoints_Sg(int i);
 	void MarkPoints();
 
-	
+	void ConnectSgs();
 };
 
+vector<pair<Segment*, int>> Remove_Dup(vector<pair<Segment*, int>> ps); // remove duplicates by sorting + linear search
 Point perpen(Point A, Point B, Point P);
