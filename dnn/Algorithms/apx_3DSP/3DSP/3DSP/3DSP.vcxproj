@@ -125,15 +125,14 @@
   <ItemGroup>
     <ClCompile Include="3DSP.cpp" />
     <ClCompile Include="dots.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="propagation.cpp" />
-    <ClCompile Include="steiner_pts.cpp" />
     <ClCompile Include="parser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dots.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="propagation.h" />
-    <ClInclude Include="steiner_pts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

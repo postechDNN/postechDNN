@@ -24,10 +24,10 @@
     <ClCompile Include="3DSP.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="steiner_pts.cpp">
+    <ClCompile Include="parser.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="parser.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,9 +36,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="dots.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="steiner_pts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="parser.h">

@@ -50,7 +50,10 @@ public:
 	void SetRevs() {}; //How to implement?
 	void SetAdjDiagram();
 	void SetNear();
-	Segment() {a_ind = b_ind = -1;}
+	Segment() {
+		a_ind = b_ind = -1;
+		tetra = false;
+	}
 	//Constructor using two points and vector
 	Segment(MyVec _a, MyVec _b, vector<double> _X) {
 		a = _a;

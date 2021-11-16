@@ -76,7 +76,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			}
 
 			sgs.push_back(Segment(Point2Vec(pts[sg_info[1]]), Point2Vec(pts[sg_info[2]]), {}, 
-						  sg_info[1], sg_info[2], sg_info[0]));
+						  sg_info[1], sg_info[2], sg_info[0])); // sg_info[0] represents the index of the segment
 		}
 		readFile.close();
 	}
@@ -119,7 +119,8 @@ PolyDomain BuildPolyDomain(string FileName) {
 				}
 			}
 
-			fcs.push_back(Tri(pts[fc_info[1]], pts[fc_info[2]], pts[fc_info[3]], fc_info[1], fc_info[2], fc_info[3]));
+			fcs.push_back(Tri(fc_info[1], fc_info[2], fc_info[3], fc_info[0]));
+			// fcs.push_back(Tri(pts[fc_info[1]], pts[fc_info[2]], pts[fc_info[3]], fc_info[1], fc_info[2], fc_info[3], fc_info[0]));
 		}
 		readFile.close();
 	}
@@ -174,7 +175,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			}
 
 			for (vector<Tri>::iterator it = fcs.begin(); it != fcs.end(); ++it) {
-				vector<int> Fvec = { it->geta(), it->getb(), it->getc() };
+				vector<int> Fvec = { it->getPoint(1), it->getPoint(2), it->getPoint(3) };
 
 				if (std::includes(tet_info.begin()+1, tet_info.end(), Fvec.begin(), Fvec.end())) {
 					it->add_tet(tet_info[0]);
@@ -191,20 +192,41 @@ PolyDomain BuildPolyDomain(string FileName) {
 				}
 			}
 
-			vector<int> _fcs = {};
+			vector<int> _fcs = {-1, -1, -1, -1};
+			
+			/*
+			int t1 = -1, t2 = -1, t3 = -1, t4 = -1;
+			*/
+			vector<int> v1 = { tet_info[1], tet_info[2], tet_info[3] }, v2 = { tet_info[1], tet_info[2], tet_info[4] },
+			            v3 = { tet_info[1], tet_info[3], tet_info[4] }, v4 = { tet_info[2], tet_info[3], tet_info[4] };
+			
 
 			for (unsigned int i = 0; i < fcs.size(); i++) {
-				vector<int> comp = { fcs[i].geta(), fcs[i].getb(), fcs[i].getc() };
+				vector<int> comp = { fcs[i].getPoint(1), fcs[i].getPoint(2), fcs[i].getPoint(3) };
 
+				if (std::includes(v1.begin(), v1.end(), comp.begin(), comp.end())) { _fcs[0] = i; }
+				else if (std::includes(v2.begin(), v2.end(), comp.begin(), comp.end())) { _fcs[1] = i; }
+				else if (std::includes(v3.begin(), v3.end(), comp.begin(), comp.end())) { _fcs[2] = i; }
+				else if (std::includes(v4.begin(), v4.end(), comp.begin(), comp.end())) { _fcs[3] = i; }
+				// else { throw "during BuildPolyDomain, face indices of a tetrahedron was not initialized"; }
+				/*
 				if (std::includes(tet_info.begin()+1, tet_info.end(), comp.begin(), comp.end())) {
 					_fcs.push_back(i);
 				}
+				*/
 			}
 
-			vector<int> _nds_num = {tet_info[1], tet_info[2], tet_info[3], tet_info[4]};
+			// if (_fcs[0] < 0 || _fcs[1] < 0 || _fcs[2] || _fcs[3] < 0) { cout << 1 << " " << tet_info[0] << endl; } // throw "during BuildPolyDomain, face indices of a tetrahedron was not initialized"; }
+			/*
+			if (t1 < 0 || t2 < 0 || t3 < 0) { throw "during BuildPolyDomain, face indices of a tetrahedron was not initialized"; }
+			*/
 
-			tetras.push_back(Tetra(pts[tet_info[1]], pts[tet_info[2]], pts[tet_info[3]], pts[tet_info[4]], 
-								   _egs, _fcs, tet_info[0], _nds_num, ordered_sgs));
+			// vector<int> _nds_num = {};
+			vector<int> _nds_num = {tet_info[1], tet_info[2], tet_info[3], tet_info[4]}; // nds_num represents indices of the tetrahedron vertices
+
+			tetras.push_back(Tetra(tet_info[1], tet_info[2], tet_info[3], tet_info[4], _egs, _fcs, tet_info[0], _nds_num, ordered_sgs));
+			// tetras.push_back(Tetra(pts[tet_info[1]], pts[tet_info[2]], pts[tet_info[3]], pts[tet_info[4]], 
+			//					   _egs, _fcs, tet_info[0], _nds_num, ordered_sgs));
 		}
 		readFile.close();
 	}
@@ -246,18 +268,6 @@ PolyDomain BuildPolyDomain(string FileName) {
 
 	return PolyDomain(pts, sgs, fcs, tetras);
 }
-
-/*
-int main(){
-	string FileName;
-	cout << "Enter tetgen file name: ";
-	cin >> FileName;
-	PolyDomain D = BuildPolyDomain(FileName);
-	vector<Segment> segs = MarkPoints(D);
-
-	return 0;
-}
-*/
 
 
 // tetgen 자료형과 클래스 간 대응 관계
