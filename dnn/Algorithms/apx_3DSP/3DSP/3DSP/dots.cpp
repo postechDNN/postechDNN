@@ -159,19 +159,43 @@ Point PolyDomain::incircle_center(Tri T) {
 }
 
 void PolyDomain::init_neigh_sgs() {// initialize neighboring segments
-	vector<int> NFI = { 1, 4, 1, 3, 4, 3, 1, 2, 4, 2, 3, 2 }; // neighboring face indices
+	vector<int> NFI = { 0, 3, 0, 2, 3, 2, 0, 1, 3, 1, 2, 1}; // neighboring face indices
 	// cout << neigh_face_indices.size() << endl;
 
 	for (int j = 0; j < tets.size(); j++) {
 	    Tetra& T = tets[j];
-		vector<tuple<int, int>> temp = {};
-		for (unsigned int i = 0; i < NFI.size(); i++) {
+		vector<tuple<int, int, int>> temp = {};
+		for (int i = 0; i < NFI.size(); i++) {
 			// cout << t1.get_index() << " " << t2.get_index() << endl;
 			// cout << T.getindex() << " " << T.getTri(neigh_face_indices[i]) << " " << fcs[T.getTri(neigh_face_indices[i])].get_index() << endl;
-			temp.push_back(make_tuple(i / 2, fcs[T.getTri(NFI[i])].get_index()));
+			
+			// int ttt = T.getTri(NFI[i]);
+			temp.push_back(make_tuple(j, i / 2, fcs[T.getTri(NFI[i])].get_index()));
 			if (i % 2 == 1) {
-				T.add_bis({ fcs[T.getTri(NFI[i-1])].get_index(), fcs[T.getTri(NFI[i])].get_index(), temp});
+				T.add_bis({ fcs[T.getTri(NFI[i-1])].get_index(), fcs[T.getTri(NFI[i])].get_index(), temp, j, i / 2});
 				temp.clear();
+			}
+		}
+	}
+
+	// vector<vector<bool>> adj_M(tets.size(), vector<bool>(tets.size(), false));
+
+	for (int j = 0; j < tets.size(); j++) {
+		Tetra& Tj = tets[j]; // index j
+		vector<int> Tj_itets = Tj.get_itets();
+		for (int temp = 0; temp < Tj_itets.size(); temp++) {
+			int i = Tj_itets[temp]; // index i
+			Tetra& Ti = tets[i];
+			for (int k = 0; k < 6; k++) {
+				for (int m = 0; m < 6; m++) {
+					int cmp_num = -1;
+					if (Tj.get_bi(k).f1 == Ti.get_bi(m).f1) {cmp_num = Tj.get_bi(k).f1;}
+					else if (Tj.get_bi(k).f1 == Ti.get_bi(m).f2) { cmp_num = Tj.get_bi(k).f1; }
+					else if (Tj.get_bi(k).f2 == Ti.get_bi(m).f1) { cmp_num = Tj.get_bi(k).f2; }
+					else if (Tj.get_bi(k).f2 == Ti.get_bi(m).f2) { cmp_num = Tj.get_bi(k).f2; }
+					else {continue;}
+					Tj.update_bi(k, make_tuple(i, m, cmp_num)); // Ti.update_bi(m, make_tuple(j, k, cmp_num)); // adj_M[j][i] = true; adj_M[i][j] = true;
+				}
 			}
 		}
 	}
@@ -266,8 +290,8 @@ double* PolyDomain::radius_e(Segment S) { // radius of an edge in the polygonal 
 	}
 
 	vector<double> lines_inter = { 0, 1 }; // set of intersection points. 0 and 1 correspond to the endpoints of the segment
-	for (int i = 0; i < As.size(); i++) {
-		for (int j = i + 1; j < As.size(); j++) {
+	for (unsigned int i = 0; i < As.size(); i++) {
+		for (unsigned int j = i + 1; j < As.size(); j++) {
 			if (As[i] > Bs[i] && As[i + 1] < Bs[i + 1] || As[i] < Bs[i] && As[i + 1] > Bs[i + 1]) {
 				lines_inter.push_back((As[i + 1] - As[i]) / ((Bs[i] - As[i]) - (Bs[i + 1] - As[i + 1])));
 			}
@@ -297,8 +321,9 @@ double* PolyDomain::radius_e(Segment S) { // radius of an edge in the polygonal 
 	return ans;
 }
 
-// sg_num is the index of the segment AB
-vector<Segment> PolyDomain::MarkPoints(int a, int b, int c, int d, int Tet_index, int sg_num) {
+void PolyDomain::MarkPoints_Bi(int i, int j) {
+	Tetra& T = tets[i];
+	int a = T.getPoint(perm[j][0]), b = T.getPoint(perm[j][1]), c = T.getPoint(perm[j][2]), d = T.getPoint(perm[j][3]); // perm is defined in dots.h
 	Point A = pts[a]; Point B = pts[b]; Point C = pts[c]; Point D = pts[d];
 	// Segment S = *(PD.get_sg(sg_num)); // represents the segment AB
 
@@ -323,6 +348,8 @@ vector<Segment> PolyDomain::MarkPoints(int a, int b, int c, int d, int Tet_index
 
 	double rad_a = radius(a);
 	double rad_b = radius(b);
+
+	int sg_num = tets[i].getSg(j); // the index of the segment AB in the polygonal domain
 	double rad_Seg = radius_e(sgs[sg_num])[1];
 
 
@@ -339,15 +366,16 @@ vector<Segment> PolyDomain::MarkPoints(int a, int b, int c, int d, int Tet_index
 		Pi_s.push_back(Pip1);
 
 		// Then calculate k_{i}
-		int ki = 10; // for test
-		// int ki = int(ceil((dist_AB * Pi) / (dist_PH * (Pip1 - Pi))));
+		// int kii = int(ceil((dist_AB * Pi) / (dist_PH * (Pip1 - Pi))));
+		int ki = max(3, int(ceil((dist_AB * Pi) / (dist_PH * (Pip1 - Pi)))) / 10); // for test
 		ki_s.push_back(ki);
 
 		Point Ai = P * (1 - Pi) + A * Pi;
 		Point Bi = P * (1 - Pi) + B * Pi;
 
-		Segment S(Ai, Bi, {});
-		S.set_itets({ Tet_index });
+		num_seg++;
+		Segment S(Ai, Bi, {}, num_seg, false, &(tets[i]), i, j);
+		S.set_itets({i});
 		vector<double> Xi = {};
 
 		// cout << endl;
@@ -387,76 +415,62 @@ vector<Segment> PolyDomain::MarkPoints(int a, int b, int c, int d, int Tet_index
 		S.setX(Xi);
 		ans.push_back(S);
 	}
-	return ans;
+	bi* Bi = T.get_bi_ptr(j);
+	Bi->bi_sgs = ans;
+
+	// Bi.bi_sgs = ans;
+	// for (int i = 0; i < ans.size(); i++) { T.get_bi(j).bi_sgs.push_back(ans[i]); }
 }
 
-vector<Segment> PolyDomain::MarkPoints() {
+void PolyDomain::MarkPoints_Sg(int i) {
+	Segment S = sgs[i];
+
+	vector<double> X = {};
+
+	double er_va = eps * radius(S.geta_ind());
+	double er_vb = eps * radius(S.getb_ind());
+
+	MyVec A = S.geta(); MyVec B = S.getb();
+	double sz = (A - B).size();
+
+	X.push_back(er_va / sz); // A'
+	X.push_back(1 - er_vb / sz); // B'
+
+	double value;
+
+	value = radius_e(S)[1];
+	while (value > er_va / sz) {
+		X.push_back(value);
+		value -= eps * radius(Vec2Point(value * A + (1 - value) * B), S.getind(), true);
+	}
+
+	value = radius_e(S)[1];
+	while (value < 1 - er_vb / sz) {
+		X.push_back(value);
+		value += eps * radius(Vec2Point(value * A + (1 - value) * B), S.getind(), true);
+	}
+
+	sgs[S.getind()].setX(X);
+}
+
+void PolyDomain::MarkPoints() {
 
 	// for test
 	// int pt_num = 0;
 
-	vector<Segment> ans = {};
 
-	for (Tetra Tet : tets) {
+	for (int i = 0; i < tets.size(); i++) {
+		Tetra Tet = tets[i];
 
-		vector<int> pts = { Tet.getPoint(1), Tet.getPoint(2), Tet.getPoint(3), Tet.getPoint(4) };
-		vector<vector<int>> perm = { {0,1,2,3}, {0,2,1,3}, {0,3,1,2}, {1,2,0,3}, {1,3,0,2}, {2,3,0,1} };
-
-		vector<Segment> temp;
-		int sg_num = 0;
-		for (vector<int> seq : perm) {
-			temp = MarkPoints(pts[seq[0]], pts[seq[1]], pts[seq[2]], pts[seq[3]], Tet.getindex(), Tet.getsg(sg_num));
-
-			// bis[sg_num]
-
-			ans.insert(ans.end(), temp.begin(), temp.end());
-			sg_num += 1;
+		for (int j = 0; j < 6; j++) {
+			bi B = Tet.get_bi(j); // the j-th bisector of the i-th tetrahedron
+			MarkPoints_Bi(i, j);
 		}
 	}
 
-	// for test
-	/*
-	for (auto sgsg : ans) {
-		pt_num += sgsg.getX().size();
+	for (int i = 0; i < sgs.size(); i++) {
+		MarkPoints_Sg(i);
 	}
-	*/
-
-	for (Segment S : sgs) {
-		vector<double> X = {};
-
-		double er_va = eps * radius(S.geta_ind());
-		double er_vb = eps * radius(S.getb_ind());
-
-		MyVec A = S.geta(); MyVec B = S.getb();
-		double sz = (A - B).size();
-
-		X.push_back(er_va / sz); // A'
-		X.push_back(1 - er_vb / sz); // B'
-
-		double value;
-
-		value = radius_e(S)[1];
-		while (value > er_va / sz) {
-			X.push_back(value);
-			value -= eps * radius(Vec2Point(value * A + (1 - value) * B), S.getind(), true);
-		}
-
-		value = radius_e(S)[1];
-		while (value < 1 - er_vb / sz) {
-			X.push_back(value);
-			value += eps * radius(Vec2Point(value * A + (1 - value) * B), S.getind(), true);
-		}
-
-		sgs[S.getind()].setX(X);
-
-		// for test
-		// pt_num += X.size();
-	}
-
-	// for test
-	// cout << pt_num;
-
-	return ans;
 }
 
 // vertical projection of P on AB

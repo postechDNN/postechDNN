@@ -8,6 +8,8 @@ using namespace std;
 
 const double EPS = 1e-8;
 const double eps = 0.5; // 0 <= eps <= 1 by the definition
+const vector<vector<int>> perm = {{0, 1, 2, 3}, {0, 2, 1, 3}, {0, 3, 1, 2}, {1, 2, 0, 3}, {1, 3, 0, 2}, {2, 3, 0, 1}}; // tetrahedron vertex permutation
+// const vector<int> edge_perm = {} // tetrahedron edge permutation
 
 class Segment;
 
@@ -79,7 +81,7 @@ private:
 	vector<int> iegs;
 	vector<int> ifcs;
 	vector<int> itets;
-	int sur_tet; // tetrahedron surrounding the point
+	int sur_tet; // tetrahedron surrounding the point. defined only when the point does not lie on a face of the polygonal domain
 
 public:
 	Point() {
@@ -161,7 +163,7 @@ private:
 
 public:
 	Tri() {
-		// a = b = c = -1;
+		p1 = p2 = p3 = -1; // a = b = c = -1;
 		index = -1;
 	}
 	Tri(int _p1, int _p2, int _p3, int _index) {
@@ -217,31 +219,29 @@ public:
 typedef struct bi { // bisector
 	int f1; // the two faces whose dihedral angle is divided by the bisector 
 	int f2;
-	vector<tuple<int, int>> neighbors; // neighboring bisectors
+	vector<tuple<int, int, int>> neighbors; // neighboring bisectors.
+	                                        // int, int, int : tetrahedron number, bisector number, face number
+	int i; // bi is the j-th bisector of the i-th tetrahedron in the polygonal domain
+	int j;
+	vector<Segment> bi_sgs;
 }bi;
 
 // tetrahedron
 class Tetra {
 private:
 	int index;
-
-	// t1 : <p1, p2, p3>, t2 : <p2, p3, p4>, t3: <p3, p4, p1>, t4 : <p4, p1, p2>
-	// Tri t1, t2, t3, t4;
-	// int t1, t2, t3, t4;
-	// Point p1, p2, p3, p4;
-	int p1, p2, p3, p4; // indices of the four points which are vertices of the tetrahedron 
-	// sgs[0] : p1p2, sgs[1] : p1p3, sgs[2] : p1p4, sgs[3] : p2p3, sgs[4] : p2p4, sgs[5] : p3p4 
+	// pts[0] = p0, pts[1] = p1, pts[2] = p2, pts[3] = p3
+	vector<int> pts;
+	// sgs[0] : p0p1, sgs[1] : p0p2, sgs[2] : p0p3, sgs[3] : p1p2, sgs[4] : p1p3, sgs[5] : p2p3 
 	int sgs[6];
 	vector<int> egs;
+	// fcs[0] = p0p1p2, fcs[1] = p1p2p3, fcs[2] = p0p2p3, fcs[3] = p0p1p3
 	vector<int> fcs;
 	vector<int> itets;
 
 	vector<bi> bis;
-	/*
-	vector<vector<tuple<int, int>>> bis; 
-	// bisectors. each bisector is defined as follows: bis[0] = p1p2p3 | p1p2p4, bis[1] = p1p3p2 | p1p3p4, ...
-    // each bisector stores its neighbors.	                       
-	*/
+	// bis[0] = p0p1p2 | p0p1p3, bis[1] = p0p2p1 | p0p2p3, bis[2] = p0p3p1 | p0p3p2
+	// bis[3] = p1p2p0 | p1p2p3, bis[4] = p1p3p0 | p1p3p2, bis[5] = p2p3p0 | p2p3p1
 
 
 public:
@@ -249,9 +249,10 @@ public:
 		// a = b = c = d = -1; 
 		index = -1;
 	}
-	Tetra(int _p1, int _p2, int _p3, int _p4, vector<int> _egs, 
-	      vector<int> _fcs, int _index, vector<int> nds_num, int* ordered_sgs) {
-		p1 = _p1; p2 = _p2; p3 = _p3; p4 = _p4;
+	Tetra(vector<int> _pts, vector<int> _egs, 
+	      vector<int> _fcs, int _index, int* ordered_sgs) {
+		pts = _pts;
+		// p1 = _p1; p2 = _p2; p3 = _p3; p4 = _p4;
 		// t1 = _t1; t2 = _t2; t3 = _t3;
 		egs = _egs;
 		fcs = _fcs;
@@ -259,79 +260,34 @@ public:
 		copy(ordered_sgs, ordered_sgs + 6, sgs);
 	}
 	int getTri(int i) {
-		if (i == 1) return fcs[0];
-		else if (i == 2) return fcs[1];
-		else if (i == 3) return fcs[2];
-		else if (i == 4) return fcs[3];
-		else { throw "function Tetra::getTri(i) has input parameter range 1 <= i <= 4"; }
+		if (0 <= i && i <= 3) { return fcs[i]; }
+		else { throw "function Tetra::getTri(i) has input parameter range 0 <= i <= 3"; }
+	}
+
+	int getSg(int i) {
+		if (0 <= i && i <= 5) { return sgs[i]; }
+		else { throw "function Tetra::getSg(i) has input parameter range 0 <= i <= 5"; }
 	}
 
 	int getPoint(int i) {
-		if (i == 1) return p1;
-		else if (i == 2) return p2;
-		else if (i == 3) return p3;
-		else if (i == 4) return p4;
-		else { throw "function Tetra::getPoint(i) has input parameter range 1 <= i <= 4"; }
+		if (0 <= i && i <= 3) { return pts[i]; }
+		else { throw "function Tetra::getPoint(i) has input parameter range 0 <= i <= 3"; }
 	}
-
-	/*
-	Tetra(Tri T1_, Tri T2_, Tri T3_, Tri T4_) {
-		t1 = T1_; t2 = T2_, t3 = T3_, t4 = T4_;
-		p1 = t1.getp1(); p2 = t2.getp1(); p3 = t3.getp1(); p4 = t4.getp1();
-
-		vector<int> neigh_face_indices = { 1, 4, 1, 3, 4, 3, 1, 2, 4, 2, 3, 2 }; // neighboring face indices
-
-		vector<tuple<int, int>> temp = {};
-		for (int i = 0; i < neigh_face_indices.size(); i++) {
-			temp.push_back(make_tuple(i / 2, getTri(neigh_face_indices[i]).get_index()));
-			if (i % 2 == 1) {
-				bis.push_back(temp);
-				temp.clear();
-			}
-		}
-	}
-	Tetra(Point P1_, Point P2_, Point P3_, Point P4_, vector<int> _egs, vector<int> _fcs, int _index, 
-	      vector<int> nds_num, int* ordered_sgs) {
-		p1 = P1_; p2 = P2_; p3 = P3_; p4 = P4_;
-		t1 = Tri(p1, p2, p3); t2 = Tri(p2, p3, p4); t3 = Tri(p3, p4, p1); t4 = Tri(p4, p1, p2);
-		egs = _egs;
-		fcs = _fcs;
-		index = _index;
-		a = nds_num[0]; b = nds_num[1]; c = nds_num[2]; d = nds_num[3];
-		copy(ordered_sgs, ordered_sgs + 6, sgs);
-
-		vector<int> neigh_face_indices = { 1, 4, 1, 3, 4, 3, 1, 2, 4, 2, 3, 2 }; // neighboring face indices
-
-		vector<tuple<int, int>> temp = {};
-		for (int i = 0; i < neigh_face_indices.size(); i++) {
-			cout << t1.get_index() << " " << t2.get_index() << endl;
-			temp.push_back(make_tuple(i / 2, getTri(neigh_face_indices[i]).get_index()));
-			if (i % 2 == 1) {
-				bis.push_back(temp);
-				temp.clear();
-			}
-		}
-	}
-
-	Tri getTri(int i) {
-		if (i == 1) return t1;
-		else if (i == 2) return t2;
-		else if (i == 3) return t3;
-		else if (i == 4) return t4;
-		else { throw "function Tetra::getTri(i) has input parameter range 1 <= i <= 4"; }
-	}
-
-	Point getPoint(int i) { 
-		if (i == 1) return p1;
-		else if (i == 2) return p2;
-		else if (i == 3) return p3;
-		else if (i == 4) return p4;
-		else { throw "function Tetra::getPoint(i) has input parameter range 1 <= i <= 4"; }
-	}
-	*/
 
 	void add_bis(bi _bi) {
 		bis.push_back(_bi);
+	}
+
+	void update_bi(int i, tuple<int, int, int> tup) {
+		(bis[i].neighbors).push_back(tup);
+	}
+
+	bi* get_bi_ptr(int i) {
+		return &(bis[i]);
+	}
+
+	bi get_bi(int i) {
+		return bis[i];
 	}
 
 	vector<bi> get_bis() {
@@ -343,6 +299,7 @@ public:
 	int getindex() {return index;}
 
 	void add_itets(int tet) { itets.push_back(tet); }
+	vector<int> get_itets() { return itets; }
 
 	friend bool operator == (const Tetra& Tet1, const Tetra& Tet2) {
 		return includes(Tet1.fcs.begin(), Tet1.fcs.end(), 
@@ -411,11 +368,13 @@ private:
 	vector<Segment> sgs;
 	vector<Tri> fcs;
 	vector<Tetra> tets;
+	int num_seg;
 
 public:
 	PolyDomain() { pts = {}; sgs = {}; fcs = {}; tets = {};}
 	PolyDomain(vector<Point>& _pts, vector<Segment>& _sgs, vector<Tri>& _fcs, vector<Tetra>& _tets) {
 		pts = _pts; sgs = _sgs; fcs = _fcs; tets = _tets;
+		num_seg = sgs.size();
 	}
 	
 	vector<Point> get_pts() const {
@@ -459,9 +418,13 @@ public:
 	
 	double* radius_e(Segment S);
 
-	vector<Segment> MarkPoints(int a, int b, int c, int d, int Tet_indx, int sg_num);
-	vector<Segment> MarkPoints();
-	// double dist();
+
+	// void MarkPoints(int a, int b, int c, int d, int Tet_index, int sg_num);
+	void MarkPoints_Bi(int i, int j);
+	void MarkPoints_Sg(int i);
+	void MarkPoints();
+
+	
 };
 
 Point perpen(Point A, Point B, Point P);

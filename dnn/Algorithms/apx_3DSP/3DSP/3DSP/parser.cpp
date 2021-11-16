@@ -76,7 +76,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			}
 
 			sgs.push_back(Segment(Point2Vec(pts[sg_info[1]]), Point2Vec(pts[sg_info[2]]), {}, 
-						  sg_info[1], sg_info[2], sg_info[0])); // sg_info[0] represents the index of the segment
+						  sg_info[1], sg_info[2], sg_info[0], true, NULL)); // sg_info[0] represents the index of the segment
 		}
 		readFile.close();
 	}
@@ -115,7 +115,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 				vector<int> Svec = {it->geta_ind(), it->getb_ind() };
 				
 				if (std::includes(fc_info.begin()+1, fc_info.end()-1, Svec.begin(), Svec.end())) {
-					it->add_fc(fc_info[0]);
+					it->add_ifc(fc_info[0]);
 				}
 			}
 
@@ -163,7 +163,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 				vector<int> Svec = { it->geta_ind(), it->getb_ind() };
 
 				if (std::includes(tet_info.begin()+1, tet_info.end(), Svec.begin(), Svec.end())) {
-					it->add_tet(tet_info[0]);
+					it->add_itet(tet_info[0]);
 				}
 
 				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[2]) { ordered_sgs[0] = it->getind(); }
@@ -197,8 +197,8 @@ PolyDomain BuildPolyDomain(string FileName) {
 			/*
 			int t1 = -1, t2 = -1, t3 = -1, t4 = -1;
 			*/
-			vector<int> v1 = { tet_info[1], tet_info[2], tet_info[3] }, v2 = { tet_info[1], tet_info[2], tet_info[4] },
-			            v3 = { tet_info[1], tet_info[3], tet_info[4] }, v4 = { tet_info[2], tet_info[3], tet_info[4] };
+			vector<int> v1 = { tet_info[1], tet_info[2], tet_info[3] }, v2 = { tet_info[2], tet_info[3], tet_info[4] },
+			            v3 = { tet_info[1], tet_info[3], tet_info[4] }, v4 = { tet_info[1], tet_info[2], tet_info[4] };
 			
 
 			for (unsigned int i = 0; i < fcs.size(); i++) {
@@ -222,9 +222,9 @@ PolyDomain BuildPolyDomain(string FileName) {
 			*/
 
 			// vector<int> _nds_num = {};
-			vector<int> _nds_num = {tet_info[1], tet_info[2], tet_info[3], tet_info[4]}; // nds_num represents indices of the tetrahedron vertices
+			vector<int> _pts = {tet_info[1], tet_info[2], tet_info[3], tet_info[4]}; // nds_num represents indices of the tetrahedron vertices
 
-			tetras.push_back(Tetra(tet_info[1], tet_info[2], tet_info[3], tet_info[4], _egs, _fcs, tet_info[0], _nds_num, ordered_sgs));
+			tetras.push_back(Tetra(_pts, _egs, _fcs, tet_info[0], ordered_sgs));
 			// tetras.push_back(Tetra(pts[tet_info[1]], pts[tet_info[2]], pts[tet_info[3]], pts[tet_info[4]], 
 			//					   _egs, _fcs, tet_info[0], _nds_num, ordered_sgs));
 		}

@@ -34,6 +34,9 @@ private:
 	vector<vector<pair<double, double>>> AdjDiagram;
 	vector<AVLTree<pair<double,int>>> AddVoronoi; //tree의 각 원소는 (vertex 상대위치, -방향 cell의 site)
 	vector<vector<double>> Near; //The nearest positions from each point to other segments
+	
+	int i, j; // when tetra == false, the segment is a steiner segment on the j-th bisector 
+	          // of the i-th tetrahedron in the polygonal domain
 
 	pair<double, double> Vinterval(int i, int i1, int lindex);
 	pair<double, double> Interval(int i, MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1);
@@ -55,10 +58,16 @@ public:
 		tetra = false;
 	}
 	//Constructor using two points and vector
-	Segment(MyVec _a, MyVec _b, vector<double> _X) {
+	Segment(MyVec _a, MyVec _b, vector<double> _X, int _index, bool _tetra, Tetra* _tets, int _i, int _j) {
 		a = _a;
 		b = _b;
 		X = vector<double>(_X);
+		index = _index;
+		tetra = _tetra;
+		tets = _tets;
+		i = _i;
+		j = _j;
+
 		S.clear();
 		for (size_t i = 0; i < X.size(); i++)
 		{
@@ -69,20 +78,27 @@ public:
 		SetRevs();
 		SetAdjDiagram();
 		SetNear();
+
+
 	}
-	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind, int _index) {
+	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind, int _index, bool _tetra, Tetra* _tets) {
 		a = _a;
 		b = _b;
 		X = vector<double>(_X);
 		a_ind = _a_ind;
 		b_ind = _b_ind;
 		index = _index;
+		tetra = _tetra;
+		tets = _tets;
+
 		S.clear();
 		for (size_t i = 0; i < X.size(); i++)
 		{
 			Sbar[X[i]]=i;
 		}
 		dist.assign(X.size(), 0);
+
+		
 		/*
 		* SetAdjs();
 		SetRevs();
@@ -122,15 +138,15 @@ public:
 		return ifcs;
 	}
 
+	void set_itets(vector<int> _itets) {
+		itets = _itets;
+	}
+
+	void add_itet(int tet_num) {
+		itets.push_back(tet_num);
+	}
+
 	vector<int> get_itets() {
-		return itets;
-	}
-
-	void set_itets(vector<int> _incid_tets) {
-		itets = _incid_tets;
-	}
-
-	vector<int> get_incid_tets() {
 		return itets;
 	}
 
@@ -146,12 +162,8 @@ public:
 		return index;
 	}
 
-	void add_fc(int fc_num) {
+	void add_ifc(int fc_num) {
 		ifcs.push_back(fc_num);
-	}
-
-	void add_tet(int tet_num) {
-		itets.push_back(tet_num);
 	}
 
 	Tetra* get_tets() {
