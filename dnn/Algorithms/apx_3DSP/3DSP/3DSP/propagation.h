@@ -182,6 +182,20 @@ public:
 	void AddAdj(pair<Segment*, int> p) {
 		Adjs.push_back(p);
 	}
+
+	int getAdjSize() {
+		return Adjs.size();
+	}
+
+	pair<Segment*, int> getAdj(int i) {
+		return Adjs[i];
+	}
+
+	void AddRev(int i) {
+		this->Revs.push_back(i);
+	}
+
+	int Ln_Search(int i, int f);
 };
 
 struct PointOnSeg {

@@ -389,6 +389,13 @@ bool Segment::IsContain(int i, int i1, Segment& l1, double t)
 	return VecSize(tv - v) + dist[i] < VecSize(tv - v1) + dist[i1];
 }
 
+int Segment::Ln_Search(int i, int f) {
+	vector<pair<Segment*, int>> V = this->Adjs;
+	for (int j = 0; j < V.size(); j++) {
+		if (get<0>(V[j])->getind() == i && get<1>(V[j]) == f) { return j; }
+	}
+}
+
 /*
 int main1()
 {

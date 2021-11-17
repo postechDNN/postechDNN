@@ -46,7 +46,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 	}
 
 	readFile.open(FileName + ".edge");
-	vector<Segment> sgs = {};
+	vector<Segment*> sgs = {};
 
 	if (readFile.is_open()) {
 		string str2;
@@ -75,8 +75,9 @@ PolyDomain BuildPolyDomain(string FileName) {
 				pts[sg_info[i]].add_iegs(sg_info[0]);
 			}
 
-			sgs.push_back(Segment(Point2Vec(pts[sg_info[1]]), Point2Vec(pts[sg_info[2]]), {}, 
-						  sg_info[1], sg_info[2], sg_info[0], true, NULL)); // sg_info[0] represents the index of the segment
+			Segment* S = new Segment(Point2Vec(pts[sg_info[1]]), Point2Vec(pts[sg_info[2]]), {},
+				sg_info[1], sg_info[2], sg_info[0], true, NULL); // sg_info[0] represents the index of the segment
+			sgs.push_back(S); 
 		}
 		readFile.close();
 	}
@@ -111,11 +112,11 @@ PolyDomain BuildPolyDomain(string FileName) {
 				pts[fc_info[i]].add_ifcs(fc_info[0]);
 			}
 
-			for (vector<Segment>::iterator it = sgs.begin(); it != sgs.end(); ++it) {
-				vector<int> Svec = {it->geta_ind(), it->getb_ind() };
+			for (vector<Segment*>::iterator it = sgs.begin(); it != sgs.end(); ++it) {
+				vector<int> Svec = {(*it)->geta_ind(), (*it)->getb_ind() };
 				
 				if (std::includes(fc_info.begin()+1, fc_info.end()-1, Svec.begin(), Svec.end())) {
-					it->add_ifc(fc_info[0]);
+					(*it)->add_ifc(fc_info[0]);
 				}
 			}
 
@@ -159,19 +160,19 @@ PolyDomain BuildPolyDomain(string FileName) {
 
 			int ordered_sgs[6] = {0, };
 
-			for (vector<Segment>::iterator it = sgs.begin(); it != sgs.end(); ++it) {
-				vector<int> Svec = { it->geta_ind(), it->getb_ind() };
+			for (vector<Segment*>::iterator it = sgs.begin(); it != sgs.end(); ++it) {
+				vector<int> Svec = { (*it)->geta_ind(), (*it)->getb_ind() };
 
 				if (std::includes(tet_info.begin()+1, tet_info.end(), Svec.begin(), Svec.end())) {
-					it->add_itet(tet_info[0]);
+					(*it)->add_itet(tet_info[0]);
 				}
 
-				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[2]) { ordered_sgs[0] = it->getind(); }
-				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[3]) { ordered_sgs[1] = it->getind(); }
-				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[4]) { ordered_sgs[2] = it->getind(); }
-				if (Svec[0] == tet_info[2] && Svec[1] == tet_info[3]) { ordered_sgs[3] = it->getind(); }
-				if (Svec[0] == tet_info[2] && Svec[1] == tet_info[4]) { ordered_sgs[4] = it->getind(); }
-				if (Svec[0] == tet_info[3] && Svec[1] == tet_info[4]) { ordered_sgs[5] = it->getind(); }
+				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[2]) { ordered_sgs[0] = (*it)->getind(); }
+				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[3]) { ordered_sgs[1] = (*it)->getind(); }
+				if (Svec[0] == tet_info[1] && Svec[1] == tet_info[4]) { ordered_sgs[2] = (*it)->getind(); }
+				if (Svec[0] == tet_info[2] && Svec[1] == tet_info[3]) { ordered_sgs[3] = (*it)->getind(); }
+				if (Svec[0] == tet_info[2] && Svec[1] == tet_info[4]) { ordered_sgs[4] = (*it)->getind(); }
+				if (Svec[0] == tet_info[3] && Svec[1] == tet_info[4]) { ordered_sgs[5] = (*it)->getind(); }
 			}
 
 			for (vector<Tri>::iterator it = fcs.begin(); it != fcs.end(); ++it) {
@@ -185,7 +186,7 @@ PolyDomain BuildPolyDomain(string FileName) {
 			vector<int> _egs = {};
 
 			for (unsigned int i = 0; i < sgs.size(); i++) {
-				vector<int> comp = { sgs[i].geta_ind(), sgs[i].getb_ind() };
+				vector<int> comp = { sgs[i]->geta_ind(), sgs[i]->getb_ind() };
 
 				if (std::includes(tet_info.begin()+1, tet_info.end(), comp.begin(), comp.end())) {
 					_egs.push_back(i);

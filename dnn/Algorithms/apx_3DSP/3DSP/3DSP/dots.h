@@ -223,7 +223,10 @@ typedef struct bi { // bisector
 	                                        // int, int, int : tetrahedron number, bisector number, face number
 	int i; // bi is the j-th bisector of the i-th tetrahedron in the polygonal domain
 	int j;
-	vector<Segment> bi_sgs;
+	vector<Segment*> bi_sgs; // steiner segments on the bisector, including an edge of the polygonal domain
+	                         // (if the bisector is ABC' where A, B are vertices of the polygonal domain
+							 // and C' is the midpoint of C, D, both of which are also vertices,
+							 // then the bisector ABC' contains AB in its bi_sgs
 }bi;
 
 // tetrahedron
@@ -239,7 +242,7 @@ private:
 	vector<int> fcs;
 	vector<int> itets;
 
-	vector<bi> bis;
+	vector<bi*> bis;
 	// bis[0] = p0p1p2 | p0p1p3, bis[1] = p0p2p1 | p0p2p3, bis[2] = p0p3p1 | p0p3p2
 	// bis[3] = p1p2p0 | p1p2p3, bis[4] = p1p3p0 | p1p3p2, bis[5] = p2p3p0 | p2p3p1
 
@@ -269,33 +272,41 @@ public:
 		else { throw "function Tetra::getSg(i) has input parameter range 0 <= i <= 5"; }
 	}
 
+	vector<int> get_fcs() { return fcs; }
+
 	int getPoint(int i) {
 		if (0 <= i && i <= 3) { return pts[i]; }
 		else { throw "function Tetra::getPoint(i) has input parameter range 0 <= i <= 3"; }
 	}
 
-	void add_bis(bi _bi) {
+	void add_bis(bi* _bi) {
 		bis.push_back(_bi);
 	}
 
+	/*
+	void add_bi_sg(int i, Segment* S) {
+		bis[i].bi_sgs.push_back(*S);
+	}
+	*/
+
 	void update_bi(int i, tuple<int, int, int> tup) {
-		(bis[i].neighbors).push_back(tup);
+		((*(bis[i])).neighbors).push_back(tup);
 	}
 
-	bi* get_bi_ptr(int i) {
-		return &(bis[i]);
-	}
-
-	bi get_bi(int i) {
+	bi* get_bi(int i) {
 		return bis[i];
 	}
 
-	vector<bi> get_bis() {
+	/*
+	bi get_bi(int i) {
+		return bis[i];
+	}
+	*/
+
+	vector<bi*> get_bis() {
 		return bis;
 	}
 
-	int getsg(int num) { return sgs[num]; }
-	vector<int> get_fcs() {return fcs;}
 	int getindex() {return index;}
 
 	void add_itets(int tet) { itets.push_back(tet); }
@@ -365,14 +376,14 @@ class PolyDomain {
 private:
 	// Segment* Ss;
 	vector<Point> pts;
-	vector<Segment> sgs;
+	vector<Segment*> sgs;
 	vector<Tri> fcs;
 	vector<Tetra> tets;
 	int num_seg;
 
 public:
 	PolyDomain() { pts = {}; sgs = {}; fcs = {}; tets = {};}
-	PolyDomain(vector<Point>& _pts, vector<Segment>& _sgs, vector<Tri>& _fcs, vector<Tetra>& _tets) {
+	PolyDomain(vector<Point>& _pts, vector<Segment*> _sgs, vector<Tri>& _fcs, vector<Tetra>& _tets) {
 		pts = _pts; sgs = _sgs; fcs = _fcs; tets = _tets;
 		num_seg = sgs.size();
 	}
@@ -383,11 +394,11 @@ public:
 	Point get_pt(int num) const {
 		return pts[num];
 	}
-	vector<Segment> get_sgs() const {
+	vector<Segment*> get_sgs() const {
 		return sgs;
 	}
 	Segment* get_sg(int num) {
-		return &(sgs[num]);
+		return sgs[num];
 	}
 	vector<Tri> get_fcs() const {
 		return fcs;
@@ -425,6 +436,7 @@ public:
 	void MarkPoints();
 
 	void ConnectSgs();
+	int Ln_Search(int, pair<Segment*,int>);
 };
 
 vector<pair<Segment*, int>> Remove_Dup(vector<pair<Segment*, int>> ps); // remove duplicates by sorting + linear search
