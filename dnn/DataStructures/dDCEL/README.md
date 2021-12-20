@@ -11,7 +11,7 @@ Supports 3d visualization using OpenGL. Two examples are included, dodecahedron 
 
 |Dodecahedron with faces|tetrahedron with edges|
 |:-:|:-:| 
-|![img1](./dodeca.png)|![img2](./tetra.png)|
+|![img1](https://user-images.githubusercontent.com/16522620/146724557-d3229436-3045-4962-a141-cad1db569190.PNG)|![img2](https://user-images.githubusercontent.com/16522620/146724621-8085df7d-c3be-4442-89ef-2facebd87129.PNG)|
 
 ## Dependencies
 None.
