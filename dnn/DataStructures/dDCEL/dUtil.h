@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cassert>
+#include <iterator>
 class dPoint;
 class dEdge;
 
