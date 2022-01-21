@@ -1,5 +1,7 @@
 // Ipelet for finding convex hull using graham scan
 
+// Edited in 2022.01
+
 #include "ipelet.h"
 #include "ipepath.h"
 #include "ipepage.h"
@@ -16,6 +18,7 @@
 using namespace ipe;
 using namespace std;
 
+/* Get points (reference type) from selected objects */ 
 bool Get_points(IpeletData *data,IpeletHelper *helper,vector<Vector> &ret){
 	Page *page = data->iPage;
 	int sel = page->primarySelection();
@@ -28,6 +31,7 @@ bool Get_points(IpeletData *data,IpeletHelper *helper,vector<Vector> &ret){
 	//copy mark(points)
 	for(int i=0;i<n;i++){
 		//check the type is reference
+		if(page->select(i) == ENotSelected) continue; // *edit 
 		if(page->object(i)->type()!=Object::EReference) continue;
 		Reference *ref=page->object(i)->asReference();
 
@@ -44,6 +48,8 @@ bool Get_points(IpeletData *data,IpeletHelper *helper,vector<Vector> &ret){
 	}
 	else return true;
 }
+
+/* Get segments from selected objects */ 
 bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpath, std::vector<CurveSegment> &ret){
 	Page *page = data->iPage;
 	int sel = page->primarySelection();
@@ -55,6 +61,7 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 	ret.clear();
 	//copy segment(path)
 	for(int i=0;i<n;i++){
+		if(page->select(i) == ENotSelected) continue; // *edit
 		//check the object type is path
 		if(page->object(i)->type()!=Object::EPath) continue;
 		Path *path=page->object(i)->asPath();

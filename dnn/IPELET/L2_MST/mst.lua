@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 -- graph ipelet description
 ----------------------------------------------------------------------
-label = "Graph"
+label = "MST"
 about = [[
 Constructs a graph from selected points and segments
 This ipelet is part of Ipe.

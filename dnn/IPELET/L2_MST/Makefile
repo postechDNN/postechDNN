@@ -1,7 +1,7 @@
 CC = g++
 
-TARGET = graph.dll
-OBJECTS = graph.o ipeIO.o
+TARGET = mst.dll
+OBJECTS = mst.o ipeIO.o
 IPE_PATH = C:\Users\Chaeyoon\ipe-7.2.23-win64\ipe-7.2.23\bin
 
 all : $(TARGET)

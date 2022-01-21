@@ -1,5 +1,6 @@
 // --------------------------------------------------------------------
-// Ipelet for creating a graph 
+// Ipelet for drawing a MST 
+// (Note that ipeIO.cpp was edited for this code.)
 // --------------------------------------------------------------------
 #include "ipelet.h"
 #include "ipepath.h"
@@ -25,7 +26,6 @@ using namespace ipe;
 
 int parent[maxVNum];
 
-double lenOfCurveSegment(CurveSegment a);
 
 double lenOfCurveSegment(CurveSegment a){
   /* Length of a*/
@@ -38,9 +38,8 @@ double lenOfCurveSegment(CurveSegment a){
   return aLen;
 }
 
-int numOfVertex(const vector<Vector>& Vertices, Vector v);
 
-int numOfVertex(const vector<Vector>& Vertices, Vector v){
+int idxOfVertex(const vector<Vector>& Vertices, Vector v){
   for(int i=0; i<Vertices.size(); i++){
     if ((Vertices[i].x == v.x) && (Vertices[i].y == v.y))
       return i;
@@ -57,7 +56,7 @@ int Find(int x){
     }
 }
 
-void Union (int x, int y){
+void Union(int x, int y){
     y = Find(y);
     x = Find(x);
     if (x!=y){
@@ -77,7 +76,6 @@ class Edge {
           this->distance = distance;
       }
 
-      //연산자 오버로딩
       bool operator<(const Edge &edge) const {
           return (this->distance) < (edge.distance);
       }
@@ -93,17 +91,11 @@ public:
 bool GraphIpelet::run(int, IpeletData *data, IpeletHelper *helper)
 {
   Page *page = data->iPage;
-  // int selNum = page->primarySelection()+1;
-  // if (selNum < 1) {
-  //   helper->message("No selection");
-  //   return false;
-  // }
 
-  /* Store Vertices and Edges */
+  /* Store vertices and edges */
   bool verticeExist, edgeExist; 
   int verticeNum, edgeNum; 
   vector<Vector> Vertices;
-  
   vector<CurveSegment> Edges;
 
   verticeExist = Get_points(data, helper, Vertices);
@@ -120,50 +112,20 @@ bool GraphIpelet::run(int, IpeletData *data, IpeletHelper *helper)
   } 
   edgeNum = Edges.size();
 
-
   char msg[100];
   char msg_temp[100];
-
-
-  /* Find Real Vertices and Edges */
-  // std::vector<CurveSegment>::iterator eIter; 
-  // std::vector<Vector>::iterator vIter; 
-
-  // eIter = Edges.begin();
-
-  // while(eIter != Edges.end()){
-
-  //   int intersectNum = 0;
-  //   vIter = Vertices.begin();
-
-  //   while(vIter != Vertices.end()){
-  //     Vector endPoint1 = (*eIter).cp(0);
-  //     Vector endPoint2 = (*eIter).cp(1);
-  //     if((*vIter).operator==(endPoint1) || (*vIter).operator==(endPoint2)) intersectNum++;
-  //     vIter++;
-  //   }
-
-  //   if (intersectNum<2) eIter = Edges.erase(eIter);
-  //   else eIter ++;
-  // }
-
 
   /* MST using Kruskal's algorithm */
   vector<Edge> newFormEdges;
   vector<Edge> edgesInMst;
 
-  
-
-
   bool inMst[verticeNum];
 
-
+  /* Make new set of edges with new class form */ 
   //Precondition: All vertices in Vertices should be connected & Edges contain each edge, not a connected polyline
-  /* Make a new set of edges with new class form */ 
-  // Edge(vNum1, vNum2, len)
   for(int i=0; i<edgeNum; i++){
-    int startV = numOfVertex(Vertices, Edges[i].cp(0));
-    int endV = numOfVertex(Vertices, Edges[i].cp(1));
+    int startV = idxOfVertex(Vertices, Edges[i].cp(0));
+    int endV = idxOfVertex(Vertices, Edges[i].cp(1));
     double len = lenOfCurveSegment(Edges[i]);
 
     newFormEdges.push_back(Edge(startV, endV, len));
@@ -184,11 +146,10 @@ bool GraphIpelet::run(int, IpeletData *data, IpeletHelper *helper)
     }
 
   
-  // /* Draw Edges */
+  /* Draw MST */
   IPEIO edge;
 
   edge.set_color(255,0,0);
-  edge.set_arrow(false);
   edge.set_dash(3);
   edge.set_pen(3);
 
@@ -197,7 +158,7 @@ bool GraphIpelet::run(int, IpeletData *data, IpeletHelper *helper)
   }
   
   
-  strcpy(msg, "Graph: Selected ");
+  strcpy(msg, "MST");
   strcat(msg, itoa(Vertices.size(), msg_temp, 10));
   strcat(msg, itoa(edgeNum, msg_temp, 10));
   
@@ -212,8 +173,6 @@ bool GraphIpelet::run(int, IpeletData *data, IpeletHelper *helper)
   helper->message(msg);
 
   return false;
-
-
 
   
 }
