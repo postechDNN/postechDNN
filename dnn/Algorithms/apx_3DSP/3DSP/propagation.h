@@ -49,9 +49,9 @@ private:
 
 public:
 	//Steiner point generation 완성된 이후에 구현 예정, 추후에 private로 옮기기
-	void SetAdjs() {}; //마지막에 AddVoronoi도 초기화해야함
-	void SetRevs() {}; //How to implement?
-	void SetAdjDiagram();
+	//void SetAdjs() {}; //마지막에 AddVoronoi도 초기화해야함
+	//void SetRevs() {}; //How to implement?
+	void SetAdjDiagram(PolyDomain &D);
 	void SetNear();
 	Segment() {
 		a_ind = b_ind = -1;
@@ -74,12 +74,6 @@ public:
 			Sbar[X[i]] = i;
 		}
 		dist.assign(X.size(), 0);
-		SetAdjs();
-		SetRevs();
-		SetAdjDiagram();
-		SetNear();
-
-
 	}
 	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind, int _index, bool _tetra, Tetra* _tets) {
 		a = _a;
@@ -132,6 +126,10 @@ public:
 
 	MyVec getb() {
 		return b;
+	}
+
+	MyVec getPoint(int i) {
+		return (1 - X[i]) * a + X[i] * b;
 	}
 
 	vector<int> get_ifcs() {

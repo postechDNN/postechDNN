@@ -520,6 +520,31 @@ int PolyDomain::Ln_Search(int i, pair<Segment*, int> pr) {
 	return Sj->Ln_Search(i, get<1>(pr));
 }
 
+void PolyDomain::SetSgs()
+{
+	for (Segment* S : sgs) {
+		S->SetAdjDiagram(*this);
+		S->SetNear();
+	}
+}
+
+bool PolyDomain::inTet(int i, Point p)
+{
+	MyVec v = Point2Vec(p);
+	vector<MyVec> vecs;
+	for (size_t j = 0;  j< 4; j++)
+	{
+		vecs.push_back(Point2Vec(pts[tets[i].getPoint(j)]));
+	}
+	for (size_t j = 0; j < 4; j++)
+	{
+		MyVec n = OuterProd(vecs[(j+1)%4] - vecs[j], vecs[(j+2)] - vecs[j]);
+		if (InnerProd(vecs[(j + 3) % 4] - vecs[j], n) * InnerProd(v - vecs[j], n) < 0)
+			return false;
+	}
+	return true;
+}
+
 void PolyDomain::ConnectSgs() {
 	for (int i = 0; i < tets.size(); i++) {
 		Tetra& T = tets[i];
@@ -589,3 +614,4 @@ int main() {
 	// Point center = tetra_center(Tet1, Tet2, T, 0);
 }
 */
+

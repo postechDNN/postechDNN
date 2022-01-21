@@ -7,7 +7,7 @@
 #include <random>
 
 
-void Segment::SetAdjDiagram()
+void Segment::SetAdjDiagram(PolyDomain& D)
 {
 	AdjDiagram.resize(Adjs.size());
 	for (size_t i = 0; i < Adjs.size(); i++)
@@ -21,11 +21,12 @@ void Segment::SetAdjDiagram()
 				AdjDiagram[i][j] = { 0, 1 };
 				continue;
 			}
-			Tri f = Tris[Adjs[i].second];
+			Tri f =  D.get_fc(Adjs[i].second);
 			vector<MyVec> v;
-			// v.push_back(f.getp1());
-			// v.push_back(f.getp2());
-			// v.push_back(f.getp3());
+			for (size_t k = 1; k < 4; k++)
+			{
+				v.push_back(D.get_pt(f.getPoint(k)));
+			}
 			pair<double, double> res(0., 1.);
 			for (size_t k = 0; k < 3; k++)
 			{

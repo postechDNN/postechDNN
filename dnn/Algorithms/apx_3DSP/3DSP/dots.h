@@ -316,6 +316,7 @@ public:
 		return includes(Tet1.fcs.begin(), Tet1.fcs.end(), 
 		                     Tet2.fcs.begin(), Tet2.fcs.end());
 	}
+
 };
 
 MyVec Point2Vec(Point P1);
@@ -437,6 +438,10 @@ public:
 
 	void ConnectSgs();
 	int Ln_Search(int, pair<Segment*,int>);
+
+	void SetSgs();
+	bool inTet(int i, Point p);
+	void BuildSPM(Point p0);
 };
 
 vector<pair<Segment*, int>> Remove_Dup(vector<pair<Segment*, int>> ps); // remove duplicates by sorting + linear search
