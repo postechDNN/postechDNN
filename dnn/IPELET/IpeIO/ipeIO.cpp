@@ -7,6 +7,7 @@
 #include "ipeshape.h"
 #include "ipeIO.h"
 #include "ipeattributes.h"
+#include "ipeobject.h"
 
 #include <vector>
 #include <string>
@@ -49,7 +50,7 @@ bool Get_poly_aux(IpeletData *data, IpeletHelper *helper,
 	else return true;
 }
 
-bool Get_points(IpeletData *data,IpeletHelper *helper,vector<Vector> &ret){
+bool Get_points(IpeletData *data,IpeletHelper *helper, vector<Vector> &ret, bool applyTrans){
 	Page *page = data->iPage;
 	int sel = page->primarySelection();
 	if(sel<0){
@@ -69,7 +70,20 @@ bool Get_points(IpeletData *data,IpeletHelper *helper,vector<Vector> &ret){
 		String name = ref->name().string(); 
 		if(!(name.substr(0,4)==String("mark"))) continue;
 
-		ret.push_back(ref->position());
+
+		if (applyTrans) {
+			ipe::Matrix transM = page->object(i)->matrix();
+			double dx, dy;
+			double ox, oy;
+			ox = ref->position().x;
+			oy = ref->position().y;
+			dx = transM.a[0] * ox + transM.a[2] * oy + transM.a[4];
+			dy = transM.a[1] * ox + transM.a[3] * oy + transM.a[5];
+			ret.push_back(Vector(dx,dy));
+		}
+		else {
+			ret.push_back(ref->position());
+		}
 	}
 
 	if (ret.size()==0) {

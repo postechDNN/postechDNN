@@ -29,7 +29,7 @@ enum ATTR_FLAG
 
 /**	Get the selected marks on the primary selected page (IPE) */
 bool Get_points(IpeletData *data, IpeletHelper *helper, 
-	std::vector<Vector> &ret);
+	std::vector<Vector> &ret, bool applyTrans = true);
 
 /**	Get the selected segments on the primary selected page (IPE) \n
 	If only_single_subpath is true, it returns path contain sigle straight line segment. \n
