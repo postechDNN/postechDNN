@@ -187,11 +187,12 @@ bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegmen
 }
 bool Get_polygons(IpeletData *data,IpeletHelper *helper,
 	vector<const SubPath*> &ret, bool applyTrans){
-	return Get_poly_aux(data,helper,ret,true, applyTrans);
+	return Get_poly_aux(data, helper, ret, true, applyTrans);
 }
 
-bool Get_polylines(IpeletData *data, IpeletHelper *helper,vector<const SubPath*> &ret){
-	return Get_poly_aux(data,helper,ret,false);
+bool Get_polylines(IpeletData *data, IpeletHelper *helper,
+	vector<const SubPath*> &ret, bool applyTrans){
+	return Get_poly_aux(data, helper, ret, false, applyTrans);
 }
 std::vector<Vector> SubPath2Vec(const SubPath *subpath, bool add_first){
 	std::vector<Vector> ret;
