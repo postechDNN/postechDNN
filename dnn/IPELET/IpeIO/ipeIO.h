@@ -46,7 +46,7 @@ bool Get_polygons(IpeletData *data, IpeletHelper *helper,
 
 /** Get selected polylines on the primary selected page (IPE) */
 bool Get_polylines(IpeletData *data, IpeletHelper *helper, 
-	std::vector<const SubPath*> &ret);
+	std::vector<const SubPath*> &ret, bool applyTrans = true);
 
 /** Convert subpath object to set of point(Vector) (IPE) \n
 	subpath must be Curve, and Ellipse and ClosedSpline may cause error. \n
