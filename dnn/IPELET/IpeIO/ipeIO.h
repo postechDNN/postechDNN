@@ -35,7 +35,7 @@ bool Get_points(IpeletData *data, IpeletHelper *helper,
 	If only_single_subpath is true, it returns path contain sigle straight line segment. \n
 	Otherwise, it returns all path object including polygon. */
 bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpath, 
-	std::vector<CurveSegment> &ret);
+	std::vector<CurveSegment> &ret, bool applyTrans = true);
 
 /** Get selected splines on the primary selected page (IPE) */
 bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegment> &ret);

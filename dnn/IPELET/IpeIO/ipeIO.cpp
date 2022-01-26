@@ -15,6 +15,8 @@
 using namespace ipe;
 using namespace std;
 
+ipe::Vector applyTransformations(ipe::Vector p, ipe::Matrix transM);
+
 bool Get_poly_aux(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret, bool is_polygon){
 	Page *page = data->iPage;
@@ -72,14 +74,8 @@ bool Get_points(IpeletData *data,IpeletHelper *helper, vector<Vector> &ret, bool
 
 
 		if (applyTrans) {
-			ipe::Matrix transM = page->object(i)->matrix();
-			double dx, dy;
-			double ox, oy;
-			ox = ref->position().x;
-			oy = ref->position().y;
-			dx = transM.a[0] * ox + transM.a[2] * oy + transM.a[4];
-			dy = transM.a[1] * ox + transM.a[3] * oy + transM.a[5];
-			ret.push_back(Vector(dx,dy));
+			//Get transformation matrix
+			ret.push_back(applyTransformations(ref->position(), page->object(i)->matrix()));
 		}
 		else {
 			ret.push_back(ref->position());
@@ -92,7 +88,7 @@ bool Get_points(IpeletData *data,IpeletHelper *helper, vector<Vector> &ret, bool
 	}
 	else return true;
 }
-bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpath, std::vector<CurveSegment> &ret){
+bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpath, std::vector<CurveSegment> &ret, bool applyTrans){
 	Page *page = data->iPage;
 	int sel = page->primarySelection();
 	if(sel<0){
@@ -112,10 +108,24 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 		if(only_single_subpath && !(sh.isSegment())) continue;
 		if(sh.subPath(0)->closed()) continue;
 		const Curve *cv = sh.subPath(0)->asCurve();
+		//Get transformation matrix
+		ipe::Matrix transM = page->object(i)->matrix();
 		//insert segments into ret
 		for(int j=0;j<cv->countSegments();j++){
 			if((cv->segment(j)).type()!=CurveSegment::ESegment) continue;
-			ret.push_back(cv->segment(j));
+			
+			if (applyTrans) {
+				ipe::Vector cp[2];
+				std::vector<ipe::Vector> cps;
+				cp[0] = applyTransformations(cv->segment(j).cp(0), transM);
+				cp[1] = applyTransformations(cv->segment(j).cp(1), transM);
+				Curve *tempCurve = new Curve();
+				tempCurve->appendSegment(cp[0],cp[1]);
+				ret.push_back(tempCurve->segment(0));
+			}
+			else {
+				ret.push_back(cv->segment(j));
+			}
 		}
 	}
 
@@ -329,4 +339,11 @@ void IPEIO::set_fill(int r,int g,int b,bool fillonly=false){
 void IPEIO::add_Attribute(Property prop, Attribute val){
 	props.push_back(prop);
 	vals.push_back(val);
+}
+
+ipe::Vector applyTransformations(ipe::Vector p, ipe::Matrix transM) {
+	double dx, dy;
+	dx = transM.a[0] * p.x + transM.a[2] * p.y + transM.a[4];
+	dy = transM.a[1] * p.x + transM.a[3] * p.y + transM.a[5];
+	return ipe::Vector(dx,dy);
 }
