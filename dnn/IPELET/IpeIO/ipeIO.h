@@ -42,7 +42,7 @@ bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegmen
 
 /**	Get selected polygons on the primary selected page (IPE) */
 bool Get_polygons(IpeletData *data, IpeletHelper *helper, 
-	std::vector<const SubPath*> &ret);
+	std::vector<const SubPath*> &ret, bool applyTrans = true);
 
 /** Get selected polylines on the primary selected page (IPE) */
 bool Get_polylines(IpeletData *data, IpeletHelper *helper, 

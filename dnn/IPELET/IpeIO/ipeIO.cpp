@@ -18,7 +18,7 @@ using namespace std;
 ipe::Vector applyTransformations(ipe::Vector p, ipe::Matrix transM);
 
 bool Get_poly_aux(IpeletData *data, IpeletHelper *helper, 
-	std::vector<const SubPath*> &ret, bool is_polygon){
+	std::vector<const SubPath*> &ret, bool is_polygon, bool applyTrans = true){
 	Page *page = data->iPage;
 	int sel = page->primarySelection();
 	if(sel<0){
@@ -37,12 +37,32 @@ bool Get_poly_aux(IpeletData *data, IpeletHelper *helper,
 		//check the closedness
 		if(is_polygon && !(sp->closed())) continue;
 		if(!is_polygon && sp->closed()) continue;
-
 		const Curve *cv = sp->asCurve();
-		if((cv->segment(0)).type()!=CurveSegment::ESegment) continue;
 		if(cv->countSegments()<2) continue;
 		//insert polygon(subpath) into ret
-		ret.push_back(sp);
+		if (applyTrans) {
+			//Get transformation matrix
+			ipe::Matrix transM = page->object(i)->matrix();
+			Curve* tempCurve = new Curve();
+			for (int j = 0; j < cv->countSegments(); j++) {
+				if ((cv->segment(j)).type() != CurveSegment::ESegment) {
+					delete tempCurve;
+					tempCurve = NULL;
+					break;
+				}
+				ipe::Vector cp[2];
+				std::vector<ipe::Vector> cps;
+				cp[0] = applyTransformations(cv->segment(j).cp(0), transM);
+				cp[1] = applyTransformations(cv->segment(j).cp(1), transM);
+				tempCurve->appendSegment(cp[0], cp[1]);	
+			}
+			if (tempCurve != NULL) {
+				ret.push_back(tempCurve);
+			}
+		}
+		else {
+			ret.push_back(sp);
+		}
 	}
 
 	if (ret.size()==0) {
@@ -72,9 +92,8 @@ bool Get_points(IpeletData *data,IpeletHelper *helper, vector<Vector> &ret, bool
 		String name = ref->name().string(); 
 		if(!(name.substr(0,4)==String("mark"))) continue;
 
-
+		//insert points into ret
 		if (applyTrans) {
-			//Get transformation matrix
 			ret.push_back(applyTransformations(ref->position(), page->object(i)->matrix()));
 		}
 		else {
@@ -166,8 +185,9 @@ bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegmen
 	}
 	else return true;
 }
-bool Get_polygons(IpeletData *data,IpeletHelper *helper,vector<const SubPath*> &ret){
-	return Get_poly_aux(data,helper,ret,true);
+bool Get_polygons(IpeletData *data,IpeletHelper *helper,
+	vector<const SubPath*> &ret, bool applyTrans){
+	return Get_poly_aux(data,helper,ret,true, applyTrans);
 }
 
 bool Get_polylines(IpeletData *data, IpeletHelper *helper,vector<const SubPath*> &ret){
