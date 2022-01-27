@@ -200,6 +200,7 @@ bool Get_splines(IpeletData *data, IpeletHelper *helper,
 	}
 	else return true;
 }
+
 bool Get_polygons(IpeletData *data,IpeletHelper *helper,
 	vector<const SubPath*> &ret, bool applyTrans){
 	return Get_poly_aux(data, helper, ret, true, applyTrans);
@@ -209,6 +210,7 @@ bool Get_polylines(IpeletData *data, IpeletHelper *helper,
 	vector<const SubPath*> &ret, bool applyTrans){
 	return Get_poly_aux(data, helper, ret, false, applyTrans);
 }
+
 std::vector<Vector> SubPath2Vec(const SubPath *subpath, bool add_first){
 	std::vector<Vector> ret;
 	const Curve *cv = subpath->asCurve();
@@ -235,10 +237,12 @@ Vector getSecond(CurveSegment cs){
 void IPEIO::reset_attr(int flag=FLAG_EMPTY){
 	Attr_flag=flag;
 }
+
 void IPEIO::set_Attrs(Reference *obj){
 	if (Attr_flag&FLAG_COLOR) obj->setStroke(color_attr);
 	if (Attr_flag&FLAG_POINT_SIZE) obj->setSize(pts_size);
 }
+
 void IPEIO::set_Attrs(Path *obj){
 	if (Attr_flag&FLAG_COLOR) obj->setStroke(color_attr);
 	if (Attr_flag&FLAG_ARROW){
@@ -256,6 +260,7 @@ void IPEIO::set_Attrs(Path *obj){
 		else obj->setPathMode(EStrokedAndFilled);
 	}
 }
+
 bool IPEIO::Draw_point(IpeletData *data, IpeletHelper *helper, Vector p){
 	Reference* pt = new Reference(data->iAttributes,pts_type,p);
 	//pt->setStroke(color_attr);
@@ -263,6 +268,7 @@ bool IPEIO::Draw_point(IpeletData *data, IpeletHelper *helper, Vector p){
 	data->iPage->append(ESecondarySelected,data->iLayer,pt);
 	return true;
 }
+
 bool IPEIO::Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, Vector second){
 	Curve *sp = new Curve;
 	sp->appendSegment(first,second);
@@ -274,9 +280,11 @@ bool IPEIO::Draw_segment(IpeletData *data, IpeletHelper *helper, Vector first, V
 	data->iPage->append(ESecondarySelected,data->iLayer,obj);
 	return true;
 }
+
 bool IPEIO::Draw_segment(IpeletData *data, IpeletHelper *helper, const CurveSegment &cs){
 	return Draw_segment(data,helper,getFirst(cs),getSecond(cs));
 }
+
 bool IPEIO::Draw_poly(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed){
 	Curve *sp=new Curve;
 	for(int i=0;i<pts.size()-1;i++){
@@ -291,9 +299,11 @@ bool IPEIO::Draw_poly(IpeletData *data, IpeletHelper *helper, std::vector<Vector
 	data->iPage->append(ESecondarySelected, data->iLayer, obj);
 	return true;
 }
+
 bool IPEIO::Draw_poly(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed){
 	return Draw_poly(data,helper,SubPath2Vec(sp,false),closed);
 }
+
 bool IPEIO::Draw_spline(IpeletData *data, IpeletHelper *helper, std::vector<Vector> spline){
 	Curve *sp=new Curve;
 	sp->appendSpline(spline);
@@ -311,9 +321,11 @@ void IPEIO::set_color(string color){
 	color_attr=construct.makeColor(color.c_str(),color_attr);
 	Attr_flag|=FLAG_COLOR;
 }
+
 void IPEIO::set_color(int r,int g,int b){
 	set_color(to_string((float)r/255)+" "+to_string((float)g/255)+" "+to_string((float)b/255));
 }
+
 void IPEIO::set_pts_size(int size){ //normal:0  large:1  small:-1  tiny:-2
 	String style;
 	switch (size){
@@ -325,6 +337,7 @@ void IPEIO::set_pts_size(int size){ //normal:0  large:1  small:-1  tiny:-2
 	pts_size=Attribute(true,style);
 	Attr_flag|=FLAG_POINT_SIZE;
 }
+
 void IPEIO::set_pts_style(int type){ //disk:0 circle:1  square:2 box:3  cross:4
 	String style="mark/";
 	switch (type){
@@ -337,10 +350,12 @@ void IPEIO::set_pts_style(int type){ //disk:0 circle:1  square:2 box:3  cross:4
 	style+="(sx)";
 	pts_type=Attribute(true,style);
 }
+
 void IPEIO::set_arrow(bool forward=true){
 	Attr_flag|=FLAG_ARROW;
 	farrow=forward;
 }
+
 void IPEIO::set_dash(int type){ // Dot:1  Dash:2  Dash&Dot:3  Dash&Dot&Dot:4  NO:other
 	String style;
 	switch (type){
@@ -353,6 +368,7 @@ void IPEIO::set_dash(int type){ // Dot:1  Dash:2  Dash&Dot:3  Dash&Dot&Dot:4  NO
 	dash=construct.makeDashStyle(style);
 	Attr_flag|=FLAG_DASH;
 }
+
 void IPEIO::set_pen(int type){ //normal:0  heavier:1  fat:2  ultrafat:3
 	String style;
 	switch (type){
@@ -364,14 +380,17 @@ void IPEIO::set_pen(int type){ //normal:0  heavier:1  fat:2  ultrafat:3
 	pen_width=Attribute(true,style);
 	Attr_flag|=FLAG_PEN_WIDTH;
 }
+
 void IPEIO::set_fill(std::string color,bool fillonly=false){
 	fill=construct.makeColor(color.c_str(),color_attr);
 	mode=fillonly;
 	Attr_flag|=FLAG_FILL;
 }
+
 void IPEIO::set_fill(int r,int g,int b,bool fillonly=false){
 	set_fill(to_string((float)r/255)+" "+to_string((float)g/255)+" "+to_string((float)b/255),fillonly);
 }
+
 void IPEIO::add_Attribute(Property prop, Attribute val){
 	props.push_back(prop);
 	vals.push_back(val);

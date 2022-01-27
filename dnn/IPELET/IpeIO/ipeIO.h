@@ -27,25 +27,30 @@ enum ATTR_FLAG
 	FLAG_FILL=0x40
 };
 
-/**	Get the selected marks on the primary selected page (IPE) */
+/**	Get the selected marks on the primary selected page (IPE) \n
+	If applyTrans is false, ret stores the points to which no transformation is applied*/
 bool Get_points(IpeletData *data, IpeletHelper *helper, 
 	std::vector<Vector> &ret, bool applyTrans = true);
 
 /**	Get the selected segments on the primary selected page (IPE) \n
 	If only_single_subpath is true, it returns path contain sigle straight line segment. \n
-	Otherwise, it returns all path object including polygon. */
+	Otherwise, it returns all path object including polygon.
+	If applyTrans is false, ret stores the segments to which no transformation is applied*/
 bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpath, 
 	std::vector<CurveSegment> &ret, bool applyTrans = true);
 
-/** Get selected splines on the primary selected page (IPE) */
+/** Get selected splines on the primary selected page (IPE)
+	If applyTrans is false, ret stores the splines to which no transformation is applied*/
 bool Get_splines(IpeletData *data, IpeletHelper *helper,
 	std::vector<CurveSegment> &ret, bool applyTrans = true);
 
-/**	Get selected polygons on the primary selected page (IPE) */
+/**	Get selected polygons on the primary selected page (IPE)
+	If applyTrans is false, ret stores the polygons to which no transformation is applied*/
 bool Get_polygons(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret, bool applyTrans = true);
 
-/** Get selected polylines on the primary selected page (IPE) */
+/** Get selected polylines on the primary selected page (IPE)
+	If applyTrans is false, ret stores the polylines to which no transformation is applied*/
 bool Get_polylines(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret, bool applyTrans = true);
 
@@ -104,7 +109,7 @@ public:
 	void set_color(std::string color); //color must be defined in IPE
 	void set_color(int r,int g,int b); //each values are in range [0,255]
 	void set_pts_size(int size); //normal:0  large:1  small:-1  tiny:-2
-	void set_pts_style(int type); //disk:0 circle:1  square:2 box:3  cross:4
+	void set_pts_style(int type); //disk:0 circle:1 square:2 box:3 cross:4
 	void set_arrow(bool forward);
 	void set_dash(int type); // No:0  Dot:1  Dash:2 Dash&Dot:3  Dash&Dot&Dot:4
 	void set_pen(int type); //normal:0  heavier:1  fat:2  ultrafat:3
