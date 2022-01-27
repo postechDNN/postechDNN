@@ -135,7 +135,6 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 			
 			if (applyTrans) {
 				ipe::Vector cp[2];
-				std::vector<ipe::Vector> cps;
 				cp[0] = applyTransformations(cv->segment(j).cp(0), transM);
 				cp[1] = applyTransformations(cv->segment(j).cp(1), transM);
 				Curve *tempCurve = new Curve();
@@ -154,7 +153,8 @@ bool Get_segments(IpeletData *data, IpeletHelper *helper, bool only_single_subpa
 	}
 	else return true;
 }
-bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegment> &ret){
+bool Get_splines(IpeletData *data, IpeletHelper *helper,
+	std::vector<CurveSegment> &ret, bool applyTrans){
 	Page *page = data->iPage;
 	int sel = page->primarySelection();
 	if(sel<0){
@@ -172,10 +172,25 @@ bool Get_splines(IpeletData *data, IpeletHelper *helper, std::vector<CurveSegmen
 		const Shape sh = path->shape();
 		if(sh.subPath(0)->closed()) continue;
 		const Curve *cv = sh.subPath(0)->asCurve();
+
+		//Get transformation matrix
+		ipe::Matrix transM = page->object(i)->matrix();
+
 		//insert splines into ret
 		for(int j=0;j<cv->countSegments();j++){
 			if((cv->segment(j)).type()!=CurveSegment::ESpline) continue;
-			ret.push_back(cv->segment(j));
+			if (applyTrans) {
+				std::vector<ipe::Vector> cps;
+				for (int k = 0; k < cv->segment(j).countCP(); k++) {
+					cps.push_back(applyTransformations(cv->segment(j).cp(k), transM));
+				}
+				Curve* tempCurve = new Curve();
+				tempCurve->appendSpline(cps);
+				ret.push_back(tempCurve->segment(0));
+			}
+			else {
+				ret.push_back(cv->segment(j));
+			}
 		}
 	}
 
