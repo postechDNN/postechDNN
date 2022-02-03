@@ -27,7 +27,8 @@ bool SOIpelet::run(int menu, ipe::IpeletData* data, ipe::IpeletHelper* helper) {
 
     for (int i = 0; i < 2; i++) {
         const Path* p = page->object(idx[i])->asPath();
-        if (!extractCS(extract[i], p)) {
+        ipe::Matrix transM = page->object(idx[i])->matrix();
+        if (!extractCS(extract[i], p, transM)) {
             helper->message("Invalid input");
             return false;
         }
