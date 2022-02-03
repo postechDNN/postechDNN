@@ -54,6 +54,11 @@ bool Get_polygons(IpeletData *data, IpeletHelper *helper,
 bool Get_polylines(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret, bool applyTrans = true);
 
+/** Get selected circles(ellipses) on the primary selected page (IPE)
+	If applyTrans is false, ret stores the circles(ellipses) to which no transformation is applied*/
+bool Get_circles(IpeletData* data, IpeletHelper* helper,
+	std::vector<ipe::Ellipse>& ret, bool applyTrans = true);
+
 /** Convert subpath object to set of point(Vector) (IPE) \n
 	subpath must be Curve, and Ellipse and ClosedSpline may cause error. \n
 	If add_first is true, return vector ret satisfies ret[0]==ret[ret.size()-1] */
@@ -103,6 +108,7 @@ public:
 	bool Draw_poly(IpeletData *data, IpeletHelper *helper, std::vector<Vector> pts, bool closed);
 	bool Draw_poly(IpeletData *data, IpeletHelper *helper, SubPath *sp, bool closed);
 	bool Draw_spline(IpeletData *data, IpeletHelper *helper, std::vector<Vector> spline);
+	bool Draw_circle(IpeletData* data, IpeletHelper* helper, ipe::Ellipse circle);
 
 	/* Attribute setting */
 	void reset_attr(int flag);

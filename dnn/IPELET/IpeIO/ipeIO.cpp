@@ -16,6 +16,7 @@ using namespace ipe;
 using namespace std;
 
 ipe::Vector applyTransformations(ipe::Vector p, ipe::Matrix transM);
+ipe::Matrix applyTransformations(ipe::Matrix ellM, ipe::Matrix transM);
 
 bool Get_poly_aux(IpeletData *data, IpeletHelper *helper, 
 	std::vector<const SubPath*> &ret, bool is_polygon, bool applyTrans = true){
@@ -211,6 +212,46 @@ bool Get_polylines(IpeletData *data, IpeletHelper *helper,
 	return Get_poly_aux(data, helper, ret, false, applyTrans);
 }
 
+bool Get_circles(IpeletData* data, IpeletHelper* helper,
+	std::vector<ipe::Ellipse>& ret, bool applyTrans) {
+	Page* page = data->iPage;
+	int sel = page->primarySelection();
+	if (sel < 0) {
+		helper->message("No selection");
+		return false;
+	}
+	int n = page->count();
+	ret.clear();
+	for (int i = 0; i < n; i++) {
+		//check the object type is path
+		if (page->object(i)->type() != Object::EPath) continue;
+		if (page->select(i) != EPrimarySelected && page->select(i) != ESecondarySelected) continue;
+		Path* path = page->object(i)->asPath();
+	
+		const Shape sh = path->shape();
+		if (sh.subPath(0)->type() != ipe::SubPath::EEllipse) continue;
+		const ipe::Ellipse* ell = sh.subPath(0)->asEllipse();
+
+		//Get transformation matrix
+		ipe::Matrix transM = page->object(i)->matrix();
+
+		if (applyTrans) {
+			ipe::Matrix ellM = applyTransformations(ell->matrix(), transM);
+			const ipe::Ellipse* trnasEll = new ipe::Ellipse(ellM);
+			ret.push_back(*trnasEll);
+		}
+		else {
+			ret.push_back(*ell);
+		}
+	}
+
+	if (ret.size() == 0) {
+		helper->message("No circle(eclipse) selection");
+		return false;
+	}
+	else return true;
+}
+
 std::vector<Vector> SubPath2Vec(const SubPath *subpath, bool add_first){
 	std::vector<Vector> ret;
 	const Curve *cv = subpath->asCurve();
@@ -316,6 +357,15 @@ bool IPEIO::Draw_spline(IpeletData *data, IpeletHelper *helper, std::vector<Vect
 	return true;
 }
 
+bool IPEIO::Draw_circle(IpeletData* data, IpeletHelper* helper, ipe::Ellipse circle) {
+	ipe::Ellipse* ell = new ipe::Ellipse(circle.matrix());
+	ipe::Shape shape;
+	shape.appendSubPath(ell);
+	Path* obj = new Path(data->iAttributes, shape);
+	set_Attrs(obj);
+	data->iPage->append(ESecondarySelected, data->iLayer, obj);
+	return true;
+}
 
 void IPEIO::set_color(string color){
 	color_attr=construct.makeColor(color.c_str(),color_attr);
@@ -401,4 +451,15 @@ ipe::Vector applyTransformations(ipe::Vector p, ipe::Matrix transM) {
 	dx = transM.a[0] * p.x + transM.a[2] * p.y + transM.a[4];
 	dy = transM.a[1] * p.x + transM.a[3] * p.y + transM.a[5];
 	return ipe::Vector(dx,dy);
+}
+
+ipe::Matrix applyTransformations(ipe::Matrix ellM, ipe::Matrix transM) {
+	ipe::Matrix ret;
+	for (int i = 0; i < 4; i+=2) {
+		ret.a[i] = transM.a[0] * ellM.a[i] + transM.a[2] * ellM.a[i + 1];
+		ret.a[i+1] = transM.a[1] * ellM.a[i] + transM.a[3] * ellM.a[i + 1];
+	}
+	ret.a[4] = transM.a[0] * ellM.a[4] + transM.a[2] * ellM.a[5] + transM.a[4];
+	ret.a[5] = transM.a[1] * ellM.a[4] + transM.a[3] * ellM.a[5] + transM.a[5];
+	return ret;
 }
