@@ -20,3 +20,5 @@ IPELET_DECLARE ipe::Ipelet* newIpelet()
 bool setUnion(ipe::IpeletData* data, ipe::IpeletHelper* helper, std::vector<ipe::CurveSegment>* set1, std::vector<ipe::CurveSegment>* set2);
 bool setIntersection(ipe::IpeletData* data, ipe::IpeletHelper* helper, std::vector<ipe::CurveSegment>* set1, std::vector<ipe::CurveSegment>* set2);
 bool setMinus(ipe::IpeletData* data, ipe::IpeletHelper* helper, std::vector<ipe::CurveSegment>* set1, std::vector<ipe::CurveSegment>* set2);
+
+bool Test(ipe::IpeletData* data, ipe::IpeletHelper* helper, std::vector<ipe::CurveSegment>* set1, std::vector<ipe::CurveSegment>* set2);

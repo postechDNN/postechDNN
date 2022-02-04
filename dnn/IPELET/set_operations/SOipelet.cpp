@@ -66,6 +66,9 @@ bool SOIpelet::run(int menu, ipe::IpeletData* data, ipe::IpeletHelper* helper) {
         }
     }
 
+    //Test(data, helper, &aligned[0], &aligned[1]);
+
+    
     // Set union
     if (menu == 0) {
         return setUnion(data, helper, &aligned[0], &aligned[1]);
@@ -78,7 +81,7 @@ bool SOIpelet::run(int menu, ipe::IpeletData* data, ipe::IpeletHelper* helper) {
     else if (menu == 2) {
         return setMinus(data, helper, &aligned[0], &aligned[1]);
     }
-
+    
     return true;
 }
 
@@ -131,7 +134,12 @@ bool setUnion(ipe::IpeletData* data, ipe::IpeletHelper* helper, std::vector<ipe:
         for (int j = idx2[idx2.size() - 1]; j < cutset2.size(); j++)
             rawRes.push_back(cutset2[j]);
     }
+    
+    //DrawSetIpe2(data, &cutset1);
+    //DrawSetIpe2(data, &cutset2);
+    //DrawSetIpe2(data,&rawRes);
 
+    
     divideRaw(&rawRes, result);  
     
     for (auto& set : result) {
@@ -331,6 +339,20 @@ bool DrawSetIpe2(IpeletData* data, const std::vector<ipe::CurveSegment>* input) 
         shape->appendSubPath(set);
         Path* path = new Path(data->iAttributes, *shape);
         data->iPage->append(ESecondarySelected, data->iLayer, path);
+    }
+    return true;
+}
+
+bool Test(ipe::IpeletData* data, ipe::IpeletHelper* helper, std::vector<ipe::CurveSegment>* set1, std::vector<ipe::CurveSegment>* set2) {
+
+
+    if (!DrawSetIpe(data, set1)) {
+        helper->message("Fail to draw result");
+        return false;
+    }
+    if (!DrawSetIpe(data, set2)) {
+        helper->message("Fail to draw result");
+        return false;
     }
     return true;
 }

@@ -15,7 +15,7 @@
 #include <math.h>
 
 #define DEPS 0.1
-#define DDEPS 0.4
+#define DDEPS 0.4 //0.4
 #define IPE_INFINITY 10000
 
 using namespace ipe;
@@ -159,8 +159,18 @@ bool interOpenCS(const ipe::CurveSegment* curvesegment1, const ipe::CurveSegment
 	}
 
 	for (int i = 0; i < intersect.size(); i++) {
+		/*
 		if (endpoints.find(intersect[i]) == endpoints.end())
 			res.push_back(intersect[i]);
+		*/
+		bool flag = true;
+		for (auto it = endpoints.begin(); it != endpoints.end(); it++) {
+			if (dist(intersect[i], *it) < DEPS) {
+				flag = false;
+				break;
+			}
+		}
+		if (flag) res.push_back(intersect[i]);
 	}
 	
 	if (res.size() == 0) return false;
@@ -198,9 +208,9 @@ bool overlapCS(const ipe::CurveSegment* cs1, const ipe::CurveSegment* cs2, std::
 		for (int i = 0; i < 2; i++) {
 			if ( !eqv(ep1[i],ep2[0]) && !eqv(ep1[i], ep2[1])) {
 				if (cs2->arc().distance(ep1[i], 10) < DEPS) {
-					wf << ep1[i].x << ", " << ep1[i].y << "\n";
-					wf << ep2[0].x << ", " << ep2[0].y << "\n";
-					wf << ep2[1].x << ", " << ep2[1].y << "\n";
+					//wf << ep1[i].x << ", " << ep1[i].y << "\n";
+					//wf << ep2[0].x << ", " << ep2[0].y << "\n";
+					//wf << ep2[1].x << ", " << ep2[1].y << "\n";
 					res.push_back(ep1[i]);
 					return true;
 				}
@@ -215,9 +225,9 @@ bool overlapCS(const ipe::CurveSegment* cs1, const ipe::CurveSegment* cs2, std::
 		for (int i = 0; i < 2; i++) {
 			if (!eqv(ep1[i], ep2[0]) && !eqv(ep1[i], ep2[1])) {
 				if (seg2.distance(ep1[i], 10) < DEPS) {
-					wf << ep1[i].x << ", " << ep1[i].y << "\n";
-					wf << ep2[0].x << ", " << ep2[0].y << "\n";
-					wf << ep2[1].x << ", " << ep2[1].y << "\n";
+					//wf << ep1[i].x << ", " << ep1[i].y << "\n";
+					//wf << ep2[0].x << ", " << ep2[0].y << "\n";
+					//wf << ep2[1].x << ", " << ep2[1].y << "\n";
 					res.push_back(ep1[i]);
 					return true;
 				}
@@ -234,9 +244,9 @@ bool overlapCS(const ipe::CurveSegment* cs1, const ipe::CurveSegment* cs2, std::
 		for (int i = 0; i < 2; i++) {
 			if (!eqv(ep1[i], ep2[0]) && !eqv(ep1[i], ep2[1])) {
 				if (bez2[0].distance(ep1[i], 10) < DEPS) {
-					wf << ep1[i].x << ", " << ep1[i].y << "\n";
-					wf << ep2[0].x << ", " << ep2[0].y << "\n";
-					wf << ep2[1].x << ", " << ep2[1].y << "\n";
+					//wf << ep1[i].x << ", " << ep1[i].y << "\n";
+					//wf << ep2[0].x << ", " << ep2[0].y << "\n";
+					//wf << ep2[1].x << ", " << ep2[1].y << "\n";
 					res.push_back(ep1[i]);
 					return true;
 				}
@@ -504,7 +514,7 @@ bool cutCS(const std::vector<ipe::CurveSegment>* cs1, const std::vector<ipe::Cur
 				}
 				else {
 					for (int i = 0; i < pts.size(); i++) {
-						if (dist(pts[i],nowCS->cp(0)) <= DEPS) continue;
+						if (dist(pts[i],nowCS->cp(0)) <= DDEPS) continue; // DEPS
 						nowPts.push_back(pts[i]);
 					}
 				}
@@ -597,9 +607,10 @@ void findFirstPointBezier(const ipe::Bezier* const bez, const std::vector<ipe::V
 	ipe::Bezier* nowBez = &copyBez;
 	std::vector<ipe::Vector> nowPts(pts->begin(), pts->end());
 
-	ipe::Bezier lbez, rbez;
+
 	std::vector<ipe::Vector> lpts, rpts;
 	while (nowBez != NULL) {
+		ipe::Bezier lbez, rbez;
 		nowBez->subdivide(lbez, rbez);
 		
 		for (auto i = 0; i < nowPts.size(); i++) {
@@ -627,6 +638,7 @@ void findFirstPointBezier(const ipe::Bezier* const bez, const std::vector<ipe::V
 		if (lpts.size() == 0) {
 			if (rpts.size() == 1) {
 				res = &rpts[0];
+				break;
 			}
 			else {
 				nowBez = &rbez;
@@ -638,6 +650,7 @@ void findFirstPointBezier(const ipe::Bezier* const bez, const std::vector<ipe::V
 		}
 		else if (lpts.size() == 1) {
 			res = &lpts[0];
+			break;
 		}
 		else {
 			nowBez = &lbez;
@@ -666,8 +679,9 @@ int verticalRay(const ipe::Vector p, const std::vector<ipe::CurveSegment>* const
 	ipe::CurveSegment vrayCS = vrayC.segment(0);
 	for (const ipe::CurveSegment& nowCS : *cs) {
 		std::vector<ipe::Vector> temp;
-		if (interOpenCS(&vrayCS, &nowCS, temp)) res++;
-		else  if (std::abs(p.x - nowCS.cp(0).x) < DEPS && p.y < nowCS.cp(0).y) res++;
+		if (interOpenCS(&vrayCS, &nowCS, temp)) res += temp.size();
+		else if (std::abs(p.x - nowCS.cp(0).x) < DEPS && p.y < nowCS.cp(0).y) res++;
+		//If nowCS is arc or spline??
 	}
 	
 	return res;
