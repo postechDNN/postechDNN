@@ -16,7 +16,8 @@ void PolyDomain::BuildSPM(Point p0) {
 	itets.push_back(indTet);
 	for (size_t i = 0; i < itets.size(); i++) {
 		Tetra t = tets[itets[i]];
-		bis.insert(bis.end(), t.get_bis().begin(), t.get_bis().end());
+		const vector<bi*>& temp = t.get_bis();
+		bis.insert(bis.end(), temp.begin(), temp.end());
 	}
 
 	//RepresentativeµÈ¿« priority queue

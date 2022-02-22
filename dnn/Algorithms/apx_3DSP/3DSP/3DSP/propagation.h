@@ -67,14 +67,10 @@ public:
 		tets = _tets;
 		i = _i;
 		j = _j;
-
 		S.clear();
-		for (size_t i = 0; i < X.size(); i++)
-		{
-			Sbar[X[i]] = i;
-		}
-		dist.assign(X.size(), 0);
+		
 	}
+
 	Segment(MyVec _a, MyVec _b, vector<double> _X, int _a_ind, int _b_ind, int _index, bool _tetra, Tetra* _tets) {
 		a = _a;
 		b = _b;
@@ -86,19 +82,15 @@ public:
 		tets = _tets;
 
 		S.clear();
-		for (size_t i = 0; i < X.size(); i++)
-		{
-			Sbar[X[i]]=i;
-		}
-		dist.assign(X.size(), 0);
+
 
 		
-		/*
-		* SetAdjs();
-		SetRevs();
-		SetAdjDiagram();
-		SetNear();
-		*/
+		
+		//SetAdjs();
+		//SetRevs();
+		//SetAdjDiagram();
+		//SetNear();
+		
 	}
 	int sizeX() {
 		return X.size();
@@ -174,6 +166,22 @@ public:
 	   
 	bool IsActive(int i);
 	void Update(int i, double val, priority_queue<Repr, vector<Repr>, greater<Repr>>& Reprs);
+
+	void SetSbar() {
+		for (size_t i = 0; i < X.size(); i++)
+		{
+			Sbar[X[i]] = i;
+		}
+		
+	}
+
+	void initDist() {
+		dist.assign(X.size(), 0.);
+	}
+
+	void initVoronoi() {
+		AddVoronoi.assign(Adjs.size(), AVLTree<pair<double, int>>());
+	}
 
 	//Debug
 	void AddAdjs(Segment* s, int i);

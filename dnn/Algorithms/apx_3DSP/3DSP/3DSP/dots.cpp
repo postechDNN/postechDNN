@@ -415,6 +415,15 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 		}
 		// else {	
 		// }
+		
+		/*Debug Start
+		if (!Xi.empty())
+		{
+			S->setX(Xi);
+		    ans.push_back(S);
+		}
+		*/
+		//Debug End
 
 		S->setX(Xi);
 		ans.push_back(S);
@@ -523,6 +532,9 @@ int PolyDomain::Ln_Search(int i, pair<Segment*, int> pr) {
 void PolyDomain::SetSgs()
 {
 	for (Segment* S : sgs) {
+		S->initDist();
+		S->SetSbar();
+		S->initVoronoi();
 		S->SetAdjDiagram(*this);
 		S->SetNear();
 	}
@@ -538,7 +550,7 @@ bool PolyDomain::inTet(int i, Point p)
 	}
 	for (size_t j = 0; j < 4; j++)
 	{
-		MyVec n = OuterProd(vecs[(j+1)%4] - vecs[j], vecs[(j+2)] - vecs[j]);
+		MyVec n = OuterProd(vecs[(j+1)%4] - vecs[j], vecs[(j+2)%4] - vecs[j]);
 		if (InnerProd(vecs[(j + 3) % 4] - vecs[j], n) * InnerProd(v - vecs[j], n) < 0)
 			return false;
 	}

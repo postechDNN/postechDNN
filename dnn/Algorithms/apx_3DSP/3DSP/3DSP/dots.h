@@ -7,7 +7,7 @@
 using namespace std;
 
 const double EPS = 1e-8;
-const double eps = 0.5; // 0 <= eps <= 1 by the definition
+const double eps = 2.; // 0 <= eps <= 1 by the definition
 const vector<vector<int>> perm = {{0, 1, 2, 3}, {0, 2, 1, 3}, {0, 3, 1, 2}, {1, 2, 0, 3}, {1, 3, 0, 2}, {2, 3, 0, 1}}; // tetrahedron vertex permutation
 // const vector<int> edge_perm = {} // tetrahedron edge permutation
 
