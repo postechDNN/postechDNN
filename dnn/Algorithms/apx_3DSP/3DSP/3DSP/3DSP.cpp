@@ -35,8 +35,15 @@ void PolyDomain::BuildSPM(Point p0) {
 		}
 	}
 
+	int countdown = 2; // Debug
 	while (!Reprs.empty())
 	{
+		if (Reprs.size() == 11026) {
+			countdown -= 1;
+			if (countdown == 0) {
+				std::cout << Reprs.size() << " ";
+			}
+		}
 		Repr p = Reprs.top();
 		Segment* l = p.dst.l;
 		Reprs.pop();

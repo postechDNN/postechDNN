@@ -389,6 +389,14 @@ public:
 		num_seg = sgs.size();
 	}
 	
+	void Initialize() {
+		init_neigh_sgs(); // 
+		MarkPoints(); // Mark Steiner pts
+		ConnectSgs();
+		SetSgs();
+		// CountEmptySegs();
+	}
+
 	vector<Point> get_pts() const {
 		return pts;
 	}
@@ -442,6 +450,9 @@ public:
 	void SetSgs();
 	bool inTet(int i, Point p);
 	void BuildSPM(Point p0);
+
+	void Clear();
+	void CountEmptySegs();
 };
 
 vector<pair<Segment*, int>> Remove_Dup(vector<pair<Segment*, int>> ps); // remove duplicates by sorting + linear search

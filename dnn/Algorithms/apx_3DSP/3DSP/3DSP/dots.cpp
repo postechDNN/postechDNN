@@ -357,7 +357,9 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 	// Point M2p = 
 	// Point M2pp = 
 
-	while (ans.empty() || !(*ans.back()).getX().empty()) { // if ans.empty() = true, then it should be iterated
+	// while (ans.empty() || !(*ans.back()).getX().empty()) { // if ans.empty() = true, then it should be iterated
+	// while (ans.empty() || (*ans.back()).sizeX() > 1) {
+	while (1) {
 		// s_num += 1; // for test
 		// cout << s_num << endl; // for test
 
@@ -378,8 +380,6 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 		num_seg++;
 		Segment* S = new Segment(Ai, Bi, {}, num_seg - 1, false, &(tets[i]), i, j);
 
-		sgs.push_back(S);
-		S->set_itets({i});
 		vector<double> Xi = {};
 
 		// cout << endl;
@@ -425,8 +425,17 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 		*/
 		//Debug End
 
-		S->setX(Xi);
-		ans.push_back(S);
+		if (!Xi.empty()) {
+			S->set_itets({ i });
+			S->setX(Xi);
+			sgs.push_back(S);
+			ans.push_back(S);
+		}
+		else {
+			num_seg--;
+			delete S;
+			break;
+		}
 	}
 	ans.push_back(sgs[T.getSg(j)]);
 	bi* Bi = T.get_bi(j);
@@ -594,6 +603,19 @@ void PolyDomain::ConnectSgs() {
 			Si->AddRev(Ln_Search(i, pr)); // linear search to find inverse index
 		}
 	}
+}
+
+void PolyDomain::CountEmptySegs() {
+	int num = 0;
+	for (int i = 0; i < sgs.size(); i++) {
+		Segment* S = sgs[i];
+		if (S->sizeX() == 0) {
+			num += 1;
+			std::cout << i << " ";
+		}
+	}
+	std::cout << "\n";
+	std::cout << num << endl;
 }
 
 // vertical projection of P on AB

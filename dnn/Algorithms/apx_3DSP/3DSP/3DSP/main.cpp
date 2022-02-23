@@ -13,10 +13,7 @@ int main() {
 	PolyDomain D = BuildPolyDomain(FileName);
 	*/
 	PolyDomain D = BuildPolyDomain("cube.1");
-	D.init_neigh_sgs();
-	D.MarkPoints();
-	D.ConnectSgs();
-	D.SetSgs();
+	D.Initialize();
 	/*
 	double x, y, z;
 	cout << "point: ";

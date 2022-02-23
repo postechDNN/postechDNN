@@ -135,8 +135,9 @@ void Segment::Update(int i, double val, priority_queue<Repr, vector<Repr>, great
 	dist[i] = val;
 	S[X[i]] = i;
 	Sbar.erase(X[i]);
-	for (size_t lindex = 0; lindex < Adjs.size(); lindex++)
+	for (size_t lindex = 0; lindex < Adjs.size(); lindex++) {
 		UpdateSeg(i, lindex, Reprs);
+	}
 }
 
 //Debug
@@ -192,9 +193,13 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 		}
 		int mid = (start + end) / 2;
 		int mi = addV.getkthNode(mid)->value.second;
+		double miv = addV.getkthNode(mid)->value.first;
+
 		auto D = [=](int n)->double {
-			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * l1->X[mid] - a - (b - a) * X[n]);
+			//return dist[n] + VecSize(l1->a + (l1->b - l1->a) * l1->X[mid] - a - (b - a) * X[n]);
+			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * miv - a - (b - a) * X[n]);
 		};
+
 		if (D(mi) > D(i))
 		{
 			end = mid;
@@ -238,8 +243,10 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 		}
 		int mid = (start + end) / 2;
 		int mi = addV.getkthNode(mid)->value.second;
+		double miv = addV.getkthNode(mid)->value.first;
 		auto D = [=](int n)->double {
-			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * l1->X[mid] - a - (b - a) * X[n]);
+			//return dist[n] + VecSize(l1->a + (l1->b - l1->a) * l1->X[mid] - a - (b - a) * X[n]);
+			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * miv - a - (b - a) * X[n]);
 		};
 		if (D(mi) > D(i))
 		{
