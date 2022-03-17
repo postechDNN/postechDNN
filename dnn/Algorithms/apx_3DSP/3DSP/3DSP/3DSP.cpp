@@ -1,8 +1,10 @@
 #include "dots.h"
 #include "propagation.h"
+#include <limits>
 
 void PolyDomain::BuildSPM(Point p0) {
-	//p의 tetrahedron 찾기
+	//p0의 tetrahedron 찾기
+	query = p0;
 	int indTet = -1;
 	for (int i = 0; i < tets.size(); i++) {
 		if (inTet(i, p0)) {
@@ -10,7 +12,7 @@ void PolyDomain::BuildSPM(Point p0) {
 			break;
 		}
 	}
-	//v0에 이웃한 segment들 추가(최적화 필요)
+	//p0에 이웃한 segment들 추가(최적화 필요)
 	vector<bi*> bis;
 	vector<int> itets(tets[indTet].get_itets());
 	itets.push_back(indTet);
@@ -65,3 +67,54 @@ void PolyDomain::BuildSPM(Point p0) {
 			l->Update(p.dst.index, p.val, Reprs);
 	}
 }
+
+double PolyDomain::shortest(Point q) {
+	//q의 tetrahedron 찾기
+	int indTet = -1;
+	for (int i = 0; i < tets.size(); i++) {
+		if (inTet(i, q)) {
+			indTet = i;
+			break;
+		}
+	}
+	//q에 이웃한 segment들 추가(최적화 필요)
+	vector<bi*> bis;
+	vector<int> itets(tets[indTet].get_itets());
+	itets.push_back(indTet);
+	for (size_t i = 0; i < itets.size(); i++) {
+		Tetra t = tets[itets[i]];
+		const vector<bi*>& temp = t.get_bis();
+		bis.insert(bis.end(), temp.begin(), temp.end());
+	}
+	//q에 이웃한 점들과의 거리를 이용해 최단거리 구함
+	double res = std::numeric_limits<double>::max();
+	for (bi* b : bis) {
+		for (Segment* s : b->bi_sgs) {
+			for (size_t i = 0; i < s->sizeX(); i++) {
+				double temp = s->getDist(i) + PointsDist(q,Vec2Point(s->getPoint(i)));
+				if (temp < res && temp > PointsDist(q, query))
+					res = temp;
+			}
+		}
+	}
+	return res;
+}
+
+Point PolyDomain::Nearest(Point q, vector<Point>& P)
+{
+	BuildSPM(q);
+	double val = std::numeric_limits<double>::max();
+	Point res;
+	for (Point p : P)
+	{
+		double temp = shortest(p);
+		if (temp < val)
+		{
+			val = temp;
+			res = p;
+		}
+			
+	}
+	return res;
+}
+

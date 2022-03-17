@@ -381,6 +381,7 @@ private:
 	vector<Tri> fcs;
 	vector<Tetra> tets;
 	int num_seg;
+	Point query;
 
 public:
 	PolyDomain() { pts = {}; sgs = {}; fcs = {}; tets = {};}
@@ -450,6 +451,8 @@ public:
 	void SetSgs();
 	bool inTet(int i, Point p);
 	void BuildSPM(Point p0);
+	double shortest(Point q);
+	Point Nearest(Point q, vector<Point>& P);
 
 	void Clear();
 	void CountEmptySegs();

@@ -124,6 +124,10 @@ public:
 		return (1 - X[i]) * a + X[i] * b;
 	}
 
+	double getDist(int i) {
+		return dist[i];
+	}
+
 	vector<int> get_ifcs() {
 		return ifcs;
 	}
