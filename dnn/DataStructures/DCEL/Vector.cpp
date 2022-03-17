@@ -35,7 +35,7 @@ Vector::~Vector() {}
 
 
 bool Vector::operator==(Vector _v) {
-	return abs(this->x - _v.x) < 1e-6 && abs(this->y - _v.y) < 1e-6; 
+	return std::abs(this->x - _v.x) < 1e-6 && std::abs(this->y - _v.y) < 1e-6; 
 	/*
 	return this->origin == _v->getOrigin() && this->dest == _v->getDest();*/
 }

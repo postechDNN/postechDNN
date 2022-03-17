@@ -2,7 +2,7 @@
 #include <cmath>
 
 //this class defines a point in 2D space
-
+#define ERR 1e-6
 Point::Point() {
 	this->x = 0.;
 	this->y = 0.;
@@ -18,7 +18,7 @@ Point::Point(Point* _p) {
 Point::~Point() {}
 
 bool Point::operator==(Point _p) {
-	return this->x == _p.getx() && this->y == _p.gety();
+	return std::abs(this->x - _p.getx()) < ERR && std::abs(this->y - _p.gety()) < ERR;
 }
 
 Point Point::operator- (Point _p) {

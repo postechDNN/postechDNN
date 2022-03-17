@@ -1,0 +1,10 @@
+.\input\uniform_distribution\uniform_distribution1.txt .\input\uniform_distribution\\uniform_distribution1_query.txt
+.\input\uniform_distribution\uniform_distribution2.txt .\input\uniform_distribution\\uniform_distribution2_query.txt
+.\input\uniform_distribution\uniform_distribution3.txt .\input\uniform_distribution\uniform_distribution3_query.txt
+.\input\uniform_distribution\uniform_distribution4.txt .\input\uniform_distribution\uniform_distribution4_query.txt
+.\input\uniform_distribution\uniform_distribution5.txt .\input\uniform_distribution\uniform_distribution5_query.txt
+.\input\uniform_distribution\uniform_distribution6.txt .\input\uniform_distribution\uniform_distribution6_query.txt
+.\input\uniform_distribution\uniform_distribution7.txt .\input\uniform_distribution\uniform_distribution7_query.txt
+.\input\uniform_distribution\uniform_distribution8.txt .\input\uniform_distribution\uniform_distribution8_query.txt
+.\input\uniform_distribution\uniform_distribution9.txt .\input\uniform_distribution\uniform_distribution9_query.txt
+.\input\uniform_distribution\uniform_distribution10.txt .\input\uniform_distribution\uniform_distribution10_query.txt

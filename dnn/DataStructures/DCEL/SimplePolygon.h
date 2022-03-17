@@ -11,6 +11,7 @@ private:
 public:
 	SimplePolygon();
 	SimplePolygon(std::vector<Edge*>*);
+	SimplePolygon(std::vector<Point*>*);
 	int inPolygon(Point p);
 	std::vector<Edge*>* getEdges();
 };

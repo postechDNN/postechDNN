@@ -1,10 +1,11 @@
 #pragma once
-#include "../../DataStrcutures/DCEL/PolygonalDomain.h"
+#include "../../DataStructures/DCEL/PolygonalDomain.h"
 
 class PDNode {
 private:
 	Point* p;
 	bool site;
+	double dist;
 	std::vector<PDNode*>* adjlist;
 
 public:
@@ -12,6 +13,8 @@ public:
 	void setPoint(Point*);
 	bool issite();
 	void setSite(bool);
+	double getDist();
+	void setDist(double);
 	std::vector<PDNode*>* getAdj();
 	void setAdj(std::vector<PDNode*>*);
 	bool operator==(PDNode);
