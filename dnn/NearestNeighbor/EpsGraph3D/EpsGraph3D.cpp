@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<_Polytop> _pols, double _eps) {
+Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<_Polytope> _pols, double _eps) {
 
 	fr_pts = _fr_pts;
 	pols = _pols;

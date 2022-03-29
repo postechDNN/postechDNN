@@ -140,7 +140,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="EpsGraph3D.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="Polytope.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EpsGraph3D.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

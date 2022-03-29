@@ -129,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CarrierGraph.h" />
+    <ClInclude Include="DCEL.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Rect.h" />

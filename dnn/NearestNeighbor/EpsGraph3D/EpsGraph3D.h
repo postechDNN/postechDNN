@@ -1,6 +1,6 @@
 #pragma once
 
-#include "polytop.h"
+#include "polytope.h"
 #include <tuple>
 #include <list>
 
@@ -35,7 +35,7 @@ public: // variables
 	vector<int> NN_dist;
 
 public:	// functions
-	Eps_Graph_3D(list<Free_Point>, vector<_Polytop>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
+	Eps_Graph_3D(list<Free_Point>, vector<_Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	void init_grid();
 	Grid_Point get_gridpt(indices);
 
