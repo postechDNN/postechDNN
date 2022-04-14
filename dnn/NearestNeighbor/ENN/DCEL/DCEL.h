@@ -1,7 +1,9 @@
 #pragma once
+
 #include "Edge.h"
 #include "Point.h"
 #include <vector>
+#include <string>
 
 class Vertex;
 class HEdge;
@@ -9,8 +11,8 @@ class Face;
 
 class Vertex : public Point {
 protected:
-	char* vertex_key;
-	HEdge* incidentEdge;
+	std::string key;
+	HEdge* incidentEdge; //The origin of incident edge is the vertex.
 public:
 	Vertex();
 	Vertex(HEdge*);
@@ -18,27 +20,27 @@ public:
 	Vertex(Point&, HEdge*);
 	~Vertex();
 
-	char* getVertexKey();
-	void setVertexKey(const char*);
+	std::string getKey();
+	void setKey(const std::string&); 
 	void setIncidentEdge(HEdge*);
-	HEdge* getIncidentEdge();
+	HEdge* getIncidentEdge(); 
 
 };
 
 class HEdge : public Edge {
 protected:
-	char* hedge_key;
+	std::string key; 
 	Vertex* origin;
-	HEdge* next, * prev, * twin;
-	Face* incidentFace;
+	HEdge* next, *prev, * twin;
+	Face* incidentFace; //Incident face is the face which lies on the left to the half edge.
 public:
 	HEdge();
 	HEdge(Vertex*, Vertex*);
 	//HEdge(Point&, Point&);
 	~HEdge();
 
-	char* getHedgeKey();
-	void setHedgeKey(const char*);
+	std::string getKey();
+	void setKey(const std::string&);
 	Vertex* getOrigin();
 	void setOrigin(Vertex*);
 	HEdge* getNext();
@@ -53,15 +55,15 @@ public:
 
 class Face {
 protected:
-	char* face_key;
-	HEdge* outer;
+	std::string key;
+	HEdge* outer;	//If outer is null pointer, it is outmost face in DCEL.
 	std::vector<HEdge*> inners;
 public:
 	Face();
 	~Face();
 
-	char* getFaceKey();
-	void setFaceKey(const char*);
+	std::string getKey();
+	void setKey(const std::string&);
 	bool isOutMost();
 	void setOuter(HEdge*);
 	HEdge* getOuter();
@@ -102,13 +104,13 @@ public:
 	Vertex* getTmost();
 	Vertex* getBmost();
 
+	void addVertex(Point&, const std::string&);
 	void addEdge(Vertex*, Vertex*);
-	void addVertex(Point&, const char*);
 	void deleteEdge(HEdge*);
 	//DCEL* mergeDCEL(DCEL*);
-	HEdge* searchHedge(const char* key);
-	Vertex* searchVertex(const char* key);
-	Face* searchFace(const char* key);
+	HEdge* searchHedge(const std::string& key);
+	Vertex* searchVertex( const std::string& key);
+	Face* searchFace( const std::string& key);
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
 	int inPolygon(std::vector<HEdge*>, Point);

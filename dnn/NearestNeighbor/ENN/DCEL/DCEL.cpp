@@ -4,7 +4,7 @@
 #include "Point.h"
 #include "SimplePolygon.h"
 #include "Vector.h"
-#include "../AVLTree/AVLTree.h"
+//#include "../AVLTree/AVLTree.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -15,40 +15,38 @@
 #define M_PI 3.14159265358979323846
 
 Vertex::Vertex() : Point() {
-	this->vertex_key = nullptr;
-	this->incidentEdge = nullptr;
+	this->key = ""; 
+	this->incidentEdge = nullptr; 
 }
 
+//CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(HEdge* _e) : Point() {
-	this->vertex_key = nullptr;
+	this->key = ""; 
 	this->incidentEdge = _e;
 }
 
+//CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(Point& _p) : Point(_p) {
-	this->vertex_key = nullptr;
+	this->key = "";
 	this->incidentEdge = nullptr;
 }
 
+//CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(Point& _p, HEdge* _e) : Point(_p) {
-	this->vertex_key = nullptr;
+	this->key = "";
 	this->incidentEdge = _e;
 }
 
 
 Vertex::~Vertex() {
-	if (this->vertex_key)
-		delete[] this->vertex_key;
 }
 
-char* Vertex::getVertexKey() {
-	return this->vertex_key;
+std::string Vertex::getKey() {
+	return this->key;
 }
 
-void Vertex::setVertexKey(const char* _k) {
-	this->vertex_key = new char[strlen(_k) + 1];
-	for (int i = 0; i < strlen(_k) + 1; i++) { 
-		this->vertex_key[i] = _k[i];
-	}
+void Vertex::setKey(const std::string& key) {
+	this->key = key;
 }
 
 void Vertex::setIncidentEdge(HEdge *_e) {
@@ -60,7 +58,7 @@ HEdge* Vertex::getIncidentEdge() {
 }
 
 HEdge::HEdge() : Edge() {
-	this->hedge_key = nullptr;
+	this->key = "";
 	this->origin = nullptr;
 	this->incidentFace = nullptr;
 	this->next = nullptr;
@@ -69,7 +67,7 @@ HEdge::HEdge() : Edge() {
 }
 
 HEdge::HEdge(Vertex* _v1, Vertex* _v2) : Edge(*_v1,*_v2) {
-	this->hedge_key = nullptr;
+	this->key = "";
 	this->origin = _v1;
 	this->twin = new HEdge();
 	this->twin->origin =_v2;
@@ -101,23 +99,19 @@ HEdge::HEdge(Point& _p1, Point& _p2) {
 	this->twin->t = v1;
 }
 */
+
+//CAUTION: DO NOT DELETE TWIN
 HEdge::~HEdge() {
-	if (this->twin) {
-		delete(this->twin);
-	}
-	if (this->hedge_key)
-		delete[] this->hedge_key;
+	//if (this->twin)	
+	//	delete this->twin;
 }
 
-char* HEdge::getHedgeKey() {
-	return this->hedge_key;
+std::string HEdge::getKey() {
+	return this->key;
 }
 
-void HEdge::setHedgeKey(const char* _k) {
-	this->hedge_key = new char[strlen(_k) + 1];
-	for (int i = 0; i < strlen(_k) + 1; i++) { 
-		this->hedge_key[i] = _k[i];
-	}
+void HEdge::setKey(const std::string& key) {
+	this->key = key;
 }
 
 Vertex* HEdge::getOrigin() {
@@ -165,23 +159,19 @@ void HEdge::setIncidentFace(Face *_f) {
 }
 
 Face::Face() {
+	this->key = "";
 	this->outer = nullptr;
 }
 
 Face::~Face() {
-	if(face_key)
-		delete[] face_key;
 }
 
-char* Face::getFaceKey() {
-	return this->face_key;
+std::string Face::getKey() {
+	return this->key;
 }
 
-void Face::setFaceKey(const char* _k) {
-	this->face_key = new char[strlen(_k) + 1];
-	for (int i = 0; i < strlen(_k) + 1; i++)
-		this->face_key[i] = _k[i];
-	
+void Face::setKey(const std::string& key) {
+	this->key = key;
 }
 
 
@@ -205,6 +195,8 @@ void Face::addInner(HEdge* _e) {
 	this->inners.push_back(_e);
 }
 
+//CAUTION : VECTOR ACCESS AND DELETION 
+
 DCEL::DCEL() {
 	this->num_faces = 0;
 	this->num_hedges = 0;
@@ -218,7 +210,6 @@ DCEL::DCEL() {
 }
 
 DCEL::~DCEL() {
-	
 }
 
 std::vector<Face*> DCEL::getFaces() {
@@ -262,11 +253,11 @@ Vertex* DCEL::getRmost() { return this->rmost; }
 Vertex* DCEL::getTmost() { return this->tmost; }
 Vertex* DCEL::getBmost() { return this->bmost; }
 
-void DCEL::addVertex(Point& _p, const char* key){
+void DCEL::addVertex(Point& _p, const std::string& key){
 	Vertex *v = new Vertex(_p);
-	v->setVertexKey(key);
+	v->setKey(key);
 }
-
+/*
 void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	if (_v1->getx() > _v2->getx()) {
 		std::swap(_v1, _v2);
@@ -280,8 +271,8 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	double _y1 = _v1->gety();
 	double _x2 = _v2->getx();
 	double _y2 = _v2->gety();
-	char* _c1 = _v1->getVertexKey();
-	char* _c2 = _v2->getVertexKey();
+	char* _c1 = _v1->getKey();
+	char* _c2 = _v2->getKey();
 	std::string _str1(_c1);
 	std::string _str2(_c2);
 	_str1 = _str1.substr(1);
@@ -289,10 +280,10 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	std::string _str = "e" + _str1 + "_" + _str2;
 	char* _c = &_str[0];
 	HEdge* e = new HEdge(_v1, _v2);
-	e->setHedgeKey(_c);
+	e->setKey(_c);
 	_str = "e" + _str2 + "_" + _str1;
 	_c = &_str[0];
-	e->getTwin()->setHedgeKey(_c);
+	e->getTwin()->setKey(_c);
 	
 	HEdge* closest_e = nullptr;
 
@@ -500,9 +491,11 @@ void DCEL::addEdge(Vertex* _v1, Vertex* _v2) {
 	//add edge to edges<*>*
 	this->hedges.push_back(e);
 }
+*/
 
 //Delete edge 다시 고려
 /*
+
 void DCEL::deleteEdge(HEdge* _e) {
 	std::vector<HEdge*> inners = _e->getIncidentFace()->getInners();
 	//case1-(1)
@@ -735,32 +728,37 @@ void DCEL::deleteEdge(HEdge* _e) {
 	}
 }
 */
-HEdge* DCEL::searchHedge(const char* key) {
-	for (int i = 0; i < this->hedges.size(); i++) {
-		if (strcmp((this->hedges)[i]->getHedgeKey(), key) == 0)
-			return (this->hedges)[i];
-		if(strcmp((this->hedges)[i]->getTwin()->getHedgeKey(), key) == 0)
-			return (this->hedges)[i]->getTwin();
+HEdge* DCEL::searchHedge(const std::string& key) {
+	for(auto it:this->hedges){
+		if (it->getKey() ==key)
+			return it;
+		if(it->getTwin()->getKey() == key)
+			return it;
 	}
+
+	//for (int i = 0; i < this->hedges.size(); i++) {
+	//	if (strcmp((this->hedges)[i]->getHedgeKey(), key) == 0)
+	//		return (this->hedges)[i];
+	//	if(strcmp((this->hedges)[i]->getTwin()->getHedgeKey(), key) == 0)
+	//		return (this->hedges)[i]->getTwin();
+	//}
 	return nullptr;
 }
 
-Vertex* DCEL::searchVertex(const char* key) {
-	for (int i = 0; i < this->vertices.size(); i++) {
-		if (strcmp((this->vertices)[i]->getVertexKey(), key) == 0) {
-			return (this->vertices)[i];
-		}
+Vertex* DCEL::searchVertex(const std::string& key) {
+	for(auto it:this->vertices){
+		if(it->getKey() == key) return it;
 	}
 	return nullptr;
+
 }
 
-Face* DCEL::searchFace(const char* key) {
-	for (int i = 0; i < this->faces.size(); i++) {
-		if (strcmp((this->faces)[i]->getFaceKey(), key) == 0) {
-			return(this->faces)[i];
-		}
+Face* DCEL::searchFace(const std::string& key) {
+	for(auto it:this->faces){
+		if(it->getKey() == key) return it;
 	}
 	return nullptr;
+
 }
 
 std::vector<HEdge*> DCEL::getOutgoingHEdges(Vertex* v) {

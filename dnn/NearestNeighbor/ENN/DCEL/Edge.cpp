@@ -19,9 +19,7 @@ Edge::Edge(Edge& _e) {
 	this->t = _e.gett();
 }
 
-Edge::~Edge() {
-
-}
+Edge::~Edge() {}
 
 bool Edge::operator==(Edge& _e) {
 	return ((this->gett()) == _e.gett()) && ((this->gets()) == _e.gets()) || ((this->gett()) == _e.gets()) && ((this->gets()) == _e.gett());
@@ -57,8 +55,10 @@ double inline middle_point_of_4(double num1, double num2, double num3, double nu
 	if(num2>num3) std::swap(num2,num3);
 	return (num2 + num3)/2;
 }
-Point* Edge::crossing(Edge& _e, bool closed = true) {
 
+//If there is no crossing, return nullptr
+//Else, return a pointer of the point crossed. 
+Point* Edge::crossing(Edge& _e, bool closed = true) {
 	double x_1 = this->gets().getx();
 	double y_1 = this->gets().gety();
 	double x_2 = this->gett().getx();
@@ -90,7 +90,6 @@ Point* Edge::crossing(Edge& _e, bool closed = true) {
 		else return nullptr;
 	}
 	else {
-
 		t = t / d;
 		s = s / d;
 		if (t > 1 || s > 1 || t < 0 || s < 0) {
