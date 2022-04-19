@@ -10,7 +10,7 @@ public:
 
 	Point();
 	Point(double, double);
-	Point(Point&);
+	Point(const Point&);
 	~Point();
 	bool operator==(Point);
 	Point operator- (Point);

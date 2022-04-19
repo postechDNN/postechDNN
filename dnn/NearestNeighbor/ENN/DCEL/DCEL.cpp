@@ -2,9 +2,9 @@
 #include "DCEL.h"
 #include "Edge.h"
 #include "Point.h"
-#include "SimplePolygon.h"
+//#include "SimplePolygon.h"
 #include "Vector.h"
-//#include "../AVLTree/AVLTree.h"
+#include "AVLTree.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -829,6 +829,21 @@ int DCEL::inPolygon(std::vector<HEdge*> hedges, Point p) {
 		return -1;
 	else return 1;
 }
+
+DCEL DCEL::mergeDCEL(DCEL& dcel){
+	std::vector<HEdge*> S1 = this->hedges;
+	std::vector<HEdge*> S2 = dcel.getHedges();
+	std::vector<HEdge*> ret_hedges; 
+
+	enum Event{
+		EV_START, EV_END, EV_CROSS
+	};
+
+	
+
+
+}
+
 /*
 DCEL* DCEL::mergeDCEL(DCEL* _d) {
 	enum Event {

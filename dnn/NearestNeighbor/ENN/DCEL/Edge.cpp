@@ -9,14 +9,14 @@ Edge::Edge() {
 }
 
 
-Edge::Edge(Point& _s, Point& _t) {
+Edge::Edge(const Point& _s, const Point& _t) {
 	this->s = _s;
 	this->t = _t;
 }
 
-Edge::Edge(Edge& _e) {
-	this->s = _e.gets();
-	this->t = _e.gett();
+Edge::Edge(const Edge& _e) {
+	this->s = _e.s;
+	this->t = _e.t;
 }
 
 Edge::~Edge() {}

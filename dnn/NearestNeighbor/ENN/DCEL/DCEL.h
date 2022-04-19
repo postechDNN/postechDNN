@@ -107,7 +107,7 @@ public:
 	void addVertex(Point&, const std::string&);
 	void addEdge(Vertex*, Vertex*);
 	void deleteEdge(HEdge*);
-	//DCEL* mergeDCEL(DCEL*);
+	DCEL mergeDCEL(DCEL&);
 	HEdge* searchHedge(const std::string& key);
 	Vertex* searchVertex( const std::string& key);
 	Face* searchFace( const std::string& key);

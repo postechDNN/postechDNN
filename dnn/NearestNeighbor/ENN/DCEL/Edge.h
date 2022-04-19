@@ -6,8 +6,8 @@ protected:
 	Point s,  t;
 public:
 	Edge();
-	Edge(Point& _s, Point& _t);
-	Edge(Edge&);
+	Edge(const Point& _s, const Point& _t);
+	Edge(const Edge&);
 	~Edge();
 	bool operator==(Edge&);
 	bool on(Point& p);
