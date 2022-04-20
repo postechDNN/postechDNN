@@ -66,7 +66,7 @@ void Eps_Graph_3D::init_grid() {
 
 	for (int i = 0; i < row_num * col_num * layer_num; i++)
 	{
-		grid.push_back(Grid_Point(num2ind(i).row, num2ind(i).column, num2ind(i).layer, upper_left.x, upper_left.y, eps, col_num));
+		grid.push_back(Grid_Point(num2ind(i).row, num2ind(i).column, num2ind(i).layer, upper_left.x, upper_left.y, upper_left.z, eps, col_num));
 		//grid data need to add layer
 	}
 
