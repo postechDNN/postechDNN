@@ -55,17 +55,19 @@ void Eps_Graph_3D::init_grid() {
 	col_num = 2 + int(ceil(x_max / eps)) - x_ind;
 	layer_num = 2 + int(ceil(z_max / eps)) - z_ind;
 
-	upper_left = Point(x_ind * eps, int(ceil(y_max / eps + 1)) * eps);
+	upper_left = Point(x_ind * eps, int(ceil(y_max / eps + 1)) * eps, z_ind * eps);
+	//need to check why y is different!!
 
 	// initialization step for BFS
-	for (int i = 0; i < row_num * col_num; i++) {
+	for (int i = 0; i < row_num * col_num * layer_num; i++) {
 		dist.push_back(INT_MAX);
 		visited.push_back(false);
 	}
 
-	for (int i = 0; i < row_num * col_num; i++)
+	for (int i = 0; i < row_num * col_num * layer_num; i++)
 	{
-		grid.push_back(Grid_Point(num2ind(i).row, num2ind(i).column, upper_left.x, upper_left.y, eps, col_num));
+		grid.push_back(Grid_Point(num2ind(i).row, num2ind(i).column, num2ind(i).layer, upper_left.x, upper_left.y, upper_left.z, eps, col_num));
+		//grid data need to add layer
 	}
 
 	// for each grid & free point, count # of crossings of the rightward ray with each polygon
@@ -129,12 +131,12 @@ int Eps_Graph_3D::ind2num(indices ind) {
 	return ind.row * col_num + ind.column;
 }
 
-int Eps_Graph_3D::ind2num(int row, int column) {
-	return row * col_num + column;
+int Eps_Graph_3D::ind2num(int row, int column, int layer) {
+	return row * col_num * layer_num + column * layer_num + layer;
 }
 
 indices Eps_Graph_3D::num2ind(int num) {
-	return indices{ num / col_num, num % col_num };
+	return indices{ num / (col_num * layer_num), (num % col_num) / layer_num, (num% col_num) % layer_num};
 }
 
 // adds/deletes a grid edge
