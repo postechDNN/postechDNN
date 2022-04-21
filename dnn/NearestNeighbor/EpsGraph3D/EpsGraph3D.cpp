@@ -131,12 +131,12 @@ int Eps_Graph_3D::ind2num(indices ind) {
 	return ind.row * col_num + ind.column;
 }
 
-int Eps_Graph_3D::ind2num(int row, int column) {
-	return row * col_num + column;
+int Eps_Graph_3D::ind2num(int row, int column, int layer) {
+	return row * col_num * layer_num + column * layer_num + layer;
 }
 
 indices Eps_Graph_3D::num2ind(int num) {
-	return indices{ num / col_num, num % col_num };
+	return indices{ num / (col_num * layer_num), (num % col_num) / layer_num, (num% col_num) % layer_num};
 }
 
 // adds/deletes a grid edge

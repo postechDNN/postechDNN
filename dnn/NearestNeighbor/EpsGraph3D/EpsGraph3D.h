@@ -40,7 +40,7 @@ public:	// functions
 	Grid_Point get_gridpt(indices);
 
 	int ind2num(indices);
-	int ind2num(int, int);
+	int ind2num(int, int, int);
 	indices num2ind(int);
 
 	void add_edge(indices, indices); // add grid edges
