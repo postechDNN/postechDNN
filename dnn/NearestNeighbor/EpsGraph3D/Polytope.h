@@ -65,9 +65,9 @@ protected:
 	int num_faces;
 	int num_hedges;
 	int num_vertices;
-	std::vector<Face*>* faces;
-	std::vector<HEdge*>* hedges;	//we store one hedge for each edges.
-	std::vector<Vertex*>* vertices;
+	std::vector<Face*> faces;
+	std::vector<HEdge*> hedges;	//we store one hedge for each edges.
+	std::vector<Vertex*> vertices;
 	Vertex* lmost;
 	Vertex* tmost;
 	Vertex* bmost;
