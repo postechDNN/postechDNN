@@ -1,7 +1,8 @@
 #pragma once
+#include <iostream>
 //this class defines a point in 2D space
 
-//can use int, double
+//can use double
 class Point {
 protected:
 	double x, y;
@@ -14,10 +15,11 @@ public:
 	~Point();
 	bool operator==(Point);
 	Point operator- (Point);
-	double getx(void);
+	double getx(void) const;
 	void setx(double);
-	double gety(void);
+	double gety(void) const;
 	void sety(double);
-
 	double distance(Point);
+
+	friend std::ostream& operator<<(std::ostream& os, const Point& p); //For testing
 };
