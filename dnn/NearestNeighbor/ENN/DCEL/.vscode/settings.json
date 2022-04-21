@@ -44,6 +44,10 @@
         "xstddef": "cpp",
         "xstring": "cpp",
         "xtr1common": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "deque": "cpp",
+        "fstream": "cpp",
+        "queue": "cpp",
+        "sstream": "cpp"
     }
 }
