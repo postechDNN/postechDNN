@@ -53,6 +53,7 @@ class Face {
 protected:
 	char* face_key;
 	HEdge* outer;
+	Vertex* vertices[3];
 
 public:
 	bool below(Point* p);
