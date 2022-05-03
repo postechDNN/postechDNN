@@ -6,7 +6,22 @@
 
 using namespace std;
 
-// Face
+Face::Face() {
+	face_key = new char[10];
+	points.push_back(new Point());
+	points.push_back(new Point());
+	points.push_back(new Point());
+}
+
+Face::Face(std::vector<Point*> vp) {
+	face_key = new char[10];
+	points.push_back(vp[0]);
+	points.push_back(vp[1]);
+	points.push_back(vp[2]);
+}
+
+Face::~Face() {
+}
 
 bool Face::below(Point* p) {
 	// Determine if the face is below from p along z-axis.
@@ -14,6 +29,18 @@ bool Face::below(Point* p) {
 	// Check the face contains intersection of z-line contining the point and the plain expanded by the face
 
 	// Exception
+}
+
+Polytope::Polytope() {
+	num_faces = 0;
+	num_points = 0;
+}
+
+Polytope::Polytope(FILE* f) {
+	//to be implemented
+}
+
+Polytope::~Polytope() {
 }
 
 
