@@ -70,9 +70,9 @@ void Eps_Graph_3D::init_grid() {
 		//grid data need to add layer
 	}
 
-	// for each grid & free point, count # of crossings of the rightward ray with each polygon
+	// for each grid & free point, count # of crossings of the rightward ray with each polytope
 	for (Grid_Point& pt : grid) {
-		for (_Polygon& pol : pols) {
+		for (_Polytope& pol : pols) {
 			int cro = pol.ray(pt);
 			pt.cros.push_back(cro);
 
@@ -95,29 +95,52 @@ void Eps_Graph_3D::init_grid() {
 	}
 
 	// draw grid edges
+	//for (int i = 0; i < row_num; i++) {
+	//	for (int j = 0; j < col_num; j++) {
+	//		if (grid[ind2num(i, j)].encl != -1) { continue; }
+
+	//		if ((i != row_num - 1) && (j != col_num - 1)) {
+	//			if (grid[ind2num(i + 1, j)].encl == -1) {
+	//				if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+	//			}
+	//			if (grid[ind2num(i, j + 1)].encl == -1) {
+	//				if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+	//			}
+	//		}
+	//		else if (i != row_num - 1) {
+	//			if (grid[ind2num(i + 1, j)].encl == -1) {
+	//				if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+	//			}
+	//		}
+	//		else if (j != col_num - 1) {
+	//			if (grid[ind2num(i, j + 1)].encl == -1) {
+	//				if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+	//			}
+	//		}
+	//		else {}
+	//	}
+	//}
 	for (int i = 0; i < row_num; i++) {
 		for (int j = 0; j < col_num; j++) {
-			if (grid[ind2num(i, j)].encl != -1) { continue; }
+			for (int k = 0; k < layer_num; k++) {
+				if (grid[ind2num(i, j. k)].encl != -1) { continue; }
 
-			if ((i != row_num - 1) && (j != col_num - 1)) {
-				if (grid[ind2num(i + 1, j)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+				if (i != row_num - 1) {
+					if (grid[ind2num(i + 1, j, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j, z }, 0)) { add_edge(indices{ i, j, k }, indices{ i + 1, j, k }); }
+					}
 				}
-				if (grid[ind2num(i, j + 1)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (j != col_num - 1) {
+					if (grid[ind2num(i, j + 1, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j, k }, 1)) { add_edge(indices{ i, j, k }, indices{ i, j + 1, k }); }
+					}
 				}
-			}
-			else if (i != row_num - 1) {
-				if (grid[ind2num(i + 1, j)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
-				}
-			}
-			else if (j != col_num - 1) {
-				if (grid[ind2num(i, j + 1)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (k != layer_num - 1) {
+					if (grid[ind2num(i, j, k + 1 )].encl == -1) {
+						if (cmpNadd(indices{ i, j, k }, 2)) { add_edge(indices{ i, j, k }, indices{ i, j, k + 1 }); }
+					}
 				}
 			}
-			else {}
 		}
 	}
 }

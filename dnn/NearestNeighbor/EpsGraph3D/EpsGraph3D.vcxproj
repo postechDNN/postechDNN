@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EpsGraph3D.cpp" />
+    <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
