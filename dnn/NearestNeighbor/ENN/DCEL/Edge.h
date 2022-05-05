@@ -17,4 +17,6 @@ public:
 	void sets(Point&);
 	void sett(Point&);
 	double length();
+
+	friend std::ostream& operator<<(std::ostream& os, const Edge& p); //For testing
 };

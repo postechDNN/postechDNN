@@ -126,3 +126,9 @@ void Edge::sett(Point& _p) {
 double Edge::length() {
 	return this->s.distance(this->t);
 }
+
+
+std::ostream& operator<<(std::ostream& os, const Edge& p){
+	os <<'['<< p.s <<", "<< p.t << ']';
+	return os;
+}
