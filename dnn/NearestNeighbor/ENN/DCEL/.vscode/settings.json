@@ -48,6 +48,9 @@
         "deque": "cpp",
         "fstream": "cpp",
         "queue": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "set": "cpp",
+        "xtree": "cpp",
+        "map": "cpp"
     }
 }
