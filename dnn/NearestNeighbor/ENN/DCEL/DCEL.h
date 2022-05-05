@@ -24,7 +24,7 @@ public:
 	void setKey(const std::string&); 
 	void setIncidentEdge(HEdge*);
 	HEdge* getIncidentEdge(); 
-
+	Point getPoint();
 };
 
 class HEdge : public Edge {
@@ -36,7 +36,6 @@ protected:
 public:
 	HEdge();
 	HEdge(Vertex*, Vertex*);
-	//HEdge(Point&, Point&);
 	~HEdge();
 
 	std::string getKey();
@@ -51,6 +50,7 @@ public:
 	void setTwin(HEdge*);
 	Face* getIncidentFace();
 	void setIncidentFace(Face*);
+	Edge getEdge();
 };
 
 class Face {
@@ -86,7 +86,6 @@ protected:
 	Vertex* rmost;
 public:
 	DCEL();
-	//DCEL(FILE*);
 	~DCEL();
 	std::vector<Face*> getFaces();
 	void setFaces(std::vector<Face*>);
@@ -107,11 +106,11 @@ public:
 	void addVertex(Point&, const std::string&);
 	void addEdge(Vertex*, Vertex*);
 	void deleteEdge(HEdge*);
-	DCEL mergeDCEL(DCEL&);
 	HEdge* searchHedge(const std::string& key);
 	Vertex* searchVertex( const std::string& key);
 	Face* searchFace( const std::string& key);
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
 	int inPolygon(std::vector<HEdge*>, Point);
+	DCEL mergeDCEL(DCEL &); 
 };
