@@ -36,6 +36,10 @@ public:
 	AVLTreeNode<T>* pop();
 	AVLTreeNode<T>* pop(T);
 	AVLTreeNode<T>* getkthNode(int k);
+	AVLTreeNode<T>* successorNode(AVLTreeNode<T>* v);
+	AVLTreeNode<T>* predecessorNode(AVLTreeNode<T>* v);
+	AVLTreeNode<T>* minSubtree(AVLTreeNode<T>* v);
+	AVLTreeNode<T>* maxSubtree(AVLTreeNode<T>* v);
 };
 
 template <typename T>
@@ -286,11 +290,16 @@ AVLTreeNode<T>* AVLTree<T>::pop() {
 	return temp;
 }
 
-//¼öÁ¤ ÇÊ¿äÇÔ
+
 template <typename T>
 AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 	if (!this->root)
 		return nullptr;
+	//else if (this->size() == 1 && this->root->value == v){
+	//	AVLTreeNode<T>* tmp = this->root;
+	//	this->root = nullptr;
+	//	return tmp;
+	//}
 	AVLTreeNode<T>* temp = this->root;
 	while (true) {
 		if (temp->value == v) {
@@ -440,5 +449,52 @@ AVLTreeNode<T>* AVLTree<T>::getkthNode(int k)
 		}
 		else
 			return nullptr;
+	}
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::minSubtree(AVLTreeNode<T>* v){
+	if(v == nullptr) return nullptr;
+	AVLTreeNode<T>* ret = v;
+	while(ret->l)
+		ret = ret->l;
+	return ret;
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::maxSubtree(AVLTreeNode<T>* v){
+	if(v == nullptr) return nullptr;
+	AVLTreeNode<T>* ret = v;
+	while(ret->r)
+		ret = ret->r;
+	return ret;
+}
+
+//return the successor of the node v
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::successorNode(AVLTreeNode<T>* v){
+	if(v->r){
+		return minSubtree(v->r);
+	}
+	else{
+		while(v->p && v->p->r == v) //v is right child
+			v = v->p;
+		if(v == this->root)
+			return nullptr;
+		else return v->p; 
+	}
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::predecessorNode(AVLTreeNode<T>* v){
+	if(v->l){
+		return maxSubtree(v->l);
+	}
+	else{
+		while(v->p && v->p->l == v) //v is right child
+			v = v->p;
+		if(v == this->root)
+			return nullptr;
+		else return v->p; 
 	}
 }
