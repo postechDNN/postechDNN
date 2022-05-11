@@ -12,11 +12,12 @@ class Face;
 class Vertex : public Point {
 protected:
 	std::string key;
-	HEdge* incidentEdge; //The origin of incident edge is the vertex.
+	HEdge* incidentEdge; //The origin of incident edge is itself.
 public:
 	Vertex();
+	Vertex(double, double);
 	Vertex(HEdge*);
-	Vertex(Point&);
+	Vertex(const Point&);
 	Vertex(Point&, HEdge*);
 	~Vertex();
 
@@ -70,6 +71,8 @@ public:
 	std::vector<HEdge*> getInners();
 	void addInner(HEdge*);
 	//void setInners(std::vector<HEdge*>*);
+	std::vector<HEdge *> getOutHEdges();
+	std::vector<HEdge*> getInnerHEdges();
 };
 
 class DCEL {
@@ -112,5 +115,5 @@ public:
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
 	int inPolygon(std::vector<HEdge*>, Point);
-	DCEL mergeDCEL(DCEL &); 
+	DCEL merge(DCEL&);
 };

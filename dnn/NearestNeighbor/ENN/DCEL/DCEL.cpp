@@ -19,6 +19,11 @@ Vertex::Vertex() : Point() {
 	this->incidentEdge = nullptr; 
 }
 
+Vertex::Vertex(double x, double y) : Point(x,y) {
+	this->key = ""; 
+	this->incidentEdge = nullptr; 
+}
+
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(HEdge* _e) : Point() {
 	this->key = ""; 
@@ -26,7 +31,7 @@ Vertex::Vertex(HEdge* _e) : Point() {
 }
 
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
-Vertex::Vertex(Point& _p) : Point(_p) {
+Vertex::Vertex(const Point& _p) : Point(_p) {
 	this->key = "";
 	this->incidentEdge = nullptr;
 }
@@ -199,6 +204,31 @@ void Face::addInner(HEdge* _e) {
 	this->inners.push_back(_e);
 }
 
+std::vector<HEdge *> Face::getOutHEdges(){
+	std::vector<HEdge *> ret;
+	if(this->outer == nullptr) // it is outmost face
+		return ret;
+	auto cur = this->outer;
+	do{
+		ret.push_back(cur);
+		cur = cur->getNext();
+	}while(cur != this->outer);
+
+	return ret;
+}
+
+std::vector<HEdge*> Face::getInnerHEdges(){
+	std::vector<HEdge *> ret;
+	for(auto he_ptr:this->inners){
+		auto cur =he_ptr;
+		do{
+			ret.push_back(cur);
+			cur = cur->getNext();
+		}while(cur != he_ptr);
+	}
+	return ret;
+}
+
 //CAUTION : VECTOR ACCESS AND DELETION 
 
 DCEL::DCEL() {
@@ -214,6 +244,12 @@ DCEL::DCEL() {
 }
 
 DCEL::~DCEL() {
+	for(auto v : this->vertices)
+		delete v;
+	for(auto he: this->hedges)
+		delete he;
+	for(auto f : this->faces)
+		delete f;
 }
 
 std::vector<Face*> DCEL::getFaces() {
@@ -265,8 +301,8 @@ HEdge* DCEL::searchHedge(const std::string& key) {
 	for(auto it:this->hedges){
 		if (it->getKey() ==key)
 			return it;
-		if(it->getTwin()->getKey() == key)
-			return it;
+		//if(it->getTwin()->getKey() == key)
+		//	return it;
 	}
 
 	//for (int i = 0; i < this->hedges.size(); i++) {
@@ -368,10 +404,4 @@ int DCEL::inPolygon(std::vector<HEdge*> hedges, Point p) {
 	if ((dest - org).gety() > 0)
 		return -1;
 	else return 1;
-}
-
-DCEL DCEL::mergeDCEL(DCEL& op){
-	std::vector<HEdge*> S1 = this->hedges;
-	std::vector<HEdge*> S2 = op.getHedges();
-	std::vector<HEdge*> ret_hedges; 
 }
