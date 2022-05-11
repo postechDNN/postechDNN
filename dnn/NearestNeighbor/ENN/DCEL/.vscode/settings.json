@@ -51,6 +51,10 @@
         "sstream": "cpp",
         "set": "cpp",
         "xtree": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "cassert": "cpp",
+        "iomanip": "cpp",
+        "xlocmon": "cpp",
+        "xloctime": "cpp"
     }
 }
