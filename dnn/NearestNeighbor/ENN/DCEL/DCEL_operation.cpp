@@ -89,12 +89,14 @@ Edge align_edge(Edge e){
     else return e;
 }
 
-DCEL DCEL::merge(DCEL &op){
+//void HandleHedges(std::set<int> &start_e_set,std::set<int> &end_e_set,std::set<int> &cross_e_set ){
+//    for(auto k )
+//}
 
+DCEL DCEL::merge(DCEL &op){
     //Constructing HEdge Container 
     int num_edges_1=0, num_edges_2=0;
     std::vector<HEdgeContainer> hedge_containers;
-    DCEL ret;
     std::set<HEdge*> he_set; 
     for(auto he: this->hedges){
         HEdge *twin = he->getTwin();
@@ -121,8 +123,13 @@ DCEL DCEL::merge(DCEL &op){
     std::priority_queue<intersectEvent> pq; 
 
     HEdgeContainer::sweep_p = &sweep_p;
-    //std::vector<int> on_pts_key(hedges.size()); 
+    
+    //An immediate previous vertex on the edge which is above the sweep line. 
+    std::vector<int> on_pts_key(hedge_containers.size());
+    std::vector<Vertex*> ret_vertices;
+    std::vector<std::pair<int, HEdge*> > origin_hedges;
 
+    //Push the start and end events into the priority queue.
     for (auto hec : hedge_containers){
         Edge e =align_edge(hec.hedge->getEdge());
         intersectEvent ev_start(e.gets(),hec,intersectEvent::EVENT::START); 
@@ -152,19 +159,12 @@ DCEL DCEL::merge(DCEL &op){
             pq.pop();
         }
 
-
         std::set<int> SC_union;
         SC_union.insert(start_e_set.begin(),start_e_set.end());
         SC_union.insert(cross_e_set.begin(),cross_e_set.end());
         std::set<int> EC_union;
         EC_union.insert(end_e_set.begin(),end_e_set.end());
         EC_union.insert(cross_e_set.begin(),cross_e_set.end());
-
-        //Make graph
-        //int g_key = this->graph.insert_vertex(ev_p);
-        //for(auto k : EC_union)
-        //    this->graph.insert_edge(on_pts_key[k],g_key);
-        //for(auto k : SC_union) on_pts_key[k]=g_key;
 
         //Delete the segments in L(p) U C(p) 
         for(auto k:EC_union)
@@ -178,15 +178,42 @@ DCEL DCEL::merge(DCEL &op){
         HEdge left_dum_he(&v1,&v2), right_dum_he(&v3,&v4);
         HEdgeContainer left_dum_line(-1,&left_dum_he),right_dum_line(-1,&right_dum_he);
         auto leftNode = T.getLeftNode(right_dum_line);
-        //if(T.getRoot())
-        //    std::cout << "Root: "<<T.getRoot()->value.hedge->getEdge()<<std::endl;
+        
         if(leftNode && std::abs(leftNode->value.getKey()- x)<tolerance){
             //std::cout<<"Passing :"<<leftNode->value.hedge->getKey()<<std::endl;
             T.pop(leftNode->value);
-            SC_union.insert(leftNode->value.key); 
-             if(__DEBUG_MODE__) cross_e_set.insert(leftNode->value.key);
+            cross_e_set.insert(leftNode->value.key); //ONLY FOR DEBUGGING
+            EC_union.insert(leftNode->value.key);
+            SC_union.insert(leftNode->value.key);
         }
 
+
+
+        //Construct half edges at the event point.
+        Vertex *new_v = new Vertex(ev_p);
+        int new_key = ret_vertices.size();
+        ret_vertices.push_back(new_v);
+        
+        for(auto k:EC_union){   //k -> key of edge container.
+            int prev_v_key = on_pts_key[k];
+            Vertex *prev_v = ret_vertices[prev_v_key];
+            //Make a half-edge having p as origin.
+            HEdge *he = new HEdge(), *twin = new HEdge();
+            he->setTwin(twin), twin->setTwin(he);
+            he->setOrigin(new_v);
+            twin->setOrigin(prev_v);
+            new_v->setIncidentEdge(he);
+            prev_v->setIncidentEdge(twin);
+            //std::cout <<Edge(*new_v, *prev_v)<<" ";
+
+            origin_hedges.push_back(std::pair(new_key, he));
+            origin_hedges.push_back(std::pair(prev_v_key,twin));
+        }
+        //std::cout <<std::endl;
+        for(auto k:SC_union)
+            on_pts_key[k] = new_key;
+        //Next() and Prev() are determined later.
+ 
         if(__DEBUG_MODE__){
             std::cout << "p:"<<ev_p <<std::endl;
             std::cout << "U(p) :";
@@ -237,6 +264,62 @@ DCEL DCEL::merge(DCEL &op){
                 T.insert(hedge_containers[k]);
         }
     }
+
+    //TODO : key 설정 안했음
+    //HEdge clockwise로 sorting 하고 next,prev다 연결해줄 생각임. 
+    
+    //Process of classification according to origin.
+    std::vector<std::vector<HEdge*> > hedges_origin_v(ret_vertices.size()); 
+    for(auto it : origin_hedges){
+        //Vertex *origin = ret_vertices[it.first];
+        HEdge *he = it.second;
+        hedges_origin_v[it.first].push_back(he);
+    }
+
+    //Sort in circular order.
+
+    auto angle_cmp = [](HEdge* a, HEdge* b){
+        Vertex *origin = a->getOrigin();
+        Vertex *p = a->getTwin()->getOrigin();
+        Vertex *q = b->getTwin()->getOrigin(); 
+        double px =p->getx() - origin->getx(), py = p->gety() - origin->gety();
+        double qx =q->getx() - origin->getx(), qy = q->gety() - origin->gety();
+        double dp = std::sqrt(px*px + py*py), dq = std::sqrt(qx*qx + qy*qy);
+        px /= dp, py /= dp;
+        qx /= dq, qy /= dq;
+        if(py < 0) px = -3 - px;
+        if(qy < 0) qx = -3 - qx;
+        //std::cout <<dp << ' '<<dq<<std::endl;
+        return px > qx;
+    };
+
+    
+
+    for(auto it : hedges_origin_v){
+        //Sort hedges in clockwise order
+        //for(auto _it : it)
+        //  std::cout << _it->getEdge() <<' ';
+        //std::cout<< std::endl;
+
+        std::sort(it.begin(),it.end(),angle_cmp);
+        //for(auto _it : it)
+        //   std::cout << _it->getEdge() <<' ';
+        //std::cout<< std::endl;
+
+        //set Next and Prev
+        for(int i = 0 ; i<it.size();i++){
+            HEdge *he =it[i]; 
+            int j = i < it.size()-1 ? i+1: 0;
+            HEdge *prev = it[j]->getTwin();
+            
+        }
+    }
+
+    //Now we remain to set incident face of half edges and construct faces. 
+
+
+    DCEL ret;
+
 
     return ret;
 }

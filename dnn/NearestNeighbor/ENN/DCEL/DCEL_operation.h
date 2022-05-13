@@ -11,6 +11,7 @@
 #include "Graph.h"
 #include <utility>
 #include "DCEL.h"
+#include <algorithm>
 
 #define tolerance 1e-6 //TODO: change to enum
 #define __DEBUG_MODE__ 1
