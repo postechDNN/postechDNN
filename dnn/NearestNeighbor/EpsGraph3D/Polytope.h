@@ -18,6 +18,8 @@ protected:
 	int num_points;
 	std::vector<Face*> faces;
 	std::vector<Point*> vertices;
+	std::vector<point*> encl_pts;
+	int ord;
 
 public:
 	Polytope();
