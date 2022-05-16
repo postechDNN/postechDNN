@@ -7,9 +7,10 @@ protected:
 	std::vector<Point*> points;
 
 public:
+	Face();
+	Face(std::vector<Point*>);
+	~Face();
 	bool below(Point* p);
-
-
 };
 
 class Polytope {
