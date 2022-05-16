@@ -127,7 +127,7 @@ void Eps_Graph_3D::init_grid() {
 
 				if (i != row_num - 1) {
 					if (grid[ind2num(i + 1, j, k)].encl == -1) {
-						if (cmpNadd(indices{ i, j, z }, 0)) { add_edge(indices{ i, j, k }, indices{ i + 1, j, k }); }
+						if (cmpNadd(indices{ i, j, k }, 0)) { add_edge(indices{ i, j, k }, indices{ i + 1, j, k }); }
 					}
 				}
 				if (j != col_num - 1) {
@@ -151,7 +151,7 @@ Grid_Point Eps_Graph_3D::get_gridpt(indices ind) {
 
 // one-to-one functions between 2-d indices and numbers
 int Eps_Graph_3D::ind2num(indices ind) {
-	return ind.row * col_num + ind.column;
+	return ind.row * col_num * layer_num + ind.column * layer_num + ind.layer;
 }
 
 int Eps_Graph_3D::ind2num(int row, int column, int layer) {
