@@ -73,10 +73,10 @@ DCEL DCEL_IO::text_to_DCEL(std::string fname) {
 		double x,y;
 		std::string hedge_key;
 		stream >> vertex_key >> x >> y >> hedge_key;
-		Vertex* v_ptr = ret.searchVertex(vertex_key);
+		Vertex* v_ptr = ret.getVertex(vertex_key);
 		v_ptr->setx(x);
 		v_ptr->sety(y);
-		HEdge* he_ptr = ret.searchHedge(hedge_key);
+		HEdge* he_ptr = ret.getHedge(hedge_key);
 		v_ptr->setIncidentEdge(he_ptr);
 
 		if(__DEBUG_MODE__) std::cout << vertex_key <<' '<<x <<' '<< y <<' '<< hedge_key<<std::endl; 
@@ -91,8 +91,8 @@ DCEL DCEL_IO::text_to_DCEL(std::string fname) {
 		std::string outer_key;
 		int num_inner;
 		stream >> face_key >> is_out >> outer_key >> num_inner;
-		Face *f_ptr=ret.searchFace(face_key);
-		HEdge *e_ptr = ret.searchHedge(outer_key);
+		Face *f_ptr=ret.getFace(face_key);
+		HEdge *e_ptr = ret.getHedge(outer_key);
 
 		if(!is_out) f_ptr->setOuter(e_ptr);
 
@@ -101,7 +101,7 @@ DCEL DCEL_IO::text_to_DCEL(std::string fname) {
 		for(int j = 0 ; j< num_inner;j++){
 			std::string inner_e_key;
 			stream >> inner_e_key;
-			HEdge *e_ptr = ret.searchHedge(inner_e_key); 
+			HEdge *e_ptr = ret.getHedge(inner_e_key); 
 			f_ptr->addInner(e_ptr);
 
 			if(__DEBUG_MODE__) std::cout <<inner_e_key << ' ';
@@ -117,12 +117,12 @@ DCEL DCEL_IO::text_to_DCEL(std::string fname) {
 
 		stream >> hedge_key >> origin_key >> twin_key >> incident_f_key >> next_key >> prev_key;
 
-		HEdge* he_ptr = ret.searchHedge(hedge_key);
-		Vertex *origin_ptr = ret.searchVertex(origin_key);
-		HEdge *twin_ptr = ret.searchHedge(twin_key);
-		Face *incident_f_ptr = ret.searchFace(incident_f_key);
-		HEdge *next_ptr = ret.searchHedge(next_key);
-		HEdge *prev_ptr = ret.searchHedge(prev_key);
+		HEdge* he_ptr = ret.getHedge(hedge_key);
+		Vertex *origin_ptr = ret.getVertex(origin_key);
+		HEdge *twin_ptr = ret.getHedge(twin_key);
+		Face *incident_f_ptr = ret.getFace(incident_f_key);
+		HEdge *next_ptr = ret.getHedge(next_key);
+		HEdge *prev_ptr = ret.getHedge(prev_key);
 		he_ptr->setOrigin(origin_ptr);
 		he_ptr->setTwin(twin_ptr);
 		he_ptr->setIncidentFace(incident_f_ptr);
