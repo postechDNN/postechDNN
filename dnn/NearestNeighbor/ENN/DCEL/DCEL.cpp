@@ -14,31 +14,36 @@
 #include <cmath>
 #define M_PI 3.14159265358979323846
 
+int _default_v_key = 0;
+int _default_e_key = 0;
+int _default_f_key = 0;
+int _default_dcel_key = 0;
+
 Vertex::Vertex() : Point() {
-	this->key = ""; 
+	this->key = "Default_v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = nullptr; 
 }
 
 Vertex::Vertex(double x, double y) : Point(x,y) {
-	this->key = ""; 
+	this->key = "Default_v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = nullptr; 
 }
 
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(HEdge* _e) : Point() {
-	this->key = ""; 
+	this->key = "Default_v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = _e;
 }
 
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(const Point& _p) : Point(_p) {
-	this->key = "";
+	this->key = "Default_v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = nullptr;
 }
 
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(Point& _p, HEdge* _e) : Point(_p) {
-	this->key = "";
+	this->key = "Default_v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = _e;
 }
 
@@ -66,8 +71,8 @@ HEdge* Vertex::getIncidentEdge() {
 	return this->incidentEdge;
 }
 
-HEdge::HEdge() : Edge() {
-	this->key = "";
+HEdge::HEdge() {
+	this->key = "Default_e_"+std::to_string(_default_e_key++); 
 	this->origin = nullptr;
 	this->incidentFace = nullptr;
 	this->next = nullptr;
@@ -75,8 +80,8 @@ HEdge::HEdge() : Edge() {
 	this->twin = nullptr;
 }
 
-HEdge::HEdge(Vertex* _v1, Vertex* _v2) : Edge(*_v1,*_v2) {
-	this->key = "";
+HEdge::HEdge(Vertex* _v1, Vertex* _v2) {
+	this->key = "Default_e_"+std::to_string(_default_e_key++); 
 	this->origin = _v1;
 	this->twin = new HEdge();
 	this->twin->origin =_v2;
@@ -86,9 +91,10 @@ HEdge::HEdge(Vertex* _v1, Vertex* _v2) : Edge(*_v1,*_v2) {
 	this->prev = this->twin;
 	this->twin->next = this;
 	this->twin->prev = this;
-	this->twin->s = *_v2;
-	this->twin->t = *_v1;
+	//this->twin->s = *_v2;
+	//this->twin->t = *_v1;
 }
+
 /*
 HEdge::HEdge(Point& _p1, Point& _p2) {
 	Vertex* v1 = new Vertex(_p1);
@@ -168,7 +174,7 @@ void HEdge::setIncidentFace(Face *_f) {
 }
 
 Face::Face() {
-	this->key = "";
+	this->key = "Default_f_"+std::to_string(_default_f_key++); 
 	this->outer = nullptr;
 }
 
@@ -232,48 +238,73 @@ std::vector<HEdge*> Face::getInnerHEdges(){
 //CAUTION : VECTOR ACCESS AND DELETION 
 
 DCEL::DCEL() {
-	this->num_faces = 0;
-	this->num_hedges = 0;
-	this->num_vertices = 0;
-	lmost = nullptr;
-	tmost = nullptr;
-	bmost = nullptr;
-	rmost = nullptr;
+	//this->num_faces = 0;
+	//this->num_hedges = 0;
+	//this->num_vertices = 0;
+	this->key = "Default_dcel_"+std::to_string(_default_dcel_key++); 
+
 	Face *of = new Face();
-	this->faces.push_back(of);
+	of->setOuter(nullptr);
+	this->faces[of->getKey()] = of;
 }
 
 DCEL::~DCEL() {
 	for(auto v : this->vertices)
-		delete v;
+		delete v.second;
 	for(auto he: this->hedges)
-		delete he;
+		delete he.second;
 	for(auto f : this->faces)
-		delete f;
+		delete f.second;
 }
 
 std::vector<Face*> DCEL::getFaces() {
-	return this->faces;
+	std::vector<Face*> ret;
+	for(auto it:this->faces) ret.push_back(it.second);
+	return ret;
 }
 
 void DCEL::setFaces(std::vector<Face*> _f) {
-	this->faces = _f;
+	for(auto f:_f){
+		this->faces[f->getKey()]=f;
+	}
+	//this->faces = _f;
+	//this->num_faces = _f.size();
 }
 
 std::vector<HEdge*> DCEL::getHedges() {
-	return this->hedges;
+	std::vector<HEdge*> ret;
+	for(auto it:this->hedges) ret.push_back(it.second);
+	return ret;
 }
 
 void DCEL::setHedges(std::vector<HEdge*> _e) {
-	this->hedges = _e;
+	for(auto e:_e){
+		this->hedges[e->getKey()] = e;
+	}
+	//this->hedges = _e;
+	//this->num_hedges = _e.size();
 }
 
 std::vector<Vertex*> DCEL::getVertices() {
-	return this->vertices;
+	std::vector<Vertex*> ret;
+	for(auto it:this->vertices) ret.push_back(it.second);
+	return ret;
 }
 
 void DCEL::setVertices(std::vector<Vertex*> _v) {
-	this->vertices = _v;
+	for(auto v:_v){
+		this->vertices[v->getKey()]=v;
+	}
+	//this->vertices = _v;
+	//this->num_vertices = _v.size();
+}
+
+std::string DCEL::getKey() {
+	return this->key;
+}
+
+void DCEL::setKey(const std::string& key) {
+	this->key = key;
 }
 
 /*
@@ -287,31 +318,25 @@ void DCEL::pushVertex(Vertex* _v){
 	this->vertices.push_back(_v);
 }*/
 
-Vertex* DCEL::getLmost() { return this->lmost; }
-Vertex* DCEL::getRmost() { return this->rmost; }
-Vertex* DCEL::getTmost() { return this->tmost; }
-Vertex* DCEL::getBmost() { return this->bmost; }
+//Vertex* DCEL::getLmost() { return this->lmost; }
+//Vertex* DCEL::getRmost() { return this->rmost; }
+//Vertex* DCEL::getTmost() { return this->tmost; }
+//Vertex* DCEL::getBmost() { return this->bmost; }
 
-void DCEL::addVertex(Point& _p, const std::string& key){
-	Vertex *v = new Vertex(_p);
-	v->setKey(key);
-}
+//void DCEL::addVertex(Point& _p, const std::string& key){
+//	Vertex *v = new Vertex(_p);
+//	v->setKey(key);
+//}
 
-HEdge* DCEL::searchHedge(const std::string& key) {
-	for(auto it:this->hedges){
-		if (it->getKey() ==key)
-			return it;
-		//if(it->getTwin()->getKey() == key)
-		//	return it;
-	}
-
-	//for (int i = 0; i < this->hedges.size(); i++) {
-	//	if (strcmp((this->hedges)[i]->getHedgeKey(), key) == 0)
-	//		return (this->hedges)[i];
-	//	if(strcmp((this->hedges)[i]->getTwin()->getHedgeKey(), key) == 0)
-	//		return (this->hedges)[i]->getTwin();
+HEdge* DCEL::getHedge(const std::string& key) {
+	auto it = this->hedges.find(key);
+	if(it != this->hedges.end()) return (*it).second;
+	else return nullptr;
+	//for(auto it:this->hedges){
+	//	if (it->getKey() ==key)
+	//		return it;
 	//}
-	return nullptr;
+	//return nullptr;
 }
 
 Edge HEdge::getEdge(){
@@ -321,19 +346,27 @@ Edge HEdge::getEdge(){
 	return Edge(p1,p2);
 }
 
-Vertex* DCEL::searchVertex(const std::string& key) {
-	for(auto it:this->vertices){
-		if(it->getKey() == key) return it;
-	}
-	return nullptr;
+Vertex* DCEL::getVertex(const std::string& key) {
+	auto it = this->vertices.find(key);
+	if(it != this->vertices.end()) return (*it).second;
+	else return nullptr;
+
+	//for(auto it:this->vertices){
+	//	if(it->getKey() == key) return it;
+	//}
+	//return nullptr;
 
 }
 
-Face* DCEL::searchFace(const std::string& key) {
-	for(auto it:this->faces){
-		if(it->getKey() == key) return it;
-	}
-	return nullptr;
+Face* DCEL::getFace(const std::string& key) {
+	auto it = this->faces.find(key);
+	if(it != this->faces.end()) return (*it).second;
+	else return nullptr;
+
+	//for(auto it:this->faces){
+	//	if(it->getKey() == key) return it;
+	//}
+	//return nullptr;
 
 }
 
@@ -362,6 +395,7 @@ std::vector<HEdge*> DCEL::getIncomingHEdges(Vertex* v) {
 //The point p is inside polygon return 1
 //The point p is on boundary return 0
 //The point p is outside polygon return -1
+/*
 int DCEL::inPolygon(std::vector<HEdge*> hedges, Point p) {
 	double min_x = 1e10;
 	double min_x2 = 1e10;
@@ -405,3 +439,4 @@ int DCEL::inPolygon(std::vector<HEdge*> hedges, Point p) {
 		return -1;
 	else return 1;
 }
+*/

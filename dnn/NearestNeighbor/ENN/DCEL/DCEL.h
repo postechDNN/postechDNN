@@ -4,6 +4,7 @@
 #include "Point.h"
 #include <vector>
 #include <string>
+#include <map>
 
 class Vertex;
 class HEdge;
@@ -28,7 +29,7 @@ public:
 	Point getPoint();
 };
 
-class HEdge : public Edge {
+class HEdge {
 protected:
 	std::string key; 
 	Vertex* origin;
@@ -77,16 +78,17 @@ public:
 
 class DCEL {
 protected:
-	int num_faces;
-	int num_hedges;
-	int num_vertices;
-	std::vector<Face*> faces;
-	std::vector<HEdge*> hedges;	//we store one hedge for each edges.
-	std::vector<Vertex*> vertices;
-	Vertex* lmost;
-	Vertex* tmost;
-	Vertex* bmost;
-	Vertex* rmost;
+	std::string key;
+	//int num_faces;
+	//int num_hedges;
+	//int num_vertices;
+	std::map<std::string, Face*> faces;
+	std::map<std::string, HEdge*> hedges;	//we store one hedge for each edges.
+	std::map<std::string, Vertex*> vertices;
+	//Vertex* lmost;
+	//Vertex* tmost;
+	//Vertex* bmost;
+	//Vertex* rmost;
 public:
 	DCEL();
 	~DCEL();
@@ -96,22 +98,24 @@ public:
 	void setHedges(std::vector<HEdge*>);
 	std::vector<Vertex*> getVertices();
 	void setVertices(std::vector<Vertex*>);
-
+	std::string getKey();
+	void setKey(const std::string&);
 	//void pushFace(Face*);
 	//void pushHEdge(HEdge*);
 	//void pushVertex(Vertex*);
 
-	Vertex* getLmost();
-	Vertex* getRmost();
-	Vertex* getTmost();
-	Vertex* getBmost();
+	//Vertex* getLmost();
+	//Vertex* getRmost();
+	//Vertex* getTmost();
+	//Vertex* getBmost();
 
-	void addVertex(Point&, const std::string&);
-	void addEdge(Vertex*, Vertex*);
-	void deleteEdge(HEdge*);
-	HEdge* searchHedge(const std::string& key);
-	Vertex* searchVertex( const std::string& key);
-	Face* searchFace( const std::string& key);
+	//void addVertex(Point&, const std::string&);
+	//void addEdge(Vertex*, Vertex*);
+	//void deleteEdge(HEdge*);
+	HEdge* getHedge(const std::string& key);
+	Vertex* getVertex( const std::string& key);
+	Face* getFace( const std::string& key);
+	
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
 	int inPolygon(std::vector<HEdge*>, Point);
