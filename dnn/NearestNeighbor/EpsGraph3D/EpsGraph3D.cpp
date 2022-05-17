@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<_Polytope> _pols, double _eps) {
+Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
 
 	fr_pts = _fr_pts;
 	pols = _pols;
@@ -84,7 +84,7 @@ void Eps_Graph_3D::init_grid() {
 	}
 
 	for (Free_Point& pt : fr_pts) {
-		for (_Polygon& pol : pols) {
+		for (Polytope& pol : pols) {
 			int cro = pol.ray(pt);
 
 			if (cro > 0 && cro % 2 == 1) {
@@ -238,8 +238,8 @@ bool Eps_Graph_3D::cmpNadd(indices ind, bool direc) { // checks if the line conn
 
 bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, bool direc, int ord) { // do the same with a specific polygon.
 
-	_Polygon pol;
-	vector<_Polygon>::iterator it;
+	Polytope pol;
+	vector<Polytope>::iterator it;
 
 	for (it = pols.end() - 1;; it--) {
 		if ((*it).ord == ord) {
@@ -294,7 +294,7 @@ void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the 
 
 		Free_Point& pt = fr_pts.back();
 
-		for (_Polygon& pol : pols) {
+		for (Polytope& pol : pols) {
 			int cro = pol.ray(pt);
 
 			if (cro > 0 && cro % 2 == 1) {
@@ -420,7 +420,7 @@ Grid_Point Eps_Graph_3D::query_anchor(Free_Point p) {
 }
 
 
-void Eps_Graph_3D::add_pol(_Polygon P) { // add a polygon to the set of obstacles O
+void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O
 	pols.push_back(P);
 
 	for (Grid_Point& gr_pt : grid) {
@@ -497,7 +497,7 @@ void Eps_Graph_3D::add_pol(_Polygon P) { // add a polygon to the set of obstacle
 
 void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified by its index
 
-	vector<_Polygon>::iterator it;
+	vector<Polytope>::iterator it;
 
 	for (it = pols.begin(); it != pols.end(); ++it) {
 		if ((*it).ord == ord) {
@@ -567,7 +567,7 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 	pols.erase(it);
 }
 
-indices* Eps_Graph_3D::eff_region(_Polygon P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
+indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
 	static indices ret[2]; // ret[0] : lower left, ret[1] : upper right
 
 	ret[0].row = min(row_num - 1, int(ceil((upper_left.y - P.y_min) / eps)));
@@ -581,7 +581,7 @@ indices* Eps_Graph_3D::eff_region(_Polygon P) { // returns a range indicating or
 
 vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
-	for (_Polygon& pol : pols) {
+	for (Polytope& pol : pols) {
 		int cro = pol.ray(p);
 
 		if (cro > 0 && cro % 2 == 1) {
@@ -701,7 +701,7 @@ Free_Point Eps_Graph_3D::get_free_point(int index) {
 	std::advance(iter, index);
 	return *iter;
 }
-_Polygon Eps_Graph_3D::get_polygon(int index) {
+Polytope Eps_Graph_3D::get_Polytope(int index) {
 	for (auto pol : pols) {
 		if (index == pol.ord) {
 			return pol;

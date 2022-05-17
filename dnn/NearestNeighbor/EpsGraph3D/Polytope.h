@@ -19,13 +19,12 @@ protected:
 	int num_points;
 	std::vector<Face*> faces;
 	std::vector<Point*> vertices;
-	std::vector<point*> encl_pts;
+	std::vector<Point*> encl_pts;
 	int ord;
 
 public:
 	Polytope();
 	Polytope(FILE*);
 	~Polytope();
-
 	bool isIn(Point* p);
 };

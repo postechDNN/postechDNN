@@ -27,7 +27,7 @@ public: // variables
 	vector<edge> edges;
 
 	list<Free_Point> fr_pts; // 초기화할 때 이미 anchor를 시키므로, add_freept에서도 anchor시키는 부분이 포함돼야 함.
-	vector<_Polygon> pols;
+	vector<Polytope> pols;
 
 	vector<int> dist;	// BFS distance
 	vector<bool> visited;
@@ -35,7 +35,7 @@ public: // variables
 	vector<int> NN_dist;
 
 public:	// functions
-	Eps_Graph_3D(list<Free_Point>, vector<_Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
+	Eps_Graph_3D(list<Free_Point>, vector<Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	void init_grid();
 	Grid_Point get_gridpt(indices);
 
@@ -55,9 +55,9 @@ public:	// functions
 	void anchor(Free_Point&);	// 중간에 있으면 왼쪽, 위로 가도록
 	Grid_Point query_anchor(Free_Point);
 
-	void add_pol(_Polygon);
+	void add_pol(Polytope);
 	void delete_pol(int);
-	indices* eff_region(_Polygon); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
+	indices* eff_region(Polytope); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
 
 	void BFS(Grid_Point); // BFS on grid
 	vector<Free_Point> kNN(Free_Point, int); // kNN point query
@@ -69,7 +69,7 @@ public:	// functions
 
 	/* Temporary by jaehoon*/
 	Free_Point get_free_point(int);
-	_Polygon get_polygon(int);
+	Polytope get_Polytope(int);
 
 	Eps_Graph_3D();
 };
