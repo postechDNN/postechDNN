@@ -12,6 +12,7 @@
 #include <utility>
 #include "DCEL.h"
 #include <algorithm>
+#include <map>
 
 #define tolerance 1e-6 //TODO: change to enum
 #define __DEBUG_MODE__ 1
@@ -43,3 +44,12 @@ public:
 
 void FindNewEvent(HEdgeContainer&, HEdgeContainer&, std::priority_queue<intersectEvent> &);
 Edge align_edge(Edge e);
+std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges);
+
+class FaceNode{
+public: 
+    bool is_outer;
+    HEdge* he;
+
+    FaceNode(HEdge*,bool);
+};
