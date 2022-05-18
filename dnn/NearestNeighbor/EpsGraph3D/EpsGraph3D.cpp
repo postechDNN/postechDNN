@@ -288,22 +288,17 @@ bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, bool direc, int ord) { // do the 
 }
 
 
-void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the point set P
+void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the query point set P
 	for (auto p : p_vec) {
-		fr_pts.push_back(p);
-
-		Free_Point& pt = fr_pts.back();
-
 		for (Polytope& pol : pols) {
-			int cro = pol.ray(pt);
-
-			if (cro > 0 && cro % 2 == 1) {
-				pt.encl = pol.ord;
-				pol.encl_pts.push_back(pt);
+			bool in = pol.isIn(pt);
+			if (in) {
+				//error description
+				return;
 			}
 		}
-
-		anchor(pt);
+		fr_pts.push_back(p);
+		anchor(pt); //
 	}
 }
 
@@ -313,7 +308,7 @@ void Eps_Graph_3D::delete_freept(int ind) { // delete a point from P, specified 
 	list<Free_Point>::iterator iter = fr_pts.begin();
 	advance(iter, ind);
 	Free_Point& p = *iter;
-
+	//fr_pts.remove(ind)
 	if (p.host != -1) {
 		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
 			if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
