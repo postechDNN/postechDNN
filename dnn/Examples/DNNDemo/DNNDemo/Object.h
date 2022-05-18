@@ -80,7 +80,15 @@ public:
 	bool getDrawEdges();
 	bool getDrawFaces();
 
+	void updateNorm(int dimension);
+	void getNorm(double trans[], double strat[], int dimension);
+	//void getNorm(double &trans, double &strat);
+
 private:
+	double normTrans[3];
+	double normStrat[3];
+	//double normTrans;
+	//double normStrat;
 	bool drawVertices;
 	bool drawEdges;
 	bool drawFaces;

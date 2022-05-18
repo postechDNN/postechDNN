@@ -90,6 +90,7 @@ void OGL_Contorl::readDCEL(CString path) {
 		this->object2D.getEdge(eMap[key]).setEndP(p);
 		this->object2D.getEdge(eMap[ne]).setStartP(p);
 	}
+	this->object2D.updateNorm(2);
 	Invalidate();
 }
 
@@ -194,8 +195,17 @@ void OGL_Contorl::OnPaint()
 					   // 그리기 메시지에 대해서는 CStatic::OnPaint()을(를) 호출하지 마십시오.
 	::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	
+	double normTrans[3];
+	double normMul[3];
+	//double normTrans;
+	//double normMul;
+
 	// 사각형 테스트
 	if (this->mode == 2) {
+		this->object2D.getNorm(normTrans, normMul, 2);
+		//this->object2D.getNorm(normTrans, normMul);
+
 		::glPushMatrix();
 		::glColor3f(0.0f, 1.0f, 0.0f);
 		glColor3d(1.0, 0.0, 0.0);
@@ -210,8 +220,8 @@ void OGL_Contorl::OnPaint()
 				glBegin(GL_POLYGON);
 				for (int j = 0; j < this->object2D.getFace(i).getSize(); j++) {
 					Point p = this->object2D.getFace(i).getPoint(j);
-					glVertex2d(p.getX() / 20.0, p.getY() / 20.0);
-					//glVertex2i(p.getX(), p.getY());
+					glVertex2d((p.getX()- normTrans[0])/normMul[0], (p.getY()-normTrans[1])/normMul[1]);
+					//glVertex2d((p.getX() - normTrans) / normMul, (p.getY() - normTrans) / normMul);
 				}
 				glEnd();
 			}
@@ -224,8 +234,10 @@ void OGL_Contorl::OnPaint()
 				Point sp = this->object2D.getEdge(i).getStartP();
 				Point ep = this->object2D.getEdge(i).getEndP();
 				glBegin(GL_LINES);
-				glVertex2d(sp.getX() / 20.0, sp.getY() / 20.0);
-				glVertex2d(ep.getX() / 20.0, ep.getY() / 20.0);
+				glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
+				glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
+				//glVertex2d((sp.getX() - normTrans) / normMul, (sp.getY() - normTrans) / normMul);
+				//glVertex2d((ep.getX() - normTrans) / normMul, (ep.getY() - normTrans) / normMul);
 				glEnd();
 			}
 		}
@@ -236,7 +248,8 @@ void OGL_Contorl::OnPaint()
 			glBegin(GL_POINTS);
 			for (int i = 0; i < this->object2D.getVerticsNum(); i++) {
 				Point p = this->object2D.getVertex(i).getPos();
-				glVertex2d(p.getX() / 20.0, p.getY() / 20.0);
+				glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+				//glVertex2d((p.getX() - normTrans) / normMul, (p.getY() - normTrans) / normMul);
 			}
 			glEnd();
 		}

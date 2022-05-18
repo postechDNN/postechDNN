@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Object.h"
 
+#define PADDING 0.1
 
 // Point
 Point::Point() {
@@ -166,3 +167,216 @@ bool Object::getDrawEdges() {
 bool Object::getDrawFaces() {
 	return this->drawFaces;
 }
+
+void Object::updateNorm(int dimension) {
+	
+	double min = std::numeric_limits<double>::has_infinity;
+	double max = min*-1;
+	
+
+	if (dimension > 0) {
+		for (int i = 0; i < this->vertices.size(); i++) {
+			if (max < vertices[i].getPos().getX()) {
+				max = vertices[i].getPos().getX();
+			}
+			if (min > vertices[i].getPos().getX()) {
+				min = vertices[i].getPos().getX();
+			}
+		}
+		for (int i = 0; i < this->edges.size(); i++) {
+			if (max < edges[i].getStartP().getX()) {
+				max = edges[i].getStartP().getX();
+			}
+			if (max < edges[i].getEndP().getX()) {
+				max = edges[i].getEndP().getX();
+			}
+			if (min > edges[i].getStartP().getX()) {
+				min = edges[i].getStartP().getX();
+			}
+			if (min > edges[i].getEndP().getX()) {
+				min = edges[i].getEndP().getX();
+			}
+		}
+
+		this->normTrans[0] = (max + min) / 2;
+		this->normStrat[0] = (max - min) / 2;
+		this->normStrat[0] += this->normStrat[0] * PADDING;
+	}
+
+	if (dimension > 1) {
+		min = std::numeric_limits<double>::has_infinity;
+		max = min * -1;
+		for (int i = 0; i < this->vertices.size(); i++) {
+			if (max < vertices[i].getPos().getY()) {
+				max = vertices[i].getPos().getY();
+			}
+			if (min > vertices[i].getPos().getY()) {
+				min = vertices[i].getPos().getY();
+			}
+		}
+		for (int i = 0; i < this->edges.size(); i++) {
+			if (max < edges[i].getStartP().getY()) {
+				max = edges[i].getStartP().getY();
+			}
+			if (max < edges[i].getEndP().getY()) {
+				max = edges[i].getEndP().getY();
+			}
+			if (min > edges[i].getStartP().getY()) {
+				min = edges[i].getStartP().getY();
+			}
+			if (min > edges[i].getEndP().getY()) {
+				min = edges[i].getEndP().getY();
+			}
+		}
+
+		this->normTrans[1] = (max + min) / 2;
+		this->normStrat[1] = (max - min) / 2;
+		this->normStrat[1] += this->normStrat[1] * PADDING;
+	}
+
+	if (dimension > 2) {
+		min = std::numeric_limits<double>::has_infinity;
+		max = min * -1;
+		for (int i = 0; i < this->vertices.size(); i++) {
+			if (max < vertices[i].getPos().getZ()) {
+				max = vertices[i].getPos().getZ();
+			}
+			if (min > vertices[i].getPos().getZ()) {
+				min = vertices[i].getPos().getZ();
+			}
+		}
+		for (int i = 0; i < this->edges.size(); i++) {
+			if (max < edges[i].getStartP().getZ()) {
+				max = edges[i].getStartP().getZ();
+			}
+			if (max < edges[i].getEndP().getZ()) {
+				max = edges[i].getEndP().getZ();
+			}
+			if (min > edges[i].getStartP().getZ()) {
+				min = edges[i].getStartP().getZ();
+			}
+			if (min > edges[i].getEndP().getZ()) {
+				min = edges[i].getEndP().getZ();
+			}
+		}
+
+		this->normTrans[2] = (max + min) / 2;
+		this->normStrat[2] = (max - min) / 2;
+		this->normStrat[2] += this->normStrat[2] * PADDING;
+	}
+}
+
+/*
+void Object::updateNorm(int dimension) {
+
+	double min = std::numeric_limits<double>::has_infinity;
+	double max = min*-1;
+
+
+	if (dimension > 0) {
+		for (int i = 0; i < this->vertices.size(); i++) {
+			if (max < vertices[i].getPos().getX()) {
+				max = vertices[i].getPos().getX();
+			}
+			if (min > vertices[i].getPos().getX()) {
+				min = vertices[i].getPos().getX();
+			}
+		}
+		for (int i = 0; i < this->edges.size(); i++) {
+			if (max < edges[i].getStartP().getX()) {
+				max = edges[i].getStartP().getX();
+			}
+			if (max < edges[i].getEndP().getX()) {
+				max = edges[i].getEndP().getX();
+			}
+			if (min > edges[i].getStartP().getX()) {
+				min = edges[i].getStartP().getX();
+			}
+			if (min > edges[i].getEndP().getX()) {
+				min = edges[i].getEndP().getX();
+			}
+		}
+		this->normTrans = (max + min) / 2;
+		this->normStrat = (max - min) / 2;
+	}
+
+	if (dimension > 1) {
+		min = std::numeric_limits<double>::has_infinity;
+		max = min * -1;
+		for (int i = 0; i < this->vertices.size(); i++) {
+			if (max < vertices[i].getPos().getY()) {
+				max = vertices[i].getPos().getY();
+			}
+			if (min > vertices[i].getPos().getY()) {
+				min = vertices[i].getPos().getY();
+			}
+		}
+		for (int i = 0; i < this->edges.size(); i++) {
+			if (max < edges[i].getStartP().getY()) {
+				max = edges[i].getStartP().getY();
+			}
+			if (max < edges[i].getEndP().getY()) {
+				max = edges[i].getEndP().getY();
+			}
+			if (min > edges[i].getStartP().getY()) {
+				min = edges[i].getStartP().getY();
+			}
+			if (min > edges[i].getEndP().getY()) {
+				min = edges[i].getEndP().getY();
+			}
+		}
+		double temp1 = (max + min) / 2;
+		double temp2 = (max - min) / 2;
+		if (this->normStrat < temp2) {
+			this->normTrans = temp1;
+			this->normStrat = temp2;
+		}
+	}
+
+	if (dimension > 2) {
+		min = std::numeric_limits<double>::has_infinity;
+		max = min * -1;
+		for (int i = 0; i < this->vertices.size(); i++) {
+			if (max < vertices[i].getPos().getZ()) {
+				max = vertices[i].getPos().getZ();
+			}
+			if (min > vertices[i].getPos().getZ()) {
+				min = vertices[i].getPos().getZ();
+			}
+		}
+		for (int i = 0; i < this->edges.size(); i++) {
+			if (max < edges[i].getStartP().getZ()) {
+				max = edges[i].getStartP().getZ();
+			}
+			if (max < edges[i].getEndP().getZ()) {
+				max = edges[i].getEndP().getZ();
+			}
+			if (min > edges[i].getStartP().getZ()) {
+				min = edges[i].getStartP().getZ();
+			}
+			if (min > edges[i].getEndP().getZ()) {
+				min = edges[i].getEndP().getZ();
+			}
+		}
+		double temp1 = (max + min) / 2;
+		double temp2 = (max - min) / 2;
+		if (this->normStrat < temp2) {
+			this->normTrans = temp1;
+			this->normStrat = temp2;
+		}
+	}
+}
+*/
+
+void Object::getNorm(double trans[], double strat[], int dimension) {
+	for (int i = 0; i < dimension; i++) {
+		trans[i] = this->normTrans[i];
+		strat[i] = this->normStrat[i];
+	}
+}
+/*
+void Object::getNorm(double &trans, double &strat) {
+	trans = this->normTrans;
+	strat = this->normStrat;
+}
+*/
