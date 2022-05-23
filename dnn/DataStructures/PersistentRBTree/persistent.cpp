@@ -11,7 +11,8 @@ using namespace std;
 /*
 Create the version after the choosen parent version.
 */
-void VersionTree::newVersion(int pindex)
+template <typename T>
+void VersionTree<T>::newVersion(int pindex)
 {
 	v.emplace_back(pindex);
 	int index = v.size() - 1;
@@ -147,7 +148,8 @@ void VersionTree::newVersion(int pindex)
 /*
 Test whether v1 is the ancestor of v2 in the version tree.
 */
-bool VersionTree::testAncestor(int v1, int v2)
+template <typename T>
+bool VersionTree<T>::testAncestor(int v1, int v2)
 {
 	return testOrder(0, v1, v2) && !testOrder(1, v1, v2);
 }
@@ -156,7 +158,8 @@ bool VersionTree::testAncestor(int v1, int v2)
 /*
 Test whether v1 occurs before v2 in first or second data structure.
 */
-bool VersionTree::testOrder(int list, int v1, int v2)
+template <typename T>
+bool VersionTree<T>::testOrder(int list, int v1, int v2)
 {
 	NodeC* add1 = v[v1].adds.at(list);
 	NodeC* add2 = v[v2].adds.at(list);
@@ -167,4 +170,33 @@ bool VersionTree::testOrder(int list, int v1, int v2)
 		return add1->tag < add2->tag;
 	}
 	return pVal1 < pVal2;
+}
+
+template <typename T>
+Pnode<T>* VersionTree<T>::search(int ver, T key) {
+	Pnode<T>* tmp = v[ver].root;
+	Pnode<T>* displaced = nullptr;
+	while (tmp != nullptr) {
+		if (tmp->key == key)
+			return tmp;
+		else {
+			if (displaced && tmp->parent && (tmp->parent->key > displaced->key) == (tmp->parent->key > key));
+			else if (tmp->parent && tmp->parent->change)
+				displaced = ((tmp->parent->key > tmp->parent->change->key) == (tmp->parent->key > key)) ? tmp->parent->change : nullptr;
+			else
+				displaced = nullptr;
+			if (tmp->change && (tmp->change->key == tmp->key) && testAncestor(tmp->change->version, ver) && tmp->change->version > tmp->version)
+				tmp = tmp->change;
+			if (displaced && (displaced->key == tmp->key) && testAncestor(displaced->version, ver) && displaced->version > tmp->version)
+				tmp = displaced;
+			tmp->key > key ? tmp = tmp->left_child : tmp = tmp->right_child;
+		}
+	}
+	return nullptr;
+}
+
+
+int main()
+{
+	return 0;
 }
