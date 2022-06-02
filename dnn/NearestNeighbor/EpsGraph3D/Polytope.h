@@ -14,9 +14,10 @@ public:
 };
 
 class Polytope {
-protected:
+public:
 	int num_faces;
 	int num_points;
+	double x_min, x_max, y_min, y_max, z_min, z_max;
 	std::vector<Face*> faces;
 	std::vector<Point*> vertices;
 	std::vector<Point*> encl_pts;

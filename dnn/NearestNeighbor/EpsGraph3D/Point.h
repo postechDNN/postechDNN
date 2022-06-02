@@ -7,7 +7,7 @@ struct indices {
 };
 
 class Point {
-protected:
+public:
 	double x, y, z;
 
 public:
@@ -26,6 +26,10 @@ public:
 	void setz(double);
 
 	double distance(Point);
+};
+
+class Free_Point : public Point {
+
 };
 
 class Grid_Point : public Point {

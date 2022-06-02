@@ -72,7 +72,7 @@ void Eps_Graph_3D::init_grid() {
 
 	// for each grid & free point, count # of crossings of the rightward ray with each polytope
 	for (Grid_Point& pt : grid) {
-		for (_Polytope& pol : pols) {
+		for (Polytope& pol : pols) {
 			int cro = pol.ray(pt);
 			pt.cros.push_back(cro);
 
