@@ -58,6 +58,7 @@ template <typename T>
 struct Pnode {
 	T key;
 	int version;
+	bool isChange;
 	Color color;
 	Pnode* parent;
 	Pnode* right_child;
@@ -90,11 +91,13 @@ public:
 	~VersionTree();
 	void newVersion(int pindex);
 	bool testAncestor(int v1, int v2);
+	Pnode<T>* search(int ver, T key);
+	void replace(int ver, int pVer, Pnode<T>* n);
 private:
 	vector<Version<T>> v;
 	array<NodeP*, 2> heads{nullptr,nullptr};
 	bool testOrder(int list, int v1, int v2);
-	Pnode<T>* search(int ver, T key);
+	array<NodeP*, 3> search1(int ver, T key);
 };
 
 template <typename T>
