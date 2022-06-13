@@ -164,11 +164,12 @@ indices Eps_Graph_3D::num2ind(int num) {
 
 // adds/deletes a grid edge
 void Eps_Graph_3D::add_edge(indices ind1, indices ind2) {
-	int row1 = ind1.row; int column1 = ind1.column;
-	int row2 = ind2.row; int column2 = ind2.column;
+	int row1 = ind1.row; int column1 = ind1.column; int layer1 = ind1.layer;
+	int row2 = ind2.row; int column2 = ind2.column; int layer2 = ind2.layer;
 
-	if (row1 == row2) { grid[row1 * col_num + column1].ip.right = true; grid[row2 * col_num + column2].ip.left = true; }
-	else { grid[row1 * col_num + column1].ip.lower = true; grid[row2 * col_num + column2].ip.upper = true; }
+	if (layer1 == layer2 && column1 == column2) { grid[row1 * col_num * layer_num + column1 *layer_mum + layer1].ip.right = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.left = true; }
+	else if (row1 == row2 && layer1 == layer2) { grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.lower = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.upper = true; }
+	else if (column1 == column2 && row1 == row2) { grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.deeper = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.higher = true; }
 }
 
 void Eps_Graph_3D::add_edge(int row, int column, bool direc) {
