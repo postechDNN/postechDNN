@@ -1,7 +1,13 @@
 #pragma once
 
+struct indices {
+	int row;
+	int column;
+	int layer;
+};
+
 class Point {
-protected:
+public:
 	double x, y, z;
 
 public:
@@ -22,10 +28,13 @@ public:
 	double distance(Point);
 };
 
+class Free_Point : public Point {
+
+};
+
 class Grid_Point : public Point {
 public:
 	indices ind;	// its location on the grid
-	incid_pts ip;
 	int num;
 
 	vector<Free_Point*> anchored;	// free points anchored to it
