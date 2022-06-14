@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 struct indices {
 	int row;
@@ -29,13 +30,14 @@ public:
 };
 
 class Free_Point : public Point {
-
+	int host = -1;
 };
 
 class Grid_Point : public Point {
 public:
 	indices ind;	// its location on the grid
 	int num;
+	int encl;
 
 	vector<Free_Point*> anchored;	// free points anchored to it
 
