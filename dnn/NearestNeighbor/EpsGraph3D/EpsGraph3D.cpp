@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
+Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) { //O
 
 	fr_pts = _fr_pts;
 	pols = _pols;
@@ -47,7 +47,7 @@ Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, dou
 	}
 }
 
-void Eps_Graph_3D::init_grid() {
+void Eps_Graph_3D::init_grid() { //O
 
 	int x_ind = int(floor(x_min / eps)) - 1, y_ind = int(floor(y_min / eps)) - 1, z_ind = int(floor(z_min / eps)) - 1;
 
@@ -145,7 +145,7 @@ void Eps_Graph_3D::init_grid() {
 	}
 }
 
-Grid_Point Eps_Graph_3D::get_gridpt(indices ind) {
+Grid_Point Eps_Graph_3D::get_gridpt(indices ind) { //O
 	return grid[ind2num(ind)];
 }
 
@@ -154,16 +154,16 @@ int Eps_Graph_3D::ind2num(indices ind) {
 	return ind.row * col_num * layer_num + ind.column * layer_num + ind.layer;
 }
 
-int Eps_Graph_3D::ind2num(int row, int column, int layer) {
+int Eps_Graph_3D::ind2num(int row, int column, int layer) { //O
 	return row * col_num * layer_num + column * layer_num + layer;
 }
 
-indices Eps_Graph_3D::num2ind(int num) {
+indices Eps_Graph_3D::num2ind(int num) { //O
 	return indices{ num / (col_num * layer_num), (num % col_num) / layer_num, (num% col_num) % layer_num};
 }
 
 // adds/deletes a grid edge
-void Eps_Graph_3D::add_edge(indices ind1, indices ind2) {
+void Eps_Graph_3D::add_edge(indices ind1, indices ind2) { //O
 	int row1 = ind1.row; int column1 = ind1.column; int layer1 = ind1.layer;
 	int row2 = ind2.row; int column2 = ind2.column; int layer2 = ind2.layer;
 
@@ -289,27 +289,32 @@ bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, bool direc, int ord) { // do the 
 }
 
 
-void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the query point set P
+void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the point set P //O
 	for (auto p : p_vec) {
+		fr_pts.push_back(p);
+
+		Free_Point& pt = fr_pts.back();
+
 		for (Polytope& pol : pols) {
-			bool in = pol.isIn(pt);
-			if (in) {
-				//error description
-				return;
+			int cro = pol.ray(pt);
+
+			if (cro > 0 && cro % 2 == 1) {
+				pt.encl = pol.ord;
+				pol.encl_pts.push_back(pt);
 			}
 		}
-		fr_pts.push_back(p);
-		anchor(pt); //
+
+		anchor(pt);
 	}
 }
 
-void Eps_Graph_3D::delete_freept(int ind) { // delete a point from P, specified by its index
+void Eps_Graph_3D::delete_freept(int ind) { // delete a point from P, specified by its index //O
 	if (ind < 0 || fr_pts.size() - 1 < ind) { return; }
 
 	list<Free_Point>::iterator iter = fr_pts.begin();
 	advance(iter, ind);
 	Free_Point& p = *iter;
-	//fr_pts.remove(ind)
+
 	if (p.host != -1) {
 		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
 			if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
@@ -416,7 +421,7 @@ Grid_Point Eps_Graph_3D::query_anchor(Free_Point p) {
 }
 
 
-void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O
+void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O //J
 	pols.push_back(P);
 
 	for (Grid_Point& gr_pt : grid) {
