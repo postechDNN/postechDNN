@@ -46,7 +46,7 @@ public:	// functions
 	void add_edge(indices, indices); // add grid edges
 	void add_edge(int, int, bool);
 	void delete_edge(indices, indices);
-	bool cmpNadd(indices, bool);
+	bool cmpNadd(indices, int);
 	bool cmpNadd_SinPol(indices, bool, int);
 
 	void add_freepts(vector<Free_Point>);
