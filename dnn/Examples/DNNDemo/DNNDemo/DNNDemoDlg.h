@@ -45,4 +45,6 @@ public:
 	afx_msg void OnBnClickedCheckVertex();
 	afx_msg void OnBnClickedCheckEdge();
 	afx_msg void OnBnClickedCheckFace();
+	CButton m_button_render;
+	afx_msg void OnBnClickedButtonRender();
 };

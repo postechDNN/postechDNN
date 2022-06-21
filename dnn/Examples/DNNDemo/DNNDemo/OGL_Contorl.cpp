@@ -5,15 +5,18 @@
 #include "DNNDemo.h"
 #include "OGL_Contorl.h"
 
+#include "gurobi_c++.h"
+
 #include <GL/gl.h> 
 #include <GL/glu.h>
-#include <fstream>
-#include <map>
-#include <string>
 #include <random>
 
 #pragma comment(lib, "glu32.lib" ) 
 #pragma comment(lib, "opengl32.lib" )
+
+#define PADDING 0.1
+#define ORTHO 2.5
+#define VIEW 1.1
 
 // OGL_Contorl
 
@@ -32,65 +35,7 @@ void OGL_Contorl::setMode(int m) {
 }
 
 void OGL_Contorl::readDCEL(CString path) {
-	std::ifstream file(path);
-	int vn, fn, en;
-	file >> vn >> fn >> en;
-	
-	std::string key;
-	std::map<std::string,int> vMap;
-	for (int i = 0; i < vn; i++) {
-		file >> key;
-		vMap[key] = i;
-		this->object2D.addVertex();
-	}
-
-	std::map<std::string, int> fMap;
-	for (int i = 0; i < fn; i++) {
-		file >> key;
-		fMap[key] = i;
-		this->object2D.addFace();
-	}
-
-	std::map<std::string, int> eMap;
-	for (int i = 0; i < en; i++) {
-		file >> key;
-		eMap[key] = i;
-		this->object2D.addEdge();
-	}
-
-	double x, y;
-	std::string temp;
-	for (int i = 0; i < vn; i++) {
-		file >> key >> x >> y >> temp;
-		 this->object2D.getVertex(vMap[key]).setPos(x, y);
-	}
-
-	std::string se;
-	int in;
-	for (int i = 0; i < fn; i++) {
-		file >> key >> se >> in >> temp;
-		if (se == "NULL") {
-			this->object2D.getFace(fMap[key]).setInner(false);
-		}
-		else {
-			this->object2D.getFace(fMap[key]).setInner(true);
-		}
-		if (in != 0) {
-			for (int j = 0; j < in - 1; j++) {
-				file >> temp;
-			}
-		}
-	}
-	
-	std::string vkey, fkey, ne;
-	for (int i = 0; i < en; i++) {
-		file >> key >> vkey >> temp >> fkey >> ne >> temp;
-		Point p = this->object2D.getVertex(vMap[vkey]).getPos();
-		this->object2D.getFace(fMap[fkey]).addPoint(p);
-		this->object2D.getEdge(eMap[key]).setEndP(p);
-		this->object2D.getEdge(eMap[ne]).setStartP(p);
-	}
-	this->object2D.updateNorm(2);
+	this->object2D.readDCEL(path, 2);
 	Invalidate();
 }
 
@@ -111,7 +56,7 @@ BOOL OGL_Contorl::SetupPixelFormat()
 		 1 ,
 		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
 		PFD_TYPE_RGBA,
-		24 ,
+		32 ,
 		 0 , 0 , 0 , 0 , 0 , 0 ,
 		 0 ,
 		 0 ,
@@ -198,13 +143,10 @@ void OGL_Contorl::OnPaint()
 	
 	double normTrans[3];
 	double normMul[3];
-	//double normTrans;
-	//double normMul;
 
 	// 사각형 테스트
 	if (this->mode == 2) {
 		this->object2D.getNorm(normTrans, normMul, 2);
-		//this->object2D.getNorm(normTrans, normMul);
 
 		::glPushMatrix();
 		::glColor3f(0.0f, 1.0f, 0.0f);
@@ -221,7 +163,6 @@ void OGL_Contorl::OnPaint()
 				for (int j = 0; j < this->object2D.getFace(i).getSize(); j++) {
 					Point p = this->object2D.getFace(i).getPoint(j);
 					glVertex2d((p.getX()- normTrans[0])/normMul[0], (p.getY()-normTrans[1])/normMul[1]);
-					//glVertex2d((p.getX() - normTrans) / normMul, (p.getY() - normTrans) / normMul);
 				}
 				glEnd();
 			}
@@ -236,8 +177,6 @@ void OGL_Contorl::OnPaint()
 				glBegin(GL_LINES);
 				glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
 				glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
-				//glVertex2d((sp.getX() - normTrans) / normMul, (sp.getY() - normTrans) / normMul);
-				//glVertex2d((ep.getX() - normTrans) / normMul, (ep.getY() - normTrans) / normMul);
 				glEnd();
 			}
 		}
@@ -249,7 +188,6 @@ void OGL_Contorl::OnPaint()
 			for (int i = 0; i < this->object2D.getVerticsNum(); i++) {
 				Point p = this->object2D.getVertex(i).getPos();
 				glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
-				//glVertex2d((p.getX() - normTrans) / normMul, (p.getY() - normTrans) / normMul);
 			}
 			glEnd();
 		}
@@ -261,17 +199,18 @@ void OGL_Contorl::OnPaint()
 	}
 	else {
 		::glPushMatrix();
-		::glColor3f(0.0f, 1.0f, 0.0f);
-		glColor3d(1.0, 0.0, 0.0);
-		glBegin(GL_POLYGON);
-		glVertex2d(-0.9, -0.9);
-		glVertex2d(0.9, -0.9);
-		glVertex2d(0.9, 0.9);
-		glVertex2d(-0.9, 0.9);
-		glEnd();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(-ORTHO, ORTHO, -ORTHO, ORTHO, -ORTHO, ORTHO);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		gluLookAt(VIEW, VIEW, VIEW, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+
+
+
+
 
 		::glPopMatrix();
-
 		::glFinish();
 		if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
 	}
@@ -292,12 +231,15 @@ void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
 		switch (o) {
 		case 0:
 			this->object2D.setDrawVertices(b);
+			this->object3D.setDrawVertices(b);
 			break;
 		case 1:
 			this->object2D.setDrawEdges(b);
+			this->object3D.setDrawEdges(b);
 			break;
 		case 2:
 			this->object2D.setDrawFaces(b);
+			this->object3D.setDrawFaces(b);
 			break;
 		default:
 			break;

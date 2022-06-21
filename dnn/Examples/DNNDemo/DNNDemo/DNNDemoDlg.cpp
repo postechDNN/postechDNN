@@ -65,6 +65,7 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_VERTEX, m_check_vertex);
 	DDX_Control(pDX, IDC_CHECK_EDGE, m_check_edge);
 	DDX_Control(pDX, IDC_CHECK_FACE, m_check_face);
+	DDX_Control(pDX, IDC_BUTTON_RENDER, m_button_render);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -77,6 +78,7 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_VERTEX, &CDNNDemoDlg::OnBnClickedCheckVertex)
 	ON_BN_CLICKED(IDC_CHECK_EDGE, &CDNNDemoDlg::OnBnClickedCheckEdge)
 	ON_BN_CLICKED(IDC_CHECK_FACE, &CDNNDemoDlg::OnBnClickedCheckFace)
+	ON_BN_CLICKED(IDC_BUTTON_RENDER, &CDNNDemoDlg::OnBnClickedButtonRender)
 END_MESSAGE_MAP()
 
 
@@ -114,8 +116,8 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
 	// Func Combo 초기화 코드
-	m_combo_func.AddString(_T("DCEL"));
-	m_combo_func.AddString(_T("추가메뉴"));
+	m_combo_func.AddString(_T("Read DCEL"));
+	//m_combo_func.AddString(_T("추가메뉴"));
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -185,7 +187,7 @@ void CDNNDemoDlg::OnBnClickedButtonFile()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	//static TCHAR BASED_CODE szFilter[] = _T("이미지 파일(*.BMP, *.GIF, *.JPG) | *.BMP;*.GIF;*.JPG;*.bmp;*.jpg;*.gif |모든파일(*.*)|*.*||");
 
-	static TCHAR BASED_CODE szFilter[] = _T("in 파일(*.IN) | *.IN;*.in |모든파일(*.*)|*.*||");
+	static TCHAR BASED_CODE szFilter[] = _T("입력 파일(*.in, *.txt) | *.IN;*.in;*.TXT;*.txt |모든파일(*.*)|*.*||");
 
 	CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
 
@@ -231,4 +233,12 @@ void CDNNDemoDlg::OnBnClickedCheckFace()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+}
+
+
+void CDNNDemoDlg::OnBnClickedButtonRender()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Invalidate(TRUE);
+	UpdateWindow();
 }
