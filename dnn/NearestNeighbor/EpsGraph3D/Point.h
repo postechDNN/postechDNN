@@ -10,6 +10,7 @@ struct indices {
 class Point {
 public:
 	double x, y, z;
+	int encl;
 
 public:
 
@@ -45,5 +46,5 @@ public:
 
 public:
 	Grid_Point();
-	Grid_Point(int, int, int, double, double, double, double, int);
+	Grid_Point(int, int, int, double, double, double, double, int, int);
 };

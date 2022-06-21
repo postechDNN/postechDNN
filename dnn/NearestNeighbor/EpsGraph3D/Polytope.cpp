@@ -75,6 +75,7 @@ bool Face::below(Point* p) {
 Polytope::Polytope() {
 	num_faces = 0;
 	num_points = 0;
+	encl_pts = {};
 }
 
 Polytope::Polytope(FILE* f) {
@@ -99,3 +100,7 @@ bool Polytope::isIn(Point* p) {
 	}
 	else { return false; }
 };
+
+bool Polytope::intersect(Point p1, Point p2, int dir) {
+	//to be implemented
+}

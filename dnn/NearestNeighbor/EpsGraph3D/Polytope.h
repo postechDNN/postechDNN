@@ -28,4 +28,5 @@ public:
 	Polytope(FILE*);
 	~Polytope();
 	bool isIn(Point* p);
+	bool intersect(Point, Point, int);
 };
