@@ -81,7 +81,7 @@ void Eps_Graph_3D::init_grid() { //O
 
 	for (Free_Point& pt : fr_pts) {
 		for (Polytope& pol : pols) {
-			int cro = pol.ray(pt);
+			//int cro = pol.ray(pt);
 			if (pol.isIn(pt)) {
 				pt.encl = pol.ord;
 				pol.encl_pts.push_back(pt);
@@ -228,7 +228,7 @@ bool Eps_Graph_3D::cmpNadd(indices ind, int direc) {  //O
 	return true;
 }
 
-bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, bool direc, int ord) { // do the same with a specific polygon.
+bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, int direc, int ord) { // do the same with a specific polygon.
 
 	Polytope pol;
 	vector<Polytope>::iterator it;
@@ -239,44 +239,50 @@ bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, bool direc, int ord) { // do the 
 			break;
 		}
 	}
-
-	int index = distance(pols.begin(), it);
-
 	Grid_Point A = grid[ind2num(ind)], B;
-	if (direc == X) { B = grid[ind2num(ind) + 1]; }
-	else { B = grid[ind2num(ind) + col_num]; }
+	if (direc == 0) { B = grid[ind2num(ind) + col_num * layer_num] }
+	else if (direc == 1) { B = grid[ind2num(ind) + layer_num] }
+	else { B = grid[ind2num(ind) + 1] }
 
-	if (direc == X) {
-		if (B.x < pol.x_max || pol.x_min < A.x || pol.y_max < A.y || A.y < pol.y_min) { return true; }
-	}
-	else {
-		if (A.y < pol.y_max || pol.y_min < B.y || pol.x_max < A.x || A.x < pol.x_min) { return true; }
-	}
-
-	if (direc == X) {
-		if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, X)) { return false; }
-	}
-	else {
-		if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, Y)) { return false; }
-	}
-
-	int A_cro = A.cros[index], B_cro = B.cros[index];
-
-	if (A_cro < 0 && B_cro < 0) {
-		int mid_inter = pol.ray(Point((A.x + B.x / 2), (A.y, B.y) / 2));
-		if (mid_inter % 2 == 1) { return false; }
-	}
-	else if (A_cro < 0) {
-		if (B_cro % 2 == 1) { return false; }
-	}
-	else if (B_cro < 0) {
-		if (A_cro % 2 == 1) { return false; }
-	}
-	else {
-		if (A_cro != B_cro) { return false; }
-	}
-
+	if (pol.intersect(Point{ A.x, A.y, A.z }, Point{ B.x, B.y, B_z }, direc)) { return false; }
 	return true;
+	//int index = distance(pols.begin(), it);
+
+	//Grid_Point A = grid[ind2num(ind)], B;
+	//if (direc == X) { B = grid[ind2num(ind) + 1]; }
+	//else { B = grid[ind2num(ind) + col_num]; }
+
+	//if (direc == X) {
+	//	if (B.x < pol.x_max || pol.x_min < A.x || pol.y_max < A.y || A.y < pol.y_min) { return true; }
+	//}
+	//else {
+	//	if (A.y < pol.y_max || pol.y_min < B.y || pol.x_max < A.x || A.x < pol.x_min) { return true; }
+	//}
+
+	//if (direc == X) {
+	//	if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, X)) { return false; }
+	//}
+	//else {
+	//	if (pol.intersect(Point{ A.x, A.y }, Point{ B.x, B.y }, Y)) { return false; }
+	//}
+
+	//int A_cro = A.cros[index], B_cro = B.cros[index];
+
+	//if (A_cro < 0 && B_cro < 0) {
+	//	int mid_inter = pol.ray(Point((A.x + B.x / 2), (A.y, B.y) / 2));
+	//	if (mid_inter % 2 == 1) { return false; }
+	//}
+	//else if (A_cro < 0) {
+	//	if (B_cro % 2 == 1) { return false; }
+	//}
+	//else if (B_cro < 0) {
+	//	if (A_cro % 2 == 1) { return false; }
+	//}
+	//else {
+	//	if (A_cro != B_cro) { return false; }
+	//}
+
+	//return true;
 }
 
 
@@ -287,14 +293,11 @@ void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the 
 		Free_Point& pt = fr_pts.back();
 
 		for (Polytope& pol : pols) {
-			int cro = pol.ray(pt);
-
-			if (cro > 0 && cro % 2 == 1) {
+			if (pol.isin(pt)) {
 				pt.encl = pol.ord;
 				pol.encl_pts.push_back(pt);
 			}
 		}
-
 		anchor(pt);
 	}
 }
@@ -308,7 +311,7 @@ void Eps_Graph_3D::delete_freept(int ind) { // delete a point from P, specified 
 
 	if (p.host != -1) {
 		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
-			if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
+			if ((*(*it)).x == p.x && (*(*it)).y == p.y && (*(*it)).z == p.z) {
 				grid[p.host].anchored.erase(it);
 				break;
 			}
@@ -329,7 +332,7 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 	if (p.host != -1) {
 		assert(0 <= p.host && p.host < grid.size());
 		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
-			if (p.x == (*(*it)).x && p.y == (*(*it)).y) {
+			if (p.x == (*(*it)).x && p.y == (*(*it)).y && p.z == (*(*it)).z) {
 				grid[p.host].anchored.erase(grid[p.host].anchored.begin() + distance(it, grid[p.host].anchored.begin()));
 			}
 		}
@@ -343,9 +346,12 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 
 
 	// find a nearest gridpoint not enclosed by any polygon
-	for (int step = 0; step < row_num + col_num; step++) {
+	for (int step = 0; step < row_num + col_num + layer_num; step++) {
 		vector<Grid_Point> gr_pts = {};
 		for (int x_step = 0; x_step <= step; x_step++) {
+			for (int y_step = 0; y_step <= step - x_step; y_step++) {
+				int z_step = step - x_step - y_step;
+			}
 			int y_step = step - x_step;
 
 			if (0 <= row + x_step && row + x_step < row_num && 0 <= col + y_step && col + y_step < col_num) {
@@ -417,9 +423,8 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 	pols.push_back(P);
 
 	for (Grid_Point& gr_pt : grid) {
-		int cro = P.ray(gr_pt);
-		gr_pt.cros.push_back(cro);
-		if (cro > 0 && cro % 2 == 1) { // assert(!gr_pt.encl)
+		if (gr_pt.encl != -1) { continue; }
+		if (P.isin(gr_pt)) {
 			gr_pt.encl = P.ord;
 			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end(); ++it) {
 				anchor(*(*it));
@@ -430,9 +435,7 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 
 	for (Free_Point& pt : fr_pts) {
 		if (pt.encl != -1) { continue; }
-
-		int cro = P.ray(pt);
-		if (cro > 0 && cro % 2 == 1) {
+		if (P.isin(pt)) {
 			pt.encl = P.ord;
 			for (vector<Free_Point*>::iterator it = grid[pt.host].anchored.begin(); it != grid[pt.host].anchored.end(); ++it) {
 				if ((*(*it)).x == pt.x && (*(*it)).y == pt.y) {
@@ -443,6 +446,7 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 			pt.host = -1; // anchor(pt);
 		}
 	}
+	// Check from Here!!!
 
 	indices* diagonal = eff_region(P);
 
@@ -575,9 +579,7 @@ indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating or
 vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
 	for (Polytope& pol : pols) {
-		int cro = pol.ray(p);
-
-		if (cro > 0 && cro % 2 == 1) {
+		if (pol.isin(p)) {
 			return {};
 		}
 	}
