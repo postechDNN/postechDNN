@@ -42,7 +42,6 @@ public:
 
 	std::vector<Free_Point*> anchored;	// free points anchored to it
 
-	std::vector<int> cros; // crossings
 
 public:
 	Grid_Point();
