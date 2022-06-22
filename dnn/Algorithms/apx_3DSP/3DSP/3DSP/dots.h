@@ -454,6 +454,8 @@ public:
 	double shortest(Point q);
 	Point Nearest(Point q, vector<Point>& P);
 
+	bool penetTri(int i, Segment* s, Point p0, Tri& f);
+
 	void Clear();
 	void CountEmptySegs();
 };
