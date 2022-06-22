@@ -2,6 +2,10 @@
 #include <queue>
 #include <assert.h>
 
+#define X 1 // ray direction
+#define Y 2
+#define Z 3
+
 using namespace std;
 
 Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) { //O
@@ -258,16 +262,11 @@ bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, int direc, int ord) { // do the s
 
 void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the point set P //O
 	for (auto p : p_vec) {
-		fr_pts.push_back(p);
-
 		Free_Point& pt = fr_pts.back();
-
 		for (Polytope& pol : pols) {
-			if (pol.isin(pt)) {
-				pt.encl = pol.ord;
-				pol.encl_pts.push_back(pt);
-			}
+			assert(!pol.isIn(p)); // Assert error if a freepoint is contained in some polytope
 		}
+		fr_pts.push_back(p);
 		anchor(pt);
 	}
 }
@@ -278,17 +277,13 @@ void Eps_Graph_3D::delete_freept(int ind) { // delete a point from P, specified 
 	list<Free_Point>::iterator iter = fr_pts.begin();
 	advance(iter, ind);
 	Free_Point& p = *iter;
-
-	if (p.host != -1) {
-		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
-			if ((*(*it)).x == p.x && (*(*it)).y == p.y && (*(*it)).z == p.z) {
-				grid[p.host].anchored.erase(it);
-				break;
-			}
+	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+		if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
+			grid[p.host].anchored.erase(it);
+			break;
 		}
 	}
-
-	fr_pts.erase(iter);
+	fr_pts.erase(remove(fr_pts.begin(), fr_pts.end(), p));
 }
 
 void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from a free point
@@ -383,72 +378,55 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 
 
 void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O //J
-	pols.push_back(P);
-
+	for (Free_Point& pt : fr_pts) { assert(!P.isIn(pt)); } // check if the polygon contains a free point
 	for (Grid_Point& gr_pt : grid) {
-		if (gr_pt.encl != -1) { continue; }
-		if (P.isin(gr_pt)) {
+		bool in = P.isIn(gr_pt);
+		if (in) { 
+			assert(gr_pt.encl == -1); 
 			gr_pt.encl = P.ord;
 			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end(); ++it) {
 				anchor(*(*it));
 			}
-			vector<Free_Point*>().swap(gr_pt.anchored);
 		}
+		vector<Free_Point*>().swap(gr_pt.anchored);
 	}
-
-	for (Free_Point& pt : fr_pts) {
-		if (pt.encl != -1) { continue; }
-		if (P.isin(pt)) {
-			pt.encl = P.ord;
-			for (vector<Free_Point*>::iterator it = grid[pt.host].anchored.begin(); it != grid[pt.host].anchored.end(); ++it) {
-				if ((*(*it)).x == pt.x && (*(*it)).y == pt.y) {
-					grid[pt.host].anchored.erase(it);
-					break;
-				}
-			}
-			pt.host = -1; // anchor(pt);
-		}
-	}
+	pols.push_back(P);
 	// Check from Here!!!
 
 	indices* diagonal = eff_region(P);
 
-	int tm_row = diagonal[1].row;
-	int bm_row = diagonal[0].row;
+	int x_effmax = diagonal[1].row;
+	int x_effmin = diagonal[0].row;
 
-	int lm_col = diagonal[0].column;
-	int rm_col = diagonal[1].column;
+	int y_effmin = diagonal[0].column;
+	int y_effmax = diagonal[1].column;
+
+	int z_effmax = diagonal[1].layer;
+	int z_effmin = diagonal[0].layer;
 
 	// update grid edges among gridpoints in the effective region
-	for (int i = tm_row; i < bm_row; i++) {
-		for (int j = lm_col; j < rm_col; j++) {
+	for (int i = x_effmin ; i < x_effmax; i++) {
+		for (int j = y_effmin; j < y_effmax; j++) {
+			for (int k = z_effmin; k < z_effmax; k++) {
+				Grid_Point cur = grid[ind2num(i, j, k)];
+				if (cur.encl != -1) { continue; }
 
-			Grid_Point cur = grid[ind2num(i, j)];
-			if (cur.encl != -1) { continue; }
-
-			if ((i != row_num - 1) && (j != col_num - 1)) {
-				if (cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
-					if (!cmpNadd_SinPol(indices{ i, j }, Y, P.ord)) { delete_edge(indices{ i, j }, indices{ i + 1, j }); }
+				if (i != row_num - 1) {
+					if (grid[ind2num(i + 1, j, k)].encl == -1) {
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, X, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
+					}
 				}
-				if (cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
-					if (!cmpNadd_SinPol(indices{ i, j }, X, P.ord)) { delete_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (j != col_num - 1) {
+					if (grid[ind2num(i, j + 1, k)].encl == -1) {
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, Y, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
+					}
 				}
-			}
-
-			else if (i != row_num - 1) {
-				if (cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
-					if (!cmpNadd_SinPol(indices{ i, j }, Y, P.ord)) { delete_edge(indices{ i, j }, indices{ i + 1, j }); }
-				}
-			}
-
-			else if (j != col_num - 1) {
-				if (cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
-					if (!cmpNadd_SinPol(indices{ i, j }, X, P.ord)) { delete_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (k != layer_num - 1) {
+					if ( grid[ind2num(i, j, k + 1)].encl == -1) {
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, Z, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j , k + 1 }); }
+					}
 				}
 			}
-
-			else {}
-
 		}
 	}
 
@@ -483,47 +461,42 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 		}
 	}
 
-	indices* diagonal = eff_region(*it);
+	indices* diagonal = eff_region(P);
 
-	int tm_row = diagonal[1].row;
-	int bm_row = diagonal[0].row;
+	int x_effmax = diagonal[1].row;
+	int x_effmin = diagonal[0].row;
 
-	int lm_col = diagonal[0].column;
-	int rm_col = diagonal[1].column;
+	int y_effmin = diagonal[0].column;
+	int y_effmax = diagonal[1].column;
+
+	int z_effmax = diagonal[1].layer;
+	int z_effmin = diagonal[0].layer;
 
 	// update grid edges among gridpoints in the effective region
-	for (int i = tm_row; i < bm_row; i++) {
-		for (int j = lm_col; j < rm_col; j++) {
+	for (int i = x_effmin; i < x_effmax; i++) {
+		for (int j = y_effmin; j < y_effmax; j++) {
+			for (int k = z_effmin; k < z_effmax; k++) {
+				Grid_Point cur = grid[ind2num(i, j, k)];
+				if (cur.encl != -1) { continue; }
 
-			Grid_Point cur = grid[ind2num(i, j)];
-			if (cur.encl != -1) { continue; }
-
-			if ((i != row_num - 1) && (j != col_num - 1)) {
-				if (!cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+				if (i != row_num - 1) {
+					if (grid[ind2num(i + 1, j, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j ,k }, X)) { add_edge(indices{ i, j ,k }, indices{ i + 1, j ,k}); }
+					}
 				}
-				if (!cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (j != col_num - 1) {
+					if (grid[ind2num(i, j + 1, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j ,k }, Y)) { add_edge(indices{ i, j ,k }, indices{ i, j+1 ,k }); }
+					}
 				}
-			}
-
-			else if (i != row_num - 1) {
-				if (!cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
-				}
-			}
-
-			else if (j != col_num - 1) {
-				if (!cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (k != layer_num - 1) {
+					if (grid[ind2num(i, j, k + 1)].encl == -1) {
+						if (cmpNadd(indices{ i, j ,k }, Z)) { add_edge(indices{ i, j ,k }, indices{ i, j ,k+1 }); }
+					}
 				}
 			}
-
-			else {}
-
 		}
 	}
-
 	pols.erase(it);
 }
 
