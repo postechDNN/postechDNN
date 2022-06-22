@@ -7,6 +7,15 @@ struct indices {
 	int layer;
 };
 
+struct ind_pts {
+	bool right;
+	bool lower;
+	bool left;
+	bool upper;
+	bool higher;
+	bool deeper;
+};
+
 class Point {
 public:
 	double x, y, z;
@@ -37,6 +46,7 @@ class Free_Point : public Point {
 class Grid_Point : public Point {
 public:
 	indices ind;	// its location on the grid
+	ind_pts ip;
 	int num;
 	int encl;
 
