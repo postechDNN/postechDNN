@@ -11,6 +11,7 @@ public:
 	Face(std::vector<Point*>);
 	~Face();
 	bool below(Point* p);
+	bool pass(Point* p1, Point* p2, int dir);
 };
 
 class Polytope {

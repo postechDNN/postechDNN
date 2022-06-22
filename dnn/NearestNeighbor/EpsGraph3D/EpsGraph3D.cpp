@@ -2,8 +2,9 @@
 #include <queue>
 #include <assert.h>
 
-#define X true // ray direction
-#define Y false
+#define X 1 // ray direction
+#define Y 2
+#define Z 3
 
 using namespace std;
 
@@ -444,31 +445,21 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 				Grid_Point cur = grid[ind2num(i, j, k)];
 				if (cur.encl != -1) { continue; }
 
-				if ((i != row_num - 1) && (j != col_num - 1) && (k != layer_num - 1)) {
-					if (cur.ip.lower && grid[ind2num(i + 1, j, k)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j ,k }, Y, P.ord)) { delete_edge(indices{ i, j ,k}, indices{ i + 1, j ,k }); }
-					}
-					if (cur.ip.right && grid[ind2num(i, j + 1, k)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j ,k }, X, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
-					}
-					if (cur.ip.lower && grid[ind2num(i, j, k+1)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j ,k }, Y, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j , k+1}); }
+				if (i != row_num - 1) {
+					if (grid[ind2num(i + 1, j, k)].encl == -1) {
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, X, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
 					}
 				}
-
-				else if (i != row_num - 1) {
-					if (cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j }, Y, P.ord)) { delete_edge(indices{ i, j }, indices{ i + 1, j }); }
+				if (j != col_num - 1) {
+					if (grid[ind2num(i, j + 1, k)].encl == -1) {
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, Y, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
 					}
 				}
-
-				else if (j != col_num - 1) {
-					if (cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j }, X, P.ord)) { delete_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (k != layer_num - 1) {
+					if ( grid[ind2num(i, j, k + 1)].encl == -1) {
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, Z, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j , k + 1 }); }
 					}
 				}
-
-				else {}
 			}
 		}
 	}
@@ -504,47 +495,42 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 		}
 	}
 
-	indices* diagonal = eff_region(*it);
+	indices* diagonal = eff_region(P);
 
-	int tm_row = diagonal[1].row;
-	int bm_row = diagonal[0].row;
+	int x_effmax = diagonal[1].row;
+	int x_effmin = diagonal[0].row;
 
-	int lm_col = diagonal[0].column;
-	int rm_col = diagonal[1].column;
+	int y_effmin = diagonal[0].column;
+	int y_effmax = diagonal[1].column;
+
+	int z_effmax = diagonal[1].layer;
+	int z_effmin = diagonal[0].layer;
 
 	// update grid edges among gridpoints in the effective region
-	for (int i = tm_row; i < bm_row; i++) {
-		for (int j = lm_col; j < rm_col; j++) {
+	for (int i = x_effmin; i < x_effmax; i++) {
+		for (int j = y_effmin; j < y_effmax; j++) {
+			for (int k = z_effmin; k < z_effmax; k++) {
+				Grid_Point cur = grid[ind2num(i, j, k)];
+				if (cur.encl != -1) { continue; }
 
-			Grid_Point cur = grid[ind2num(i, j)];
-			if (cur.encl != -1) { continue; }
-
-			if ((i != row_num - 1) && (j != col_num - 1)) {
-				if (!cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
+				if (i != row_num - 1) {
+					if (grid[ind2num(i + 1, j, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j ,k }, X)) { add_edge(indices{ i, j ,k }, indices{ i + 1, j ,k}); }
+					}
 				}
-				if (!cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (j != col_num - 1) {
+					if (grid[ind2num(i, j + 1, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j ,k }, Y)) { add_edge(indices{ i, j ,k }, indices{ i, j+1 ,k }); }
+					}
 				}
-			}
-
-			else if (i != row_num - 1) {
-				if (!cur.ip.lower && grid[ind2num(i + 1, j)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, Y)) { add_edge(indices{ i, j }, indices{ i + 1, j }); }
-				}
-			}
-
-			else if (j != col_num - 1) {
-				if (!cur.ip.right && grid[ind2num(i, j + 1)].encl == -1) {
-					if (cmpNadd(indices{ i, j }, X)) { add_edge(indices{ i, j }, indices{ i, j + 1 }); }
+				if (k != layer_num - 1) {
+					if (grid[ind2num(i, j, k + 1)].encl == -1) {
+						if (cmpNadd(indices{ i, j ,k }, Z)) { add_edge(indices{ i, j ,k }, indices{ i, j ,k+1 }); }
+					}
 				}
 			}
-
-			else {}
-
 		}
 	}
-
 	pols.erase(it);
 }
 

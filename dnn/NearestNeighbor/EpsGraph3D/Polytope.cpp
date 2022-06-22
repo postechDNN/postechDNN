@@ -72,6 +72,10 @@ bool Face::below(Point* p) {
 	}
 }
 
+bool Face::pass(Point* p1, Point* p2, int dir){
+
+}
+
 Polytope::Polytope() {
 	num_faces = 0;
 	num_points = 0;
@@ -117,5 +121,14 @@ bool Polytope::isIn(Point* p) {
 };
 
 bool Polytope::intersect(Point p1, Point p2, int dir) {
-	//to be implemented
+	for (int i = 0; i < num_faces; i++)
+	{
+		if ((!this->faces[i]->below(p1) && this->faces[i]->below(p2)) || (this->faces[i]->below(p1) && !this->faces[i]->below(p2))) {
+			if (this->faces[i]->pass(p1, p2, dir);)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
