@@ -19,7 +19,6 @@ struct ind_pts {
 class Point {
 public:
 	double x, y, z;
-	int encl;
 
 public:
 
