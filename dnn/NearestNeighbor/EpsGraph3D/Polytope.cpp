@@ -1,7 +1,7 @@
 #include "Polytope.h"
 #include <queue>
 #include <assert.h>
-
+#define BUFFERSIZE 1000
 
 
 using namespace std;
@@ -27,14 +27,14 @@ bool Face::below(Point* p) {
 	// Determine if the face is below from p along z-axis.
 	bool belowness = false;
 	double normal[3];
-	normal[0] = (vertices[0]->gety()- vertices[1]->gety())* (vertices[2]->getz() - vertices[1]->getz())
-		- (vertices[0]->getz() - vertices[1]->getz()) * (vertices[2]->gety() - vertices[1]->gety());
-	normal[1] = -(vertices[0]->getx() - vertices[1]->getx()) * (vertices[2]->getz() - vertices[1]->getz())
-		+ (vertices[0]->getz() - vertices[1]->getz()) * (vertices[2]->getx() - vertices[1]->getx());
-	normal[2] = (vertices[0]->getx() - vertices[1]->getx()) * (vertices[2]->gety() - vertices[1]->gety())
-		- (vertices[0]->gety() - vertices[1]->gety()) * (vertices[2]->getx() - vertices[1]->getx());
+	normal[0] = (points[0]->gety()- points[1]->gety())* (points[2]->getz() - points[1]->getz())
+		- (points[0]->getz() - points[1]->getz()) * (points[2]->gety() - points[1]->gety());
+	normal[1] = -(points[0]->getx() - points[1]->getx()) * (points[2]->getz() - points[1]->getz())
+		+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
+	normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
+		- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
 	if (normal[0] * p->getx() + normal[1] * p->gety() + normal[2] * p->getz() >= 
-		normal[0] * vertices[0]->getx() + normal[1] * vertices[0]->gety() + normal[2] * vertices[0]->getz()) {
+		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
 		belowness = true;
 	}
 	// Check the face contains intersection of z-line contining the point and the plain expanded by the face
@@ -44,11 +44,11 @@ bool Face::below(Point* p) {
 	double out_prod[3];
 	for (int i = 0; i < 3; i++)
 	{
-		proj_vec[i].setx(vertices[(i + 1)%3]->getx() - vertices[i]->getx());
-		proj_vec[i].sety(vertices[(i + 1) % 3]->gety() - vertices[i]->gety());
+		proj_vec[i].setx(points[(i + 1)%3]->getx() - points[i]->getx());
+		proj_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
 		proj_vec[i].setz(0);
-		p_to_vec[i].setx(vertices[i]->getx() - p->getx());
-		p_to_vec[i].sety(vertices[i]->gety() - p->gety());
+		p_to_vec[i].setx(points[i]->getx() - p->getx());
+		p_to_vec[i].sety(points[i]->gety() - p->gety());
 		p_to_vec[i].setz(0);		
 	}
 	for (int i = 0; i < 3; i++)
@@ -98,6 +98,8 @@ Polytope::Polytope() {
 }
 
 Polytope::Polytope(FILE* f) {
+	char* buffer = new char[BUFFERSIZE];
+	fgets(buffer, BUFFERSIZE, f);
 	//to be implemented
 }
 
@@ -123,8 +125,8 @@ bool Polytope::isIn(Point* p) {
 bool Polytope::intersect(Point p1, Point p2, int dir) {
 	for (int i = 0; i < num_faces; i++)
 	{
-		if ((!this->faces[i]->below(p1) && this->faces[i]->below(p2)) || (this->faces[i]->below(p1) && !this->faces[i]->below(p2))) {
-			if (this->faces[i]->pass(p1, p2, dir);)
+		if ((!this->faces[i]->below(&p1) && this->faces[i]->below(&p2)) || (this->faces[i]->below(&p1) && !this->faces[i]->below(&p2))) {
+			if (this->faces[i]->pass(&p1, &p2, dir))
 			{
 				return true;
 			}
