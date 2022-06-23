@@ -497,11 +497,12 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
 	static indices ret[2]; // ret[0] : lower left, ret[1] : upper right
 
-	ret[0].row = min(row_num - 1, int(ceil((upper_left.y - P.y_min) / eps)));
-	ret[0].column = max(0, int(floor((P.x_min - upper_left.x) / eps)));
-
-	ret[1].row = max(0, int(floor((upper_left.y - P.y_max) / eps)));
-	ret[1].column = min(col_num - 1, int(ceil((P.x_max - upper_left.x) / eps)));
+	ret[0].row = max(0, int(ceil((P.x_min - x_min) / eps)));
+	ret[0].column = max(0, int(ceil((P.y_min - y_min) / eps)));
+	ret[0].layer = max(0, int(ceil((P.z_min - z_min) / eps)));
+	ret[1].row = min(row_num, int(floor((P.x_max - x_min) / eps)));
+	ret[1].column = min(column_num , int(floor((P.y_max - y_min) / eps)));
+	ret[1].layer = min(layer_num, int(floor((P.z_max - z_min) / eps)));
 
 	return ret;
 }
