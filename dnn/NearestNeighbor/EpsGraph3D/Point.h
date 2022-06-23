@@ -39,6 +39,7 @@ public:
 };
 
 class Free_Point : public Point {
+	Free_Point(double, double, double);
 	int host = -1;
 };
 

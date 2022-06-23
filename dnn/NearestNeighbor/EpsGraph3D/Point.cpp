@@ -7,19 +7,16 @@ Point::Point() {
 	this->x = 0.;
 	this->y = 0.;
 	this->z = 0.;
-	this->encl = -1;
 }
 Point::Point(double _x, double _y, double _z) {
 	this->x = _x;
 	this->y = _y;
 	this->z = _z;
-	this->encl = -1;
 }
 Point::Point(Point* _p) {
 	this->x = _p->getx();
 	this->y = _p->gety();
 	this->z = _p->getz();
-	this->encl = -1;
 }
 Point::~Point() {}
 
@@ -60,6 +57,10 @@ void Point::setz(double _z) {
 
 double Point::distance(Point _p) {
 	return sqrt(pow(_p.x - this->x, 2) + pow(_p.y - this->y, 2) + pow(_p.z - this->z, 2));
+}
+
+Free_Point::Free_Point(double _x, double _y, double _z) :Point(_x, _y, _z) {
+
 }
 
 Grid_Point::Grid_Point() : Point() { ind = { -1, -1 }; num = -1; ip = { false, false, false, false, false, false }; encl = -1; }
