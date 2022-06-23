@@ -4,6 +4,8 @@
 #include <tuple>
 #include <list>
 
+using namespace std;
+
 struct edge
 {
 	Point p1;
