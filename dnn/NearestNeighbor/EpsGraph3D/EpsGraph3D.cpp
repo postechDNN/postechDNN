@@ -377,10 +377,14 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 //}
 
 
-void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O //J
-	for (Free_Point& pt : fr_pts) { assert(!P.isIn(pt)); } // check if the polygon contains a free point
+void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O 
+	for (Free_Point& pt : fr_pts) 
+	{ 
+		bool in = P.isIn(&pt); 
+		assert(!in); // check if the polygon contains a free point
+	}
 	for (Grid_Point& gr_pt : grid) {
-		bool in = P.isIn(gr_pt);
+		bool in = P.isIn(&gr_pt);
 		if (in) { 
 			assert(gr_pt.encl == -1); 
 			gr_pt.encl = P.ord;
@@ -434,30 +438,23 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 }
 
 void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified by its index
-
-	vector<Polytope>::iterator it;
-
-	for (it = pols.begin(); it != pols.end(); ++it) {
-		if ((*it).ord == ord) {
-			break;
+	
+	bool check = true;
+	Polytope P;
+	
+	for(Polytope& p : pols){
+		if (p.ord == ord){
+			P = p;
+			check = false;
 		}
 	}
 
-	if (it == pols.end()) { return; }
+	if (check) { return; }
 
-	// release them free; for gridpoints and free points that was enclosed by the polygon
-	int ind = distance(pols.begin(), it);
+	// release them free; for gridpoints that was enclosed by the polygon
 	for (Grid_Point& gr_pt : grid) {
-		gr_pt.cros.erase(gr_pt.cros.begin() + ind);
 		if (gr_pt.encl == ord) {
 			gr_pt.encl = -1;
-		}
-	}
-
-	for (Free_Point& pt : fr_pts) {
-		if (pt.encl == ord) {
-			pt.encl = -1;
-			anchor(pt);
 		}
 	}
 
@@ -465,10 +462,8 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 
 	int x_effmax = diagonal[1].row;
 	int x_effmin = diagonal[0].row;
-
 	int y_effmin = diagonal[0].column;
 	int y_effmax = diagonal[1].column;
-
 	int z_effmax = diagonal[1].layer;
 	int z_effmin = diagonal[0].layer;
 
@@ -478,26 +473,25 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 			for (int k = z_effmin; k < z_effmax; k++) {
 				Grid_Point cur = grid[ind2num(i, j, k)];
 				if (cur.encl != -1) { continue; }
-
 				if (i != row_num - 1) {
 					if (grid[ind2num(i + 1, j, k)].encl == -1) {
-						if (cmpNadd(indices{ i, j ,k }, X)) { add_edge(indices{ i, j ,k }, indices{ i + 1, j ,k}); }
+						if (cmpNadd(indices{ i, j ,k }, X)) { add_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
 					}
 				}
 				if (j != col_num - 1) {
 					if (grid[ind2num(i, j + 1, k)].encl == -1) {
-						if (cmpNadd(indices{ i, j ,k }, Y)) { add_edge(indices{ i, j ,k }, indices{ i, j+1 ,k }); }
+						if (cmpNadd(indices{ i, j ,k }, Y)) { add_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
 					}
 				}
 				if (k != layer_num - 1) {
 					if (grid[ind2num(i, j, k + 1)].encl == -1) {
-						if (cmpNadd(indices{ i, j ,k }, Z)) { add_edge(indices{ i, j ,k }, indices{ i, j ,k+1 }); }
+						if (cmpNadd(indices{ i, j ,k }, Z)) { add_edge(indices{ i, j ,k }, indices{ i, j ,k + 1 }); }
 					}
 				}
 			}
 		}
 	}
-	pols.erase(it);
+	pols.erase(remove(pols.begin(), pols.end(), P));
 }
 
 indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
