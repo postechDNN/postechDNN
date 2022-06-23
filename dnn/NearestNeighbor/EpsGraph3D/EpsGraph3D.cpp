@@ -377,10 +377,14 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 //}
 
 
-void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O //J
-	for (Free_Point& pt : fr_pts) { assert(!P.isIn(pt)); } // check if the polygon contains a free point
+void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O 
+	for (Free_Point& pt : fr_pts) 
+	{ 
+		bool in = P.isIn(&pt); 
+		assert(!in); // check if the polygon contains a free point
+	}
 	for (Grid_Point& gr_pt : grid) {
-		bool in = P.isIn(gr_pt);
+		bool in = P.isIn(&gr_pt);
 		if (in) { 
 			assert(gr_pt.encl == -1); 
 			gr_pt.encl = P.ord;
@@ -434,30 +438,23 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 }
 
 void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified by its index
-
-	vector<Polytope>::iterator it;
-
-	for (it = pols.begin(); it != pols.end(); ++it) {
-		if ((*it).ord == ord) {
-			break;
+	
+	bool check = true;
+	Polytope P;
+	
+	for(Polytope& p : pols){
+		if (p.ord == ord){
+			P = p;
+			check = false;
 		}
 	}
 
-	if (it == pols.end()) { return; }
+	if (check) { return; }
 
-	// release them free; for gridpoints and free points that was enclosed by the polygon
-	int ind = distance(pols.begin(), it);
+	// release them free; for gridpoints that was enclosed by the polygon
 	for (Grid_Point& gr_pt : grid) {
-		gr_pt.cros.erase(gr_pt.cros.begin() + ind);
 		if (gr_pt.encl == ord) {
 			gr_pt.encl = -1;
-		}
-	}
-
-	for (Free_Point& pt : fr_pts) {
-		if (pt.encl == ord) {
-			pt.encl = -1;
-			anchor(pt);
 		}
 	}
 
@@ -465,10 +462,8 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 
 	int x_effmax = diagonal[1].row;
 	int x_effmin = diagonal[0].row;
-
 	int y_effmin = diagonal[0].column;
 	int y_effmax = diagonal[1].column;
-
 	int z_effmax = diagonal[1].layer;
 	int z_effmin = diagonal[0].layer;
 
@@ -478,36 +473,36 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 			for (int k = z_effmin; k < z_effmax; k++) {
 				Grid_Point cur = grid[ind2num(i, j, k)];
 				if (cur.encl != -1) { continue; }
-
 				if (i != row_num - 1) {
 					if (grid[ind2num(i + 1, j, k)].encl == -1) {
-						if (cmpNadd(indices{ i, j ,k }, X)) { add_edge(indices{ i, j ,k }, indices{ i + 1, j ,k}); }
+						if (cmpNadd(indices{ i, j ,k }, X)) { add_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
 					}
 				}
 				if (j != col_num - 1) {
 					if (grid[ind2num(i, j + 1, k)].encl == -1) {
-						if (cmpNadd(indices{ i, j ,k }, Y)) { add_edge(indices{ i, j ,k }, indices{ i, j+1 ,k }); }
+						if (cmpNadd(indices{ i, j ,k }, Y)) { add_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
 					}
 				}
 				if (k != layer_num - 1) {
 					if (grid[ind2num(i, j, k + 1)].encl == -1) {
-						if (cmpNadd(indices{ i, j ,k }, Z)) { add_edge(indices{ i, j ,k }, indices{ i, j ,k+1 }); }
+						if (cmpNadd(indices{ i, j ,k }, Z)) { add_edge(indices{ i, j ,k }, indices{ i, j ,k + 1 }); }
 					}
 				}
 			}
 		}
 	}
-	pols.erase(it);
+	pols.erase(remove(pols.begin(), pols.end(), P));
 }
 
 indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
 	static indices ret[2]; // ret[0] : lower left, ret[1] : upper right
 
-	ret[0].row = min(row_num - 1, int(ceil((upper_left.y - P.y_min) / eps)));
-	ret[0].column = max(0, int(floor((P.x_min - upper_left.x) / eps)));
-
-	ret[1].row = max(0, int(floor((upper_left.y - P.y_max) / eps)));
-	ret[1].column = min(col_num - 1, int(ceil((P.x_max - upper_left.x) / eps)));
+	ret[0].row = max(0, int(ceil((P.x_min - x_min) / eps)));
+	ret[0].column = max(0, int(ceil((P.y_min - y_min) / eps)));
+	ret[0].layer = max(0, int(ceil((P.z_min - z_min) / eps)));
+	ret[1].row = min(row_num, int(floor((P.x_max - x_min) / eps)));
+	ret[1].column = min(column_num , int(floor((P.y_max - y_min) / eps)));
+	ret[1].layer = min(layer_num, int(floor((P.z_max - z_min) / eps)));
 
 	return ret;
 }
@@ -515,7 +510,7 @@ indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating or
 vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
 	for (Polytope& pol : pols) {
-		if (pol.isin(p)) {
+		if (pol.isIn(p)) {
 			return {};
 		}
 	}
@@ -547,10 +542,12 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 			visited[q.front()] = true;
 
 			int cur = q.front();
-			if (grid[cur].ip.right && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
-			if (grid[cur].ip.lower && visited[cur + col_num] == false) { dist[cur + col_num] = dist[cur] + 1; q.push(cur + col_num); }
-			if (grid[cur].ip.left && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
-			if (grid[cur].ip.upper && visited[cur - col_num] == false) { dist[cur - col_num] = dist[cur] + 1; q.push(cur - col_num); }
+			if (grid[cur].ip.right && visited[cur + layer_num] == false) { dist[cur + layer_num] = dist[cur] + 1; q.push(cur + layer_num); }
+			if (grid[cur].ip.lower && visited[cur + col_num * layer_num] == false) { dist[cur + col_num * layer_num] = dist[cur] + 1; q.push(cur + col_num * layer_num); }
+			if (grid[cur].ip.higher && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
+			if (grid[cur].ip.left && visited[cur - layer_num] == false) { dist[cur - layer_num] = dist[cur] + 1; q.push(cur - layer_num); }
+			if (grid[cur].ip.upper && visited[cur - col_num * layer_num] == false) { dist[cur - col_num * layer_num] = dist[cur] + 1; q.push(cur - col_num * layer_num); }
+			if (grid[cur].ip.deeper && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
 
 			for (auto FP : grid[q.front()].anchored) {
 				FPs_temp.push_back(*FP);
@@ -566,7 +563,7 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 
 		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
 			{
-				return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2);
+				return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) + pow(first.z - p.z, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2) + pow(second.z - p.z, 2);
 			});
 
 		int sz = int(FPs.size());
@@ -592,18 +589,21 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 
 void Eps_Graph_3D::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
-		cout << grid[i].ind.row << grid[i].ind.column << ' ' << '|' << grid[i].ip.right << ' ' << '|' << grid[i].ip.lower << ' ' << '|';
-		if (num2ind(i).column == col_num - 1) { cout << endl; }
+		cout << grid[i].ind.row << grid[i].ind.column << grid[i].ind.layer << ' ' << '|' << grid[i].ip.right << ' ' << '|' << grid[i].ip.lower << grid[i].ip.higher << ' ' << '|';
+		if (num2ind(i).layer == layer_num - 1) { cout << endl; }
 	}
 }
 
 void Eps_Graph_3D::print_edges() {
 	for (auto gp : grid) {
 		if (gp.ip.right == true) {
-			cout << gp.ind.row << ' ' << gp.ind.column << '|' << gp.ind.row << ' ' << gp.ind.column + 1 << endl;
+			cout << gp.ind.row << ' ' << gp.ind.column << gp.ind.layer << '|' << gp.ind.row << ' ' << gp.ind.column + 1 << ' ' << gp.ind.layer << endl;
 		}
 		if (gp.ip.lower == true) {
-			cout << gp.ind.row << ' ' << gp.ind.column << '|' << gp.ind.row + 1 << ' ' << gp.ind.column << endl;
+			cout << gp.ind.row << ' ' << gp.ind.column << gp.ind.layer << '|' << gp.ind.row + 1 << ' ' << gp.ind.column << ' ' << gp.ind.layer << endl;
+		}
+		if (gp.ip.higher == true) {
+			cout << gp.ind.row << ' ' << gp.ind.column << gp.ind.layer << '|' << gp.ind.row << ' ' << gp.ind.column << ' ' << gp.ind.layer + 1 << endl;
 		}
 	}
 }
@@ -611,8 +611,10 @@ void Eps_Graph_3D::print_edges() {
 void Eps_Graph_3D::print_dist() {
 	for (int i = 0; i < row_num; i++) {
 		for (int j = 0; j < col_num; j++) {
-			if (dist[i * col_num + j] == INT_MAX) { printf(" INF "); }
-			else { printf("%4.1d ", dist[i * col_num + j]); }
+			for (int k = 0; k < layer_num; k++) {
+				if (dist[i * col_num * layer_num + j * layer_num + k] == INT_MAX) { printf(" INF "); }
+				else { printf("%4.1d ", dist[i * col_num * layer_num+ j * layer_num + k]); }
+			}
 		}
 		printf("\n");
 	}
@@ -621,12 +623,12 @@ void Eps_Graph_3D::print_dist() {
 void Eps_Graph_3D::print_kNN(Free_Point p, int k) {
 	vector<Free_Point> nbhd = kNN(p, k);
 	for (auto nb : nbhd) {
-		cout << nb.x << ' ' << nb.y << endl;
+		cout << nb.x << ' ' << nb.y << ' ' << nb.z << endl;
 	}
 }
 
 
-Eps_Graph_3D::Eps_Graph_3D() { row_num = col_num = 0; x_min = x_max = y_min = y_max = eps = 0; }
+Eps_Graph_3D::Eps_Graph_3D() { row_num = col_num = layer_num = 0; x_min = x_max = y_min = y_max = z_min = z_max = eps = 0; }
 
 Free_Point Eps_Graph_3D::get_free_point(int index) {
 	list<Free_Point>::iterator iter = fr_pts.begin();

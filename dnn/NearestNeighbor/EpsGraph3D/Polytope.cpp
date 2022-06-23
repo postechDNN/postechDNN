@@ -55,13 +55,9 @@ bool Face::below(Point* p) {
 	{
 		out_prod[i] = proj_vec[i].getx() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getx();
 	}
-	if (out_prod[0] * out_prod[1] >= 0 && out_prod[1] * out_prod[2] >= 0)
+	if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
 	{
-		// Exception
-		if (proj_vec[0].getx()* proj_vec[1].gety()- proj_vec[0].gety()* proj_vec[1].getx() != 0) 
-		{
-			includeness = true;
-		}
+		includeness = true;
 	}
 	if (includeness && belowness)
 	{
@@ -73,7 +69,96 @@ bool Face::below(Point* p) {
 }
 
 bool Face::pass(Point* p1, Point* p2, int dir){
+	signed int check_p1 = 1;
+	signed int check_p2 = 1;
+	bool possibility = false;
+	double normal[3];
+	double cons;
+	Point proj_vec[3];
+	Point p_to_vec[3];
+	double out_prod[3];
+	normal[0] = (points[0]->gety() - points[1]->gety()) * (points[2]->getz() - points[1]->getz())
+		- (points[0]->getz() - points[1]->getz()) * (points[2]->gety() - points[1]->gety());
+	normal[1] = -(points[0]->getx() - points[1]->getx()) * (points[2]->getz() - points[1]->getz())
+		+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
+	normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
+		- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
 
+	if (normal[0] * p1->getx() + normal[1] * p1->gety() + normal[2] * p1->getz() >=
+		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
+		check_p1 = -1;
+	}
+	if (normal[0] * p2->getx() + normal[1] * p2->gety() + normal[2] * p2->getz() >=
+		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
+		check_p2 = -1;
+	}
+	if (check_p1 * check_p2 < 0) {
+		possibility = true; // Check if the plane containing a face cross the line connecting two points 
+	}
+	if (possibility)
+	{
+		switch (dir) // Check if the face cross the line connecting two points
+		{
+		case 1:
+			for (int i = 0; i < 3; i++)
+			{
+				proj_vec[i].setx(0);
+				proj_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
+				proj_vec[i].setz(points[(i + 1) % 3]->getz() - points[i]->getz());
+				p_to_vec[i].setx(0);
+				p_to_vec[i].sety(points[i]->gety() - p1->gety());
+				p_to_vec[i].setz(points[i]->getz() - p1->getz());
+			}
+			for (int i = 0; i < 3; i++)
+			{
+				out_prod[i] = proj_vec[i].getz() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getz();
+			}
+			if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
+			{
+				return true;
+			}
+			break;
+		case 2:
+			for (int i = 0; i < 3; i++)
+			{
+				proj_vec[i].setx(points[(i + 1) % 3]->getx() - points[i]->getx());
+				proj_vec[i].sety(0);
+				proj_vec[i].setz(points[(i + 1) % 3]->getz() - points[i]->getz());
+				p_to_vec[i].setx(points[i]->getx() - p1->getx());
+				p_to_vec[i].sety(0);
+				p_to_vec[i].setz(points[i]->getz() - p1->getz());
+			}
+			for (int i = 0; i < 3; i++)
+			{
+				out_prod[i] = proj_vec[i].getx() * p_to_vec[i].getz() - proj_vec[i].getz() * p_to_vec[i].getx();
+			}
+			if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
+			{
+				return true;
+			}
+			break;
+		case 3:
+			for (int i = 0; i < 3; i++)
+			{
+				proj_vec[i].setx(points[(i + 1) % 3]->getx() - points[i]->getx());
+				proj_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
+				proj_vec[i].setz(0);
+				p_to_vec[i].setx(points[i]->getx() - p1->getx());
+				p_to_vec[i].sety(points[i]->gety() - p1->gety());
+				p_to_vec[i].setz(0);
+			}
+			for (int i = 0; i < 3; i++)
+			{
+				out_prod[i] = proj_vec[i].getx() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getx();
+			}
+			if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
+			{
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
 }
 
 Polytope::Polytope() {
@@ -125,11 +210,9 @@ bool Polytope::isIn(Point* p) {
 bool Polytope::intersect(Point p1, Point p2, int dir) {
 	for (int i = 0; i < num_faces; i++)
 	{
-		if ((!this->faces[i]->below(&p1) && this->faces[i]->below(&p2)) || (this->faces[i]->below(&p1) && !this->faces[i]->below(&p2))) {
-			if (this->faces[i]->pass(&p1, &p2, dir))
-			{
-				return true;
-			}
+		if (this->faces[i]->pass(&p1, &p2, dir))
+		{
+			return true;
 		}
 	}
 	return false;
