@@ -2,18 +2,18 @@
 #include <vector>
 
 struct indices {
-	int row;
-	int column;
-	int layer;
+	int x_ind;
+	int y_ind;
+	int z_ind;
 };
 
 struct ind_pts {
-	bool right;
-	bool lower;
-	bool left;
-	bool upper;
-	bool higher;
-	bool deeper;
+	bool x_u;
+	bool x_d;
+	bool y_u;
+	bool y_d;
+	bool z_u;
+	bool z_d;
 };
 
 class Point {
