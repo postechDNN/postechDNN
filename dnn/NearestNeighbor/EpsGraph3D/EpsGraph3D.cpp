@@ -399,14 +399,14 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 
 	indices* diagonal = eff_region(P);
 
-	int x_effmax = diagonal[1].row;
-	int x_effmin = diagonal[0].row;
+	int x_effmax = diagonal[1].x_ind;
+	int x_effmin = diagonal[0].x_ind;
 
-	int y_effmin = diagonal[0].column;
-	int y_effmax = diagonal[1].column;
+	int y_effmin = diagonal[0].y_ind;
+	int y_effmax = diagonal[1].y_ind;
 
-	int z_effmax = diagonal[1].layer;
-	int z_effmin = diagonal[0].layer;
+	int z_effmax = diagonal[1].z_ind;
+	int z_effmin = diagonal[0].z_ind;
 
 	// update grid edges among gridpoints in the effective region
 	for (int i = x_effmin ; i < x_effmax; i++) {
@@ -460,12 +460,14 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 
 	indices* diagonal = eff_region(P);
 
-	int x_effmax = diagonal[1].row;
-	int x_effmin = diagonal[0].row;
-	int y_effmin = diagonal[0].column;
-	int y_effmax = diagonal[1].column;
-	int z_effmax = diagonal[1].layer;
-	int z_effmin = diagonal[0].layer;
+	int x_effmax = diagonal[1].x_ind;
+	int x_effmin = diagonal[0].x_ind;
+
+	int y_effmin = diagonal[0].y_ind;
+	int y_effmax = diagonal[1].y_ind;
+
+	int z_effmax = diagonal[1].z_ind;
+	int z_effmin = diagonal[0].z_ind;
 
 	// update grid edges among gridpoints in the effective region
 	for (int i = x_effmin; i < x_effmax; i++) {
@@ -495,14 +497,14 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 }
 
 indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
-	static indices ret[2]; // ret[0] : lower left, ret[1] : upper right
+	static indices ret[2]; // ret[0] : minimum index containing polytope , ret[1] : maximum index containing polytope
 
-	ret[0].row = max(0, int(ceil((P.x_min - x_min) / eps)));
-	ret[0].column = max(0, int(ceil((P.y_min - y_min) / eps)));
-	ret[0].layer = max(0, int(ceil((P.z_min - z_min) / eps)));
-	ret[1].row = min(row_num, int(floor((P.x_max - x_min) / eps)));
-	ret[1].column = min(column_num , int(floor((P.y_max - y_min) / eps)));
-	ret[1].layer = min(layer_num, int(floor((P.z_max - z_min) / eps)));
+	ret[0].x_ind = max(0, int(ceil((P.x_min - x_min) / eps)));
+	ret[0].y_ind = max(0, int(ceil((P.y_min - y_min) / eps)));
+	ret[0].z_ind = max(0, int(ceil((P.z_min - z_min) / eps)));
+	ret[1].x_ind = min(row_num, int(floor((P.x_max - x_min) / eps)));
+	ret[1].y_ind = min(column_num , int(floor((P.y_max - y_min) / eps)));
+	ret[1].z_ind = min(layer_num, int(floor((P.z_max - z_min) / eps)));
 
 	return ret;
 }
