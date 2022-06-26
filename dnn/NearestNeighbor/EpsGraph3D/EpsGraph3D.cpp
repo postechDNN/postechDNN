@@ -52,22 +52,23 @@ void Eps_Graph_3D::init_grid() { //O
 
 	int x_ind = int(floor(x_min / eps)) - 1, y_ind = int(floor(y_min / eps)) - 1, z_ind = int(floor(z_min / eps)) - 1;
 
-	col_num = 2 + int(ceil(x_max / eps)) - x_ind;
-	row_num = 2 + int(ceil(y_max / eps)) - y_ind;
-	layer_num = 2 + int(ceil(z_max / eps)) - z_ind;
+	x_num = 2 + int(ceil(x_max / eps)) - x_ind;
+	y_num = 2 + int(ceil(y_max / eps)) - y_ind;
+	z_num = 2 + int(ceil(z_max / eps)) - z_ind;
 
+	// upper_left = Point(x_ind * eps, int(ceil(y_max / eps + 1)) * eps, z_ind * eps);
 	upper_left = Point(x_ind * eps, int(ceil(y_max / eps + 1)) * eps, z_ind * eps);
 	//need to check why y is different!!
 
 	// initialization step for BFS
-	for (int i = 0; i < row_num * col_num * layer_num; i++) {
+	for (int i = 0; i < y_num * x_num * z_num; i++) {
 		dist.push_back(INT_MAX);
 		visited.push_back(false);
 	}
 
-	for (int i = 0; i < row_num * col_num * layer_num; i++)
+	for (int i = 0; i < y_num * x_num * z_num; i++)
 	{
-		grid.push_back(Grid_Point(num2ind(i).row, num2ind(i).column, num2ind(i).layer, upper_left.x, upper_left.y, upper_left.z, eps, col_num, layer_num));
+		grid.push_back(Grid_Point(num2ind(i).x, num2ind(i).y, num2ind(i).z, upper_left.x, upper_left.y, upper_left.z, eps, x_num, z_num));
 	}
 
 	// for each grid & free point, count # of crossings of the rightward ray with each polytope
@@ -89,22 +90,22 @@ void Eps_Graph_3D::init_grid() { //O
 			}
 		}
 	}
-	for (int i = 0; i < row_num; i++) {
-		for (int j = 0; j < col_num; j++) {
-			for (int k = 0; k < layer_num; k++) {
+	for (int i = 0; i < x_num; i++) {
+		for (int j = 0; j < y_num; j++) {
+			for (int k = 0; k < z_num; k++) {
 				if (grid[ind2num(i, j. k)].encl != -1) { continue; }
 
-				if (i != row_num - 1) {
+				if (i != x_num - 1) {
 					if (grid[ind2num(i + 1, j, k)].encl == -1) {
 						if (cmpNadd(indices{ i, j, k }, 0)) { add_edge(indices{ i, j, k }, indices{ i + 1, j, k }); }
 					}
 				}
-				if (j != col_num - 1) {
+				if (j !=y_num - 1) {
 					if (grid[ind2num(i, j + 1, k)].encl == -1) {
 						if (cmpNadd(indices{ i, j, k }, 1)) { add_edge(indices{ i, j, k }, indices{ i, j + 1, k }); }
 					}
 				}
-				if (k != layer_num - 1) {
+				if (k != z_num - 1) {
 					if (grid[ind2num(i, j, k + 1 )].encl == -1) {
 						if (cmpNadd(indices{ i, j, k }, 2)) { add_edge(indices{ i, j, k }, indices{ i, j, k + 1 }); }
 					}
@@ -120,43 +121,43 @@ Grid_Point Eps_Graph_3D::get_gridpt(indices ind) { //O
 
 // one-to-one functions between 2-d indices and numbers
 int Eps_Graph_3D::ind2num(indices ind) {
-	return ind.row * col_num * layer_num + ind.column * layer_num + ind.layer;
+	return ind.x * y_num * z_num + ind.y * z_num + ind.z;
 }
 
-int Eps_Graph_3D::ind2num(int row, int column, int layer) { //O
-	return row * col_num * layer_num + column * layer_num + layer;
+int Eps_Graph_3D::ind2num(int _x, int _y, int _z) { //O
+	return _x * y_num * z_num + _y * z_num + _z;
 }
 
 indices Eps_Graph_3D::num2ind(int num) { //O
-	return indices{ num / (col_num * layer_num), (num % col_num) / layer_num, (num% col_num) % layer_num};
+	return indices{ num / (y_num * z_num), (num % y_num) / z_num, (num% y_num) % z_num};
 }
 
 // adds/deletes a grid edge
 void Eps_Graph_3D::add_edge(indices ind1, indices ind2) { //O
-	int row1 = ind1.row; int column1 = ind1.column; int layer1 = ind1.layer;
-	int row2 = ind2.row; int column2 = ind2.column; int layer2 = ind2.layer;
+	int x1 = ind1.x; int y1 = ind1.y; int z1 = ind1.z;
+	int x2 = ind2.x; int y2 = ind2.y; int z2 = ind2.z;
 
-	if (layer1 == layer2 && column1 == column2) { grid[row1 * col_num * layer_num + column1 *layer_mum + layer1].ip.right = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.left = true; }
-	else if (row1 == row2 && layer1 == layer2) { grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.lower = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.upper = true; }
-	else if (column1 == column2 && row1 == row2) { grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.deeper = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.higher = true; }
+	if (y1 == y2 && z1 == z2) { grid[x1 * y_num * z_num + y1 *z_num + z1].ip.x_u = true; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.x_d = true; }
+	else if (x1 == x2 && z1 == z2) { grid[x1 * y_num * z_num + y1 * z_num + z1].ip.y_u = true; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.y_d = true; }
+	else if (x1 == x2 && y1 == y2) { grid[x1 * y_num * z_num + y1 * z_num + z1].ip.z_u = true; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.z_d = true; }
 }
 
-void Eps_Graph_3D::add_edge(int row, int column, int layer;  int direc) { //O
-	int row1 = row; int column1 = column; int layer1 = layer; 
-	int row2, column2, layer2;
+void Eps_Graph_3D::add_edge(int x, int y, int x;  int direc) { //O
+	int x1 = x; int y1 = y; int z1 = z;
+	int x2, y2, z2;
 
-	if (direc == 0) { layer2 = layer1; column2 = column1; row2 = row1 + 1;  grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.right = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.left = true; }
-	else if (direc == 1) { row2 = row1; column2 = column1 + 1; layer2 = layer1; grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.lower = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.upper = true; }
-	else { row2 = row1; column2 = column1; layer2 = layer1 + 1;  grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.deeper = true; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.higher = true; }
+	if (direc == 0) { x2 = x1 + 1; y2 = y1; z2 = z1; grid[x1 * y_num * z_num + y1 * z_num + z1].ip.x_u = true; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.x_d = true; }
+	else if (direc == 1) { x2 = x1; y2 = y1 + 1; z2 = z1; grid[x1 * y_num * z_num + y1 * z_num + z1].ip.y_u = true; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.y_d = true; }
+	else { x2 = x1; y2 = y1; z2 = z1 + 1; grid[x1 * y_num * z_num + y1 * z_num + z1].ip.z_u = true; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.z_d = true; }
 }
 
 void Eps_Graph_3D::delete_edge(indices ind1, indices ind2) { //O
-	int row1 = ind1.row; int column1 = ind1.column; int layer1 = ind1.layer;
-	int row2 = ind2.row; int column2 = ind2.column; int layer2 = ind2.layer;
+	int x1 = ind1.x; int y1 = ind1.y; int z1 = ind1.z;
+	int x2 = ind2.x; int y2 = ind2.y; int z2 = ind2.z;
 
-	if (layer1 == layer2 && column1 == column2) { grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.right = false; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.left = false; }
-	else if (row1 == row2 && layer1 == layer2) { grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.lower = false; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.upper = false; }
-	else if (column1 == column2 && row1 == row2) { grid[row1 * col_num * layer_num + column1 * layer_mum + layer1].ip.deeper = false; grid[row2 * col_num * layer_num + column2 * layer_mum + layer2].ip.higher = false; }
+	if (y1 == y2 && z1 == z2) { grid[x1 * y_num * z_num + y1 * z_num + z1].ip.x_u = false; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.x_d = false; }
+	else if (x1 == x2 && z1 == z2) { grid[x1 * y_num * z_num + y1 * z_num + z1].ip.y_u = false; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.y_d = false; }
+	else if (x1 == x2 && y1 == y2) { grid[x1 * y_num * z_num + y1 * z_num + z1].ip.z_u = false; grid[x2 * y_num * z_num + y2 * z_num + z2].ip.z_d = false; }
 }
 
 
@@ -164,11 +165,9 @@ bool Eps_Graph_3D::cmpNadd(indices ind, int direc) {  //O
 	// checks if the line connecting the gridpoint and its neighboring one is blocked by any polytope. if is not, add an edge between them.
 
 	Grid_Point A = grid[ind2num(ind)], B;
-	if (direc == 0){B = grid[ind2num(ind)+col_num*layer_num]}
-	else if (direc == 1){B = grid[ind2num(ind)+layer_num]}
+	if (direc == 0){B = grid[ind2num(ind)+y_num*z_num]}
+	else if (direc == 1){B = grid[ind2num(ind)+z_num]}
 	else {B = grid[ind2num(ind)+1] }
-	// if (direc == X) { B = grid[ind2num(ind) + 1]; }
-	// else { B = grid[ind2num(ind) + col_num]; }
 
 	for (unsigned int ind1 = 0; ind1 < pols.size(); ind1++) { // assert(pols.size() = A.cros.size() = B.cros.size())
 		auto pol = pols[ind1];
@@ -179,7 +178,7 @@ bool Eps_Graph_3D::cmpNadd(indices ind, int direc) {  //O
 		// }
 
 		// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
-		if (pol.intersect(Point{ A.x, A.y, A.z}, Point{ B.x, B.y, B_z }, direc)) { return false; }
+		if (pol.intersect(Point{ A.x, A.y, A.z}, Point{ B.x, B.y, B.z }, direc)) { return false; }
 		
 
 		// else, compare the # of intersections with the ray.
@@ -214,17 +213,17 @@ bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, int direc, int ord) { // do the s
 		}
 	}
 	Grid_Point A = grid[ind2num(ind)], B;
-	if (direc == 0) { B = grid[ind2num(ind) + col_num * layer_num] }
-	else if (direc == 1) { B = grid[ind2num(ind) + layer_num] }
+	if (direc == 0) { B = grid[ind2num(ind) + y_num * z_num] }
+	else if (direc == 1) { B = grid[ind2num(ind) + z_num] }
 	else { B = grid[ind2num(ind) + 1] }
 
-	if (pol.intersect(Point{ A.x, A.y, A.z }, Point{ B.x, B.y, B_z }, direc)) { return false; }
+	if (pol.intersect(Point{ A.x, A.y, A.z }, Point{ B.x, B.y, B.z }, direc)) { return false; }
 	return true;
 	//int index = distance(pols.begin(), it);
 
 	//Grid_Point A = grid[ind2num(ind)], B;
 	//if (direc == X) { B = grid[ind2num(ind) + 1]; }
-	//else { B = grid[ind2num(ind) + col_num]; }
+	//else { B = grid[ind2num(ind) + x_num]; }
 
 	//if (direc == X) {
 	//	if (B.x < pol.x_max || pol.x_min < A.x || pol.y_max < A.y || A.y < pol.y_min) { return true; }
@@ -278,7 +277,7 @@ void Eps_Graph_3D::delete_freept(int ind) { // delete a point from P, specified 
 	advance(iter, ind);
 	Free_Point& p = *iter;
 	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
-		if ((*(*it)).x == p.x && (*(*it)).y == p.y) {
+		if ((*(*it)).x == p.x && (*(*it)).y == p.y && (*(*it)).z == p.z) {
 			grid[p.host].anchored.erase(it);
 			break;
 		}
@@ -304,29 +303,29 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 	}
 
 	bool flag = false;
-	int row; int col; int lay; 
-	row = int(ceil((upper_left.y - p.y) / eps - 0.5)); // points on the midline anchors upward
-	col = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
-	lay = int(ceil((p.z - upper_left.z) / eps - 0.5));
+	int x; int y; int z; 
+	x = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
+	y = int(ceil((upper_left.y - p.y) / eps - 0.5)); // points on the midline anchors upward
+	z = int(ceil((p.z - upper_left.z) / eps - 0.5));
 
 
 	// find a nearest gridpoint not enclosed by any polygon
-	for (int step = 1; step < row_num + col_num + layer_num; step++) {
+	for (int step = 1; step < y_num + x_num + z_num; step++) {
 		// vector<Grid_Point> gr_pts = {};
 		Grid_Point gr_pt;
 		for (int x_step = -step; x_step <= step; x_step++) {
 			for (int y_step = -(step-abs(x_step); y_step <= step - abs(x_step); y_step++) {
 				int z_step = step - abs(x_step) - abs(y_step);
-				if (0 <= col + x_step && col + x_step < col_num && 0 <= row + y_step && row + y_step < row_num && 0 <= lay + z_step && lay + z_step < layer_num) {
-					gr_pt = grid[ind2num(col + x_step, row + y_step, lay + z_step)];
+				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z + z_step && z + z_step < z_num) {
+					gr_pt = grid[ind2num(x + x_step, y + y_step, z + z_step)];
 					if (gr_pt.encl == -1) {
 						p.host = gr_pt.num;
 						gr_pt.anchored.push_back(&p);
 						return;
 					}
 				}
-				if (0 <= col + x_step && col + x_step < col_num && 0 <= row + y_step && row + y_step < row_num && 0 <= lay - z_step && lay - z_step < layer_num) {
-					gr_pt = grid[ind2num(col + x_step, row + y_step, lay - z_step)];
+				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z - z_step && z - z_step < z_num) {
+					gr_pt = grid[ind2num(x + x_step, y + y_step, z - z_step)];
 					if (gr_pt.encl == -1) {
 						p.host = gr_pt.num;
 						gr_pt.anchored.push_back(&p);
@@ -344,23 +343,23 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 //	col = int(ceil((p.x - upper_left.x) / eps - 0.5)); // Á¤ Áß¾Ó¿¡ ÀÖ´Â Á¡Àº ¿ÞÂÊÀ¸·Î anchorµÊ
 //	lay = int(ceil((p.z - upper_left.z) / eps - 0.5));
 //
-//	for (int step = 0; step < row_num + col_num; step++) {
+//	for (int step = 0; step < y_num + x_num; step++) {
 //		vector<Grid_Point> gr_pts = {};
 //		Grid_Point gr_pt;
 //		for (int x_step = -step; x_step <= step; x_step++) {
 //			for (int y_step = -(step - abs(x_step); y_step <= step - abs(x_step); y_step++) {
 //				int z_step = step - abs(x_step) - abs(y_step);
 //
-//			if (0 <= row + x_step && row + x_step < row_num && 0 <= col + y_step && col + y_step < col_num) {
+//			if (0 <= row + x_step && row + x_step < y_num && 0 <= col + y_step && col + y_step < x_num) {
 //				gr_pts.push_back(grid[ind2num(row + x_step, col + y_step)]);
 //			}
-//			if (0 <= row + x_step && row + x_step < row_num && 0 <= col - y_step && col - y_step < col_num) {
+//			if (0 <= row + x_step && row + x_step < y_num && 0 <= col - y_step && col - y_step < x_num) {
 //				gr_pts.push_back(grid[ind2num(row + x_step, col - y_step)]);
 //			}
-//			if (0 <= row - x_step && row - x_step < row_num && 0 <= col + y_step && col + y_step < col_num) {
+//			if (0 <= row - x_step && row - x_step < y_num && 0 <= col + y_step && col + y_step < x_num) {
 //				gr_pts.push_back(grid[ind2num(row - x_step, col + y_step)]);
 //			}
-//			if (0 <= row - x_step && row - x_step < row_num && 0 <= col - y_step && col - y_step < col_num) {
+//			if (0 <= row - x_step && row - x_step < y_num && 0 <= col - y_step && col - y_step < x_num) {
 //				gr_pts.push_back(grid[ind2num(row - x_step, col - y_step)]);
 //			}
 //		}
@@ -415,17 +414,17 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 				Grid_Point cur = grid[ind2num(i, j, k)];
 				if (cur.encl != -1) { continue; }
 
-				if (i != row_num - 1) {
+				if (i != x_num - 1) {
 					if (grid[ind2num(i + 1, j, k)].encl == -1) {
 						if (!cmpNadd_SinPol(indices{ i, j ,k }, X, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
 					}
 				}
-				if (j != col_num - 1) {
+				if (j != y_num - 1) {
 					if (grid[ind2num(i, j + 1, k)].encl == -1) {
 						if (!cmpNadd_SinPol(indices{ i, j ,k }, Y, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
 					}
 				}
-				if (k != layer_num - 1) {
+				if (k != z_num - 1) {
 					if ( grid[ind2num(i, j, k + 1)].encl == -1) {
 						if (!cmpNadd_SinPol(indices{ i, j ,k }, Z, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j , k + 1 }); }
 					}
@@ -475,17 +474,17 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 			for (int k = z_effmin; k < z_effmax; k++) {
 				Grid_Point cur = grid[ind2num(i, j, k)];
 				if (cur.encl != -1) { continue; }
-				if (i != row_num - 1) {
+				if (i != x_num - 1) {
 					if (grid[ind2num(i + 1, j, k)].encl == -1) {
 						if (cmpNadd(indices{ i, j ,k }, X)) { add_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
 					}
 				}
-				if (j != col_num - 1) {
+				if (j != y_num - 1) {
 					if (grid[ind2num(i, j + 1, k)].encl == -1) {
 						if (cmpNadd(indices{ i, j ,k }, Y)) { add_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
 					}
 				}
-				if (k != layer_num - 1) {
+				if (k != z_num - 1) {
 					if (grid[ind2num(i, j, k + 1)].encl == -1) {
 						if (cmpNadd(indices{ i, j ,k }, Z)) { add_edge(indices{ i, j ,k }, indices{ i, j ,k + 1 }); }
 					}
@@ -502,9 +501,9 @@ indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating or
 	ret[0].x_ind = max(0, int(ceil((P.x_min - x_min) / eps)));
 	ret[0].y_ind = max(0, int(ceil((P.y_min - y_min) / eps)));
 	ret[0].z_ind = max(0, int(ceil((P.z_min - z_min) / eps)));
-	ret[1].x_ind = min(row_num, int(floor((P.x_max - x_min) / eps)));
-	ret[1].y_ind = min(column_num , int(floor((P.y_max - y_min) / eps)));
-	ret[1].z_ind = min(layer_num, int(floor((P.z_max - z_min) / eps)));
+	ret[1].x_ind = min(x_num, int(floor((P.x_max - x_min) / eps)));
+	ret[1].y_ind = min(y_num , int(floor((P.y_max - y_min) / eps)));
+	ret[1].z_ind = min(z_num, int(floor((P.z_max - z_min) / eps)));
 
 	return ret;
 }
@@ -544,12 +543,12 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 			visited[q.front()] = true;
 
 			int cur = q.front();
-			if (grid[cur].ip.right && visited[cur + layer_num] == false) { dist[cur + layer_num] = dist[cur] + 1; q.push(cur + layer_num); }
-			if (grid[cur].ip.lower && visited[cur + col_num * layer_num] == false) { dist[cur + col_num * layer_num] = dist[cur] + 1; q.push(cur + col_num * layer_num); }
-			if (grid[cur].ip.higher && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
-			if (grid[cur].ip.left && visited[cur - layer_num] == false) { dist[cur - layer_num] = dist[cur] + 1; q.push(cur - layer_num); }
-			if (grid[cur].ip.upper && visited[cur - col_num * layer_num] == false) { dist[cur - col_num * layer_num] = dist[cur] + 1; q.push(cur - col_num * layer_num); }
-			if (grid[cur].ip.deeper && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
+			if (grid[cur].ip.x_u && visited[cur + y_num * z_num] == false) { dist[cur + y_num * z_num] = dist[cur] + 1; q.push(cur + y_num * z_num); }
+			if (grid[cur].ip.x_d && visited[cur - y_num * z_num] == false) { dist[cur - y_num * z_num] = dist[cur] + 1; q.push(cur - y_num * z_num); }
+			if (grid[cur].ip.y_u && visited[cur + z_num] == false) { dist[cur + z_num] = dist[cur] + 1; q.push(cur + z_num); }
+			if (grid[cur].ip.y_d && visited[cur - z_num] == false) { dist[cur - z_num] = dist[cur] + 1; q.push(cur - z_num); }
+			if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
+			if (grid[cur].ip.z_d && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
 
 			for (auto FP : grid[q.front()].anchored) {
 				FPs_temp.push_back(*FP);
@@ -591,31 +590,31 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 
 void Eps_Graph_3D::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
-		cout << grid[i].ind.row << grid[i].ind.column << grid[i].ind.layer << ' ' << '|' << grid[i].ip.right << ' ' << '|' << grid[i].ip.lower << grid[i].ip.higher << ' ' << '|';
-		if (num2ind(i).layer == layer_num - 1) { cout << endl; }
+		cout << grid[i].ind.x << grid[i].ind.y << grid[i].ind.z << ' ' << '|' << grid[i].ip.x_u << ' ' << '|' << grid[i].ip.y_u << grid[i].ip.z_u << ' ' << '|';
+		if (num2ind(i).z == z_num - 1) { cout << endl; }
 	}
 }
 
 void Eps_Graph_3D::print_edges() {
 	for (auto gp : grid) {
-		if (gp.ip.right == true) {
-			cout << gp.ind.row << ' ' << gp.ind.column << gp.ind.layer << '|' << gp.ind.row << ' ' << gp.ind.column + 1 << ' ' << gp.ind.layer << endl;
+		if (gp.ip.x_u == true) {
+			cout << gp.ind.x << ' ' << gp.ind.y << gp.ind.z << '|' << gp.ind.x + 1 << ' ' << gp.ind.y << ' ' << gp.ind.z << endl;
 		}
-		if (gp.ip.lower == true) {
-			cout << gp.ind.row << ' ' << gp.ind.column << gp.ind.layer << '|' << gp.ind.row + 1 << ' ' << gp.ind.column << ' ' << gp.ind.layer << endl;
+		if (gp.ip.y_u == true) {
+			cout << gp.ind.x << ' ' << gp.ind.y << gp.ind.z << '|' << gp.ind.x << ' ' << gp.ind.y + 1 << ' ' << gp.ind.z << endl;
 		}
-		if (gp.ip.higher == true) {
-			cout << gp.ind.row << ' ' << gp.ind.column << gp.ind.layer << '|' << gp.ind.row << ' ' << gp.ind.column << ' ' << gp.ind.layer + 1 << endl;
+		if (gp.ip.z_u == true) {
+			cout << gp.ind.x << ' ' << gp.ind.y << gp.ind.z << '|' << gp.ind.x << ' ' << gp.ind.y << ' ' << gp.ind.z + 1 << endl;
 		}
 	}
 }
 
 void Eps_Graph_3D::print_dist() {
-	for (int i = 0; i < row_num; i++) {
-		for (int j = 0; j < col_num; j++) {
-			for (int k = 0; k < layer_num; k++) {
-				if (dist[i * col_num * layer_num + j * layer_num + k] == INT_MAX) { printf(" INF "); }
-				else { printf("%4.1d ", dist[i * col_num * layer_num+ j * layer_num + k]); }
+	for (int i = 0; i < x_num; i++) {
+		for (int j = 0; j < y_num; j++) {
+			for (int k = 0; k < z_num; k++) {
+				if (dist[i * y_num * z_num + j * z_num + k] == INT_MAX) { printf(" INF "); }
+				else { printf("%4.1d ", dist[i * y_num * z_num+ j * z_num + k]); }
 			}
 		}
 		printf("\n");
@@ -630,7 +629,7 @@ void Eps_Graph_3D::print_kNN(Free_Point p, int k) {
 }
 
 
-Eps_Graph_3D::Eps_Graph_3D() { row_num = col_num = layer_num = 0; x_min = x_max = y_min = y_max = z_min = z_max = eps = 0; }
+Eps_Graph_3D::Eps_Graph_3D() { y_num = x_num = z_num = 0; x_min = x_max = y_min = y_max = z_min = z_max = eps = 0; }
 
 Free_Point Eps_Graph_3D::get_free_point(int index) {
 	list<Free_Point>::iterator iter = fr_pts.begin();
