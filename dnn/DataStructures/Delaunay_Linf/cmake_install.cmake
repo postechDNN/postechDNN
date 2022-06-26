@@ -1,4 +1,4 @@
-# Install script for directory: /Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/Projects/Linf_Delaunay
+# Install script for directory: /Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/Projects/Linf_Delaunay/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

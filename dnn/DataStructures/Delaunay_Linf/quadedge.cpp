@@ -159,13 +159,13 @@ Subdivision::Subdivision(const Point2d& a, const Point2d& b, const Point2d& c)
 	right = LeftThan(pList[1], pList[2]) ? new Point2d(pList[2]) : new Point2d(pList[1]);
 	
 	Edge* e1 = MakeEdge();
-	e1->EndPoints(lowest, left);
+	e1->EndPoints(lowest, right);
 	Edge* e2 = MakeEdge();
 	Splice(e1->Sym(), e2); //CHECK
-	e2->EndPoints(left, right);
+	e2->EndPoints(right, left);
 	Edge* e3 = MakeEdge();
 	Splice(e2->Sym(), e3); //CHECK
-	e3->EndPoints(right, lowest);
+	e3->EndPoints(left, lowest);
 	Splice(e3->Sym(), e1); //CHECK
 	startingEdge = e1;
 }

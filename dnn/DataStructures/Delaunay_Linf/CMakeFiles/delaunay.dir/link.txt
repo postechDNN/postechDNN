@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.1 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/delaunay.dir/quadedge.cpp.o CMakeFiles/delaunay.dir/main.cpp.o -o delaunay  -framework OpenGL -framework OpenGL -framework GLUT -framework Cocoa 
