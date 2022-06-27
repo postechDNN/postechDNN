@@ -217,3 +217,7 @@ bool Polytope::intersect(Point p1, Point p2, int dir) {
 	}
 	return false;
 }
+
+bool Polytope::operator==(Polytope _p) {
+	return this->ord == _p.ord;
+}

@@ -21,6 +21,7 @@ public: // variables
 	double x_min; double x_max;
 	double y_min; double y_max;
 	double z_min; double z_max;
+	int x_num, y_num, z_num;
 
 	Point upper_left;
 	int row_num, col_num, layer_num; // (# of points in the eps_graph) = (row_num) * (col_num) * (layer_num) // index는 0부터 n-1까지
@@ -49,7 +50,7 @@ public:	// functions
 	void add_edge(int, int, bool);
 	void delete_edge(indices, indices);
 	bool cmpNadd(indices, int);
-	bool cmpNadd_SinPol(indices, bool, int);
+	bool cmpNadd_SinPol(indices, int, int);
 
 	void add_freepts(vector<Free_Point>);
 	void delete_freept(int);

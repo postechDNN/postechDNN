@@ -30,4 +30,5 @@ public:
 	~Polytope();
 	bool isIn(Point* p);
 	bool intersect(Point, Point, int);
+	bool operator==(Polytope);
 };
