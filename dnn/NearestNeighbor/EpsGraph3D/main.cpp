@@ -38,5 +38,12 @@ int main() {
 	Face* f6 = new Face(fv);
 	poly->faces = { f1,f2,f3,f4,f5,f6 };
 	poly->vertices = { v1,v2,v3,v4,v5 };
+	std::list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
+	std::vector<Polytope> plts = {};
+	Eps_Graph_3D grid(frpts, plts, 0.1);
+	Free_Point* q = new Free_Point(0., 0., 0.9);
+	grid.print_kNN(*q, 1);
+	grid.add_pol(*poly);
+	grid.print_kNN(*q, 1);
 	return 0;
 }
