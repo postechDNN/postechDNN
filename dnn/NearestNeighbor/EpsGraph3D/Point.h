@@ -2,9 +2,9 @@
 #include <vector>
 
 struct indices {
-	int x_ind;
-	int y_ind;
-	int z_ind;
+	long long int x_ind;
+	long long int y_ind;
+	long long int z_ind;
 };
 
 struct ind_pts {

@@ -21,7 +21,7 @@ public: // variables
 	double x_min; double x_max;
 	double y_min; double y_max;
 	double z_min; double z_max;
-	int x_num, y_num, z_num;
+	long long int x_num, y_num, z_num;
 
 	Point upper_left;
 	int row_num, col_num, layer_num; // (# of points in the eps_graph) = (row_num) * (col_num) * (layer_num) // index는 0부터 n-1까지
@@ -42,9 +42,9 @@ public:	// functions
 	void init_grid();
 	Grid_Point get_gridpt(indices);
 
-	int ind2num(indices);
-	int ind2num(int, int, int);
-	indices num2ind(int);
+	long long int ind2num(indices);
+	long long int ind2num(long long int, long long int, long long int);
+	indices num2ind(long long int);
 
 	void add_edge(indices, indices); // add grid edges
 	void add_edge(int, int, bool);
