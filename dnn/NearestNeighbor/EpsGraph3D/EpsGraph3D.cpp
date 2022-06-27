@@ -322,7 +322,7 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 		}
 	}
 }
-
+/*
 Grid_Point Eps_Graph_3D::query_anchor(Free_Point p) { //Àç°Ç part Â©°Í (±Þ)
 	long long int row; long long int col; long long int lay;
 	row = long long int(ceil((upper_left.y - p.y) / eps - 0.5)); // Á¤ Áß¾Ó¿¡ ÀÖ´Â Á¡Àº À§·Î anchorµÊ
@@ -360,7 +360,7 @@ Grid_Point Eps_Graph_3D::query_anchor(Free_Point p) { //Àç°Ç part Â©°Í (±Þ)
 	}
 	return Grid_Point();
 }
-
+*/
 
 void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O 
 	for (Free_Point& pt : fr_pts) 
@@ -505,8 +505,8 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 	vector<Free_Point> ret = {};
 	vector<int>().swap(NN_dist);
 
-	Grid_Point s = query_anchor(p);
-	//Grid_Point s = grid[p.host];
+	anchor(p);
+	Grid_Point s = grid[p.host];
 	for (int& elem : dist) { elem = INT_MAX; }
 	for (unsigned int ind1 = 0; ind1 < visited.size(); ind1++) { visited[ind1] = false; }
 
