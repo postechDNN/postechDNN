@@ -65,10 +65,10 @@ Free_Point::Free_Point(double _x, double _y, double _z) :Point(_x, _y, _z) {
 
 Grid_Point::Grid_Point() : Point() { ind = { -1, -1, -1 }; num = -1; ip = { false, false, false, false, false, false }; encl = -1; }
 
-Grid_Point::Grid_Point(int _x_num, int _y_num, int _z_num, double x_min, double y_max, double z_min, double eps, int eg_y, int eg_z) {
+Grid_Point::Grid_Point(int _x_num, int _y_num, int _z_num, double x_min, double y_min, double z_min, double eps, int eg_y, int eg_z) {
 	ind.x_ind = _x_num; ind.y_ind = _y_num; ind.z_ind = _z_num;
-	x = x_min + ind.x_ind * eps; y = y_max - ind.y_ind * eps; z = z_min + ind.z_ind * eps;
-	num = ind.x_ind * eg_y * eg_z + ind.z_ind * eg_z + ind.z_ind;
+	x = x_min + ind.x_ind * eps; y = y_min + ind.y_ind * eps; z = z_min + ind.z_ind * eps;
+	num = ind.x_ind * eg_y * eg_z + ind.y_ind * eg_z + ind.z_ind;
 	encl = -1;
 	ip = { false, false, false, false, false, false };
 }

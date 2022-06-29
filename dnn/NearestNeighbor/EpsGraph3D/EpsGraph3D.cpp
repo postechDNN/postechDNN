@@ -51,15 +51,20 @@ Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, dou
 
 void Eps_Graph_3D::init_grid() { //O
 
-	long long int x_ind = long long int(floor(x_min / eps)) - 1;
-	long long int y_ind = long long int(floor(y_min / eps)) - 1;
-	long long int z_ind = long long int(floor(z_min / eps)) - 1;
-	x_num = 2 + long long int(ceil(x_max / eps)) - x_ind;
-	y_num = 2 + long long int(ceil(y_max / eps)) - y_ind;
-	z_num = 2 + long long int(ceil(z_max / eps)) - z_ind;
+	//long long int x_ind = long long int(floor(x_min / eps)) - 1;
+	//long long int y_ind = long long int(floor(y_min / eps)) - 1;
+	//long long int z_ind = long long int(floor(z_min / eps)) - 1;
+	//x_num = 2 + long long int(ceil(x_max / eps)) - x_ind;
+	//y_num = 2 + long long int(ceil(y_max / eps)) - y_ind;
+	//z_num = 2 + long long int(ceil(z_max / eps)) - z_ind;
+	x_num = 1 + long long int(ceil((x_max - x_min) / eps));
+	y_num = 1 + long long int(ceil((y_max - y_min) / eps));
+	z_num = 1 + long long int(ceil((z_max - z_min) / eps));
+
 
 	// upper_left = Point(x_ind * eps, int(ceil(y_max / eps + 1)) * eps, z_ind * eps);
-	upper_left = Point(x_ind * eps, int(ceil(y_max / eps + 1)) * eps, z_ind * eps);
+	//upper_left = Point(x_ind * eps, y_ind * eps, z_ind * eps);
+	upper_left = Point(x_min, y_min, z_min);
 	//need to check why y is different!!
 
 	// initialization step for BFS
@@ -70,7 +75,7 @@ void Eps_Graph_3D::init_grid() { //O
 
 	for (long long int i = 0; i < y_num * x_num * z_num; i++)
 	{
-		grid.push_back(Grid_Point(num2ind(i).x_ind, num2ind(i).y_ind, num2ind(i).z_ind, upper_left.x, upper_left.y, upper_left.z, eps, x_num, z_num));
+		grid.push_back(Grid_Point(num2ind(i).x_ind, num2ind(i).y_ind, num2ind(i).z_ind, upper_left.x, upper_left.y, upper_left.z, eps, y_num, z_num));
 	}
 
 	// for each grid & free point, count # of crossings of the rightward ray with each polytope
@@ -121,7 +126,7 @@ long long int Eps_Graph_3D::ind2num(long long int _x, long long int _y, long lon
 }
 
 indices Eps_Graph_3D::num2ind(long long int num) { //O
-	return indices{ num / (y_num * z_num), (num % y_num) / z_num, (num% y_num) % z_num};
+	return indices{ num / (y_num * z_num), (num % (y_num * z_num)) / z_num, (num % (y_num * z_num)) % z_num};
 }
 
 // adds/deletes a grid edge
@@ -291,30 +296,51 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 	bool flag = false;
 	int x; int y; int z; 
 	x = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
-	y = int(ceil((upper_left.y - p.y) / eps - 0.5)); // points on the midline anchors upward
+	// y = int(ceil((upper_left.y - p.y) / eps - 0.5)); // points on the midline anchors upward
+	y = int(ceil((p.y - upper_left.y) / eps - 0.5));
 	z = int(ceil((p.z - upper_left.z) / eps - 0.5));
-
+	//Grid_Point gr_pt = grid[ind2num(x, y, z)];
+	//if (gr_pt.encl == -1) {
+	//	p.host = gr_pt.num;
+	//	grid[ind2num(x, y, z)].anchored.push_back(&p);
+	//	return;
+	//}
+	if (grid[ind2num(x, y, z)].encl == -1) {
+		p.host = grid[ind2num(x, y, z)].num;
+		grid[ind2num(x, y, z)].anchored.push_back(&p);
+		return;
+	}
 
 	// find a nearest gridpoint not enclosed by any polygon
 	for (int step = 1; step < y_num + x_num + z_num; step++) {
 		// vector<Grid_Point> gr_pts = {};
-		Grid_Point gr_pt;
+		//Grid_Point gr_pt;
 		for (int x_step = -step; x_step <= step; x_step++) {
 			for (int y_step = -(step-abs(x_step)); y_step <= step - abs(x_step); y_step++) {
 				int z_step = step - abs(x_step) - abs(y_step);
 				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z + z_step && z + z_step < z_num) {
-					gr_pt = grid[ind2num(x + x_step, y + y_step, z + z_step)];
-					if (gr_pt.encl == -1) {
-						p.host = gr_pt.num;
-						gr_pt.anchored.push_back(&p);
+					//gr_pt = grid[ind2num(x + x_step, y + y_step, z + z_step)];
+					//if (gr_pt.encl == -1) {
+					//	p.host = gr_pt.num;
+					//	grid[ind2num(x, y, z)].anchored.push_back(&p);
+					//	return;
+					//}
+					if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
+						p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
+						grid[ind2num(x, y, z)].anchored.push_back(&p);
 						return;
 					}
 				}
 				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z - z_step && z - z_step < z_num) {
-					gr_pt = grid[ind2num(x + x_step, y + y_step, z - z_step)];
-					if (gr_pt.encl == -1) {
-						p.host = gr_pt.num;
-						gr_pt.anchored.push_back(&p);
+					//gr_pt = grid[ind2num(x + x_step, y + y_step, z - z_step)];
+					//if (gr_pt.encl == -1) {
+					//	p.host = gr_pt.num;
+					//	grid[ind2num(x, y, z)].anchored.push_back(&p);
+					//	return;
+					//}
+					if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
+						p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
+						grid[ind2num(x, y, z)].anchored.push_back(&p);
 						return;
 					}
 				}
@@ -529,11 +555,11 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 			visited[q.front()] = true;
 
 			int cur = q.front();
-			if (grid[cur].ip.x_u && visited[cur + y_num * z_num] == false) { dist[cur + y_num * z_num] = dist[cur] + 1; q.push(cur + y_num * z_num); }
-			if (grid[cur].ip.x_d && visited[cur - y_num * z_num] == false) { dist[cur - y_num * z_num] = dist[cur] + 1; q.push(cur - y_num * z_num); }
-			if (grid[cur].ip.y_u && visited[cur + z_num] == false) { dist[cur + z_num] = dist[cur] + 1; q.push(cur + z_num); }
-			if (grid[cur].ip.y_d && visited[cur - z_num] == false) { dist[cur - z_num] = dist[cur] + 1; q.push(cur - z_num); }
-			if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
+			//if (grid[cur].ip.x_u && visited[cur + y_num * z_num] == false) { dist[cur + y_num * z_num] = dist[cur] + 1; q.push(cur + y_num * z_num); }
+			//if (grid[cur].ip.x_d && visited[cur - y_num * z_num] == false) { dist[cur - y_num * z_num] = dist[cur] + 1; q.push(cur - y_num * z_num); }
+			//if (grid[cur].ip.y_u && visited[cur + z_num] == false) { dist[cur + z_num] = dist[cur] + 1; q.push(cur + z_num); }
+			//if (grid[cur].ip.y_d && visited[cur - z_num] == false) { dist[cur - z_num] = dist[cur] + 1; q.push(cur - z_num); }
+			//if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
 			if (grid[cur].ip.z_d && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
 
 			for (auto FP : grid[q.front()].anchored) {
@@ -541,6 +567,11 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 			}
 			q.pop();
 		}
+
+		for (auto pt : FPs_temp) {
+			FPs.push_back(pt);
+		}
+
 
 		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
 			{
@@ -577,14 +608,22 @@ void Eps_Graph_3D::print_grid() {
 
 void Eps_Graph_3D::print_edges() {
 	for (auto gp : grid) {
-		if (gp.ip.x_u == true) {
-			cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << gp.ind.z_ind << '|' << gp.ind.x_ind + 1 << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind << endl;
+		//if (gp.ip.x_u == true) {
+		//	cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind << '|' << gp.ind.x_ind + 1 << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind << endl;
+		//}
+		//if (gp.ip.y_u == true) {
+		//	cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind << '|' << gp.ind.x_ind << ' ' << gp.ind.y_ind + 1 << ' ' << gp.ind.z_ind << endl;
+		//}
+		if (gp.ip.z_u == true && gp.ind.x_ind == 10 && gp.ind.y_ind == 10) {
+			cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind << '|' << gp.ind.x_ind << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind + 1 << endl;
 		}
-		if (gp.ip.y_u == true) {
-			cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << gp.ind.z_ind << '|' << gp.ind.x_ind << ' ' << gp.ind.y_ind + 1 << ' ' << gp.ind.z_ind << endl;
-		}
-		if (gp.ip.z_u == true) {
-			cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << gp.ind.z_ind << '|' << gp.ind.x_ind << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind + 1 << endl;
+	}
+}
+
+void Eps_Graph_3D::print_anchor() {
+	for (auto gp : grid) {
+		for (vector<Free_Point*>::iterator it = gp.anchored.begin(); it != gp.anchored.end(); ++it) {
+			cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind << '|' << (*(*it)).x << ' ' << (*(*it)).y << ' ' << (*(*it)).z << endl;
 		}
 	}
 }
@@ -601,9 +640,10 @@ void Eps_Graph_3D::print_dist() {
 	}
 }
 
-void Eps_Graph_3D::print_kNN(Free_Point p, int k) {
-	vector<Free_Point> nbhd = kNN(p, k);
+void Eps_Graph_3D::print_kNN(Free_Point p, int k ) {
+	vector<Free_Point> nbhd = kNN(p, k + 1);
 	for (auto nb : nbhd) {
+		if (nb.x == p.x && nb.y == p.y && nb.z == p.z) continue;
 		cout << nb.x << ' ' << nb.y << ' ' << nb.z << endl;
 	}
 }

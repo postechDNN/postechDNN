@@ -24,7 +24,7 @@ public: // variables
 	long long int x_num, y_num, z_num;
 
 	Point upper_left;
-	int row_num, col_num, layer_num; // (# of points in the eps_graph) = (row_num) * (col_num) * (layer_num) // index는 0부터 n-1까지
+	// int row_num, col_num, layer_num; // (# of points in the eps_graph) = (row_num) * (col_num) * (layer_num) // index는 0부터 n-1까지
 
 	vector<Grid_Point> grid;
 	vector<edge> edges;
@@ -67,6 +67,7 @@ public:	// functions
 
 	void print_grid();
 	void print_edges();
+	void print_anchor();
 	void print_dist();
 	void print_kNN(Free_Point, int);
 

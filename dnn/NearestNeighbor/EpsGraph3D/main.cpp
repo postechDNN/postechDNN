@@ -5,8 +5,8 @@
 #include <vector>
 
 int main() {
-	Free_Point* p1 = new Free_Point(0., 0., 0.);
-	Free_Point* p2 = new Free_Point(1.5, 1.5, 0.);
+	Free_Point* p1 = new Free_Point(0., 0., 20.);
+	Free_Point* p2 = new Free_Point(0, 0, -65.);
 	Free_Point* p3 = new Free_Point(0., 0., 1.5);
 	Free_Point* p4 = new Free_Point(100., 100., 100.);
 	Free_Point* p5 = new Free_Point(-100., -100., -100.);
@@ -34,10 +34,12 @@ int main() {
 	poly->vertices = { v1,v2,v3,v4,v5 };
 	std::list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
 	std::vector<Polytope> plts = {};
-	Eps_Graph_3D grid(frpts, plts, 5);
-	Free_Point* q = new Free_Point(0., 0., 0.9);
+	Eps_Graph_3D grid(frpts, plts, 10);
+	grid.print_anchor();
+	Free_Point* q = new Free_Point(0., 0., -20.);
 	grid.print_kNN(*q, 1);
 	grid.add_pol(*poly);
+	grid.print_edges();
 	grid.print_kNN(*q, 1);
 	return 0;
 }
