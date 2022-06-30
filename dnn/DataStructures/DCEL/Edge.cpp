@@ -1,5 +1,4 @@
 #include "Edge.h"
-#include "Point.h"
 #include <algorithm>
 #include <iostream>
 #define ERR 1e-6

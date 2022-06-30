@@ -1,38 +1,24 @@
-#include"Point.h"
-#include"Edge.h"
-#include"Segment.h"
-#include <vector>
+#pragma once
+#include"../../DataStructures/DCEL/Point.h"
 using namespace std;
 
 class Rect {
-	double l;
-	double r;
-	double t;
-	double b;
+protected:
+	double l,r,u,d;
+	Point *ld, *lu, *rd, *ru;
 	int id;
-	Point *lt;
-	Point *lb;
-	Point *rt;
-	Point *rb;
-	Point *p;
-	bool pcheck;
-
 public:
-	Rect();
-	Rect(Point*);
-	Rect(double, double);
 	Rect(double, double, double, double);
+	~Rect();
 	double getl(void);
 	double getr(void);
-	double gett(void);
-	double getb(void);
-	int getid(void);
-	bool isPoint(void);
-	Point* getlt(void);
-	Point* getlb(void);
-	Point* getrt(void);
-	Point* getrb(void);
-	Point* getp(void);
-
+	double getu(void);
+	double getd(void);
+	const bool operator==(Rect&);
+	Point* getld(void);
+	Point* getlu(void);
+	Point* getrd(void);
+	Point* getru(void);
+	int getid();
 	void setid(int);
 };
