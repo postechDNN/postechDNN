@@ -401,13 +401,14 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 	for (Grid_Point& gr_pt : grid) {
 		bool in = P.isIn(&gr_pt);
 		if (in) { 
+			cout << gr_pt.getx() << " " << gr_pt.gety() << " " << gr_pt.getz() << " " << endl;
 			assert(gr_pt.encl == -1); 
 			gr_pt.encl = P.ord;
 			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end(); ++it) {
 				anchor(*(*it));
 			}
+			vector<Free_Point*>().swap(gr_pt.anchored);
 		}
-		vector<Free_Point*>().swap(gr_pt.anchored);
 	}
 	pols.push_back(P);
 	// Check from Here!!!
@@ -432,17 +433,17 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 
 				if (i != x_num - 1) {
 					if (grid[ind2num(i + 1, j, k)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j ,k }, X, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, X, P.ord)) { cout << i << j << k << endl; delete_edge(indices{ i, j ,k }, indices{ i + 1, j ,k }); }
 					}
 				}
 				if (j != y_num - 1) {
 					if (grid[ind2num(i, j + 1, k)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j ,k }, Y, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, Y, P.ord)) { cout << i << j << k << endl; delete_edge(indices{ i, j ,k }, indices{ i, j + 1 ,k }); }
 					}
 				}
 				if (k != z_num - 1) {
 					if ( grid[ind2num(i, j, k + 1)].encl == -1) {
-						if (!cmpNadd_SinPol(indices{ i, j ,k }, Z, P.ord)) { delete_edge(indices{ i, j ,k }, indices{ i, j , k + 1 }); }
+						if (!cmpNadd_SinPol(indices{ i, j ,k }, Z, P.ord)) { cout << i << j << k << endl; delete_edge(indices{ i, j ,k }, indices{ i, j , k + 1 }); }
 					}
 				}
 			}
@@ -599,6 +600,12 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 		vector<Free_Point>().swap(FPs);
 		grid_dist += 1;
 	}
+	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+		if ((*(*it)).x == p.x && (*(*it)).y == p.y && (*(*it)).z == p.z) {
+			grid[p.host].anchored.erase(it);
+			break;
+		}
+	}
 
 	return ret;
 }
@@ -607,6 +614,14 @@ void Eps_Graph_3D::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
 		cout << grid[i].ind.x_ind << grid[i].ind.y_ind << grid[i].ind.z_ind << ' ' << '|' << grid[i].ip.x_u << ' ' << '|' << grid[i].ip.y_u << grid[i].ip.z_u << ' ' << '|';
 		if (num2ind(i).z_ind == z_num - 1) { cout << endl; }
+	}
+}
+
+void Eps_Graph_3D::print_encl() {
+	for (Polytope& pol : pols) {
+		for (auto pt : pol.encl_pts) {
+			cout << pt->x << ' ' << pt->y << ' ' << pt->z << ' ' << endl;
+		}
 	}
 }
 

@@ -11,10 +11,10 @@ int main() {
 	Free_Point* p4 = new Free_Point(100., 100., 100.);
 	Free_Point* p5 = new Free_Point(-100., -100., -100.);
 	Polytope* poly = new Polytope();
-	Point* v1 = new Point(99., 99., 1.);
-	Point* v2 = new Point(99., -99., 1.);
-	Point* v3 = new Point(-99., -99., 1.);
-	Point* v4 = new Point(-99., 99., 1.);
+	Point* v1 = new Point(99., 99., -1.);
+	Point* v2 = new Point(99., -99., -1.);
+	Point* v3 = new Point(-99., -99., -1.);
+	Point* v4 = new Point(-99., 99., -1.);
 	Point* v5 = new Point(0., 0., 1.4);
 
 	std::vector<Point*> fv = { v1,v2,v3 };
@@ -35,9 +35,9 @@ int main() {
 	Eps_Graph_3D grid(frpts, plts, 10);
 	grid.print_anchor();
 	Free_Point* q = new Free_Point(0., 0., -20.);
-	grid.print_kNN(*q, 1);
+	grid.print_kNN(*q, 3);
 	grid.add_pol(*poly);
-	grid.print_edges();
-	grid.print_kNN(*q, 1);
+	// grid.print_edges();
+	grid.print_kNN(*q, 3);
 	return 0;
 }

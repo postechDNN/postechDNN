@@ -67,6 +67,7 @@ public:	// functions
 	vector<Free_Point> kNN(Free_Point, int); // kNN point query
 
 	void print_grid();
+	void print_encl();
 	void print_edges();
 	void print_anchor();
 	void print_dist();
