@@ -1,6 +1,19 @@
 #pragma once
 #include "Point.h"
 
+class Edge {
+public:
+	Point* p1;
+	Point* p2;
+public:
+	Edge();
+	Edge(std::vector<Point*>);
+	Edge(Point*, Point*);
+	~Edge();
+	bool operator==(Edge);
+	bool below(Point* p);
+};
+
 class Face {
 protected:
 	char* face_key;
@@ -12,15 +25,19 @@ public:
 	~Face();
 	bool below(Point* p);
 	bool pass(Point* p1, Point* p2, int dir);
+	std::vector<Point*> getpoints();
 };
 
 class Polytope {
-public:
+protected:
+	std::vector<Face*> faces;
+	std::vector <Edge> edges;
+	std::vector<Point*> vertices;
 	int num_faces;
 	int num_points;
+	int num_edges;
+public:
 	double x_min, x_max, y_min, y_max, z_min, z_max;
-	std::vector<Face*> faces;
-	std::vector<Point*> vertices;
 	std::vector<Point*> encl_pts;
 	int ord;
 
@@ -28,6 +45,7 @@ public:
 	Polytope();
 	Polytope(FILE*);
 	~Polytope();
+	void setpolytope(std::vector<Face*> input);
 	bool isIn(Point* p);
 	bool intersect(Point, Point, int);
 	bool operator==(Polytope);

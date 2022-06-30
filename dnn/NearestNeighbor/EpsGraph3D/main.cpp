@@ -16,8 +16,7 @@ int main() {
 	Point* v3 = new Point(-99., -99., 1.);
 	Point* v4 = new Point(-99., 99., 1.);
 	Point* v5 = new Point(0., 0., 1.4);
-	poly->num_faces = 6;
-	poly->num_points = 5;
+
 	std::vector<Point*> fv = { v1,v2,v3 };
 	Face* f1 = new Face(fv);
 	fv = { v1,v3,v4 };
@@ -30,8 +29,7 @@ int main() {
 	Face* f5 = new Face(fv);
 	fv = { v3,v4,v5 };
 	Face* f6 = new Face(fv);
-	poly->faces = { f1,f2,f3,f4,f5,f6 };
-	poly->vertices = { v1,v2,v3,v4,v5 };
+	poly->setpolytope( { f1, f2, f3, f4, f5, f6 });
 	std::list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
 	std::vector<Polytope> plts = {};
 	Eps_Graph_3D grid(frpts, plts, 10);

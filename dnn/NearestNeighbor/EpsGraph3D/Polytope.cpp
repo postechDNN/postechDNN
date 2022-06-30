@@ -5,6 +5,37 @@
 
 
 using namespace std;
+Edge::Edge() {
+	p1 = new Point;
+	p2 = new Point;
+}
+
+Edge::~Edge() {
+}
+
+Edge::Edge(std::vector<Point*> vp) {
+	p1 = vp[0];
+	p2 = vp[1];
+}
+
+Edge::Edge(Point* v1, Point* v2) {
+	p1 = v1;
+	p2 = v2;
+}
+
+bool Edge::operator==(Edge e) {
+	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
+}
+
+bool Edge::below(Point* p) {
+	if ((p->x-p2->x)*(p1->y-p2->y) == (p->y - p2->y) * (p1->x - p2->x))
+	{
+		if (p1->x == p2->x && ((p1->y < p->y && p->y < p2->y) || (p2->y < p->y && p->y < p1->y))) { return true; }
+		if (p1->y == p2->y && ((p1->x < p->x && p->x < p2->x) || (p2->x < p->x && p->x < p1->x))) { return true; }
+		if ((p->y - p2->y) / (p1->y - p2->y) > 0 && (p->y - p2->y) / (p1->y - p2->y) < 1) { return true; }
+	}
+	return false;
+}
 
 Face::Face() {
 	face_key = new char[10];
@@ -21,6 +52,11 @@ Face::Face(std::vector<Point*> vp) {
 }
 
 Face::~Face() {
+}
+
+std::vector<Point*> Face::getpoints()
+{
+	return points;
 }
 
 bool Face::below(Point* p) {
@@ -164,22 +200,14 @@ bool Face::pass(Point* p1, Point* p2, int dir){
 Polytope::Polytope() {
 	num_faces = 0;
 	num_points = 0;
+	num_edges = 0;
 	encl_pts = {};
-	x_min = -INFINITY;
-	y_min = -INFINITY;
-	z_min = -INFINITY;
-	x_max = INFINITY;
-	y_max = INFINITY;
-	z_max = INFINITY;
-	for (Point* vertex : vertices)
-	{
-		x_min = min(x_min, vertex->getx());
-		y_min = min(y_min, vertex->gety());
-		z_min = min(z_min, vertex->getz());
-		x_max = max(x_max, vertex->getx());
-		y_max = min(y_max, vertex->gety());
-		z_max = min(z_max, vertex->getz());
-	}
+	x_min = INFINITY;
+	y_min = INFINITY;
+	z_min = INFINITY;
+	x_max = -INFINITY;
+	y_max = -INFINITY;
+	z_max = -INFINITY;
 }
 
 Polytope::Polytope(FILE* f) {
@@ -191,20 +219,98 @@ Polytope::Polytope(FILE* f) {
 Polytope::~Polytope() {
 }
 
+void Polytope::setpolytope(std::vector<Face*> input)
+{
+	num_faces = 0;
+	num_points = 0;
+	num_edges = 0;
+	encl_pts = {};
+	x_min = INFINITY;
+	y_min = INFINITY;
+	z_min = INFINITY;
+	x_max = -INFINITY;
+	y_max = -INFINITY;
+	z_max = -INFINITY;
+	for (auto F : input)
+	{
+		faces.push_back(F);
+		num_faces++;
+		std:vector<Point*> temp = F->getpoints();
+		for (auto p : temp)
+		{
+			bool same = false;
+			for (auto v : vertices)
+			{
+				if (p == v)
+				{
+					same = true;
+					break;
+				}
+			}
+			if (!same)
+			{
+				vertices.push_back(p);
+				num_points++;
+			}
+		}
+		Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]}};
+		for (int i = 0; i < 3; i++)
+		{
+			bool same = false;
+			for (auto e : edges)
+			{
+				if (e == t[i])
+				{
+					same = true;
+					break;
+				}
+			}
+			if (!same)
+			{
+				edges.push_back(t[i]);
+				num_edges++;
+			}
+		}
+	}
+	for (Point* vertex : vertices)
+	{
+		x_min = min(x_min, vertex->getx());
+		y_min = min(y_min, vertex->gety());
+		z_min = min(z_min, vertex->getz());
+		x_max = max(x_max, vertex->getx());
+		y_max = max(y_max, vertex->gety());
+		z_max = max(z_max, vertex->getz());
+	}
+}
 
 // Polytope
 bool Polytope::isIn(Point* p) {
-	int num_belowface = 0; 
+	int num_below = 0; 
 	for (int i = 0; i < num_faces; i++)
 	{
 		if (this->faces[i]->below(p)) {
-			num_belowface++;
+			num_below++;
 		}
 	}
-	if (num_belowface % 2 == 1) {
-		return true;
+	for (auto e : edges)
+	{
+		if (e.below(p))
+		{
+			num_below++;
+		}
 	}
-	else { return false; }
+	for (auto v : vertices)
+	{
+		if (p->getx() == v->getx() && p->gety() == v->gety())
+		{
+			num_below++;
+		}
+	}
+	if (num_below % 2 == 0)
+	{
+		return false;
+	}
+	else { return true; }
 };
 
 bool Polytope::intersect(Point p1, Point p2, int dir) {

@@ -22,6 +22,7 @@ public: // variables
 	double y_min; double y_max;
 	double z_min; double z_max;
 	long long int x_num, y_num, z_num;
+	int ord_pol;
 
 	Point upper_left;
 	// int row_num, col_num, layer_num; // (# of points in the eps_graph) = (row_num) * (col_num) * (layer_num) // index는 0부터 n-1까지

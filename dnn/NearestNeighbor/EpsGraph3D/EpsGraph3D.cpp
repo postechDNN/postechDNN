@@ -15,14 +15,16 @@ Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, dou
 	pols = _pols;
 	eps = _eps;
 	NN_dist = {};
-
+	ord_pol = 0;
 	x_min = y_min = z_min = DBL_MAX;
 	x_max = y_max = z_max = DBL_MIN;
 
 	// among all points and polygons vertices, find the minimum/maximum x- and y-coordinate.
 	// this is to find a reasonably small bounding box for P \setunion O.
-
+	
 	for (auto pol : pols) {
+		pol.ord = ord_pol;
+		ord_pol++;
 		if (pol.x_max > this->x_max) { this->x_max = pol.x_max; }
 		if (pol.y_max > this->y_max) { this->y_max = pol.y_max; }
 		if (pol.z_max > this->z_max) { this->z_max = pol.z_max; }
@@ -389,6 +391,8 @@ Grid_Point Eps_Graph_3D::query_anchor(Free_Point p) { //Àç°Ç part Â©°Í (±Þ)
 */
 
 void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O 
+	P.ord = ord_pol;
+	ord_pol++;
 	for (Free_Point& pt : fr_pts) 
 	{ 
 		bool in = P.isIn(&pt); 
@@ -555,11 +559,11 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 			visited[q.front()] = true;
 
 			int cur = q.front();
-			//if (grid[cur].ip.x_u && visited[cur + y_num * z_num] == false) { dist[cur + y_num * z_num] = dist[cur] + 1; q.push(cur + y_num * z_num); }
-			//if (grid[cur].ip.x_d && visited[cur - y_num * z_num] == false) { dist[cur - y_num * z_num] = dist[cur] + 1; q.push(cur - y_num * z_num); }
-			//if (grid[cur].ip.y_u && visited[cur + z_num] == false) { dist[cur + z_num] = dist[cur] + 1; q.push(cur + z_num); }
-			//if (grid[cur].ip.y_d && visited[cur - z_num] == false) { dist[cur - z_num] = dist[cur] + 1; q.push(cur - z_num); }
-			//if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
+			if (grid[cur].ip.x_u && visited[cur + y_num * z_num] == false) { dist[cur + y_num * z_num] = dist[cur] + 1; q.push(cur + y_num * z_num); }
+			if (grid[cur].ip.x_d && visited[cur - y_num * z_num] == false) { dist[cur - y_num * z_num] = dist[cur] + 1; q.push(cur - y_num * z_num); }
+			if (grid[cur].ip.y_u && visited[cur + z_num] == false) { dist[cur + z_num] = dist[cur] + 1; q.push(cur + z_num); }
+			if (grid[cur].ip.y_d && visited[cur - z_num] == false) { dist[cur - z_num] = dist[cur] + 1; q.push(cur - z_num); }
+			if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
 			if (grid[cur].ip.z_d && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
 
 			for (auto FP : grid[q.front()].anchored) {
