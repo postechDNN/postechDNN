@@ -4,7 +4,10 @@
 #include <GLUT/glut.h>
 #include <vector>
 
+#include "gnuplot-iostream.h"
+
 using namespace std; 
+
 
 Point2d drA, drB; // for drawing 
 
@@ -361,7 +364,7 @@ void Subdivision::Draw()
 {
 	if (++timestamp == 0)
 		timestamp = 1;
-	startingEdge->Draw(timestamp);
+	//startingEdge->Draw(timestamp); //CHECK
 }
 
 void DrawFun(void){
@@ -385,7 +388,7 @@ void DrawFun(void){
 
 
 
-void Edge::Draw(unsigned int stamp)
+void Edge::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, double>>> & segments)
 // This is a recursive drawing routine that uses time stamps to
 // determine if the edge has already been drawn. This is given
 // here for testing purposes only: it is not efficient, and for
@@ -395,7 +398,7 @@ void Edge::Draw(unsigned int stamp)
 // list should be updated every time an edge is created or destroyed.
 {
 	if (Qedge()->TimeStamp(stamp)) {
-
+		
 		// Draw the edge
 		Point2d a = Org2d();
 		Point2d b = Dest2d();
@@ -413,17 +416,39 @@ void Edge::Draw(unsigned int stamp)
 		//glutDisplayFunc(myDisplay);
 
 		
+		//std::vector<std::vector<std::pair<double, double>>> all_segments, all1, all2, all3, all4;
+		std::vector<std::pair<double, double>> segment;
+		segment.emplace_back(a.x, a.y);
+		segment.emplace_back(b.x, b.y);
+		segments.push_back(segment);
+
+		// all_segments.push_back(segment);
+
+
+		//gp << "plot '-' with linespoints\n";
+		// NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
+		//gp.send2d(all_segments);
+
+		
 
 		
 		// visit neighbors
 		//printf("Draw Onext \n");
-		Onext()->Draw(stamp);
+		Onext()->Draw(stamp, segments);
 		//printf("Draw Oprev \n");
-		Oprev()->Draw(stamp);
+		Oprev()->Draw(stamp, segments);
 		//printf("Draw Dnext \n");
-		Dnext()->Draw(stamp);
+		Dnext()->Draw(stamp, segments);
 		//printf("Draw Dprev \n");
-		Dprev()->Draw(stamp);
+		Dprev()->Draw(stamp, segments);
+
+		// if (!all1.empty()) all_segments.insert(all_segments.end(), all1.begin(), all1.end());
+		// if (!all2.empty()) all_segments.insert(all_segments.end(), all2.begin(), all2.end());
+		// if (!all3.empty()) all_segments.insert(all_segments.end(), all3.begin(), all3.end());
+		// if (!all4.empty()) all_segments.insert(all_segments.end(), all4.begin(), all4.end());
+
+		//return all_segments;
+		return;
 		
 		
 		//glFlush();// Sends all output to display
@@ -441,6 +466,7 @@ void Edge::EdgeDraw(void){
 
 	drA = a; 
 	drB = b; 
+
 
 	printf("Edge: (%.1f, %.1f) to (%.1f, %.1f)\n", a.x, a.y, b.x, b.y);
 	return;

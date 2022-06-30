@@ -108,6 +108,10 @@ delaunay_EXTERNAL_OBJECTS =
 delaunay: CMakeFiles/delaunay.dir/quadedge.cpp.o
 delaunay: CMakeFiles/delaunay.dir/main.cpp.o
 delaunay: CMakeFiles/delaunay.dir/build.make
+delaunay: /opt/homebrew/lib/libboost_filesystem-mt.dylib
+delaunay: /opt/homebrew/lib/libboost_system-mt.dylib
+delaunay: /opt/homebrew/lib/libboost_iostreams-mt.dylib
+delaunay: /opt/homebrew/lib/libboost_atomic-mt.dylib
 delaunay: CMakeFiles/delaunay.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable delaunay"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/delaunay.dir/link.txt --verbose=$(VERBOSE)

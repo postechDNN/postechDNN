@@ -14,6 +14,18 @@
 # EXTERNAL cache entries
 ########################
 
+//The directory containing a CMake configuration file for Boost.
+Boost_DIR:PATH=/opt/homebrew/lib/cmake/Boost-1.78.0
+
+Boost_FILESYSTEM_LIBRARY_RELEASE:STRING=/opt/homebrew/lib/libboost_filesystem-mt.dylib
+
+//Path to a file.
+Boost_INCLUDE_DIR:PATH=/opt/homebrew/include
+
+Boost_IOSTREAMS_LIBRARY_RELEASE:STRING=/opt/homebrew/lib/libboost_iostreams-mt.dylib
+
+Boost_SYSTEM_LIBRARY_RELEASE:STRING=/opt/homebrew/lib/libboost_system-mt.dylib
+
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=CMAKE_ADDR2LINE-NOTFOUND
 
@@ -234,11 +246,28 @@ Project_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 Project_SOURCE_DIR:STATIC=/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf
 
+//The directory containing a CMake configuration file for boost_atomic.
+boost_atomic_DIR:PATH=/opt/homebrew/lib/cmake/boost_atomic-1.78.0
+
+//The directory containing a CMake configuration file for boost_filesystem.
+boost_filesystem_DIR:PATH=/opt/homebrew/lib/cmake/boost_filesystem-1.78.0
+
+//The directory containing a CMake configuration file for boost_headers.
+boost_headers_DIR:PATH=/opt/homebrew/lib/cmake/boost_headers-1.78.0
+
+//The directory containing a CMake configuration file for boost_iostreams.
+boost_iostreams_DIR:PATH=/opt/homebrew/lib/cmake/boost_iostreams-1.78.0
+
+//The directory containing a CMake configuration file for boost_system.
+boost_system_DIR:PATH=/opt/homebrew/lib/cmake/boost_system-1.78.0
+
 
 ########################
 # INTERNAL cache entries
 ########################
 
+//ADVANCED property for variable: Boost_DIR
+Boost_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_ADDR2LINE
 CMAKE_ADDR2LINE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_AR
@@ -376,6 +405,8 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding Boost
+FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/opt/homebrew/lib/cmake/Boost-1.78.0/BoostConfig.cmake][cfound components: filesystem system iostreams ][v1.78.0()]
 //Details about finding GLUT
 FIND_PACKAGE_MESSAGE_DETAILS_GLUT:INTERNAL=[/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/GLUT.framework][/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/GLUT.framework/Headers][v()]
 //Details about finding OpenGL
@@ -392,4 +423,14 @@ OPENGL_INCLUDE_DIR-ADVANCED:INTERNAL=1
 OPENGL_gl_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENGL_glu_LIBRARY
 OPENGL_glu_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_atomic_DIR
+boost_atomic_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_filesystem_DIR
+boost_filesystem_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_headers_DIR
+boost_headers_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_iostreams_DIR
+boost_iostreams_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: boost_system_DIR
+boost_system_DIR-ADVANCED:INTERNAL=1
 

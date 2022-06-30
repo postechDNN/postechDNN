@@ -12,6 +12,7 @@
 //#include <GL/GL.h>
 
 #include <vector>
+#include "gnuplot-iostream.h"
 
 
 using namespace std; 
@@ -47,7 +48,7 @@ bool cmp_y_dec(Point2d a, Point2d b){
 int inInfCircle(const Point2d& p, const Point2d& a, const Point2d& b){
   if(a==b) {
     printf("Two points are same. \n");
-    return -1;
+    exit(1);
   }
 
 	Point2d *da, *db;
@@ -94,11 +95,11 @@ int inInfCircle(const Point2d& p, const Point2d& a, const Point2d& b){
   else{
     if (a.x < b.x){
       if(p.y < a.y) return INSIDE;
-      if ((a.x < p.x) && (p.x < b.x)) return INSIDE;
+      if ((a.y == p.y) &&(a.x < p.x) && (p.x < b.x)) return INSIDE;
     }
     else{
       if(a.y < p.y) return INSIDE;
-      if((b.x < p.x) && (p.x < a.x)) return INSIDE;
+      if((a.y == p.y) &&(b.x < p.x) && (p.x < a.x)) return INSIDE;
     }
   }
 
@@ -161,12 +162,15 @@ Edge* LowerSupport(Edge* left, Edge* right){
     // Move CCW around both support hulls 
     while(1){
       if(inInfCircle(right->Dest2d(), left->Org2d(), right->Org2d()) == INSIDE){
+      printf("case1\n");
         right = right->Rprev(); //CHECK
       }
       else if(inInfCircle(left->Dest2d(), left->Org2d(), right->Org2d()) == INSIDE){
+      printf("case2\n");
         left = left->Rprev(); //CHECK
       }
       else{
+      printf("case3\n");
         return Connect(right->Sym(), left->Oprev());
       }
     }
@@ -474,12 +478,14 @@ Edge* delaunay(vector<Point2d>& S){
 
 
   printf("Draw L \n");
-  lleft->Draw(mystamp++); // CHECK 1
+  lleft->EdgeDraw(); // CHECK 1
   printf("Draw R \n");
-  lright->Draw(mystamp++); // CHECK 1
+  lright->EdgeDraw(); // CHECK 1
 
   //Create common base edge and remember lowest edge 
+  printf("test1 \n");
   Edge* base = LowerSupport(lleft, lright);
+  printf("test \n");
   bool leftLower = LowerThan(lleft->Org2d(), lright->Org2d());
 
   Edge* lower; 
@@ -594,7 +600,7 @@ int main(int argc, char** argv){
   test2.push_back(p9);
 
   vector<Point2d> test3;
-  Point2d t1(0, 0), t2(2, 4), t3(1, 6), t4(2, 8), t5(0, 10), t6(4, 2), t7(6, 5), t8(4, 9), t9(6, 12);
+  Point2d t1(0, 0), t2(20, 40), t3(10, 60), t4(20, 80), t5(0, 100), t6(40, 20), t7(60, 50), t8(40, 90), t9(60, 120);
   test3.push_back(t1);
   test3.push_back(t2);
   test3.push_back(t3);
@@ -605,16 +611,39 @@ int main(int argc, char** argv){
   test3.push_back(t8);
   test3.push_back(t9);
 
+  vector<Point2d> test4;
+  Point2d q1(0, 20), q2(10, 0), q3(30, 0), q4(40, 40), q5(20, 60);
+  test4.push_back(q1);
+  test4.push_back(q2);
+  test4.push_back(q3);
+  test4.push_back(q4);
+  test4.push_back(q5);
 
-  vector<Point2d> test = test3;
+
+
+  vector<Point2d> test = test4;
   sort(test.begin(), test.end(), cmp);
   Edge* sEdge = delaunay(test);
 
   printf("Draw in main \n");
   static unsigned int timestamp = 0;
+
+	std::vector<std::vector<std::pair<double, double>>> edges;
   if (++timestamp == 0)
     timestamp = 1;
-  sEdge->Draw(10000);
+  sEdge->Draw(1000, edges);
+
+
+  Gnuplot gp;
+
+  gp << "set xrange [-50:150]\nset yrange [-50:150]\n";
+  gp << "plot '-' with linespoints\n";
+  //NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
+  gp.send2d(edges);
+  
+
+  
+
   
   // Creates the window and
   // sets the title
