@@ -33,6 +33,7 @@ class Edge {
 	void  EndPoints(Point2d*, Point2d*);
 	QuadEdge* Qedge()	{ return (QuadEdge *)(this - num); }
 	void Draw(unsigned int);
+	void EdgeDraw();
 };
 
 class QuadEdge {

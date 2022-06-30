@@ -429,3 +429,19 @@ void Edge::Draw(unsigned int stamp)
 		//glFlush();// Sends all output to display
 	}
 }
+
+void Edge::EdgeDraw(void){
+// Draw the edge
+	Point2d a = Org2d();
+	Point2d b = Dest2d();
+	//bgnline(a, b);
+	// v2d((double*)&a);
+	// v2d((double*)&b);
+	// endline();
+
+	drA = a; 
+	drB = b; 
+
+	printf("Edge: (%.1f, %.1f) to (%.1f, %.1f)\n", a.x, a.y, b.x, b.y);
+	return;
+}
