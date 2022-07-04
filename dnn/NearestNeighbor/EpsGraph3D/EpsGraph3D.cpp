@@ -288,9 +288,14 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 
 	if (p.host != -1) {
 		assert(0 <= p.host && p.host < grid.size());
-		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end();) {
 			if (p.x == (*(*it)).x && p.y == (*(*it)).y && p.z == (*(*it)).z) {
-				grid[p.host].anchored.erase(grid[p.host].anchored.begin() + distance(it, grid[p.host].anchored.begin()));
+				// grid[p.host].anchored.erase(grid[p.host].anchored.begin() + distance(it, grid[p.host].anchored.begin()));
+				it = grid[p.host].anchored.erase(it);
+				if (it == grid[p.host].anchored.end()) break;
+			}
+			else {
+				++it;
 			}
 		}
 	}
@@ -329,7 +334,7 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 					//}
 					if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
 						p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
-						grid[ind2num(x, y, z)].anchored.push_back(&p);
+						grid[ind2num(x + x_step, y + y_step, z + z_step)].anchored.push_back(&p);
 						return;
 					}
 				}
@@ -340,9 +345,9 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 					//	grid[ind2num(x, y, z)].anchored.push_back(&p);
 					//	return;
 					//}
-					if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
-						p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
-						grid[ind2num(x, y, z)].anchored.push_back(&p);
+					if (grid[ind2num(x + x_step, y + y_step, z - z_step)].encl == -1) {
+						p.host = grid[ind2num(x + x_step, y + y_step, z - z_step)].num;
+						grid[ind2num(x + x_step, y + y_step, z - z_step)].anchored.push_back(&p);
 						return;
 					}
 				}
@@ -404,8 +409,9 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 			cout << gr_pt.getx() << " " << gr_pt.gety() << " " << gr_pt.getz() << " " << endl;
 			assert(gr_pt.encl == -1); 
 			gr_pt.encl = P.ord;
-			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end(); ++it) {
-				anchor(*(*it));
+			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end();) {
+				//error Here!!!!
+				anchor((*(*it)));
 			}
 			vector<Free_Point*>().swap(gr_pt.anchored);
 		}
