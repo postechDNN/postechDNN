@@ -5,6 +5,7 @@ class Edge {
 public:
 	Point* p1;
 	Point* p2;
+	double length;
 public:
 	Edge();
 	Edge(std::vector<Point*>);
@@ -36,6 +37,7 @@ protected:
 	int num_faces;
 	int num_points;
 	int num_edges;
+	double min_length;
 public:
 	double x_min, x_max, y_min, y_max, z_min, z_max;
 	std::vector<Point*> encl_pts;

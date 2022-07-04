@@ -8,6 +8,7 @@ using namespace std;
 Edge::Edge() {
 	p1 = new Point;
 	p2 = new Point;
+	length = 0;
 }
 
 Edge::~Edge() {
@@ -16,11 +17,13 @@ Edge::~Edge() {
 Edge::Edge(std::vector<Point*> vp) {
 	p1 = vp[0];
 	p2 = vp[1];
+	length = sqrt((vp[0]->x - vp[1]->x) * (vp[0]->x - vp[1]->x) + (vp[0]->y - vp[1]->y) * (vp[0]->y - vp[1]->y) + (vp[0]->z - vp[1]->z) * (vp[0]->z - vp[1]->z));
 }
 
 Edge::Edge(Point* v1, Point* v2) {
 	p1 = v1;
 	p2 = v2;
+	length = sqrt((v1->x - v2->x)* (v1->x - v2->x)+ (v1->y- v2->y)* (v1->y - v2->y)+ (v1->z - v2->z)* (v1->z - v2->z));
 }
 
 bool Edge::operator==(Edge e) {
@@ -28,11 +31,32 @@ bool Edge::operator==(Edge e) {
 }
 
 bool Edge::below(Point* p) {
-	if ((p->x-p2->x)*(p1->y-p2->y) == (p->y - p2->y) * (p1->x - p2->x))
+	if (p->z > p1->z || p->z > p2->z)
 	{
-		if (p1->x == p2->x && ((p1->y < p->y && p->y < p2->y) || (p2->y < p->y && p->y < p1->y))) { return true; }
-		if (p1->y == p2->y && ((p1->x < p->x && p->x < p2->x) || (p2->x < p->x && p->x < p1->x))) { return true; }
-		if ((p->y - p2->y) / (p1->y - p2->y) > 0 && (p->y - p2->y) / (p1->y - p2->y) < 1) { return true; }
+		if ((p->x - p2->x) * (p1->y - p2->y) == (p->y - p2->y) * (p1->x - p2->x))
+		{
+			if (p1->x == p2->x && p1->y == p2->y) { return false; }
+			else if (p1->x == p2->x)
+			{
+				if((p->y - p2->y) / (p1->y - p2->y) > 0 && (p->y - p2->y) / (p1->y - p2->y) < 1)
+				{
+					if (p->z > (p->y - p2->y) / (p1->y - p2->y) * p1->z + (1 - (p->y - p2->y) / (p1->y - p2->y)) * p2->z)
+					{
+						return true;
+					}
+				}
+			}
+			else 
+			{
+				if ((p->x - p2->x) / (p1->x - p2->x) > 0 && (p->x - p2->x) / (p1->x - p2->x) < 1)
+				{
+					if (p->z > (p->x - p2->x) / (p1->x - p2->x) * p1->z + (1 - (p->x - p2->x) / (p1->x - p2->x)) * p2->z)
+					{
+						return true;
+					}
+				}
+			}
+		}
 	}
 	return false;
 }
@@ -69,9 +93,23 @@ bool Face::below(Point* p) {
 		+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
 	normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
 		- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
+	if (normal[2] < 0)
+	{
+		normal[0] = -normal[0];
+		normal[1] = -normal[1];
+		normal[2] = -normal[2];
+	}
 	if (normal[0] * p->getx() + normal[1] * p->gety() + normal[2] * p->getz() >= 
 		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
 		belowness = true;
+	}
+	if (normal[2] == 0)
+	{
+		Edge temp[3] = {{ points[0], points[1] }, { points[1], points[2] }, { points[2], points[0] }	};
+		if ((temp[0].below(p) || temp[1].below(p) || temp[2].below(p))&& belowness)
+		{
+			return true;
+		}
 	}
 	// Check the face contains intersection of z-line contining the point and the plain expanded by the face
 	bool includeness = false;
@@ -119,7 +157,12 @@ bool Face::pass(Point* p1, Point* p2, int dir){
 		+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
 	normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
 		- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
-
+	if (normal[2] < 0)
+	{
+		normal[0] = -normal[0];
+		normal[1] = -normal[1];
+		normal[2] = -normal[2];
+	}
 	if (normal[0] * p1->getx() + normal[1] * p1->gety() + normal[2] * p1->getz() >=
 		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
 		check_p1 = -1;
@@ -149,7 +192,7 @@ bool Face::pass(Point* p1, Point* p2, int dir){
 			{
 				out_prod[i] = proj_vec[i].getz() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getz();
 			}
-			if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
+			if (out_prod[0] * out_prod[1] >= 0 && out_prod[1] * out_prod[2] >= 0)
 			{
 				return true;
 			}
@@ -168,7 +211,7 @@ bool Face::pass(Point* p1, Point* p2, int dir){
 			{
 				out_prod[i] = proj_vec[i].getx() * p_to_vec[i].getz() - proj_vec[i].getz() * p_to_vec[i].getx();
 			}
-			if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
+			if (out_prod[0] * out_prod[1] >= 0 && out_prod[1] * out_prod[2] >= 0)
 			{
 				return true;
 			}
@@ -187,7 +230,7 @@ bool Face::pass(Point* p1, Point* p2, int dir){
 			{
 				out_prod[i] = proj_vec[i].getx() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getx();
 			}
-			if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
+			if (out_prod[0] * out_prod[1] >= 0 && out_prod[1] * out_prod[2] >= 0)
 			{
 				return true;
 			}
@@ -225,6 +268,7 @@ void Polytope::setpolytope(std::vector<Face*> input)
 	num_points = 0;
 	num_edges = 0;
 	encl_pts = {};
+	min_length = INFINITY;
 	x_min = INFINITY;
 	y_min = INFINITY;
 	z_min = INFINITY;
@@ -268,6 +312,7 @@ void Polytope::setpolytope(std::vector<Face*> input)
 			if (!same)
 			{
 				edges.push_back(t[i]);
+				min_length = min(min_length, t[i].length);
 				num_edges++;
 			}
 		}
@@ -285,7 +330,11 @@ void Polytope::setpolytope(std::vector<Face*> input)
 
 // Polytope
 bool Polytope::isIn(Point* p) {
-	int num_below = 0; 
+	int num_below = 0;
+	if (p->x == 0 && p->y == 0 && p->z == -100)
+	{
+		int i = 1;
+	}
 	for (int i = 0; i < num_faces; i++)
 	{
 		if (this->faces[i]->below(p)) {
@@ -301,7 +350,7 @@ bool Polytope::isIn(Point* p) {
 	}
 	for (auto v : vertices)
 	{
-		if (p->getx() == v->getx() && p->gety() == v->gety())
+		if (p->getx() == v->getx() && p->gety() == v->gety() && p->z > v->z)
 		{
 			num_below++;
 		}
@@ -316,9 +365,54 @@ bool Polytope::isIn(Point* p) {
 bool Polytope::intersect(Point p1, Point p2, int dir) {
 	for (int i = 0; i < num_faces; i++)
 	{
-		if (this->faces[i]->pass(&p1, &p2, dir))
+		Point temp = p1;
+		Point temp2 = p2;
+		double eps = min_length / 10;
+		int count = 0;
+		switch (dir) // Check if the face cross the line connecting two points
 		{
-			return true;
+		case 1:
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.sety(p1.y - eps); temp2.sety(p2.y - eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) {count++;}
+			temp.sety(p1.y + eps); temp2.sety(p2.y + eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.sety(p1.y); temp2.sety(p2.y);
+			temp.setz(p1.z - eps); temp2.setz(p2.z - eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.setz(p1.z + eps); temp2.setz(p2.z + eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			if (count == 5) { return true; }
+			else { return false; }
+			break;
+		case 2:
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.setx(p1.x - eps); temp2.setx(p2.x - eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.setx(p1.x + eps); temp2.setx(p2.x + eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.setx(p1.x); temp2.setx(p2.x);
+			temp.setz(p1.z - eps); temp2.setz(p2.z - eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.setz(p1.z + eps); temp2.setz(p2.z + eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			if (count == 5) { return true; }
+			else { return false; }
+			break;
+		case 3:
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.sety(p1.y - eps); temp2.sety(p2.y - eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.sety(p1.y + eps); temp2.sety(p2.y + eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.sety(p1.y); temp2.sety(p2.y);
+			temp.setz(p1.x - eps); temp2.setz(p2.x - eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			temp.setz(p1.x + eps); temp2.setz(p2.x + eps);
+			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
+			if (count == 5) { return true; }
+			else { return false; }
+			break;
 		}
 	}
 	return false;
