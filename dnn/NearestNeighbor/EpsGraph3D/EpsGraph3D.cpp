@@ -567,6 +567,7 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 
 	int z_effmax = diagonal[1].z_ind;
 	int z_effmin = diagonal[0].z_ind;
+	pols.erase(remove(pols.begin(), pols.end(), P));
 
 	// update grid edges among gridpoints in the effective region
 	for (int i = x_effmin; i < x_effmax; i++) {
@@ -592,7 +593,6 @@ void Eps_Graph_3D::delete_pol(int ord) { // delete a polygon from O, specified b
 			}
 		}
 	}
-	pols.erase(remove(pols.begin(), pols.end(), P));
 }
 
 indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)

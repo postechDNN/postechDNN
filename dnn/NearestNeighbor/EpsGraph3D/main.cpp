@@ -39,5 +39,9 @@ int main() {
 	grid.add_pol(*poly);
 	//grid.print_edges();
 	grid.print_kNN(*q, 3);
+	grid.delete_pol(0);
+	//grid.print_edges();
+	grid.print_kNN(*q, 3);
+
 	return 0;
 }
