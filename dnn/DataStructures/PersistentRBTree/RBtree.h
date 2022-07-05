@@ -429,7 +429,7 @@ public:
 		else
 			insert_case4(node,last);
 	}
-	bool candidate(Node<T>*& node){  //this determines whether node is a candidate for insert_case3
+	bool candidate_insertion(Node<T>*& node){  //this determines whether node is a candidate for insert_case3
 		Node<T>* gp = grandparent(node);
 		Node<T>* u = unlce(node);
 		if ((gp != leaf) && (u != leaf) && (gp->color == black) && (gp->left_child->color == red) && (gp->right_child->color == red))
@@ -438,7 +438,7 @@ public:
 	}
 	void insert_case3(Node<T>*& node, Node<T>*& last){
 		Node<T>* temp = node;
-		if (candidate(temp)) {         //recoloring part
+		if (candidate_insertion(temp)) {         //recoloring part
 			Node<T>* u = uncle(temp);
 			Node<T>* g = grandparent(temp);
 			if (node->parent == last) {
@@ -447,7 +447,7 @@ public:
 				split_insert_interval(last->parent);
 			}
 			else {
-				while (candidate(g)) {  //we change temp as the last candidate for recoloring
+				while (candidate_insertion(g)) {  //we change temp as the last candidate for recoloring
 					if (g == last) {
 						last->parent->top = last->top;
 						last->parent->bottom = last->bottom;
@@ -846,18 +846,37 @@ public:
 			else
 				right_rotation(node->parent);
 		}
-		delete_case3(node,last);
+		delete_case4(node,last);
 	}
-	
+
+	bool candidate_deletion(Node<T>*& node) {  //this determines whether node is a candidate for insert_case3
+		Node<T>* s = sibling(node);
+		if ((s != leaf) && (node->parent != leaf) && (s->color == black) && (node->parent->color == black) && (s->left_child->color==black) && (s->right_child->color == black))
+			return true;
+		return false;
+	} 
+
 	void delete_case3(Node<T>*& node, Node<T>*& last) {
-		Node<T>* s = silbing(node);
-		if ((node->parent->color == black) && (s->color == black) && (s->right_child->color == black) && (s->left_child->color == black)) {
-			s->color = red;
-			delete_case1(node->parent,last);
+		Node<T>* temp = node;
+		if (candidate_deletion(node)) {
+			temp = node->left_child;
+			while (candidate_deletion(temp->parent)) {
+				if((temp->parent!=last)&&(sibling(temp)->del_interval!=false))
+					temp = temp->parent;
+				//else if (temp->parent==last) {
+
+//				}
+			}
+			if (temp == node) {
+				sibling(temp)->color = red;
+			}
+			else {
+				temp->del_interval = true;
+				temp->bottom = node;
+				node->top = temp;
+			}
 		}
-		else {
-			delete_case4(node, last);
-		}
+		delete_case1(temp, last);
 	}
 
 	void delete_case4(Node<T>*& node, Node<T>*& last) {
