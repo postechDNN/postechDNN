@@ -57,7 +57,7 @@ public:	// functions
 	void delete_freept(int);
 
 	void anchor(Free_Point&);	// 중간에 있으면 왼쪽, 위로 가도록
-	Grid_Point query_anchor(Grid_Point&);
+	void query_anchor(Grid_Point&);
 
 	void add_pol(Polytope);
 	void delete_pol(int);

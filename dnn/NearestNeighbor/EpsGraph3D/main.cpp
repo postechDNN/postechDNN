@@ -37,7 +37,7 @@ int main() {
 	Free_Point* q = new Free_Point(0., 0., -20.);
 	grid.print_kNN(*q, 3);
 	grid.add_pol(*poly);
-	// grid.print_edges();
+	//grid.print_edges();
 	grid.print_kNN(*q, 3);
 	return 0;
 }
