@@ -73,6 +73,10 @@ public:
 		delete head;
 		delete tail;
 	}
+
+	bool is_leaf(Node<T>*& node) {
+		return node == leaf;
+	}
 	void insert_bst(T key) {
 		Node<T>* node = new Node<T>;
 		node->color = red;
@@ -96,16 +100,16 @@ public:
 				compare(tmp->key, node->key) ? tmp = tmp->left_child : tmp = tmp->right_child;
 
 				if (start != nullptr) {
-					start->bottom->key < tmp_parent ? tmp_last = tmp_parent->left_child : tmp_last = tmp_parent->right_child;
+					start->bottom->key < tmp_parent->key ? tmp_last = tmp_parent->left_child : tmp_last = tmp_parent->right_child;
 					if (tmp == leaf) {
 						start = nullptr;
 					}
 					else {
-						last = tmp;
+						last = tmp_parent;
 						if (tmp_last != tmp) {
-							start = nullptr;
 							last->top = start->top;
 							last->bottom = start->bottom;
+							start = nullptr;
 						}
 					}
 				}
@@ -138,24 +142,41 @@ public:
 		rbt_size++;
 	}
 
-
-
-
-
 	void delete_bst(T key) {
 		Node<T>* original = root;
+		Node<T>* original_parent;
 		Node<T>* actually = nullptr;
 		Node<T>* tmp = root;
 		Node<T>* replaced_node = nullptr;
 		Node<T>* parent = nullptr;
+		Node<T>* start = nullptr;
+		Node<T>* last = nullptr;
+		Node<T>* tmp_last;
 		Color delete_color;
 		while (original != leaf) {
 			if (original->key == key)
 				break;
-			else
-				compare_delete(original->key, key) ? original = original->left_child : original = original->right_child;
+			else {
+				if (original->ins_interval || original->del_interval) {//
+					start = original;
+					last = start;
+				}
+				original_parent = original;
+				compare(original->key, key) ? original = original->left_child : original = original->right_child;
+				if (original == leaf) //By this code, original is not leaf in the below codes
+					break;
+				if (start != nullptr) {
+					compare(original->parent->key, start->bottom->key) ? tmp_last = original->left_child : tmp_last = original->right_child;
+					last = original_parent;
+					if (tmp_last != original) {
+						last->top = start->top;
+						last->bottom = start->bottom;
+						start = nullptr;
+					}
+				}
+			}
 		}
-		if (original == leaf)
+		if (original == leaf) //this case means there is no node, of which key is key
 			return;
 		Node<T>* pre = original->pre;
 		Node<T>* next = original->next;
@@ -524,16 +545,24 @@ public:
 		}
 	}
 	void insert_case4(Node<T>*& node, Node<T>*& last) {
-		Node<T>* g = grandparent(node);
-		if ((node == node->parent->right_child) && (node->parent == g->left_child)) {
-			left_rotation(node->parent);
-			node = node->left_child;
+		if ((last!=leaf) && ((node->parent == last) || (node->parent->parent==last))) { //By this conditional statement, we don't need to consdier any insertion interval from insert_case1 ~ insert_case 5
+			last->parent->top = last->top;
+			last->parent->bottom = last->bottom;
+			split_insert_interval(last->parent);
+			insert_case1(node, leaf);
 		}
-		else if ((node == node->parent->left_child) && (node->parent == g->right_child)) {
-			right_rotation(node->parent);
-			node = node->right_child;
+		else {
+			Node<T>* g = grandparent(node);
+			if ((node == node->parent->right_child) && (node->parent == g->left_child)) {
+				left_rotation(node->parent);
+				node = node->left_child;
+			}
+			else if ((node == node->parent->left_child) && (node->parent == g->right_child)) {
+				right_rotation(node->parent);
+				node = node->right_child;
+			}
+			insert_case5(node, last);
 		}
-		insert_case5(node, last);
 	}
 	void insert_case5(Node<T>*& node, Node<T>*& last) {
 		Node<T>* g = grandparent(node);
@@ -544,6 +573,11 @@ public:
 		else
 			left_rotation(g);
 	}
+
+
+
+
+
 
 	void insert_recoloring(Node<T>*& node, Node<T>*& parent, T key) {
 		Node<T>* grand = parent->parent;
@@ -787,6 +821,88 @@ public:
 		if (child == root && child->color == double_black)
 			child->color = black;
 	}
+
+	void delete_handling(Node<T>*& node, Node<T>*& last) {
+		if (node->color == red) {
+			node->color = black;
+		}
+		else
+			delete_case1(node,last);
+	}
+
+	void delete_case1(Node<T>*& node, Node<T>*& last) {
+		if (node->parent != leaf) {    //If the node is root, there is nothing to do.
+			delete_case2(node, last);
+		}
+	}
+
+	void delete_case2(Node<T>*& node, Node<T>*& last) {
+		Node<T>* s = sibling(node);
+		if (s->color == red) {
+			node->parent->color = red;
+			s->color = black;
+			if (node == node->parent->left_child)
+				left_rotation(node->parent);
+			else
+				right_rotation(node->parent);
+		}
+		delete_case3(node,last);
+	}
+	
+	void delete_case3(Node<T>*& node, Node<T>*& last) {
+		Node<T>* s = silbing(node);
+		if ((node->parent->color == black) && (s->color == black) && (s->right_child->color == black) && (s->left_child->color == black)) {
+			s->color = red;
+			delete_case1(node->parent,last);
+		}
+		else {
+			delete_case4(node, last);
+		}
+	}
+
+	void delete_case4(Node<T>*& node, Node<T>*& last) {
+		Node<T>* s = sibling(node);
+		if ((node->parent->color == red) && (s->color == black) && (s->left_child->color == black) && (s->right_child->color == black)) {
+			s->color = red;
+			node->parent->color = black;
+		}
+		else {
+			delete_case5(node, last);
+		}
+	}
+
+	void delete_case5(Node<T>*& node, Node<T>*& last) {
+		Node<T>* s = sibling(node);
+		if (s->color == black) {
+			if ((node == node->parent->left_child) && (s->right_child->color == black) && (s->left_child->color == red)) {
+				s->color = red;
+				s->left_child->color = black;
+				right_rotation(s);
+			}
+			else if ((node == node->parent->right_child) && (s->left_child->color == black) && (s->right_child->color == red)) {
+				s->color = red;
+				s->right_child->color = black;
+				left_rotation(s);
+			}
+		}
+		delete_case6(node, last);
+	}
+
+	void delete_case6(Node<T>*& node, Node<T>*& last) {
+		Node<T>* s = sibling(node);
+		s->color = node->parent->color;
+		node->parent->color = black;
+
+		if (node == node->parent->left_child) {
+			s->right_child->color = black;
+			left_rotation(node->parent);
+		}
+		else {
+			s->left_child->color = black;
+			right_rotation(node->parent);
+		}
+	}
+
 	void inorder(Node<T>*& node, int depth) {
 		if (node == root && node == leaf)
 			return;
@@ -819,8 +935,5 @@ public:
 	}
 	bool compare(T key1, T key2) {
 		return key1 > key2;
-	}
-	bool compare_delete(T key1, T key2) {
-		return key1.compare_delete(key2);
 	}
 };
