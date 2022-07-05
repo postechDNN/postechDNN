@@ -355,6 +355,66 @@ void Eps_Graph_3D::anchor(Free_Point& p) { // cast anchor onto a grid point from
 		}
 	}
 }
+Grid_Point Eps_Graph_3D::query_anchor(Grid_Point& g) {
+	for (vector<Free_Point*>::iterator it = g.anchored.begin(); it != g.anchored.end();) {
+		Free_Point& p = (*(*(it)));
+		bool flag = false;
+		int x; int y; int z;
+		x = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
+		// y = int(ceil((upper_left.y - p.y) / eps - 0.5)); // points on the midline anchors upward
+		y = int(ceil((p.y - upper_left.y) / eps - 0.5));
+		z = int(ceil((p.z - upper_left.z) / eps - 0.5));
+
+		if (grid[ind2num(x, y, z)].encl == -1) {
+			p.host = grid[ind2num(x, y, z)].num;
+			grid[ind2num(x, y, z)].anchored.push_back(&p);
+			break;
+		}
+
+		for (int step = 1; step < y_num + x_num + z_num; step++) {
+			// vector<Grid_Point> gr_pts = {};
+			//Grid_Point gr_pt;
+			for (int x_step = -step; x_step <= step; x_step++) {
+				for (int y_step = -(step - abs(x_step)); y_step <= step - abs(x_step); y_step++) {
+					int z_step = step - abs(x_step) - abs(y_step);
+					if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z + z_step && z + z_step < z_num) {
+						//gr_pt = grid[ind2num(x + x_step, y + y_step, z + z_step)];
+						//if (gr_pt.encl == -1) {
+						//	p.host = gr_pt.num;
+						//	grid[ind2num(x, y, z)].anchored.push_back(&p);
+						//	return;
+						//}
+						if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
+							p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
+							grid[ind2num(x + x_step, y + y_step, z + z_step)].anchored.push_back(&p);
+							flag = true;
+						}
+					}
+					if (flag) break;
+					if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z - z_step && z - z_step < z_num) {
+						//gr_pt = grid[ind2num(x + x_step, y + y_step, z - z_step)];
+						//if (gr_pt.encl == -1) {
+						//	p.host = gr_pt.num;
+						//	grid[ind2num(x, y, z)].anchored.push_back(&p);
+						//	return;
+						//}
+						if (grid[ind2num(x + x_step, y + y_step, z - z_step)].encl == -1) {
+							p.host = grid[ind2num(x + x_step, y + y_step, z - z_step)].num;
+							grid[ind2num(x + x_step, y + y_step, z - z_step)].anchored.push_back(&p);
+							flag = true;
+						}
+					}
+					if (flag) break;
+				}
+				if (flag) break;
+			}
+			if (flag) break;
+		}
+
+		it = g.anchored.erase(it);
+		if (it == g.anchored.end()) break;
+	}
+}
 /*
 Grid_Point Eps_Graph_3D::query_anchor(Free_Point p) { //Àç°Ç part Â©°Í (±Þ)
 	long long int row; long long int col; long long int lay;
@@ -409,10 +469,11 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 			cout << gr_pt.getx() << " " << gr_pt.gety() << " " << gr_pt.getz() << " " << endl;
 			assert(gr_pt.encl == -1); 
 			gr_pt.encl = P.ord;
-			for (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end();) {
-				//error Here!!!!
-				anchor((*(*it)));
-			}
+			query_anchor(gr_pt);
+			//or (vector<Free_Point*>::iterator it = gr_pt.anchored.begin(); it != gr_pt.anchored.end();) {
+			//	//error Here!!!!
+			//	anchor((*(*it)));
+			//}
 			vector<Free_Point*>().swap(gr_pt.anchored);
 		}
 	}
