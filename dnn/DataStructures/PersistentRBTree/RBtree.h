@@ -9,7 +9,7 @@ using namespace std;
 /*Red Black Tree with Lazy Coloring
 * Followings are 3 rules for RB tree
 * (1)[External Node Convention] Every external node is regarded as being black
-* (2)[Red Constraint] Every red node has a black parent or has no parent(root)
+* (2)[Red Constraint] Every red node has a black parent
 * (3)[Black Constraint] From any node, all paths to an external node which is
 * in its subtree contain the same number of black node
 */
@@ -418,6 +418,42 @@ public:
 		}
 	}
 	void insert_case1(Node<T>*& node, Node<T>*& last){      //Case1: node is root
+		Node<T>* u = uncle(node);
+		//We need to rule out the case when node is the middle of any interval
+		if (node == last) {
+			if (last->top->ins_interval == true)
+				split_insert_interval(node);
+			else if (last->top->del_interval == true)
+				split_del_interval(node);
+		}
+		//we need to rule out the case that parent is the bottom of insertion interval
+		if ((node->parent->top->ins_interval == true) && (node->parent->bottom == node->parent))
+			split_del_interval(node->parent);
+
+		//we need to rule out the case that parent is the bottom of deletion interval
+		if ((node->parent->top->del_interval == true) && (node->parent->bottom == node->parent))
+			split_del_interval(node->parent);
+
+		//we need to rule out the case that grandparent is the bottom of insertion interval
+		if ((node->parent->parent->top->ins_interval == true) && (node->parent->parent->bottom == node->parent->parent))
+			split_del_interval(node->parent->parent);
+
+		//we need to rule out the case that grandparent is the bottom of deletion interval
+		if ((node->parent->parent->top->del_interval == true) && (node->parent->parent->bottom == node->parent->parent))
+			split_del_interval(node->parent->parent);
+
+		//We need to rule out the case when sibling is the start of the insertion interval
+		if (u->ins_interval == true)
+			split_insert_interval(u);
+
+		//We need to rule out the case when sibling is the start of the deletion interval
+		if (u->del_interval == true)
+			split_del_interval(u);
+
+		if (node->parent != leaf) {    //If the node is root, there is nothing to do.
+			delete_case2(node, last);
+		}
+
 		if (node->parent == leaf)  //when node is the root node
 			node->color = black;   //we need to deal with delete interval!!!
 		else
@@ -438,7 +474,7 @@ public:
 	}
 	void insert_case3(Node<T>*& node, Node<T>*& last){
 		Node<T>* temp = node;
-		if (candidate_insertion(temp)) {         //recoloring part
+		if (candidate_insertion(node)) {         //recoloring part
 			Node<T>* u = uncle(temp);
 			Node<T>* g = grandparent(temp);
 			if (node->parent == last) {
@@ -489,6 +525,9 @@ public:
 				if (new_bottom == middle->top) {  //delete upper chain
 					new_bottom->ins_interval = false;
 					new_bottom->color = black;
+					new_bottom->top = leaf;
+					new_bottom->bottom->top=leaf;
+					new_bottom->bottom = leaf;
 				}
 				else {
 					middle->top->bottom = new_bottom;
@@ -502,7 +541,11 @@ public:
 				new_top->parent->color = red;
 				sibling(new_top)->color = black;
 				if (new_top == middle->bottom) {   //delete lower chain
+					new_top->top->ins_interval = false;
 					new_top->color = black;
+					new_top->top = leaf;
+					new_top->bottom->top = leaf;
+					new_top->bottom = leaf;
 				}
 				else {
 					new_top->ins_interval = true;
@@ -573,12 +616,6 @@ public:
 		else
 			left_rotation(g);
 	}
-
-
-
-
-
-
 	void insert_recoloring(Node<T>*& node, Node<T>*& parent, T key) {
 		Node<T>* grand = parent->parent;
 		Node<T>* uncle = nullptr;
@@ -831,6 +868,31 @@ public:
 	}
 
 	void delete_case1(Node<T>*& node, Node<T>*& last) {
+		Node<T>* s = sibling(node);
+
+		//We need to rule out the case when node is the middle of any interval
+		if (node == last) {
+			if (last->top->ins_interval == true)
+				split_insert_interval(node);
+			else if (last->top->del_interval == true)
+				split_del_interval(node);
+		}
+		//we need to rule out the case that parent is the bottom of insertion interval
+		if ((node->parent->top->ins_interval == true) && (node->parent->bottom == node->parent))
+			split_del_interval(node->parent);
+
+		//we need to rule out the case that parent is the bottom of deletion interval
+		if ((node->parent->top->del_interval == true) && (node->parent->bottom == node->parent))
+			split_del_interval(node->parent);
+
+		//We need to rule out the case when sibling is the start of the insertion interval
+		if (s->ins_interval == true)
+			split_insert_interval(s);
+
+		//We need to rule out the case when sibling is the start of the deletion interval
+		if (s->del_interval == true)
+			split_del_interval(s);
+
 		if (node->parent != leaf) {    //If the node is root, there is nothing to do.
 			delete_case2(node, last);
 		}
@@ -861,11 +923,16 @@ public:
 		if (candidate_deletion(node)) {
 			temp = node->left_child;
 			while (candidate_deletion(temp->parent)) {
-				if((temp->parent!=last)&&(sibling(temp)->del_interval!=false))
+				if(temp->parent!=last)  
 					temp = temp->parent;
-				//else if (temp->parent==last) {
-
-//				}
+				else if (sibling(temp->parent)->del_interval == true) {
+					split_del_interval(sibling(temp->parent));
+					break;
+				}
+				else {   //This means ((temp->parent == last) && (last->top->del_interval == true))
+					split_del_interval(last);
+					break;
+				}
 			}
 			if (temp == node) {
 				sibling(temp)->color = red;
@@ -875,12 +942,50 @@ public:
 				temp->bottom = node;
 				node->top = temp;
 			}
+			temp = temp->parent;
 		}
 		delete_case1(temp, last);
 	}
 
+	void split_del_interval(Node<T>*& middle) {
+		//In deletion interval, there are only black nodes!
+		Node<T>* new_bottom = middle->parent;
+		Node<T>* new_top = (new_top->key > middle->bottom->key) ? new_top = middle->left_child : new_top = middle->right_child;
+
+		//Handle upper chain
+		if (middle != middle->top) {
+			new_bottom->top = middle->top;
+			middle->top->bottom = new_bottom;
+			sibling(middle)->color = red;
+			if (new_bottom == middle->top) {
+				new_bottom->del_interval = false;
+				new_bottom->top = leaf;
+				new_bottom->bottom = leaf;
+			}
+		}
+
+		//Handle lower chain
+		if (middle != middle->bottom) {
+			new_top->del_interval = true;
+			new_top->bottom = middle->bottom;
+			middle->bottom->top = new_top;
+			sibling(new_top)->color = red;
+			if (new_top == middle->bottom) {
+				new_top->top = leaf;
+				new_top->bottom = leaf;
+			}
+		}
+	}
+
+
 	void delete_case4(Node<T>*& node, Node<T>*& last) {
 		Node<T>* s = sibling(node);
+		//we need to rule out the case that children of s could be the start of deletion interval.
+		if (s->left_child->del_interval == true)
+			split_del_interval(s->left_child);
+		if (s->right_child->del_interval == true)
+			split_del_interval(s->right_child);
+
 		if ((node->parent->color == red) && (s->color == black) && (s->left_child->color == black) && (s->right_child->color == black)) {
 			s->color = red;
 			node->parent->color = black;
