@@ -52,7 +52,7 @@ void PolyDomain::BuildSPM(Point p0)
 		{
 			for (size_t i = 0; i < s->sizeX(); i++) 
 			{
-				if (penetTri(i, s, p0, f))
+				if (b->i == indTet || penetTri(i, s, p0, f))
 				{
 					Repr r;
 					r.val = VecSize(s->getPoint(i) - MyVec(p0));
@@ -64,36 +64,15 @@ void PolyDomain::BuildSPM(Point p0)
 		}
 	}
 
-	int countdown = 2; // Debug
 	while (!Reprs.empty())
 	{
-		if (Reprs.size() == 11026) 
-		{
-			countdown -= 1;
-			if (countdown == 0) 
-			{
-				std::cout << Reprs.size() << " ";
-			}
-		}
 		Repr p = Reprs.top();
 		Segment* l = p.dst.l;
 		Reprs.pop();
 		if (l->IsActive(p.dst.index))
 			continue;
-		//pop된 vertex가 tetrahedron의 vertex이면 vertex를 포함하는 모든 segment에 대해 연산 필요
-		if (p.dst.l->IsTetra() && (p.dst.index == 0 || p.dst.index == l->sizeX()-1))
-		{
-			int ipts = p.dst.index == 0 ? p.dst.l->geta_ind() : p.dst.l->getb_ind();
-			for (int i : pts[ipts].get_iegs()) {
-				Segment* l1 = sgs[i];
-				if (l1->geta_ind() == ipts)
-					l1->Update(0 ,p.val, Reprs);
-				else
-					l1->Update(l1->sizeX()-1, p.val, Reprs);
-			}
-		}
-		else
-			l->Update(p.dst.index, p.val, Reprs);
+		l->Update(p.dst.index, p.val, Reprs);
+		l->setPrev(p.dst.index, { p.src.l,p.src.index }); 
 	}
 }
 
@@ -139,9 +118,10 @@ double PolyDomain::shortest(Point q) {
 		{
 			for (size_t i = 0; i < s->sizeX(); i++) 
 			{
-				double temp = s->getDist(i) + PointsDist(q,Vec2Point(s->getPoint(i)));
-				if (temp < res && temp > PointsDist(q, query) && penetTri(i, s, q, f))
+				double temp = s->getDist(i) + PointsDist(q, Vec2Point(s->getPoint(i)));
+				if (temp < res && temp > PointsDist(q, query) && (b->i == indTet || penetTri(i, s, q, f))) {
 					res = temp;
+				}
 			}
 		}
 	}
@@ -184,4 +164,21 @@ bool PolyDomain::penetTri(int i, Segment* s, Point p0, Tri& f)
 			return false;
 	}
 	return true;
+}
+
+
+double PolyDomain::Nearest_Dist(Point q, vector<Point>& P)
+{
+	BuildSPM(q);
+	double val = std::numeric_limits<double>::max();
+	for (Point p : P)
+	{
+		double temp = shortest(p);
+		if (temp < val)
+		{
+			val = temp;
+		}
+
+	}
+	return val;
 }

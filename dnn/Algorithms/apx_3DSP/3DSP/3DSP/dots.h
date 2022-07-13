@@ -456,6 +456,8 @@ public:
 
 	bool penetTri(int i, Segment* s, Point p0, Tri& f);
 
+	double Nearest_Dist(Point q, vector<Point>& P);
+
 	void Clear();
 	void CountEmptySegs();
 };

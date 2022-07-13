@@ -546,6 +546,7 @@ void PolyDomain::SetSgs()
 		S->initVoronoi();
 		S->SetAdjDiagram(*this);
 		S->SetNear();
+		S->initPrevs();
 	}
 }
 

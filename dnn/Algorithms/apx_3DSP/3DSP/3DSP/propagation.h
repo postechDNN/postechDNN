@@ -34,6 +34,7 @@ private:
 	vector<vector<pair<double, double>>> AdjDiagram;
 	vector<AVLTree<pair<double,int>>> AddVoronoi; //tree의 각 원소는 (vertex 상대위치, -방향 cell의 site)
 	vector<vector<double>> Near; //The nearest positions from each point to other segments
+	vector<pair<Segment*, int>> Prevs; //The previous point in the shortest path for each point
 	
 	int i, j; // when tetra == false, the segment is a steiner segment on the j-th bisector 
 	          // of the i-th tetrahedron in the polygonal domain
@@ -121,7 +122,7 @@ public:
 	}
 
 	MyVec getPoint(int i) {
-		return (1 - X[i]) * a + X[i] * b;
+		return (1. - X[i]) * a + X[i] * b;
 	}
 
 	double getDist(int i) {
@@ -203,6 +204,14 @@ public:
 
 	void AddRev(int i) {
 		this->Revs.push_back(i);
+	}
+
+	void initPrevs() {
+		Prevs.assign(X.size(), {nullptr, -1});
+	}
+
+	void setPrev(int i, pair<Segment*, int> pr) {
+		Prevs[i] = pr;
 	}
 
 	int Ln_Search(int i, int f);

@@ -41,7 +41,11 @@ void Segment::SetAdjDiagram(PolyDomain& D)
 //Return the interval of segment l1 contained in the halfspace(side of v3) defined by X[i], v1 and v2
 pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tri& f, Segment* l1)
 {
-	MyVec v = (b - a) * X[i] + a;
+	MyVec v = getPoint(i);
+	MyVec n1 = OuterProd(v1 - v3, v2 - v3);
+	if (InnerProd(n1, v3 - v) * InnerProd(n1, v3- l1->a) > 0 && InnerProd(n1, v3 - v) * InnerProd(n1, v3 - l1->b) > 0)
+		return { 0., 1. };
+
 	MyVec n = OuterProd(v1 - v, v2 - v);
 	if (abs(InnerProd(n, l1->b - l1->a)) < EPS)
 	{
@@ -52,9 +56,9 @@ pair<double, double> Segment::Interval(int i,MyVec& v1, MyVec& v2, MyVec& v3, Tr
 	}
 	double t = InnerProd(v - l1->a, n) / InnerProd(l1->b - l1->a, n);
 	if (InnerProd(l1->b - l1->a, n) * InnerProd(v3 - v, n) > 0)
-		return { t, 1. };
+		return { max(0.,t), 1. };
 	else
-		return { 0., t };
+		return { 0., min(1.,t) };
 }
 
 //Set the neareast positions
@@ -90,8 +94,8 @@ pair<double, double> Segment::Vinterval(int i, int i1, int lindex)
 	}
 	double Bbar = (X[i] - X[i1]) * InnerProd(b - a, (l1.a - a) * 2 - (b - a) * (X[i] + X[i1])) - c * c;
 	double A = 4 * InnerProd(l1.b - l1.a, l1.b - l1.a) * (c * c - (X[i] - X[i1]) * (X[i] - X[i1]) * InnerProd(b - a, b - a));
-	double B = 8 * c * c * InnerProd(l1.b - l1.a, l1.a - a - (b - a) * X[i]) - 4 * (X[i] - X[i1]) * InnerProd(b - a, l1.b - l1.a) * Bbar;
-	double C = 4 * c * c * InnerProd(l1.a - a - (b - a) * X[i], l1.a - a - (b - a) * X[i]) - Bbar * Bbar;
+	double B = 8 * c * c * InnerProd(l1.b - l1.a, l1.a - this->getPoint(i)) - 4 * (X[i] - X[i1]) * InnerProd(b - a, l1.b - l1.a) * Bbar;
+	double C = 4 * c * c * InnerProd(l1.a - this->getPoint(i), l1.a - this->getPoint(i)) - Bbar * Bbar;
 
 	double D = B * B - 4 * A * C;
 	if (abs(A) < EPS)
@@ -246,7 +250,7 @@ void Segment::UpdateSeg(int i, int lindex, priority_queue<Repr, vector<Repr>, gr
 		double miv = addV.getkthNode(mid)->value.first;
 		auto D = [=](int n)->double {
 			//return dist[n] + VecSize(l1->a + (l1->b - l1->a) * l1->X[mid] - a - (b - a) * X[n]);
-			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * miv - a - (b - a) * X[n]);
+			return dist[n] + VecSize(l1->a + (l1->b - l1->a) * miv - this->getPoint(n));
 		};
 		if (D(mi) > D(i))
 		{
@@ -316,7 +320,7 @@ pair<int, double> Segment::FindRepr(int i, int lindex, pair<double, double> intv
 	it2--;
 	int index;
 	auto D = [=](int n)->double {
-		return dist[i] + VecSize(l1->a + (l1->b - l1->a) * l1->X[n] - a - (b - a) * X[i]);
+		return dist[i] + VecSize(l1->getPoint(n) - this->getPoint(i));
 	};
 	if (Near[lindex][i] <= it1->first)
 		index = it1->second;
@@ -383,17 +387,17 @@ void Segment::SetReprInv(int i, int lindex, priority_queue<Repr, vector<Repr>, g
 
 bool Segment::IsVvertex(int i, int i1, Segment& l1, double t)
 {
-	MyVec tv = l1.a * (1 - t) + l1.b * t;
-	MyVec v = this->a * (1 - X[i]) + this->b * X[i];
-	MyVec v1 = this->a * (1 - X[i1]) + this->b * X[i1];
+	MyVec tv = l1.a * (1. - t) + l1.b * t;
+	MyVec v = this->getPoint(i);
+	MyVec v1 = this->getPoint(i1);
 	return abs(VecSize(tv - v) + dist[i] - VecSize(tv - v1) - dist[i1]) < EPS;
 }
 
 bool Segment::IsContain(int i, int i1, Segment& l1, double t)
 {
-	MyVec tv = l1.a * (1 - t) + l1.b * t;
-	MyVec v = this->a * (1 - X[i]) + this->b * X[i];
-	MyVec v1 = this->a * (1 - X[i1]) + this->b * X[i1];
+	MyVec tv = l1.a * (1. - t) + l1.b * t;
+	MyVec v = this->getPoint(i);
+	MyVec v1 = this->getPoint(i1);
 	return VecSize(tv - v) + dist[i] < VecSize(tv - v1) + dist[i1];
 }
 
