@@ -5,8 +5,6 @@
 #include "DNNDemo.h"
 #include "OGL_Contorl.h"
 
-#include "gurobi_c++.h"
-
 #include <GL/gl.h> 
 #include <GL/glu.h>
 #include <random>
