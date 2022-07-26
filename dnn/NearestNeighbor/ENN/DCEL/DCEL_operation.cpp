@@ -121,9 +121,12 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
     HEdgeContainer::sweep_p = &sweep_p;
 
     for (auto hec : hedge_containers){
-        Edge e =align_edge(hec.hedge->getEdge());                                       //REMOVE THE ALIGN EDGE PROCEDURE
-        intersectEvent ev_start(e.gets(),hec,intersectEvent::EVENT::START); 
-        intersectEvent ev_end(e.gett(),hec,intersectEvent::EVENT::END); 
+        //Edge e =align_edge(hec.hedge->getEdge());                                       //REMOVE THE ALIGN EDGE PROCEDURE
+        Vertex *start = hec.hedge->getOrigin(), *end = hec.hedge->getTwin()->getOrigin();
+        intersectEvent ev_start(*start,hec,intersectEvent::EVENT::START); 
+        intersectEvent ev_end(*end,hec,intersectEvent::EVENT::END); 
+        //intersectEvent ev_start(e.gets(),hec,intersectEvent::EVENT::START); 
+        //intersectEvent ev_end(e.gett(),hec,intersectEvent::EVENT::END); 
         pq.push(ev_start);
         pq.push(ev_end);
     }
@@ -411,8 +414,6 @@ DCEL DCEL::merge(DCEL &op){
             SC_union.insert(leftNode->value.key);
         }
 
-
-
         //Construct half edges at the event point.
         Vertex *new_v = new Vertex(ev_p);
         int new_key = ret_vertices.size();
@@ -486,7 +487,6 @@ DCEL DCEL::merge(DCEL &op){
         }
     }
 
-    //TODO : key 설정 안했음
     
     //Process of classification according to origin.
     std::vector<std::vector<HEdge*> > hedges_origin_v(ret_vertices.size()); 
@@ -528,11 +528,35 @@ DCEL DCEL::merge(DCEL &op){
 
     //Now we remain to set incident face of half edges and construct faces. 
     
-    std::vector<Face*> ret_faces = ConstructFaces(ret_hedges);
+    
     DCEL ret;
+    
+    int v_k = 1;
+    for(auto v:ret_vertices){
+        v->setKey("v"+std::to_string(v_k++));
+    }
     ret.setVertices(ret_vertices);
+    
+    int e_k = 1;
+    for(auto e:ret_hedges){
+        if(e->getKey()[0] !='D') continue;  //TODO: HEdge ,Vertex, Face에 key 값 지우고 그냥 dcel에서 key값 설정해주는게 맞는듯.
+        e->setKey("e"+std::to_string(e_k)+"_1");
+        e->getTwin()->setKey("e"+std::to_string(e_k++)+"_2");
+    }
     ret.setHedges(ret_hedges);
+
+    int f_k = 1;
+    std::vector<Face*> ret_faces = ConstructFaces(ret_hedges);
+
+    for(auto f:ret_faces){
+        f->setKey("f"+std::to_string(f_k++));
+    }
+
     ret.setFaces(ret_faces);
+
+    //Labeling Faces Process
+    //1. Hedge가 원래 누구꺼였는지 달아놓아함인데...아 할수 있다!!
+
 
     return ret;
 }
