@@ -3,12 +3,14 @@
 #include "Edge.h"
 // #include <vector>
 #include "i_quad.h"
+#include <set>
 
 using namespace std;
 
 class Graph {
 private:
 	vector<Point*> vertices;
+	vector<set<int>> adj_list;
 	// vector<vector<bool>> mat;
 	vector<Edge*> edges;
 	int num_vertices;
@@ -38,5 +40,10 @@ public:
 	void setIsin_N(bool);
 	bool getIsin_N();
 	void addEdge(Edge* E);
+
+	Graph(vector<Point*>);
+	Graph(vector<Point*>, vector<set<int>>);
+	void addEdge(int,int);
+	void deleteEdge(int,int);
 };
 
