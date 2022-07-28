@@ -1,5 +1,158 @@
 /*
 
+if (ps == qs) {
+	if (pe == qe) {
+		get<2>((*vec)[i]) += qc;
+		vec->erase(vec->begin() + i + 1); i--;
+	}
+	else {
+		get<2>((*vec)[i]) += qc;
+		get<0>((*vec)[i + 1]) = pe;
+	}
+}
+else if (qs < pe) {
+	if (pe > qe) {
+		get<0>((*vec)[i]) = qs;
+		get<2>((*vec)[i + 1]) += pc;
+		vec->insert(vec->begin() + i + 2, quadruple(qe, pe, pc, NULL));
+	}
+	else if (pe == qe) {
+		get<0>((*vec)[i]) = qs;
+		get<2>((*vec)[i + 1]) += pc;
+	}
+	else {
+		get<1>((*vec)[i]) = qs;
+		get<1>((*vec)[i + 1]) = pe;
+		get<2>((*vec)[i + 1]) += pc;
+		vec->insert(vec->begin() + i + 2, quadruple(pe, qe, qc, NULL));
+	}
+}
+else if (qs == pe) {
+	if (pc == qc) {
+		get<1>((*vec)[i]) = qe;
+		vec->erase(vec->begin() + i + 1); i--;
+	}
+}
+i++;
+	 }
+
+	 */
+
+/*
+
+auto ols = overlap(vec, start, end);
+if (ols[0] < 0) {
+	vector<tii>* path = new vector<tii>({ make_tuple(x_ind + 1, start), make_tuple(x_ind, start), make_tuple(x_ind, end), make_tuple(x_ind + 1, end) });
+	vec->insert(vec->begin() + -ols[0] - 1, (quadruple(start, end, 1, path)));
+}
+
+vector<int> units;
+for (auto ol : ols) {
+	int num = 0;
+	int s = get<0>((*vec)[ol]), e = get<1>((*vec)[ol]);
+
+
+	for (auto elem : ols) elem += num;
+}
+
+
+
+if (ols.size() == 1) {
+	int ol = ols[0];
+	int s = get<0>((*vec)[ol]), e = get<1>((*vec)[ol]);
+	int count = get<2>((*vec)[ol]);
+
+	if (start < s && s < end) {
+		if (e == end) {
+			get<2>((*vec)[ol]) += 1; // does this work correctly?
+			vec->insert(vec->begin() + ol, quadruple(start, s, 1, NULL));
+		}
+		else {
+			get<0>((*vec)[ol]) = end;
+			vec->insert(vec->begin() + ol, quadruple(s, end, count + 1, NULL));
+			vec->insert(vec->begin() + ol, quadruple(start, s, 1, NULL));
+		}
+	}
+	else if (start < e && e < end) {
+		if (s == start) {
+			get<2>((*vec)[ol]) += 1; // does this work correctly?
+			vec->insert(vec->begin() + ol + 1, quadruple(e, end, 1, NULL));
+		}
+		else {
+			get<1>((*vec)[ol]) = start;
+			vec->insert(vec->begin() + ol + 1, quadruple(start, e, count + 1, NULL));
+			vec->insert(vec->begin() + ol + 2, quadruple(e, end, 1, NULL));
+		}
+	}
+	else if (s == start) {
+		if (e == end) {
+			get<2>((*vec)[ol]) += 1;
+		}
+		else {
+			get<0>((*vec)[ol]) = end;
+			vec->insert(vec->begin() + ol, quadruple(start, end, count + 1, NULL));
+		}
+	}
+	else {
+		if (e == end) {
+			get<1>((*vec)[ol]) = start;
+			vec->insert(vec->begin() + ol + 1, quadruple(start, end, count + 1, NULL));
+		}
+		else {
+			get<1>((*vec)[ol]) = start;
+			vec->insert(vec->begin() + ol + 1, quadruple(start, end, count + 1, NULL));
+			vec->insert(vec->begin() + ol + 2, quadruple(end, e, count, NULL));
+		}
+	}
+
+	if (start <= s && e <= end) { // contained(including coincidence)
+		get<2>((*vec)[ol]) += 1;
+	}
+	else if (start <= s) { // not contained on the right side
+		get<0>((*vec)[ol]) = end;
+		vec->insert(vec->begin() + ol, quadruple(s, end, count + 1, NULL));
+	}
+	else { // not contained on the left side
+		get<1>((*vec)[ol]) = start;
+		vec->insert(vec->begin() + ol + 1, quadruple(start, e, count + 1, NULL));
+	}
+}
+
+*/
+
+/*
+
+		if (s == start || e == end) {ret.push_back(i);}
+		if (start < s && s < end || start < e && e < end) {}
+
+	// if () {}
+	int s1 = lnSearch(vec, start, true);
+	int s2 = lnSearch(vec, start, false);
+	int e1 = lnSearch(vec, end, true);
+	int e2 = lnSearch(vec, end, false);
+
+
+	if (s2 == e1) {
+
+	}
+	else {
+		int s_ind = max(), e_ind = min();
+	}
+
+
+		 if (right - left <= 1) {
+			 if (get<0>((*vec)[right]) == elem) { return right; }
+			 else if (get<0>((*vec)[left]) == elem) { return left; }
+			 else return -1;
+		 }
+		 else if (right - left == 2) {
+			 if (get<0>((*vec)[right]) == elem) { return right; }
+			 else if (get<0>((*vec)[right - 1]) == elem) { return right - 1; }
+			 else if (get<0>((*vec)[left]) == elem) { return left; }
+			 else return -1;
+		 }
+
+
 			 while (mid < vec.size() - 1) {
 				 if (get<0>(*vec[mid + 1]) == elem) { mid += 1; }
 			 }

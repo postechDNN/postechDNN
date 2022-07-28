@@ -4,8 +4,6 @@
 #include <stdexcept>
 
 using namespace std;
-typedef tuple<int, int> tii;
-typedef tuple<int, int, int, tuple<int, int>> quadruple;
 
 RP::RP(){}
 RP::~RP(){}
@@ -254,7 +252,7 @@ RP* myUnion(vector<i_quad*> _Qs) { // plane sweep
 	 }
 
 	 sort(eventQ.begin(), eventQ.end(), greater<>());
-	 vector<quadruple>* prev_status = new vector<quadruple>;
+	 vector<quadruple>* prev_status = new vector<quadruple>; // quadruple: start, end, count, path
 	 vector<quadruple>* cur_status = new vector<quadruple>; // maintains current intervals. (y_ind, count)
 
 	 bool first_column = true;
@@ -267,10 +265,10 @@ RP* myUnion(vector<i_quad*> _Qs) { // plane sweep
 		 auto ev = eventQ[eventQ.size() - 1]; // last event 
 		 while (eventQ.size() >= 1 && prev_x == get<0>(ev)) { // if all events are processed, we finish the while loop
 			 if (get<2>(ev)) { // insert event
-				 // bin_insert(cur_status, get<1>(ev));
+				 myInsert(cur_status, get<1>(ev), get<0>(ev), 2);
 			 }
 			 else { // delete event
-				 // bin_delete(cur_status, get<1>(ev));
+				 myDelete(cur_status, get<1>(ev), get<0>(ev), 2);
 			 }
 			 prev_x = get<0>(ev);
 			 eventQ.pop_back();
@@ -279,16 +277,50 @@ RP* myUnion(vector<i_quad*> _Qs) { // plane sweep
 			 ev = eventQ[eventQ.size() - 1]; // last event 
 		 }
 
+		 // simplify
+		 auto temp_cur = cur_status;
+		 int i = 0;
+		 while (i <= int(temp_cur->size()) - 2) {
+			 if (get<1>((*temp_cur)[i]) == get<0>((*temp_cur)[i + 1])) {
+				 get<1>((*temp_cur)[i]) = get<1>((*temp_cur)[i+1]); temp_cur->erase(temp_cur->begin() + i+1); i--;
+			}
+			i++;
+		 }
+
+		 auto temp_prev = prev_status;
+		 int i = 0;
+		 while (i <= int(temp_prev->size()) - 2) {
+			 if (get<1>((*temp_prev)[i]) == get<0>((*temp_prev)[i + 1])) {
+				 get<1>((*temp_prev)[i]) = get<1>((*temp_prev)[i + 1]); temp_prev->erase(temp_prev->begin() + i + 1); i--;
+			 }
+			 i++;
+		 }
+
+		 int pind = 0, cind = 0;
+		 while (pind < prev_status->size() || cind < cur_status->size()) {
+			 if (pind >= prev_status->size()) { // draw RP portions from cur_status. only emerge
+				tii* path = new tii({new tii(), new tii(), new tii(), new tii()}):
+				get<3>(cur_status[cind]) = 
+			}
+			 else if (cind >= cur_status->size()) { // draw RP portions from prev_status. only finish
+
+			 }
+			 else {
+
+			 }
+		 }
+
 		 // not the first event, and the x-coordinate of the event is different from the previous one 
 		 if (first_column) {
+
+			
 			 first_column = false; prev_x = get<0>(ev); continue;
 		 }
 
 		 // compare two statuses and draw RP correspondingly
-		 int pind = 0, cind = 0;
-		 while (pind < prev_status->size() || cind < cur_status->size()) {
+		 /*
 
-		 }
+		 */
 
 		 prev_x = get<0>(ev);
 		 prev_status = cur_status; // update the previous status
@@ -297,10 +329,191 @@ RP* myUnion(vector<i_quad*> _Qs) { // plane sweep
 	 return NULL;
  }
 
- /*
- int bin_insert(vector<tuple<int, int, int, tuple<int, int>>>* vec, int elem) {
-	int start = elem, end = elem + 2;
+ int mySearch(vector<quadruple>* vec, int elem, bool left_check) {
+	if (vec->empty()) { return -1;}
 
-	return 0;
+	if (left_check) {
+		if (get<0>(vec->front()) > elem) { return -1;}
+		else if (get<0>(vec->back()) > elem) { return -(int(vec->size())+1);}
+	}
+	else {
+		if (get<1>(vec->front()) > elem) { return -1; }
+		else if (get<1>(vec->back()) > elem) { return -(int(vec->size()) + 1); }
+	}
+
+	 int left = 0, right = vec->size() - 1;
+	 while (left <= right) {
+
+		 int mid = (left + right) / 2;
+		
+		 if (left_check) {
+			 if (get<0>((*vec)[mid]) == elem) { return mid;}
+			 else if (get<0>((*vec)[mid]) > elem) { right = mid-1;}
+			 else { left = mid+1;}
+		 }
+		 else {
+			 if (get<1>((*vec)[mid])== elem) { return mid;}
+			 else if (get<1>((*vec)[mid]) > elem) { right = mid - 1; }
+			 else { left = mid + 1; }
+		 }
+
+	 }
  }
- */
+
+ int lnSearch(vector<quadruple>* vec, int elem, bool left) {
+	if (left) {
+		if (get<0>(vec->front()) > elem) { return -1; }
+		if (get<0>(vec->front()) == elem)  {return 0;}
+		if (get<0>(vec->back()) < elem) { return -(int(vec->size())+1);}
+		if (get<0>(vec->back()) == elem) { return vec->size()-1; }
+		for (int i = 1; i < vec->size(); i++) {
+			if (get<0>((*vec)[i]) == elem) { return i;}
+			if (get<0>((*vec)[i-1]) < elem && get<0>((*vec)[i]) > elem) { return -(i+1);}
+		}
+	}
+	else {
+		if (get<1>(vec->front()) > elem) { return -1; }
+		if (get<1>(vec->front()) == elem) { return 0; }
+		if (get<1>(vec->back()) < elem) { return -(int(vec->size()) + 1); }
+		if (get<1>(vec->back()) == elem) { return vec->size() - 1; }
+		for (int i = 1; i < vec->size(); i++) {
+			if (get<1>((*vec)[i]) == elem) { return i; }
+			if (get<1>((*vec)[i - 1]) < elem && get<0>((*vec)[i]) > elem) { return -(i + 1); }
+		}
+	}
+ }
+
+ vector<int> overlap(vector<quadruple>* vec, int start, int end) { // ln search after bin search possible, will implement later
+	vector<int> ret;
+	 for (int i = 0; i < vec->size(); i++) {
+		int s = get<0>((*vec)[i]), e = get<1>((*vec)[i]);
+		if (!(end <= s || start >= e)) { ret.push_back(i); }
+	}
+
+	if (!ret.empty()) return ret;
+	else {	
+		for (int i = 0; i <= vec->size()-2; i++) {
+			if (get<1>((*vec)[i]) <= start && end <= get<0>((*vec)[i+1])) { return {-(i+2)}; }
+		}
+	}
+	throw invalid_argument("error");
+ }
+
+ void myInsert(vector<quadruple>* vec, int elem, int x_ind, int step) {
+	int start = elem, end = elem + step;
+	
+	for (int i = start; i < end; i++) {
+		vec->push_back(quadruple(i, i+1, 1, NULL));
+	}
+
+	sort(vec->begin(), vec->end());
+
+	int i = 0;
+	// postprocessing
+	while(i <= int(vec->size())-2){
+
+		int ps = get<0>((*vec)[i]), pe = get<1>((*vec)[i]), pc = get<2>((*vec)[i]);
+		int qs = get<0>((*vec)[i+1]), qe = get<1>((*vec)[i+1]), qc = get<2>((*vec)[i+1]);
+
+		if (ps == qs) {
+			if (pe == qe) { 
+				get<2>((*vec)[i]) += qc;
+				vec->erase(vec->begin() + i + 1); i--;
+			}
+			else {
+				get<2>((*vec)[i]) += qc;
+				get<0>((*vec)[i+1]) = pe;
+			}
+		}
+		else if (qs < pe) {
+			if (pe > qe) {
+				get<0>((*vec)[i]) = qs;
+				get<2>((*vec)[i+1]) += pc;
+				vec->insert(vec->begin() + i+2, quadruple(qe, pe, pc, NULL));
+			}
+			else if (pe == qe) {
+				get<0>((*vec)[i]) = qs;
+				get<2>((*vec)[i+1]) += pc;
+			}
+			else {
+				get<1>((*vec)[i]) = qs;
+				get<1>((*vec)[i+1]) = pe;
+				get<2>((*vec)[i + 1]) += pc;
+				vec->insert(vec->begin() + i+2, quadruple(pe, qe, qc, NULL));
+			}
+		}
+		else if (qs == pe) {
+			if (pc == qc) {
+				get<1>((*vec)[i]) = qe;
+				vec->erase(vec->begin() + i + 1); i--;
+			}
+		}
+		i++;
+	}
+
+
+ }
+
+ void myDelete(vector<quadruple>* vec, int elem, int x_ind, int step) {
+	 int start = elem, end = elem + step;
+
+	 for (int i = start; i < end; i++) {
+		 vec->push_back(quadruple(i, i + 1, -1, NULL));
+	 }
+
+	 sort(vec->begin(), vec->end());
+
+	 int i = 0;
+	 // postprocessing
+	 while (i <= int(vec->size()) - 2) {
+
+		 int ps = get<0>((*vec)[i]), pe = get<1>((*vec)[i]), pc = get<2>((*vec)[i]);
+		 int qs = get<0>((*vec)[i + 1]), qe = get<1>((*vec)[i + 1]), qc = get<2>((*vec)[i + 1]);
+
+		 if (pc == -1) { // ps == qs
+			 if (pe < qe) {
+				 if (qc == 1) {
+					 vec->erase(vec->begin() + i); get<0>((*vec)[i]) = pe; i--;
+				}
+				 else {
+					 get<2>((*vec)[i]) = qc -1;
+					 get<0>((*vec)[i + 1]) = pe;
+				 }
+			}
+			 else { // pe == qe
+				 if (qc == 1) {
+					 vec->erase(vec->begin()+i); vec->erase(vec->begin() + i); i--; // i--;
+				}
+				 else {
+					 vec->erase(vec->begin() + i); get<2>((*vec)[i]) -= 1; i--;
+				 }
+			 }
+		 }
+		 else if (qc == -1 && pe > qs) { // ps < qs
+			 if (qe == pe) {
+				 if (pc == 1) {
+					 get<0>((*vec)[i]) = qs;
+					 vec->erase(vec->begin() + i+1); i--;
+				}
+				 else {
+					 get<0>((*vec)[i]) = qs;
+					 get<2>((*vec)[i+1]) = pc-1;
+				 }
+			}
+			 else { // qe < pe
+				 if (pc == 1) {
+					 get<0>((*vec)[i]) = qs;
+					 get<0>((*vec)[i+1]) = qe;
+					 get<1>((*vec)[i + 1]) = pe;
+					 get<2>((*vec)[i + 1]) = pc;
+				}
+				 else {
+					 get<0>((*vec)[i]) = qs;
+					 get<2>((*vec)[i + 1]) = pc-1;
+					 vec->insert(vec->begin() + i + 2, quadruple(qe, pe, pc, NULL));
+				 }
+			 }
+		 }
+		i++;
+	}
+ }
