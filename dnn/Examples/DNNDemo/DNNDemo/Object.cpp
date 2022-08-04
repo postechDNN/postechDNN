@@ -9,154 +9,154 @@
 #define PADDING 0.1
 
 // Point
-Point::Point() {
+OGL_Point::OGL_Point() {
 	this->x = 0;
 	this->y = 0;
 	this->z = 0;
 }
-Point::Point(double x, double y) {
+OGL_Point::OGL_Point(double x, double y) {
 	this->x = x;
 	this->y = y;
 	this->z = 0;
 }
-Point::Point(double x, double y, double z) {
+OGL_Point::OGL_Point(double x, double y, double z) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 }
-Point::~Point() {
+OGL_Point::~OGL_Point() {
 
 }
-double Point::getX() {
+double OGL_Point::getX() {
 	return this->x;
 }
-double Point::getY() {
+double OGL_Point::getY() {
 	return this->y;
 }
-double Point::getZ() {
+double OGL_Point::getZ() {
 	return this->z;
 }
-void Point::setX(double x) {
+void OGL_Point::setX(double x) {
 	this->x = x;
 }
-void Point::setY(double y) {
+void OGL_Point::setY(double y) {
 	this->y = y;
 }
-void Point::setZ(double z) {
+void OGL_Point::setZ(double z) {
 	this->z = z;
 }
 
 // Vertex
-Vertex::Vertex() {
+OGL_Vertex::OGL_Vertex() {
 
 }
-Vertex::~Vertex() {
+OGL_Vertex::~OGL_Vertex() {
 	
 }
-std::string Vertex::getName() {
+std::string OGL_Vertex::getName() {
 	return this->name;
 }
-Point& Vertex::getPos() {
+OGL_Point& OGL_Vertex::getPos() {
 	return this->pos;
 }
-void Vertex::setName(std::string n) {
+void OGL_Vertex::setName(std::string n) {
 	this->name = n;
 }
-void Vertex::setPos(double x, double y) {
+void OGL_Vertex::setPos(double x, double y) {
 	this->pos.setX(x);
 	this->pos.setY(y);
 }
-void Vertex::setPos(double x, double y, double z) {
+void OGL_Vertex::setPos(double x, double y, double z) {
 	this->pos.setX(x);
 	this->pos.setY(y);
 	this->pos.setZ(z);
 }
 
 // Edge
-Edge::Edge() {
-	Point p;
+OGL_Edge::OGL_Edge() {
+	OGL_Point p;
 	endpoints.push_back(p);
 	endpoints.push_back(p);
 }
-Edge::Edge(Point s, Point e) {
+OGL_Edge::OGL_Edge(OGL_Point s, OGL_Point e) {
 	endpoints.push_back(s);
 	endpoints.push_back(e);
 }
-Edge::~Edge() {
+OGL_Edge::~OGL_Edge() {
 	this->endpoints.clear();
 }
-std::string Edge::getName() {
+std::string OGL_Edge::getName() {
 	return this->name;
 }
-Point& Edge::getStartP() {
+OGL_Point& OGL_Edge::getStartP() {
 	return this->endpoints[0];
 }
-Point& Edge::getEndP() {
+OGL_Point& OGL_Edge::getEndP() {
 	return this->endpoints[1];
 }
-std::string Edge::getFace() {
+std::string OGL_Edge::getFace() {
 	return this->face;
 }
-std::string Edge::getTwin() {
+std::string OGL_Edge::getTwin() {
 	return this->twin;
 }
-std::string Edge::getNext() {
+std::string OGL_Edge::getNext() {
 	return this->next;
 }
-void Edge::setName(std::string n) {
+void OGL_Edge::setName(std::string n) {
 	this->name = n;
 }
-void Edge::setStartP(Point P) {
+void OGL_Edge::setStartP(OGL_Point P) {
 	this->endpoints[0] = P;
 }
-void Edge::setEndP(Point P) {
+void OGL_Edge::setEndP(OGL_Point P) {
 	this->endpoints[1] = P;
 }
-void Edge::setFace(std::string f) {
+void OGL_Edge::setFace(std::string f) {
 	this->face = f;
 }
-void Edge::setTwin(std::string t) {
+void OGL_Edge::setTwin(std::string t) {
 	this->twin = t;
 }
-void Edge::setNext(std::string n) {
+void OGL_Edge::setNext(std::string n) {
 	this->next = n;
 }
 
 // Face
-Face::Face() {
+OGL_Face::OGL_Face() {
 
 }
-Face::~Face() {
+OGL_Face::~OGL_Face() {
 	this->vertices.clear();
 }
-std::string Face::getName() {
+std::string OGL_Face::getName() {
 	return this->name;
 }
-int Face::getSize() {
+int OGL_Face::getSize() {
 	return this->vertices.size();
 }
-int Face::getInnerEdgeSize() {
+int OGL_Face::getInnerEdgeSize() {
 	return this->innerEdge.size();
 }
-Point& Face::getPoint(int idx) {
+OGL_Point& OGL_Face::getPoint(int idx) {
 	return this->vertices[idx];
 }
-bool Face::isInner() {
+bool OGL_Face::isInner() {
 	return this->inner;
 }
-void Face::addPoint(Point p) {
+void OGL_Face::addPoint(OGL_Point p) {
 	this->vertices.push_back(p);
 }
-void Face::addInnerEdge(std::string edge) {
+void OGL_Face::addInnerEdge(std::string edge) {
 	this->innerEdge.push_back(edge);
 }
-void Face::setName(std::string n) {
+void OGL_Face::setName(std::string n) {
 	this->name = n;
 }
-void Face::setInner(bool i) {
+void OGL_Face::setInner(bool i) {
 	this->inner = i;
 }
-std::string Face::getInnerEdge(int idx) {
+std::string OGL_Face::getInnerEdge(int idx) {
 	return this->innerEdge[idx];
 }
 
@@ -178,28 +178,28 @@ int Object::getEdgesNum() {
 int Object::getFacesNum() {
 	return this->faces.size();
 }
-Vertex& Object::getVertex(int idx) {
+OGL_Vertex& Object::getVertex(int idx) {
 	return this->vertices[idx];
 }
-Edge& Object::getEdge(int idx) {
+OGL_Edge& Object::getEdge(int idx) {
 	return this->edges[idx];
 }
-Face& Object::getFace(int idx) {
+OGL_Face& Object::getFace(int idx) {
 	return this->faces[idx];
 }
 void Object::addVertex() {
-	Vertex v;
+	OGL_Vertex v;
 	this->vertices.push_back(v);
 }
 void Object::addEdge() {
-	Edge e;
+	OGL_Edge e;
 	this->edges.push_back(e);
 }
 void Object::addFace() {
-	Face f;
+	OGL_Face f;
 	this->faces.push_back(f);
 }
-void Object::addFace(Face f) {
+void Object::addFace(OGL_Face f) {
 	this->faces.push_back(f);
 }
 void Object::setDrawVertices(bool b) {
@@ -344,12 +344,12 @@ void Object::readDCEL(CString path, int dimension) {
 		this->vertices[i].setName(key);
 	}
 
-	std::vector<Face> faceList;
+	std::vector<OGL_Face> faceList;
 	std::map<std::string, int> fMap;
 	for (int i = 0; i < fn; i++) {
 		file >> key;
 		fMap[key] = i;
-		Face f;
+		OGL_Face f;
 		faceList.push_back(f);
 		faceList[i].setName(key);
 		//this->addFace();
@@ -401,7 +401,7 @@ void Object::readDCEL(CString path, int dimension) {
 	std::string vkey, fkey, next, prev, twin;
 	for (int i = 0; i < en; i++) {
 		file >> key >> vkey >> twin >> fkey >> next >> prev;
-		Point p = this->vertices[vMap[vkey]].getPos();
+		OGL_Point p = this->vertices[vMap[vkey]].getPos();
 		faceList[fMap[fkey]].addPoint(p);
 		//this->faces[fMap[fkey]].addPoint(p);
 		this->edges[eMap[key]].setEndP(p);
@@ -472,4 +472,69 @@ void Object::readDCEL(CString path, int dimension) {
 	fMap.clear();
 	eMap.clear();
 	vMap.clear();
+}
+
+void Object::read3Deps(CString path) 
+{
+	this->vertices.clear();
+	this->edges.clear();
+	this->faces.clear();
+
+	std::ifstream file(path);
+	int frptn, polyn;
+	file >> frptn >> polyn;
+
+	std::string key;
+	std::map<std::string, int> frptMap;
+	double x, y, z;
+	for (int i = 0; i < frptn; i++) {
+		file >> key >> x >> y >> z;
+		this->addVertex();
+		this->vertices[i].setName(key);
+		this->vertices[i].setPos(x, y, z);
+	}
+
+	Object* polytopes = new Object[polyn];
+
+	for (int i = 0; i < polyn; i++) {
+		int vn, en, fn;
+		file >> vn >> en >> fn;
+
+		std::map<std::string, int> vMap;
+		for (int j = 0; j < vn; j++) {
+			file >> key >> x >> y >> z;
+			vMap[key] = j;
+			this->addVertex();
+			polytopes[i].vertices[j].setName(key);
+			polytopes[i].vertices[j].setPos(x, y, z);
+		}
+
+		std::map<std::string, int> eMap;
+		std::string v1, v2, v3;
+		for (int i = 0; i < en; i++) {
+			file >> key >> v1 >> v2;
+			eMap[key] = i;
+			OGL_Point p = this->vertices[vMap[v1]].getPos();
+			OGL_Point q = this->vertices[vMap[v2]].getPos();
+			polytopes[i].addEdge();
+			polytopes[i].edges[i].setName(key);
+			polytopes[i].edges[i].setStartP(p);
+			polytopes[i].edges[i].setEndP(q);
+		}
+
+		std::vector<OGL_Face> faceList;
+		std::map<std::string, int> fMap;
+		for (int i = 0; i < fn; i++) {
+			file >> key >> v1 >> v2 >> v3;
+			fMap[key] = i;
+			OGL_Point p = this->vertices[vMap[v1]].getPos();
+			OGL_Point q = this->vertices[vMap[v2]].getPos();
+			OGL_Point r = this->vertices[vMap[v3]].getPos();
+			OGL_Face f;
+			f.addPoint(p); f.addPoint(q); f.addPoint(r);
+			f.setName(key);
+			faceList.push_back(f);
+			faceList[i].setName(key);
+		}
+	}
 }

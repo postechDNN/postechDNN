@@ -3,12 +3,12 @@
 #include <vector>
 #include <string>
 
-class Point {
+class OGL_Point {
 public:
-	Point();
-	Point(double x, double y);
-	Point(double x, double y, double z);
-	~Point();
+	OGL_Point();
+	OGL_Point(double x, double y);
+	OGL_Point(double x, double y, double z);
+	~OGL_Point();
 	double getX();
 	double getY();
 	double getZ();
@@ -22,62 +22,62 @@ private:
 	double z;
 };
 
-class Vertex {
+class OGL_Vertex {
 public:
-	Vertex();
-	~Vertex();
+	OGL_Vertex();
+	~OGL_Vertex();
 	std::string getName();
-	Point& getPos();
+	OGL_Point& getPos();
 	void setName(std::string n);
 	void setPos(double x, double y);
 	void setPos(double x, double y, double z);
 private:
 	std::string name;
-	Point pos;
+	OGL_Point pos;
 };
 
-class Edge {
+class OGL_Edge {
 public:
-	Edge();
-	Edge(Point s, Point e);
-	~Edge();
+	OGL_Edge();
+	OGL_Edge(OGL_Point s, OGL_Point e);
+	~OGL_Edge();
 	std::string getName();
-	Point& getStartP();
-	Point& getEndP();
+	OGL_Point& getStartP();
+	OGL_Point& getEndP();
 	std::string getFace();
 	std::string getTwin();
 	std::string getNext();
 	void setName(std::string n);
-	void setStartP(Point P);
-	void setEndP(Point P);
+	void setStartP(OGL_Point P);
+	void setEndP(OGL_Point P);
 	void setFace(std::string f);
 	void setTwin(std::string t);
 	void setNext(std::string n);
 private:
 	std::string name;
-	std::vector<Point> endpoints;
+	std::vector<OGL_Point> endpoints;
 	std::string face;
 	std::string twin;
 	std::string next;
 };
 
-class Face{
+class OGL_Face{
 public:
-	Face();
-	~Face();
+	OGL_Face();
+	~OGL_Face();
 	std::string getName();
 	int getSize();
 	int getInnerEdgeSize();
-	Point& getPoint(int idx);
+	OGL_Point& getPoint(int idx);
 	bool isInner();
-	void addPoint(Point p);
+	void addPoint(OGL_Point p);
 	void addInnerEdge(std::string edge);
 	void setName(std::string n);
 	void setInner(bool i);
 	std::string getInnerEdge(int idx);
 private:
 	std::string name;
-	std::vector<Point> vertices;
+	std::vector<OGL_Point> vertices;
 	std::vector<std::string> innerEdge;
 	bool inner;
 };
@@ -89,13 +89,13 @@ public:
 	int getVerticsNum();
 	int getEdgesNum();
 	int getFacesNum();
-	Vertex& getVertex(int idx);
-	Edge& getEdge(int idx);
-	Face& getFace(int idx);
+	OGL_Vertex& getVertex(int idx);
+	OGL_Edge& getEdge(int idx);
+	OGL_Face& getFace(int idx);
 	void addVertex();
 	void addEdge();
 	void addFace();
-	void addFace(Face f);
+	void addFace(OGL_Face f);
 
 	void setDrawVertices(bool b);
 	void setDrawEdges(bool b);
@@ -108,6 +108,7 @@ public:
 	void getNorm(double trans[], double strat[], int dimension);
 
 	void readDCEL(CString path, int dimension);
+	void read3Deps(CString path);
 
 private:
 	double normTrans[3];
@@ -115,8 +116,8 @@ private:
 	bool drawVertices;
 	bool drawEdges;
 	bool drawFaces;
-	std::vector<Vertex> vertices;
-	std::vector<Edge> edges;
-	std::vector<Face> faces;
+	std::vector<OGL_Vertex> vertices;
+	std::vector<OGL_Edge> edges;
+	std::vector<OGL_Face> faces;
 };
 

@@ -159,7 +159,7 @@ void OGL_Contorl::OnPaint()
 
 				glBegin(GL_POLYGON);
 				for (int j = 0; j < this->object2D.getFace(i).getSize(); j++) {
-					Point p = this->object2D.getFace(i).getPoint(j);
+					OGL_Point p = this->object2D.getFace(i).getPoint(j);
 					glVertex2d((p.getX()- normTrans[0])/normMul[0], (p.getY()-normTrans[1])/normMul[1]);
 				}
 				glEnd();
@@ -170,8 +170,8 @@ void OGL_Contorl::OnPaint()
 			::glColor3f(1.0f, 1.0f, 1.0f);
 			glLineWidth(3.0f);
 			for (int i = 0; i < this->object2D.getEdgesNum(); i++) {
-				Point sp = this->object2D.getEdge(i).getStartP();
-				Point ep = this->object2D.getEdge(i).getEndP();
+				OGL_Point sp = this->object2D.getEdge(i).getStartP();
+				OGL_Point ep = this->object2D.getEdge(i).getEndP();
 				glBegin(GL_LINES);
 				glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
 				glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
@@ -184,7 +184,7 @@ void OGL_Contorl::OnPaint()
 			glPointSize(3.0f);
 			glBegin(GL_POINTS);
 			for (int i = 0; i < this->object2D.getVerticsNum(); i++) {
-				Point p = this->object2D.getVertex(i).getPos();
+				OGL_Point p = this->object2D.getVertex(i).getPos();
 				glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
 			}
 			glEnd();
