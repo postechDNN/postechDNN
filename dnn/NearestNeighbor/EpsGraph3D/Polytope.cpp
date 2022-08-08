@@ -331,10 +331,6 @@ void Polytope::setpolytope(std::vector<Face*> input)
 // Polytope
 bool Polytope::isIn(Point* p) {
 	int num_below = 0;
-	if (p->x == 0 && p->y == 0 && p->z == -100)
-	{
-		int i = 1;
-	}
 	for (int i = 0; i < num_faces; i++)
 	{
 		if (this->faces[i]->below(p)) {
