@@ -196,6 +196,7 @@ void OGL_Contorl::OnPaint()
 		
 	}
 	else {
+		this->object3D.getNorm(normTrans, normMul, 3);
 		::glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -204,10 +205,41 @@ void OGL_Contorl::OnPaint()
 		glLoadIdentity();
 		gluLookAt(VIEW, VIEW, VIEW, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
+		if (this->object3D.getDrawFaces()) {
+			glColor3d(1.0, 1.0, 1.0);
+			
+			for (int i = 0; i < this->object3D.getFacesNum(); i++) {
+				glBegin(GL_POLYGON);
+				for (int j = 0; j < this->object3D.getFace(i).getSize(); j++) {
+					OGL_Point p = this->object3D.getFace(i).getPoint(j);
+					glVertex3d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1], (p.getZ() - normTrans[2]) / normMul[2]);
+				}
+				glEnd();
+			}
 
-
-
-
+		}
+		if (this->object3D.getDrawEdges()) {
+			glColor3d(1.0, 1.0, 1.0);
+			glLineWidth(1.0f);
+			for (int i = 0; i < this->object3D.getEdgesNum(); i++) {
+				glBegin(GL_LINES);
+				OGL_Point sp = this->object3D.getEdge(i).getStartP();
+				OGL_Point ep = this->object3D.getEdge(i).getEndP();
+				glVertex3d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1], (sp.getZ() - normTrans[2]) / normMul[2]);
+				glVertex3d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1], (ep.getZ() - normTrans[2]) / normMul[2]);
+				glEnd();
+			}
+		}
+		if (this->object3D.getDrawVertices()) {
+			glColor3d(1.0, 1.0, 1.0);
+			glPointSize(1.0f);
+			glBegin(GL_POINTS);
+			for (int i = 0; i < this->object3D.getVerticsNum(); i++) {
+				OGL_Point p = this->object3D.getVertex(i).getPos();
+				glVertex3d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1], (p.getZ() - normTrans[2]) / normMul[2]);
+			}
+			glEnd();
+		}
 		::glPopMatrix();
 		::glFinish();
 		if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
