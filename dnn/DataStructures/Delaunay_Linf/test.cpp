@@ -4,8 +4,8 @@
 #include <cstring>
 #include <random>
 #include <string>
-#include "quadedge.h"
-#include "fakeirisgl.h"
+#include "./externals/quadedge-basic/quadedge.h"
+#include "./externals/quadedge-basic/fakeirisgl.h"
 
 void getArguments(int, char**);
 void InsertPoints(Subdivision&);

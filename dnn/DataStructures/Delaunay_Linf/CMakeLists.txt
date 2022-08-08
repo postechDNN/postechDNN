@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(delaunay geom2d.h quadedge.cpp quadedge.h main.cpp)
+add_executable(delaunay ./externals/quadedge-basic/geom2d.h ./externals/quadedge-basic/quadedge.cpp ./externals/quadedge-basic/quadedge.h main.cpp)
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)

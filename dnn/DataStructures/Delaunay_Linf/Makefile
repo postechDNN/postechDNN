@@ -129,6 +129,30 @@ delaunay/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/build
 .PHONY : delaunay/fast
 
+externals/quadedge-basic/quadedge.o: externals/quadedge-basic/quadedge.cpp.o
+.PHONY : externals/quadedge-basic/quadedge.o
+
+# target to build an object file
+externals/quadedge-basic/quadedge.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.o
+.PHONY : externals/quadedge-basic/quadedge.cpp.o
+
+externals/quadedge-basic/quadedge.i: externals/quadedge-basic/quadedge.cpp.i
+.PHONY : externals/quadedge-basic/quadedge.i
+
+# target to preprocess a source file
+externals/quadedge-basic/quadedge.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.i
+.PHONY : externals/quadedge-basic/quadedge.cpp.i
+
+externals/quadedge-basic/quadedge.s: externals/quadedge-basic/quadedge.cpp.s
+.PHONY : externals/quadedge-basic/quadedge.s
+
+# target to generate assembly for a file
+externals/quadedge-basic/quadedge.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.s
+.PHONY : externals/quadedge-basic/quadedge.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -153,30 +177,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-quadedge.o: quadedge.cpp.o
-.PHONY : quadedge.o
-
-# target to build an object file
-quadedge.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/quadedge.cpp.o
-.PHONY : quadedge.cpp.o
-
-quadedge.i: quadedge.cpp.i
-.PHONY : quadedge.i
-
-# target to preprocess a source file
-quadedge.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/quadedge.cpp.i
-.PHONY : quadedge.cpp.i
-
-quadedge.s: quadedge.cpp.s
-.PHONY : quadedge.s
-
-# target to generate assembly for a file
-quadedge.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/quadedge.cpp.s
-.PHONY : quadedge.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -186,12 +186,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... delaunay"
+	@echo "... externals/quadedge-basic/quadedge.o"
+	@echo "... externals/quadedge-basic/quadedge.i"
+	@echo "... externals/quadedge-basic/quadedge.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... quadedge.o"
-	@echo "... quadedge.i"
-	@echo "... quadedge.s"
 .PHONY : help
 
 
