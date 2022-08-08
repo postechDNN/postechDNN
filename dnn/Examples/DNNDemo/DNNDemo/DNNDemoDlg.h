@@ -47,4 +47,13 @@ public:
 	afx_msg void OnBnClickedCheckFace();
 	CButton m_button_render;
 	afx_msg void OnBnClickedButtonRender();
+	CButton m_button_add;
+	CButton m_button_delete;
+	CButton m_check_f1;
+	CButton m_check_f2;
+	afx_msg void OnCbnSelchangeComboFunc();
+	afx_msg void OnBnClickedButtonAdd();
+	afx_msg void OnBnClickedButtonDel();
+	afx_msg void OnBnClickedCheckF1();
+	afx_msg void OnBnClickedCheckF2();
 };

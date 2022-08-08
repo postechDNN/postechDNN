@@ -66,6 +66,10 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_EDGE, m_check_edge);
 	DDX_Control(pDX, IDC_CHECK_FACE, m_check_face);
 	DDX_Control(pDX, IDC_BUTTON_RENDER, m_button_render);
+	DDX_Control(pDX, IDC_BUTTON_ADD, m_button_add);
+	DDX_Control(pDX, IDC_BUTTON_DEL, m_button_delete);
+	DDX_Control(pDX, IDC_CHECK_F1, m_check_f1);
+	DDX_Control(pDX, IDC_CHECK_F2, m_check_f2);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -79,6 +83,11 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_EDGE, &CDNNDemoDlg::OnBnClickedCheckEdge)
 	ON_BN_CLICKED(IDC_CHECK_FACE, &CDNNDemoDlg::OnBnClickedCheckFace)
 	ON_BN_CLICKED(IDC_BUTTON_RENDER, &CDNNDemoDlg::OnBnClickedButtonRender)
+	ON_CBN_SELCHANGE(IDC_COMBO_FUNC, &CDNNDemoDlg::OnCbnSelchangeComboFunc)
+	ON_BN_CLICKED(IDC_BUTTON_ADD, &CDNNDemoDlg::OnBnClickedButtonAdd)
+	ON_BN_CLICKED(IDC_BUTTON_DEL, &CDNNDemoDlg::OnBnClickedButtonDel)
+	ON_BN_CLICKED(IDC_CHECK_F1, &CDNNDemoDlg::OnBnClickedCheckF1)
+	ON_BN_CLICKED(IDC_CHECK_F2, &CDNNDemoDlg::OnBnClickedCheckF2)
 END_MESSAGE_MAP()
 
 
@@ -115,9 +124,16 @@ BOOL CDNNDemoDlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
-	// Func Combo 초기화 코드
+	// Initialize Func Combo
 	m_combo_func.AddString(_T("Read DCEL"));
+	m_combo_func.AddString(_T("3D nearest neighbor search"));
 	//m_combo_func.AddString(_T("추가메뉴"));
+
+	// Initialize Check boxes
+	m_check_vertex.SetCheck(true);
+	m_check_edge.SetCheck(true);
+	m_check_face.SetCheck(true);
+	m_check_f1.SetCheck(true);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -206,9 +222,10 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 	CString path;
 	m_edit_filename.GetWindowTextW(path);
 	switch (menu) {
-	case 0:
+	case 0: // Read DCEL
 		m_picture_opengl.readDCEL(path);
 		break;
+	case 1: // 3D nearest neighbor
 	default:
 		break;
 	}
@@ -241,4 +258,79 @@ void CDNNDemoDlg::OnBnClickedButtonRender()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	Invalidate(TRUE);
 	UpdateWindow();
+}
+
+
+void CDNNDemoDlg::OnCbnSelchangeComboFunc()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0: // Read DCEL
+		this->m_check_vertex.SetWindowTextW(_T("Vertex"));
+		this->m_check_edge.SetWindowTextW(_T("Edge"));
+		this->m_check_face.SetWindowTextW(_T("Face"));
+		this->m_check_f1.EnableWindow(false);
+		this->m_check_f2.EnableWindow(false);
+		this->m_button_add.EnableWindow(false);
+		this->m_button_delete.EnableWindow(false);
+		break;
+	case 1: // 3D nearest neighbor
+		this->m_check_vertex.SetWindowTextW(_T("Free point"));
+		this->m_check_edge.SetWindowTextW(_T("Grid"));
+		this->m_check_face.SetWindowTextW(_T("Polytope"));
+		this->m_check_f1.EnableWindow(true);
+		this->m_check_f2.EnableWindow(true);
+		this->m_button_add.EnableWindow(true);
+		this->m_button_delete.EnableWindow(true);
+		break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedButtonAdd()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 1: // 3D nearest neighbor
+		if (m_check_f1.GetCheck()); // Add free point
+		if (m_check_f2.GetCheck()); // Add polytope
+		break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedButtonDel()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 1: // 3D nearest neighbor
+		if (m_check_f1.GetCheck()); // Add free point
+		if (m_check_f2.GetCheck()); // Add polytope
+		break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckF1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (m_check_f1.GetCheck()) m_check_f2.SetCheck(false);
+	else m_check_f2.SetCheck(true);
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckF2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (m_check_f2.GetCheck()) m_check_f1.SetCheck(false);
+	else m_check_f1.SetCheck(true);
 }
