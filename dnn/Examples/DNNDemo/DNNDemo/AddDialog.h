@@ -3,7 +3,7 @@
 
 // AddDialog 대화 상자
 
-enum CONTROL_MODE { EADD, EDELETE };
+enum CONTROL_MODE { EADD, EDELETE, EQUERY };
 
 class AddDialog : public CDialogEx
 {

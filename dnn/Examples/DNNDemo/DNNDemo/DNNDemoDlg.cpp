@@ -73,6 +73,9 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_F2, m_check_f2);
 	DDX_Control(pDX, IDC_CHECK_NOO1, m_check_noo1);
 	DDX_Control(pDX, IDC_CHECK_NOO2, m_check_noo2);
+	DDX_Control(pDX, IDC_STATIC_Q1, m_static_q1);
+	DDX_Control(pDX, IDC_BUTTON_QUERY, m_button_query);
+	DDX_Control(pDX, IDC_EDIT_Q1, m_edit_q1);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -93,6 +96,7 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_F2, &CDNNDemoDlg::OnBnClickedCheckF2)
 	ON_BN_CLICKED(IDC_CHECK_NOO1, &CDNNDemoDlg::OnBnClickedCheckNoo1)
 	ON_BN_CLICKED(IDC_CHECK_NOO2, &CDNNDemoDlg::OnBnClickedCheckNoo2)
+	ON_BN_CLICKED(IDC_BUTTON_QUERY, &CDNNDemoDlg::OnBnClickedButtonQuery)
 END_MESSAGE_MAP()
 
 
@@ -324,6 +328,9 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_noo2.EnableWindow(false);
 		this->m_button_add.EnableWindow(false);
 		this->m_button_delete.EnableWindow(false);
+		this->m_edit_q1.EnableWindow(false);
+		this->m_static_q1.SetWindowTextW(_T("Query value"));
+		this->m_button_query.EnableWindow(false);
 		break;
 	case 1: // 3D nearest neighbor
 		this->m_picture_opengl.setMode(3);
@@ -336,6 +343,9 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_noo2.EnableWindow(true);
 		this->m_button_add.EnableWindow(true);
 		this->m_button_delete.EnableWindow(true);
+		this->m_edit_q1.EnableWindow(true);
+		this->m_static_q1.SetWindowTextW(_T("KNN"));
+		this->m_button_query.EnableWindow(true);
 		break;
 	default:
 		break;
@@ -356,7 +366,7 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 					CString keyValue = dlg.key;
 					double coordinate[3];
 					for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
-					// keyValue와 좌표로 삽입을 진행하는 함수 호출
+					// keyValue와 좌표로 삽입을 수행하는 함수 호출
 				}
 			}
 			else if (m_check_noo2.GetCheck()) { // Add by file
@@ -477,5 +487,29 @@ void CDNNDemoDlg::OnBnClickedCheckNoo2()
 	}
 	else {
 		m_check_noo2.SetCheck(true);
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedButtonQuery()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 1:
+	{
+		AddDialog dlg(EQUERY, 3);
+		if (IDOK == dlg.DoModal()) {
+			CString temp;
+			this->m_edit_q1.GetWindowTextW(temp);
+			int knn = _ttoi(temp);
+			double coordinate[3];
+			for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
+			// k값과 좌표로 query를 수행하는 함수 호출
+		}
+	}
+		break;
+	default:
+		break;
 	}
 }

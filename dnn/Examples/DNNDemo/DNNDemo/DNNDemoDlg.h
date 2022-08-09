@@ -60,4 +60,8 @@ public:
 	afx_msg void OnBnClickedCheckNoo2();
 	CButton m_check_noo1;
 	CButton m_check_noo2;
+	CStatic m_static_q1;
+	CButton m_button_query;
+	afx_msg void OnBnClickedButtonQuery();
+	CEdit m_edit_q1;
 };

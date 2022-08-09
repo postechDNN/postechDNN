@@ -89,6 +89,10 @@ BOOL AddDialog::OnInitDialog()
 		this->m_edit_y.EnableWindow(false);
 		this->m_edit_z.EnableWindow(false);
 	}
+	else if (this->control_mode == EQUERY) {
+		this->SetWindowTextW(_T("Query Control"));
+		this->m_edit_key.EnableWindow(false);
+	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
