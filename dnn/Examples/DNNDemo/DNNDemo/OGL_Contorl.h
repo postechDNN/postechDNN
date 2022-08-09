@@ -16,6 +16,7 @@ public:
 	virtual ~OGL_Contorl();
 	void setMode(int m);
 	void readDCEL(CString path);
+	void read3Deps(CString path);
 
 protected:
 	HGLRC m_hRC;

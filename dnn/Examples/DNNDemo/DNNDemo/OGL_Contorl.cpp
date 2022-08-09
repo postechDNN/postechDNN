@@ -37,6 +37,11 @@ void OGL_Contorl::readDCEL(CString path) {
 	Invalidate();
 }
 
+void OGL_Contorl::read3Deps(CString path) {
+	this->object3D.read3Deps(path);
+	Invalidate();
+}
+
 BEGIN_MESSAGE_MAP(OGL_Contorl, CStatic)
 	ON_WM_DESTROY()
 	ON_WM_PAINT()

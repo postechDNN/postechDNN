@@ -479,6 +479,7 @@ void Object::read3Deps(CString path)
 	this->vertices.clear();
 	this->edges.clear();
 	this->faces.clear();
+	this->updateNorm(3);
 
 	std::ifstream file(path);
 	int frptn, polyn;
@@ -537,4 +538,5 @@ void Object::read3Deps(CString path)
 			faceList[i].setName(key);
 		}
 	}
+	frptMap.clear();
 }

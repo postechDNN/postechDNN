@@ -226,6 +226,8 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 		m_picture_opengl.readDCEL(path);
 		break;
 	case 1: // 3D nearest neighbor
+		m_picture_opengl.read3Deps(path);
+		break;
 	default:
 		break;
 	}
