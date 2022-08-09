@@ -3,6 +3,7 @@
 
 // OGL_Contorl
 
+#include "DNN_DS.h"
 #include "Object.h"
 
 enum OBJECT { VERTEX, EDGE, FACE };
@@ -32,6 +33,8 @@ public:
 	afx_msg void OnMove(int x, int y);
 
 	void setDrawObject(int m, OBJECT o, bool b);
+
+	DNN_DS DDS;
 
 private:
 	int mode;

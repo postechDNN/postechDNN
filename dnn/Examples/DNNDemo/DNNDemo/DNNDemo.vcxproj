@@ -214,6 +214,7 @@
     <ClInclude Include="AddDialog.h" />
     <ClInclude Include="DNNDemo.h" />
     <ClInclude Include="DNNDemoDlg.h" />
+    <ClInclude Include="DNN_DS.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="OGL_Contorl.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="AddDialog.cpp" />
     <ClCompile Include="DNNDemo.cpp" />
     <ClCompile Include="DNNDemoDlg.cpp" />
+    <ClCompile Include="DNN_DS.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OGL_Contorl.cpp" />
     <ClCompile Include="pch.cpp">
