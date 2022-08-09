@@ -9,6 +9,8 @@ using namespace std;
 
 i_quad::i_quad() {}
 i_quad::~i_quad() {}
+// i_quad::i_quad(int _x, int _y) { x = _x; y = _y; }
+// i_quad::i_quad(double _x, double _y) { x = _x; y = _y; }
 i_quad::i_quad(int _lv, int _x, int _y) { lv = _lv; x = _x; y = _y; }
 i_quad::i_quad(int _lv, double _x, double _y) {lv = _lv; x = _x; y = _y;}
 bool operator>(i_quad& a, i_quad& b) { // consider only the y-coordinate, for plane-sweep.

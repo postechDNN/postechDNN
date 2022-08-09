@@ -5,15 +5,16 @@
 
 using namespace std;
 
-RP::RP(){}
-RP::~RP(){}
-RP::RP(list<Point*> _vers) {vers = _vers;}
+RP::RP() {}
+RP::~RP() {}
+RP::RP(vector<Point*> _vers) { vers = _vers; }
+// RP::RP(list<Point*> _vers) { vers = _vers; }
 void RP::print() {
 	for (auto elem : vers) {
-			elem->print();
+		elem->print();
 	}
 }
-void RP::addPt(Point* pt) {vers.push_back(pt);}
+void RP::addPt(Point* pt) { vers.push_back(pt); }
 
 bool exist(Elem* cur, Dir dir) {
 	if (dir == DIR_LEFT || dir == DIR_LOWER) {
@@ -25,61 +26,8 @@ bool exist(Elem* cur, Dir dir) {
 		else return true;
 	}
 }
-/*
-void extend(list<Point*> rp, Elem* elem, Dir dir) {	
-	if (dir == DIR_LEFT) { // left
-		
-	}
-	else if (dir == DIR_LOWER) { // lower
-		if (elem->getPt(0)->getEdgeType() == 3 && elem->getPt(1)->getEdgeType() == 2) {
-			elem->getPt(0);
-		}
-		else if () {
 
-		}
-		else if () {
-
-		}
-		else if () {
-
-		}
-	}
-}
-*/
-
-RP* traverseUnion(vector<ElemList*> X_lists, vector<ElemList*> Y_lists, int lv) {
-	queue<Elem*> Q;
-	Q.push(X_lists[0]->getElem(0)); 
-
-	int x = Q.front()->getKey(), y = Q.front()->getSV();
-	// is it a correct way to initialize a list?
-	list<Point*> plst= { new Point(x, y, lv), new Point(x+1, y, lv), new Point(x+1, y+1, lv), new Point(x, y+1, lv) };
-	Q.front()->setEdge(DIR_LEFT, true); Q.front()->setEdge(DIR_RIGHT, true); Q.front()->setEdge(DIR_LOWER, true); Q.front()->setEdge(DIR_UPPER, true);
-	auto it = plst.begin(); Q.front()->setPt(LOWER_LEFT, *it); (*it)->setEdgeType(3);
-	advance(it, 1); Q.front()->setPt(LOWER_RIGHT, *it); (*it)->setEdgeType(2);
-	advance(it, 1); Q.front()->setPt(UPPER_LEFT, *it); (*it)->setEdgeType(1);
-	advance(it, 1); Q.front()->setPt(UPPER_RIGHT, *it); (*it)->setEdgeType(0);
-
-	while (!Q.empty()) { // contains elems only from X_lists
-		auto X_elem = Q.front(); Q.pop();
-		if (X_elem->getChecked()) continue;
-		X_elem->check();
-		auto Y_elem = X_elem->getTwin();
-		/*
-		if (exist(Y_elem, DIR_LEFT)) { extend(plst, DIR_LEFT); Q.push(Y_elem->getPrev()->getTwin());}
-		if (exist(Y_elem, DIR_RIGHT)) { extend(plst, DIR_RIGHT); Q.push(Y_elem->getNext()->getTwin());}
-		if (exist(X_elem, DIR_LOWER)) { extend(plst, DIR_LOWER); Q.push(X_elem->getPrev());}
-		if (exist(X_elem, DIR_RIGHT)) { extend(plst, DIR_UPPER); Q.push(X_elem->getNext());}
-		*/
-	}
-
-	// transform list of tuples into list of Points
-
-	RP* ret = new RP(plst);
-	return ret;
-}
-
-RP* myUnion(vector<i_quad*> _Qs) { // plane sweep
+RP* Union(vector<i_quad*> _Qs, int step) { // plane sweep
 	vector<i_quad*> Qs = _Qs;
 	int lv = Qs[0]->getLv();
 
@@ -89,431 +37,375 @@ RP* myUnion(vector<i_quad*> _Qs) { // plane sweep
 		int y_gi = getGridIndex(Q->getY(), lv);
 
 		eventQ.push_back(make_tuple(x_gi, y_gi, true));
-		eventQ.push_back(make_tuple(x_gi+2, y_gi, false));
+		eventQ.push_back(make_tuple(x_gi +  step, y_gi, false));
 	}
 
 	sort(eventQ.begin(), eventQ.end(), greater<>());
-	vector<tii> *prev_status = new vector<tii>;
-	vector<tii> *cur_status = new vector<tii>; // maintains current intervals. (y_ind, count)
+	vector<STS*> prev_status; // quadruple: start, end, count, path
+	vector<STS*> cur_status; // maintains current intervals. (y_ind, count)
 
-	bool first_column = true;
-	int first_x = get<0>(eventQ[eventQ.size() - 1]), prev_x = first_x;
-
+	vector<STS*> Final = {}, temp_prev = {}, temp_cur = {};
+	bool last_column = false;
+	// int first_x = get<0>(eventQ[eventQ.size() - 1]); int prev_x = first_x;
+	int prev_x = -1; int cur_x = get<0>(eventQ[eventQ.size() - 1]); // , next_x = -1;
+	int p1, p2, c1, c2, cind, pind;
 	while (!eventQ.empty()) {
 
 		// there are at least 2 events(1 insert, 1 delete)
 		cur_status = prev_status; // duplicate status
-		auto ev = eventQ[eventQ.size() - 1]; // last event 
-		while (eventQ.size() >= 1 && prev_x == get<0>(ev)) { // if all events are processed, we finish the while loop
+		auto ev = eventQ[eventQ.size() - 1]; // last event. important!!!!
+		while (eventQ.size() >= 1 && cur_x == get<0>(ev)) { // if all events with the same x-coordinate are processed, we finish the while loop
 			if (get<2>(ev)) { // insert event
-				bin_insert(cur_status, get<1>(ev));
-				bin_insert(cur_status, get<1>(ev) + 1);
+				myInsert(cur_status, get<1>(ev), get<0>(ev), step);
 			}
 			else { // delete event
-				bin_delete(cur_status, get<1>(ev));
-				bin_delete(cur_status, get<1>(ev) + 1);
+				myDelete(cur_status, get<1>(ev), get<0>(ev), step);
 			}
-			prev_x = get<0>(ev);
+			// cur_x = get<0>(ev);
 			eventQ.pop_back();
+			prev_x = get<0>(ev);
 
 			if (eventQ.empty()) break;
 			ev = eventQ[eventQ.size() - 1]; // last event 
 		}
+		if (eventQ.size() >= 1) cur_x = get<0>(ev); // need to debug
+		else last_column = true;
 
-		// not the first event, and the x-coordinate of the event is different from the previous one 
-		if (first_column) {
-			first_column = false; prev_x = get<0>(ev); continue;
+		// simplify statuses. for temp_cur and temp_prev, count (which can be obtained by get<2>()) has no meaning.
+
+		temp_cur.clear(); // cur_status.clear();
+
+		for (int i = 0; i < cur_status.size(); i++) {
+			temp_cur.push_back(new STS(*(cur_status[i])));
 		}
-		
-		// compare two statuses and draw RP correspondingly
-		int pind = 0, cind = 0;
-		while (pind < prev_status->size() || cind < cur_status->size()) {
-			
+		int i = 0;
+		while (i <= int(temp_cur.size()) - 2) {
+			if (temp_cur[i]->end == temp_cur[i + 1]->start) {
+				temp_cur[i]->end = temp_cur[i + 1]->end; temp_cur.erase(temp_cur.begin() + i + 1); i--;
+			}
+			i++;
 		}
 
-		prev_x = get<0>(ev);
+		pind = 0, cind = 0;
+		// tell if previous top_path and bot_path are already used
+		bool top_used = false, bot_used = false;
+		while (pind < temp_prev.size() || cind < temp_cur.size()) {
+			if (pind >= temp_prev.size()) { // draw RP portions from temp_cur. only emerge
+				c1 = temp_cur[cind]->start, c2 = temp_cur[cind]->end;
+				// from below to above. path is ordered clockwise.
+				temp_cur[cind]->conn = true;
+				// rightward. because we want to use push_back to insert new vertices
+				temp_cur[cind]->bot_path = { tii(prev_x, c1), tii(cur_x, c1),  }; 
+				temp_cur[cind]->top_path = { tii(prev_x, c2), tii(cur_x, c2) };
+				cind++;
+			}
+			else if (cind >= temp_cur.size()) { // draw RP portions from temp_prev. only finish 
+																  // no need to insert a vertex. just set conn = true.
+				temp_prev[pind]->conn = true;
+				// temp_cur[cind] = temp_prev[pind];
+				pind++;
+			}
+			else {
+				p1 = temp_prev[pind]->start, p2 = temp_prev[pind]->end;
+				c1 = temp_cur[cind]->start, c2 = temp_cur[cind]->end;
+
+				if (c2 <= p1) {
+					temp_cur[cind]->conn = true;
+					// rightward. because we want to use push_back to insert new vertices
+					temp_cur[cind]->bot_path = { tii(prev_x, c1), tii(cur_x, c1), };
+					temp_cur[cind]->top_path = { tii(prev_x, c2), tii(cur_x, c2) };
+					cind++; continue;
+				}
+
+				if (p2 <= c1) {
+					temp_prev[pind]->conn = true;
+					// temp_cur[cind] = temp_prev[pind];
+					pind++; continue;
+				}
+
+				// ensures that temp_prev[pind] and temp_cur[cind] always overlap. 
+
+				// process c1
+				if (c1 < p1 ) {
+					temp_cur[cind]->bot_path = temp_prev[pind]->bot_path;
+					temp_cur[cind]->bot_path.push_back(tii(prev_x, c1));
+					temp_cur[cind]->bot_path.push_back(tii(cur_x, c1));
+				}
+				else if (c1 == p1) {
+					temp_cur[cind]->bot_path = temp_prev[pind]->bot_path;
+					temp_cur[cind]->bot_path.pop_back();
+					temp_cur[cind]->bot_path.push_back(tii(cur_x, c1));
+				}
+				else { // p1 < c1  && c1 < p2
+					if (!bot_used) {
+						bot_used = true;
+						temp_cur[cind]->bot_path = temp_prev[pind]->bot_path;
+					}
+					temp_cur[cind]->bot_path.push_back(tii(prev_x, c1));
+					temp_cur[cind]->bot_path.push_back(tii(cur_x, c1));
+				}
+
+				// process c2
+				if (c2 > p2) {
+					temp_cur[cind]->top_path = temp_prev[pind]->top_path;
+					temp_cur[cind]->top_path.push_back(tii(prev_x, c2));
+					temp_cur[cind]->top_path.push_back(tii(cur_x, c2));
+					top_used = false; bot_used = false; pind++;
+				}
+				else if (c2 == p2) {
+					temp_cur[cind]->top_path = temp_prev[pind]->top_path;
+					temp_cur[cind]->top_path.pop_back();
+					temp_cur[cind]->top_path.push_back(tii(cur_x, c2));
+					top_used = false; bot_used = false; pind++; cind++;
+				}
+				else { // p1 < c2 && c2 < p2 
+					if (!top_used) {
+						top_used = true;
+						temp_cur[cind]->top_path = temp_prev[pind]->top_path;
+					}
+					temp_cur[cind]->top_path.push_back(tii(prev_x, c2));
+					temp_cur[cind]->top_path.push_back(tii(cur_x, c2));
+					cind++;
+				}
+			}
+		}
+		Final = temp_prev;
+		temp_prev = temp_cur;
 		prev_status = cur_status; // update the previous status
 	}
 
-	return NULL;
+	// merge paths two form a rectilinear polygon (vertices in clockwise direction)
+	vector<Point*> vers;
+	for (auto elem : Final) {
+		auto temp = tii2Point(elem->top_path, pow(2, lv));
+		vers.insert(vers.begin(), temp.begin(), temp.end());
+		reverse(elem->bot_path.begin(), elem->bot_path.end());
+		auto temp2 = tii2Point(elem->bot_path, pow(2, lv));
+		vers.insert(vers.begin(), temp2.begin(), temp2.end());
+	}
+	RP* ret = new RP(vers);
+
+	return ret;
 }
 
-// returns the index corresponding to the one when elem is inserted to vec
-// returns last index with the same value 
- int bin_search(vector<tuple<int, int>*> vec, int elem) { 
-	int left = 0, right = vec.size()-1;
-	while (left <= right) {
-		if (right - left <= 1) {
-			if (get<0>(*vec[right]) == elem) { return right; }
-			else if (get<0>(*vec[left]) == elem) {return left;}
-			else return -1;
-		}
-		else if (right - left == 2) {
-			if (get<0>(*vec[right]) == elem) { return right; }
-			else if (get<0>(*vec[right-1]) == elem) { return right-1;}
-			else if (get<0>(*vec[left]) == elem) { return left; }
-			else return -1;
-		}
-
-		int mid = (left + right)/2;
-		if (get<0>(*vec[mid]) < elem) {
-			left = mid + 1;
-		}
-		else if (get<0>(*vec[mid]) > elem) {
-			right = mid - 1;
-		}
-		else {
-			while (mid < vec.size() - 1) {
-				if (get<0>(*vec[mid+1]) == elem) { mid += 1;}
-			}
-			return mid;
-		}
-	}
- }
-
- int bin_insert(vector<tuple<int, int>>* vec, int elem) {
-	 if (vec->empty()) {
-		 vec->push_back(make_tuple(elem, 1));
-		 return 0;
-	}
-
-	 if (get<0>((*vec)[0]) > elem) {
-		vec->insert(vec->begin(), make_tuple(elem, 1));
-		return 0;
-	}
-
-	if (get<0>((*vec)[vec->size()-1]) < elem) {
-		vec->insert(vec->end(), make_tuple(elem, 1));
-		return vec->size()-1;
-	}
-
-	 int left = 0, right = vec->size() - 1;
-	 while (left <= right) {
-
-		 int mid = (left + right) / 2;
-		 if (get<0>((*vec)[mid]) < elem) {
-			 left = mid + 1;
-		 }
-		 else if (get<0>((*vec)[mid]) > elem) {
-			 right = mid - 1;
-		 }
-		 else {
-			 (*vec)[mid] = make_tuple(get<0>((*vec)[mid]), get<1>((*vec)[mid]) + 1);
-			 return mid;
-		 }
-	 }
-
-	 // if elem is not found
-	 int i;
-	 for (i = right; i <= left; i++) {
-		if (get<0>((*vec)[i]) < elem) {
-			vec->insert(vec->begin()+i, make_tuple(elem, 1));
-			return i;
-		}
-	 }
-	 vec->insert(vec->begin() + i, make_tuple(elem, 1));
-	 return i;
- }
-
- int bin_delete(vector<tuple<int, int>>* vec, int elem) {
-	 // the element should be found
-
-	 int left = 0, right = vec->size() - 1;
-	 while (left <= right) {
-
-		 int mid = (left + right) / 2;
-		 if (get<0>((*vec)[mid]) < elem) {
-			 left = mid + 1;
-		 }
-		 else if (get<0>((*vec)[mid]) > elem) {
-			 right = mid - 1;
-		 }
-		 else {
-			if (get<1>((*vec)[mid]) == 1) {vec->erase(vec->begin()+mid); return mid;}
-			else {
-				(*vec)[mid] = make_tuple(get<0>((*vec)[mid]), get<1>((*vec)[mid]) - 1);
-				return mid;
-			}
-		 }
-	 }
-}
-
- RP* mymyUnion(vector<i_quad*> _Qs) { // plane sweep
-	 vector<i_quad*> Qs = _Qs;
-	 int lv = Qs[0]->getLv();
-
-	 vector<tuple<int, int, bool>> eventQ; // stores events
-	 for (auto Q : Qs) {
-		 int x_gi = getGridIndex(Q->getX(), lv); // computes x- and y-indices on (lv)-th grid
-		 int y_gi = getGridIndex(Q->getY(), lv);
-
-		 eventQ.push_back(make_tuple(x_gi, y_gi, true));
-		 eventQ.push_back(make_tuple(x_gi + 2, y_gi, false));
-	 }
-
-	 sort(eventQ.begin(), eventQ.end(), greater<>());
-	 vector<quadruple>* prev_status = new vector<quadruple>; // quadruple: start, end, count, path
-	 vector<quadruple>* cur_status = new vector<quadruple>; // maintains current intervals. (y_ind, count)
-
-	 bool first_column = true;
-	 int first_x = get<0>(eventQ[eventQ.size() - 1]), prev_x = first_x;
-
-	 while (!eventQ.empty()) {
-
-		 // there are at least 2 events(1 insert, 1 delete)
-		 cur_status = prev_status; // duplicate status
-		 auto ev = eventQ[eventQ.size() - 1]; // last event 
-		 while (eventQ.size() >= 1 && prev_x == get<0>(ev)) { // if all events are processed, we finish the while loop
-			 if (get<2>(ev)) { // insert event
-				 myInsert(cur_status, get<1>(ev), get<0>(ev), 2);
-			 }
-			 else { // delete event
-				 myDelete(cur_status, get<1>(ev), get<0>(ev), 2);
-			 }
-			 prev_x = get<0>(ev);
-			 eventQ.pop_back();
-
-			 if (eventQ.empty()) break;
-			 ev = eventQ[eventQ.size() - 1]; // last event 
-		 }
-
-		 // simplify
-		 auto temp_cur = cur_status;
-		 int i = 0;
-		 while (i <= int(temp_cur->size()) - 2) {
-			 if (get<1>((*temp_cur)[i]) == get<0>((*temp_cur)[i + 1])) {
-				 get<1>((*temp_cur)[i]) = get<1>((*temp_cur)[i+1]); temp_cur->erase(temp_cur->begin() + i+1); i--;
-			}
-			i++;
-		 }
-
-		 auto temp_prev = prev_status;
-		 int i = 0;
-		 while (i <= int(temp_prev->size()) - 2) {
-			 if (get<1>((*temp_prev)[i]) == get<0>((*temp_prev)[i + 1])) {
-				 get<1>((*temp_prev)[i]) = get<1>((*temp_prev)[i + 1]); temp_prev->erase(temp_prev->begin() + i + 1); i--;
-			 }
-			 i++;
-		 }
-
-		 int pind = 0, cind = 0;
-		 while (pind < prev_status->size() || cind < cur_status->size()) {
-			 if (pind >= prev_status->size()) { // draw RP portions from cur_status. only emerge
-				tii* path = new tii({new tii(), new tii(), new tii(), new tii()}):
-				get<3>(cur_status[cind]) = 
-			}
-			 else if (cind >= cur_status->size()) { // draw RP portions from prev_status. only finish
-
-			 }
-			 else {
-
-			 }
-		 }
-
-		 // not the first event, and the x-coordinate of the event is different from the previous one 
-		 if (first_column) {
-
-			
-			 first_column = false; prev_x = get<0>(ev); continue;
-		 }
-
-		 // compare two statuses and draw RP correspondingly
-		 /*
-
-		 */
-
-		 prev_x = get<0>(ev);
-		 prev_status = cur_status; // update the previous status
-	 }
-
-	 return NULL;
- }
-
- int mySearch(vector<quadruple>* vec, int elem, bool left_check) {
-	if (vec->empty()) { return -1;}
+int mySearch(vector<STS*>& vec, int elem, bool left_check) {
+	int sz = int(vec.size());
+	if (vec.empty()) { return -1; }
 
 	if (left_check) {
-		if (get<0>(vec->front()) > elem) { return -1;}
-		else if (get<0>(vec->back()) > elem) { return -(int(vec->size())+1);}
+		if (vec[0]->start > elem) { return -1; }
+		else if (vec[sz - 1]->start > elem) { return -(sz + 1); }
 	}
 	else {
-		if (get<1>(vec->front()) > elem) { return -1; }
-		else if (get<1>(vec->back()) > elem) { return -(int(vec->size()) + 1); }
+		if (vec[0]->end > elem) { return -1; }
+		else if (vec[sz - 1]->end > elem) { return -(sz + 1); }
 	}
 
-	 int left = 0, right = vec->size() - 1;
-	 while (left <= right) {
+	int left = 0, right = sz - 1;
+	while (left <= right) {
 
-		 int mid = (left + right) / 2;
-		
-		 if (left_check) {
-			 if (get<0>((*vec)[mid]) == elem) { return mid;}
-			 else if (get<0>((*vec)[mid]) > elem) { right = mid-1;}
-			 else { left = mid+1;}
-		 }
-		 else {
-			 if (get<1>((*vec)[mid])== elem) { return mid;}
-			 else if (get<1>((*vec)[mid]) > elem) { right = mid - 1; }
-			 else { left = mid + 1; }
-		 }
+		int mid = (left + right) / 2;
 
-	 }
- }
+		if (left_check) {
+			if (vec[mid]->start == elem) { return mid; }
+			else if (vec[mid]->start > elem) { right = mid - 1; }
+			else { left = mid + 1; }
+		}
+		else {
+			if (vec[mid]->end == elem) { return mid; }
+			else if (vec[mid]->end > elem) { right = mid - 1; }
+			else { left = mid + 1; }
+		}
 
- int lnSearch(vector<quadruple>* vec, int elem, bool left) {
+	}
+}
+
+int lnSearch(vector<STS*>& vec, int elem, bool left) {
+	int sz = int(vec.size());
 	if (left) {
-		if (get<0>(vec->front()) > elem) { return -1; }
-		if (get<0>(vec->front()) == elem)  {return 0;}
-		if (get<0>(vec->back()) < elem) { return -(int(vec->size())+1);}
-		if (get<0>(vec->back()) == elem) { return vec->size()-1; }
-		for (int i = 1; i < vec->size(); i++) {
-			if (get<0>((*vec)[i]) == elem) { return i;}
-			if (get<0>((*vec)[i-1]) < elem && get<0>((*vec)[i]) > elem) { return -(i+1);}
+		if (vec[0]->start > elem) { return -1; }
+		if (vec[0]->start == elem) { return 0; }
+		if (vec[sz - 1]->start < elem) { return -(sz + 1); }
+		if (vec[sz - 1]->start == elem) { return sz - 1; }
+		for (int i = 1; i < sz; i++) {
+			if (vec[i]->start == elem) { return i; }
+			if (vec[i - 1]->start < elem && vec[i]->start > elem) { return -(i + 1); }
 		}
 	}
 	else {
-		if (get<1>(vec->front()) > elem) { return -1; }
-		if (get<1>(vec->front()) == elem) { return 0; }
-		if (get<1>(vec->back()) < elem) { return -(int(vec->size()) + 1); }
-		if (get<1>(vec->back()) == elem) { return vec->size() - 1; }
-		for (int i = 1; i < vec->size(); i++) {
-			if (get<1>((*vec)[i]) == elem) { return i; }
-			if (get<1>((*vec)[i - 1]) < elem && get<0>((*vec)[i]) > elem) { return -(i + 1); }
+		if (vec[0]->end > elem) { return -1; }
+		if (vec[0]->end == elem) { return 0; }
+		if (vec[sz - 1]->end < elem) { return -(sz + 1); }
+		if (vec[sz - 1]->end == elem) { return sz - 1; }
+		for (int i = 1; i < sz; i++) {
+			if (vec[i]->end == elem) { return i; }
+			if (vec[i - 1]->end < elem && vec[i]->end > elem) { return -(i + 1); }
 		}
 	}
- }
+}
 
- vector<int> overlap(vector<quadruple>* vec, int start, int end) { // ln search after bin search possible, will implement later
+vector<int> overlap(vector<STS*>& vec, int start, int end) { // ln search after bin search possible, will implement later
 	vector<int> ret;
-	 for (int i = 0; i < vec->size(); i++) {
-		int s = get<0>((*vec)[i]), e = get<1>((*vec)[i]);
+	int sz = int(vec.size());
+	for (int i = 0; i < sz; i++) {
+		int s = vec[i]->start, e = vec[i]->end;
 		if (!(end <= s || start >= e)) { ret.push_back(i); }
 	}
 
 	if (!ret.empty()) return ret;
-	else {	
-		for (int i = 0; i <= vec->size()-2; i++) {
-			if (get<1>((*vec)[i]) <= start && end <= get<0>((*vec)[i+1])) { return {-(i+2)}; }
+	else {
+		for (int i = 0; i <= sz - 2; i++) {
+			if (vec[i]->end <= start && end <= vec[i + 1]->start) { return { -(i + 2) }; }
 		}
 	}
 	throw invalid_argument("error");
- }
+}
 
- void myInsert(vector<quadruple>* vec, int elem, int x_ind, int step) {
+void myInsert(vector<STS*>& vec, int elem, int x_ind, int step) {
+
 	int start = elem, end = elem + step;
-	
+
 	for (int i = start; i < end; i++) {
-		vec->push_back(quadruple(i, i+1, 1, NULL));
+		vec.push_back(new STS(i, i + 1, 1));
 	}
 
-	sort(vec->begin(), vec->end());
+	// sort(vec.begin(), vec.end(), sortSTS); // may cause problem. need to debug.
 
 	int i = 0;
 	// postprocessing
-	while(i <= int(vec->size())-2){
+	while (i <= int(vec.size()) - 2) {
+		sort(vec.begin(), vec.end(), sortSTS);
 
-		int ps = get<0>((*vec)[i]), pe = get<1>((*vec)[i]), pc = get<2>((*vec)[i]);
-		int qs = get<0>((*vec)[i+1]), qe = get<1>((*vec)[i+1]), qc = get<2>((*vec)[i+1]);
+		int ps = vec[i]->start, pe = vec[i]->end, pc = vec[i]->count;
+		int qs = vec[i + 1]->start, qe = vec[i + 1]->end, qc = vec[i + 1]->count;
 
 		if (ps == qs) {
-			if (pe == qe) { 
-				get<2>((*vec)[i]) += qc;
-				vec->erase(vec->begin() + i + 1); i--;
+			if (pe == qe) {
+				vec[i]->count += qc;
+				vec.erase(vec.begin() + i + 1); i--;
 			}
 			else {
-				get<2>((*vec)[i]) += qc;
-				get<0>((*vec)[i+1]) = pe;
+				vec[i]->count += qc;
+				vec[i + 1]->start = pe;
 			}
 		}
 		else if (qs < pe) {
 			if (pe > qe) {
-				get<0>((*vec)[i]) = qs;
-				get<2>((*vec)[i+1]) += pc;
-				vec->insert(vec->begin() + i+2, quadruple(qe, pe, pc, NULL));
+				vec[i]->start = qs;
+				vec[i + 1]->count += pc;
+				vec.insert(vec.begin() + i + 2, new STS(qe, pe, pc));
 			}
 			else if (pe == qe) {
-				get<0>((*vec)[i]) = qs;
-				get<2>((*vec)[i+1]) += pc;
+				vec[i]->start = qs;
+				vec[i + 1]->count += pc;
 			}
 			else {
-				get<1>((*vec)[i]) = qs;
-				get<1>((*vec)[i+1]) = pe;
-				get<2>((*vec)[i + 1]) += pc;
-				vec->insert(vec->begin() + i+2, quadruple(pe, qe, qc, NULL));
+				vec[i]->end = qs;
+				vec[i + 1]->end = pe;
+				vec[i + 1]->count += pc;
+				vec.insert(vec.begin() + i + 2, new STS(pe, qe, qc));
 			}
 		}
 		else if (qs == pe) {
 			if (pc == qc) {
-				get<1>((*vec)[i]) = qe;
-				vec->erase(vec->begin() + i + 1); i--;
+				vec[i]->end = qe;
+				vec.erase(vec.begin() + i + 1); i--;
 			}
 		}
 		i++;
 	}
 
 
- }
+}
 
- void myDelete(vector<quadruple>* vec, int elem, int x_ind, int step) {
-	 int start = elem, end = elem + step;
+void myDelete(vector<STS*>& vec, int elem, int x_ind, int step) {
+	int start = elem, end = elem + step;
 
-	 for (int i = start; i < end; i++) {
-		 vec->push_back(quadruple(i, i + 1, -1, NULL));
-	 }
+	for (int i = start; i < end; i++) {
+		vec.push_back(new STS(i, i + 1, -1));
+	}
 
-	 sort(vec->begin(), vec->end());
+	// sort(vec.begin(), vec.end(), sortSTS);
 
-	 int i = 0;
-	 // postprocessing
-	 while (i <= int(vec->size()) - 2) {
+	int i = 0;
+	// postprocessing
+	while (i <= int(vec.size()) - 2) {
+		sort(vec.begin(), vec.end(), sortSTS); // need to debug.
 
-		 int ps = get<0>((*vec)[i]), pe = get<1>((*vec)[i]), pc = get<2>((*vec)[i]);
-		 int qs = get<0>((*vec)[i + 1]), qe = get<1>((*vec)[i + 1]), qc = get<2>((*vec)[i + 1]);
+		int ps = vec[i]->start, pe = vec[i]->end, pc = vec[i]->count;
+		int qs = vec[i + 1]->start, qe = vec[i + 1]->end, qc = vec[i + 1]->count;
 
-		 if (pc == -1) { // ps == qs
-			 if (pe < qe) {
-				 if (qc == 1) {
-					 vec->erase(vec->begin() + i); get<0>((*vec)[i]) = pe; i--;
+		if (pc == -1) { // ps == qs
+			if (pe < qe) {
+				if (qc == 1) {
+					vec.erase(vec.begin() + i); vec[i]->start = pe; i--;
 				}
-				 else {
-					 get<2>((*vec)[i]) = qc -1;
-					 get<0>((*vec)[i + 1]) = pe;
-				 }
+				else {
+					vec[i]->count = qc - 1;
+					vec[i + 1]->start = pe;
+				}
 			}
-			 else { // pe == qe
-				 if (qc == 1) {
-					 vec->erase(vec->begin()+i); vec->erase(vec->begin() + i); i--; // i--;
+			else { // pe == qe
+				if (qc == 1) {
+					vec.erase(vec.begin() + i); vec.erase(vec.begin() + i); i--;
 				}
-				 else {
-					 vec->erase(vec->begin() + i); get<2>((*vec)[i]) -= 1; i--;
-				 }
-			 }
-		 }
-		 else if (qc == -1 && pe > qs) { // ps < qs
-			 if (qe == pe) {
-				 if (pc == 1) {
-					 get<0>((*vec)[i]) = qs;
-					 vec->erase(vec->begin() + i+1); i--;
+				else {
+					vec.erase(vec.begin() + i); vec[i]->count -= 1; i--;
 				}
-				 else {
-					 get<0>((*vec)[i]) = qs;
-					 get<2>((*vec)[i+1]) = pc-1;
-				 }
 			}
-			 else { // qe < pe
-				 if (pc == 1) {
-					 get<0>((*vec)[i]) = qs;
-					 get<0>((*vec)[i+1]) = qe;
-					 get<1>((*vec)[i + 1]) = pe;
-					 get<2>((*vec)[i + 1]) = pc;
+		}
+		else if (qc == -1 && pe > qs) { // ps < qs
+			if (qe == pe) {
+				if (pc == 1) {
+					vec[i]->start = qs;
+					vec.erase(vec.begin() + i + 1); i--;
 				}
-				 else {
-					 get<0>((*vec)[i]) = qs;
-					 get<2>((*vec)[i + 1]) = pc-1;
-					 vec->insert(vec->begin() + i + 2, quadruple(qe, pe, pc, NULL));
-				 }
-			 }
-		 }
+				else {
+					vec[i]->start = qs;
+					vec[i + 1]->count = pc - 1;
+				}
+			}
+			else { // qe < pe
+				if (pc == 1) {
+					vec[i]->start = qs;
+					vec[i + 1]->start = qe;
+					vec[i + 1]->end = pe;
+					vec[i + 1]->count = pc;
+				}
+				else {
+					vec[i]->start = qs;
+					vec[i + 1]->count = pc - 1;
+					vec.insert(vec.begin() + i + 2, new STS(qe, pe, pc));
+				}
+			}
+		}
 		i++;
 	}
- }
+}
+
+STS::STS() {}
+STS::STS(int s, int e, int c) { start = s; end = e; count = c; }
+STS::STS(int s, int e, int c, vector<tii> t, vector<tii> b) { start = s; end = e; count = c; t = top_path; bot_path = b; }
+
+bool sortSTS(STS* a, STS* b) {
+	if (a->start < b->start) { return true; }
+	else if (a->start > b->start) { return false; }
+
+	if (a->end < b->end) { return true; }
+	else if (a->end > b->end) { return false; }
+
+	if (a->count < b->count) { return true; }
+	else if (a->count > b->count) { return false; }
+
+	return true;
+}
+
+vector<Point*> tii2Point(vector<tii> ts, int lv) {
+	vector<Point*> ret;
+	for (auto elem : ts) {
+		Point* temp = new Point(get<0>(elem) * lv, get<1>(elem) * lv);
+		ret.push_back(temp);
+	}
+
+	return ret;
+}

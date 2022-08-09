@@ -22,9 +22,9 @@ conforming_subdivision::conforming_subdivision(Point* _src, Point* _dst, vector<
 	src->setIndex(0);
 	for (int i = 0; i < obstacle_vertices.size(); i++) { obstacle_vertices[i]->setIndex(i + 1); }
 	dst->setIndex(obstacle_vertices.size() + 1);
-	// Q_im4 = 
 	Q_old = Q_i = {};
 	MSF_old = MSF_i = {};
+	this->build_subdivision();
 }
 
 bool conforming_subdivision::contained(i_quad* q1, i_quad* q2) { // check if (q1 set_union q2) can be contained in a 2 * 2 array of (i+2) boxes
@@ -117,7 +117,7 @@ pair<vector<pair<i_quad*, i_quad*>>, vector<i_quad*>> conforming_subdivision::ma
 	return ret;
 }
 
-vector<i_quad*> conforming_subdivision::growth(vector<i_quad*> Qs) { // using plane sweep
+vector<i_quad*> conforming_subdivision::growth(vector<i_quad*> Qs) { // using plane sweep. need to debug once
 	
 	vector<i_quad*> ret = {};
 	vector<pair<i_quad*, i_quad*>> edges = construct_graph(Qs);
@@ -228,14 +228,14 @@ pair<vector<vector<int>>, vector<i_quad*>> conforming_subdivision::equiv_classes
 
 void conforming_subdivision::build_subdivision() {
 	int i = -2;
-	vector<Point*> srcNobs = obstacle_vertices;
+	vector<Point*> srcNobs = obstacle_vertices; // source and obstacles.
 	srcNobs.push_back(src);
 
+	// for each point in srcNobs, construct a graph (an isolated vertex) and transform it into an i_quad. 
 	for (auto pt : srcNobs) { 
 		i_quad* Q = new i_quad(-2, 0.25 * int(floor(pt->getX()/ 0.25) - 1), 0.25 * int(floor(pt->getY() / 0.25) - 1));
 		Q_old.push_back(Q); 
-		Graph* G = new Graph({ pt }, {}, { Q }, pt->getIndex());
-		MSF_old.push_back(G);
+		MSF_old.push_back(new Graph({ pt }, {}, { Q }, pt->getIndex()));
 	}
 
 	set<int> N = {}; // set of trees with cardinality more than one. we store the indices of the trees.
@@ -324,67 +324,34 @@ void conforming_subdivision::build_subdivision() {
 				vector<i_quad*> S = {};
 				for (auto num : ec) { S.push_back(Qs[num]); }
 				T->addQ_iT(growth(S));
-			}
 
-			// auto temp = equiv_classes(T->getQ_iT());
-			// auto EC = temp.first;  auto Q_iT = temp.second; // Q_iT is a subset of the Qs just above.
+				auto temp = equiv_classes(T->getQ_iT());
+				auto EC = temp.first;  auto Q_iT = temp.second; // Q_iT is a subset of the Qs just above.
+			}
 
 			// (* 3. Process simple components of ≡_i-2 that are about to merge with some other components. *)
 			for (auto q : T->getQ_ioldT()) {
 				// at this moment, q->G is correctly computed.
-				if (about_to_merge(q)) { draw_SPBD(q); }
+				if (about_to_merge(q)) {} // draw_SPBD(q);
 			}
 			
 			// (* 4. Process complex components. *)
 			
-			
 			vector<vector<int>> equi_classes = get<0>(equiv_classes(Q_i));
 			for (auto ec : equi_classes) {
 				vector<i_quad*> Qs = {};
-				for (auto i : ec) {
+				for (auto i : ec) { // insert each element in each equivalence class, given with an index in Q_i, into Qs.
 					Qs.push_back(Q_i[i]);
 				}
 			
-				// vector<vector<double>> R1 = union_core(Qs);
-				// vector<vector<double>> R2 = union_normal(Qs);
+				RP* R1 = Union(Qs, 2);
+				RP* R2 = Union(Qs, 4);
+
+				// Draw (i-2)-boxes to fill the region between the boundaries of R1 and R2.
+				// Draw i-boxes to ll the region between the boundaries of R1 and S; 
+				// break each cell boundary with an endpoint incident to R1 into four edges of length 2^(i-2), to satisfy Invariant 1.
 			}
-			/*
-			
-			for (vector<int> S : equiv_classes(Q_i)) {
-				vector<i_quad> S_region = {};
-				for (int num : S) {
-					S_region.push_back(Q_i[num]);
-				} // 아래 R2 계산에서도 쓰임.
 
-				vector<i_quad> S_prime = {};
-				for (i_quad* q : Q_im2) {
-					vector<i_quad>::iterator it = find(S_region.begin(), S_region.end(), *q.G);
-					if (it != S_region.end()) { S_prime.push_back(q); }
-				}
-
-				if (S_prime.size() > 1) { // (* S is complex *)
-
-				
-					// 아래 R1과 (특히) R2의 자료형은 vector<i_quad>로 두고, 실제로는 union처럼 다룸.
-
-					// (* R1 := union of cores of growth(q) *)
-					vector<core> R1 = {};
-					for (i_quad q : S_prime) {
-						core temp = get_core(*q.G);
-						vector<core>::iterator it = find(R1.begin(), R1.end(), temp);
-						if (it == R1.end()) { R1.push_back(temp); }
-					}
-
-					// (* R2 := the region covered by q. *)
-					vector<i_quad> R2 = S_prime;
-
-					fill_R1R2(R1, R2);
-
-					fill_R1S(R1, S_region);
-				}
-				
-			}
-			*/
 			
 			if (T->getQ_iT().size() == 1) {
 				auto it = N.find(T->getIndex());
@@ -398,76 +365,6 @@ void conforming_subdivision::build_subdivision() {
 	}
 }
 
-void conforming_subdivision::draw_SPBD(i_quad* q) { // draw simple boundary
-		double unit_length = pow(2, q->getLv());
-		// double x_min = q->ll.k * unit_length, y_min = q->ll.l * unit_length;
-
-		for (__int64 i = 0; i < 4; i++) {
-			// BD.push_back(line_segment{ Point{x_min + i * unit_length, y_min} , Point{x_min + (i + 1) * unit_length, y_min} }); // 아래쪽
-			// BD.push_back(line_segment{ Point{x_min + i * unit_length, y_min + 3 * unit_length}, Point{x_min + (i + 1) * unit_length, y_min + 3 * unit_length} }); // 위쪽
-			// BD.push_back(line_segment{ Point{x_min, y_min + i * unit_length}, Point{x_min, y_min + (i + 1) * unit_length} }); // 왼쪽
-			// BD.push_back(line_segment{ Point{x_min + 3 * unit_length, y_min + i * unit_length}, Point{x_min + 3 * unit_length, y_min + (i + 1) * unit_length} }); // 오른쪽
-		}
-}
-
-/*
-	bool conforming_subdivision::contained(i_box* B, vector<core> R1) {
-		assert(B.i == R1[0].i);
-		for (core C : R1) {
-			int x_diff = B.k - C.ll.k, y_diff = B.l - C.ll.l;
-			if (0 <= x_diff && x_diff <= 1 && 0 <= y_diff && y_diff <= 1) { return true; }
-		}
-		return false;
-	}
-
-	bool conforming_subdivision::contained(i_box* B, vector<i_quad*> Qs) {
-		assert(B.i == Qs[0].i);
-
-		for (auto Q : Qs) {
-			int x_diff = B.k - Q.ll.k, y_diff = B.l - Q.ll.l;
-			if (0 <= x_diff && x_diff <= 3 && 0 <= y_diff && y_diff <= 3) { return true; }
-		}
-
-		return false;
-	}
-
-	void conforming_subdivision::draw_CXBD(i_box* B) { // draw complex boundary
-
-		double unit_length = pow(2, B.i);
-
-		// BD.push_back(line_segment{ Point{unit_length * B.k, unit_length * B.l}, Point{unit_length * (double(B.k) + 1), unit_length * B.l} }); // 아래쪽
-		// BD.push_back(line_segment{ Point{unit_length * B.k, unit_length * (double(B.l) + 1)}, Point{unit_length * (double(B.k) + 1), unit_length * (double(B.l) + 1)} }); // 위쪽
-		// BD.push_back(line_segment{ Point{unit_length * B.k, unit_length * B.l}, Point{unit_length * B.k, unit_length * (double(B.l) + 1)} }); // 왼쪽
-		// BD.push_back(line_segment{ Point{unit_length * (double(B.k) + 1), unit_length * B.l}, Point{unit_length * (double(B.k) + 1), unit_length * (double(B.l) + 1)} }); // 오른쪽
-	}
-
-	void conforming_subdivision::fill_R1R2(vector<core> R1, vector<i_quad> R2) {
-		// R1의 level = R2의 level + 2
-		// R1과 R2에서 같은 index의 원소들은 1대1 대응 관계임
-		for (core r1 : R1) {
-			for (int j = 0; j < 8; j++) {
-				for (int ind3 = 0; ind3 < 8; ind3++) {
-					i_box B = { 4 * r1.ll.k + j, 4 * r1.ll.l + ind3, r1.i - 2 };
-					if (!contained(B, R2)) { draw_CXBD(B); } // draw edges. 4개의 edge를 추가함으로써 반영.
-				}
-			}
-		}
-	}
-
-	
-	void conforming_subdivision::fill_R1S(vector<core> R1, vector<i_quad> S_region) {
-
-		for (i_quad q : S_region) {
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 4; j++) {
-					i_box B = { q.ll.k + i, q.ll.l + j, q.i };
-					if (!contained(B, R1)) { draw_CXBD(B); } // intersection 여부를 모든 core에 대해 검사해야 함.
-				}
-			}
-		}
-
-	}
-	*/
 
 	// https://stackoverflow.com/questions/1505675/power-of-an-integer-in-c
 int myPow(int x, unsigned int p)

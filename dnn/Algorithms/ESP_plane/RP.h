@@ -12,30 +12,34 @@ typedef tuple<int, int, int, vector<tuple<int, int>>*> quadruple; // quadruple: 
 
 class RP {
 private:
-	list<Point*> vers; // vertices
+	vector<Point*> vers; // vertices
 
 public:
 	RP();
 	~RP();
-	// RP(deque<Point*>);
-	RP(list<Point*>);
-	// RP(vector<Point*>);
+	RP(vector<Point*>);
 	void print();
 	void addPt(Point*);
 };
-// RP* myUnion(vector<List*>,int);
-bool exist(Elem*, Dir);
-void extend(RP*, Elem*, Dir); // left : 0, right : 1, lower : 2, upper : 3
-RP* traverseUnion(vector<ElemList*>, vector<ElemList*>, int);
 
-RP* myUnion(vector<i_quad*>);
-int bin_search(vector<tuple<int, int>*>,int);
-int bin_insert(vector<tuple<int, int>>*, int);
-int bin_delete(vector<tuple<int, int>>*, int);
+class STS { // status
+public:
+	int start, end;
+	int count;
+	bool conn; // true if top_path and bottom_path are connected.
+	vector<tii> top_path, bot_path;
+public:
+	STS();
+	STS(int, int, int);
+	STS(int, int, int, vector<tii>, vector<tii>);
+};
 
-RP* mymyUnion(vector<i_quad*>);
-int mySearch(vector<quadruple>*, int, bool);
-int lnSearch(vector<quadruple>*, int, bool);
-void myInsert(vector<quadruple>*, int, int, int);
-void myDelete(vector<quadruple>*, int, int, int);
-vector<int> overlap(vector<quadruple>*, int, int);
+RP* Union(vector<i_quad*>, int);
+int mySearch(vector<STS*>&, int, bool);
+int lnSearch(vector<STS*>&, int, bool);
+void myInsert(vector<STS*>&, int, int, int);
+void myDelete(vector<STS*>&, int, int, int);
+vector<int> overlap(vector<STS*>&, int, int);
+
+bool sortSTS(STS* a, STS* b);
+vector<Point*> tii2Point(vector<tii>, int);
