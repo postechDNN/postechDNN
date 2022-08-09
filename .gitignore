@@ -1,6 +1,11 @@
-dnn/.vs
-dnn/DNN.vcxproj*
-dnn/main.cpp
-
-
-
+**/.vs/
+**/Debug/
+**/main.cpp
+**/Release/
+*.pdf
+*.pptx
+*.xlsx
+*.ppt
+dnn/.vscode/settings.json
+dnn/NearestNeighbor/ENN/DCEL/*.ipe
+dnn/NearestNeighbor/ENN/DCEL/Makefile
