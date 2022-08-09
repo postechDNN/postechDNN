@@ -81,12 +81,12 @@ clean: CMakeFiles/delaunay.dir/clean
 CMakeFiles/delaunay.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=1,2,3 "Built target delaunay"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=1,2,3,4,5,6 "Built target delaunay"
 .PHONY : CMakeFiles/delaunay.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/delaunay.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" 3
+	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/delaunay.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" 0
 .PHONY : CMakeFiles/delaunay.dir/rule

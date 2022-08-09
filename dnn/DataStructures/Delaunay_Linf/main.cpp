@@ -5,11 +5,12 @@
 #include <vector>
 #include <queue> 
 
-#include "./externals/quadedge-basic/Point.h"
 #include "./externals/quadedge-basic/quadedge.h"
+
 //#include "quadedge.cpp"
 #include <GLUT/glut.h>
 //#include <GL/GL.h>
+#include "delaunay.h"
 
 #include <vector>
 #include "gnuplot-iostream.h"
@@ -54,7 +55,7 @@ int inInfCircle(const Point2d& p, const Point2d& a, const Point2d& b){
 	Point2d *da, *db;
   da = new Point2d(a), db = new Point2d(b);
   
-  Edge* e = MakeEdge();
+  Edge2d* e = MakeEdge();
 	e->EndPoints(da, db);
 
   bool rightof = RightOf(p, e);
@@ -110,7 +111,7 @@ int inInfCircle(const Point2d& p, const Point2d& a, const Point2d& b){
 
 }
 
-Edge* computeSmallDelaunay(vector<Point2d>& sList, int num){
+Edge2d* computeSmallDelaunay(vector<Point2d>& sList, int num){
   if (num>3){
     printf("This point set is not small \n");
     exit(1);
@@ -150,7 +151,7 @@ Edge* computeSmallDelaunay(vector<Point2d>& sList, int num){
 }
 
 
-Edge* LowerSupport(Edge* left, Edge* right){
+Edge2d* LowerSupport(Edge2d* left, Edge2d* right){
   if(LowerThan(left->Org2d(), right->Org2d())){
     // Back up right pointer until infinite circle contains no points lying CW from it or wraps around back 
     while((inInfCircle(right->Rnext()->Org2d(), left->Org2d(), right->Org2d()) == INSIDE)&&
@@ -203,15 +204,15 @@ Edge* LowerSupport(Edge* left, Edge* right){
 }
 
 /* Test if circle grwing through global var base hits e.Dest */
-bool Valid(Edge* e, Edge* base){
+bool Valid(Edge2d* e, Edge2d* base){
   return (inInfCircle(e->Dest2d(), base->Org2d(), base->Dest2d()) == INSIDE);
 }
 
-Edge* ProdONext(Edge* e){
+Edge2d* ProdONext(Edge2d* e){
   return e->Onext(); //CHECK
 }
 
-Edge* ProdOPrev(Edge* e){
+Edge2d* ProdOPrev(Edge2d* e){
   return e->Oprev(); //CHECK
 }
 
@@ -269,7 +270,7 @@ int MyInCircle(const Point2d& a, const Point2d& b, const Point2d& c,const Point2
   if ((bLeft < d.x) && (d.x < bRight) && (bDown < d.y) && (d.y < bTop)) return INSIDE; 
   if (!onBoundary(d, bLeft, bRight, bDown, bTop)) return OUTSIDE; // check using updated boundaries 
   
-	Edge* e = MakeEdge();
+	Edge2d* e = MakeEdge();
 	Point2d *da, *db, *d_ad, *d_bd; 
 	da = new Point2d(a.x, a.y), db = new Point2d(b.x, b.y);
   d_ad = new Point2d((a.x + d.x)/2, (a.y + d.y)/2); //middle point bw a and d
@@ -282,8 +283,8 @@ int MyInCircle(const Point2d& a, const Point2d& b, const Point2d& c,const Point2
   
 }
 
-Edge* ComputeLcand(Edge* base){
-  Edge* lcand = base->Rprev();
+Edge2d* ComputeLcand(Edge2d* base){
+  Edge2d* lcand = base->Rprev();
 
   /* First eliminate edges crossing infinite circle */
   if (inInfCircle(lcand->Dest2d(), base->Org2d(), base->Dest2d()) == BEFORE){
@@ -299,8 +300,8 @@ Edge* ComputeLcand(Edge* base){
   }
 
   /* Eliminate edges whose Delaunayhood is destroyed */
-  Edge* current; 
-  Edge* top;
+  Edge2d* current; 
+  Edge2d* top;
   if (Valid(lcand, base)){
     current = lcand->Onext();
     top = lcand;
@@ -309,10 +310,10 @@ Edge* ComputeLcand(Edge* base){
     while(1){
       ic = MyInCircle(lcand->Org2d(), lcand->Dest2d(), base->Org2d(), current->Dest2d());
 
-      Edge* t; 
+      Edge2d* t; 
       if(ic == INSIDE){
         //Update lcand, unless wrapped around 
-        Edge* temp = MakeEdge();
+        Edge2d* temp = MakeEdge();
         if (LeftOf(current->Dest2d(), lcand)){
           //Make upper and lower bundles if needed 
           
@@ -354,8 +355,8 @@ Edge* ComputeLcand(Edge* base){
 
 }
 
-Edge* ComputeRcand(Edge* base){
-  Edge* rcand = base->Oprev();
+Edge2d* ComputeRcand(Edge2d* base){
+  Edge2d* rcand = base->Oprev();
   printf("Initial rcand \n");
   rcand->EdgeDraw(); 
   rcand->Oprev()->EdgeDraw(); 
@@ -379,8 +380,8 @@ Edge* ComputeRcand(Edge* base){
   }
 
   /* Eliminate edges whose Delaunayhood is destroyed */
-  Edge* current; 
-  Edge* top;
+  Edge2d* current; 
+  Edge2d* top;
   if (Valid(rcand, base)){
     current = rcand->Oprev();
     top = rcand;
@@ -390,10 +391,10 @@ Edge* ComputeRcand(Edge* base){
       //ic = MyInCircle(lcand->Org2d(), lcand->Dest2d(), base->Org2d(), current->Dest2d());
       ic = MyInCircle(rcand->Dest2d(), rcand->Org2d(), base->Dest2d(), current->Dest2d());
 
-      Edge* t; 
+      Edge2d* t; 
       if(ic == INSIDE){
         //Update rcand, unless wrapped around 
-        Edge* temp = MakeEdge();
+        Edge2d* temp = MakeEdge();
         if (RightOf(current->Dest2d(), rcand)){
           //Make upper and lower bundles if needed 
           ;
@@ -437,19 +438,19 @@ Edge* ComputeRcand(Edge* base){
 
 }
 
-Edge* ConnectLeft(Edge* lcand, Edge* base){
+Edge2d* ConnectLeft(Edge2d* lcand, Edge2d* base){
   //UnBudleAll(lcand); //CHECK
   return Connect(base->Sym(), lcand->Sym());
 }
 
-Edge* ConnectRight(Edge* rcand, Edge* base){
+Edge2d* ConnectRight(Edge2d* rcand, Edge2d* base){
   //UnBudleAll(rcand); //CHECK
   return Connect(rcand, base->Sym());
 }
 
 
 //sList: A sorted point list
-Edge* delaunay(vector<Point2d>& S){ 
+Edge2d* delaunay(vector<Point2d>& S){ 
 
   // Small Delaunay (n<=3)
   if(S.size()<=3){
@@ -462,26 +463,26 @@ Edge* delaunay(vector<Point2d>& S){
   vector<Point2d> R(S.begin()+halfSize, S.end());
 
   // Delaunay for L and R
-  Edge * lleft = delaunay(L);
-  Edge * lright = delaunay(R);
+  Edge2d * lleft = delaunay(L);
+  Edge2d * lright = delaunay(R);
 
   printf("leftsize: %d, rightsize: %d \n", halfSize, S.size()-halfSize);
 
+  /*
   printf("Draw L \n");
   
 	std::vector<std::vector<std::pair<double, double>>> temp;
   lleft->Draw(mystamp++, temp);
-  //lleft->EdgeDraw(); // CHECK 1
 
   printf("Draw R \n");
   lright->Draw(mystamp++, temp);
-  //lright->EdgeDraw(); // CHECK 1
+  */
 
   //Create common base edge and remember lowest edge 
-  Edge* base = LowerSupport(lleft, lright);
+  Edge2d* base = LowerSupport(lleft, lright);
   bool leftLower = LowerThan(lleft->Org2d(), lright->Org2d());
 
-  Edge* lower; 
+  Edge2d* lower; 
   if (leftLower) {
     if (lleft->Org2d() == base->Dest2d())
       lower = base->Sym();
@@ -490,8 +491,8 @@ Edge* delaunay(vector<Point2d>& S){
   }
   else lower = lright->Rnext(); //Back up to an edge that can't be deleted
 
-  Edge* lcand;
-  Edge* rcand; 
+  Edge2d* lcand;
+  Edge2d* rcand; 
 
   printf("Compute lcand and rcand \n");
 
@@ -545,6 +546,29 @@ Edge* delaunay(vector<Point2d>& S){
 
   return lower; 
 
+}
+
+Point2d pointToPoint2d(Point& p){
+  Point2d newP = Point2d(p.getX(), p.getY());
+  newP.point = &p;
+  return newP;
+}
+
+void ptsToDelaunay(vector<Point>& ptS, Graph* G){
+
+  vector<Point2d> S;
+  for (auto i=0; i<ptS.size(); i++){
+    S.push_back(pointToPoint2d(ptS[i]));
+  }
+  
+  sort(S.begin(), S.end(), cmp);
+  Edge2d* sEdge = delaunay(S);
+
+	std::vector<std::vector<std::pair<double, double>>> edges;
+  std::vector<std::pair<Point*, Point*>> gedges;
+  sEdge->Draw(++mystamp, edges, *G);
+
+  return;
 }
 
 
@@ -609,7 +633,7 @@ int main(int argc, char** argv){
 
   vector<Point2d> test = test5;
   sort(test.begin(), test.end(), cmp);
-  Edge* sEdge = delaunay(test);
+  Edge2d* sEdge = delaunay(test);
 
   printf("Draw in main \n");
   static unsigned int timestamp = 0;
@@ -617,7 +641,9 @@ int main(int argc, char** argv){
 	std::vector<std::vector<std::pair<double, double>>> edges;
   if (++timestamp == 0)
     timestamp = 1;
-  sEdge->Draw(1000, edges);
+  
+  Graph* tempG = new Graph();
+  sEdge->Draw(1000, edges, *tempG);
 
 
   Gnuplot gp;

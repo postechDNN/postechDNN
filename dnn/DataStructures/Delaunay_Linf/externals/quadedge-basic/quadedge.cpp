@@ -25,7 +25,7 @@ void myInit(void)
     // Specify the display area
     gluOrtho2D(0.0, 400.0, 0.0, 400.0);
 }
-
+/*
 void myDisplay(void)
 {
     // Clear the screen buffer
@@ -58,6 +58,7 @@ void myDisplay(void)
     // Sends all output to display
     glFlush();
 }
+*/
 
 void bgnline(const Point2d& a, const Point2d& b){
 	printf("Draw_bgnline\n");
@@ -88,13 +89,13 @@ bool LeftThan(Point2d a, Point2d b){
 
 /*********************** Basic Topological Operators ************************/
 
-Edge* MakeEdge()
+Edge2d* MakeEdge()
 {
 	QuadEdge *ql = new QuadEdge;
 	return ql->e;
 }
 
-void Splice(Edge* a, Edge* b)
+void Splice(Edge2d* a, Edge2d* b)
 // This operator affects the two edge rings around the origins of a and b,
 // and, independently, the two edge rings around the left faces of a and b.
 // In each case, (i) if the two rings are distinct, Splice will combine
@@ -104,13 +105,13 @@ void Splice(Edge* a, Edge* b)
 // to break them apart. See Guibas and Stolfi (1985) p.96 for more details
 // and illustrations.
 {
-	Edge* alpha = a->Onext()->Rot();
-	Edge* beta  = b->Onext()->Rot();
+	Edge2d* alpha = a->Onext()->Rot();
+	Edge2d* beta  = b->Onext()->Rot();
 
-	Edge* t1 = b->Onext();
-	Edge* t2 = a->Onext();
-	Edge* t3 = beta->Onext();
-	Edge* t4 = alpha->Onext();
+	Edge2d* t1 = b->Onext();
+	Edge2d* t2 = a->Onext();
+	Edge2d* t3 = beta->Onext();
+	Edge2d* t4 = alpha->Onext();
 
 	a->next = t1;
 	b->next = t2;
@@ -118,7 +119,7 @@ void Splice(Edge* a, Edge* b)
 	beta->next = t4;
 }
 
-void DeleteEdge(Edge* e)
+void DeleteEdge(Edge2d* e)
 {
 	Splice(e, e->Oprev());
 	Splice(e->Sym(), e->Sym()->Oprev());
@@ -131,7 +132,7 @@ Subdivision:: Subdivision(const Point2d& a, const Point2d& b) // Mine
 { // Mine
 	Point2d *da, *db;
 	da = new Point2d(a), db = new Point2d(b);
-	Edge* e = MakeEdge();
+	Edge2d* e = MakeEdge();
 
 	// Let lower edge be a starting edge. 
 	if(a.y < b.y){
@@ -161,12 +162,12 @@ Subdivision::Subdivision(const Point2d& a, const Point2d& b, const Point2d& c)
 	left = LeftThan(pList[1], pList[2]) ? new Point2d(pList[1]) : new Point2d(pList[2]);
 	right = LeftThan(pList[1], pList[2]) ? new Point2d(pList[2]) : new Point2d(pList[1]);
 	
-	Edge* e1 = MakeEdge();
+	Edge2d* e1 = MakeEdge();
 	e1->EndPoints(lowest, right);
-	Edge* e2 = MakeEdge();
+	Edge2d* e2 = MakeEdge();
 	Splice(e1->Sym(), e2); //CHECK
 	e2->EndPoints(right, left);
-	Edge* e3 = MakeEdge();
+	Edge2d* e3 = MakeEdge();
 	Splice(e2->Sym(), e3); //CHECK
 	e3->EndPoints(left, lowest);
 	Splice(e3->Sym(), e1); //CHECK
@@ -179,8 +180,8 @@ Subdivision::Subdivision(const Point2d& a, const Point2d& b, const Point2d& c, i
 	Point2d *da, *db, *dc;
 	da = new Point2d(a), db = new Point2d(b), dc = new Point2d(c);
 
-	Edge* e1 = MakeEdge();
-	Edge* e2 = MakeEdge();
+	Edge2d* e1 = MakeEdge();
+	Edge2d* e2 = MakeEdge();
 
 	if (LowerThan(b, a) && LowerThan(b, c)){ //Does this happen? 
 		
@@ -208,25 +209,25 @@ Subdivision::Subdivision(const Point2d& a, const Point2d& b, const Point2d& c, i
 }
 
 
-Edge* Connect(Edge* a, Edge* b)
+Edge2d* Connect(Edge2d* a, Edge2d* b)
 // Add a new edge e connecting the destination of a to the
 // origin of b, in such a way that all three have the same
 // left face after the connection is complete.
 // Additionally, the data pointers of the new edge are set.
 {
-	Edge* e = MakeEdge();
+	Edge2d* e = MakeEdge();
 	Splice(e, a->Lnext());
 	Splice(e->Sym(), b);
 	e->EndPoints(a->Dest(), b->Org());
 	return e;
 }
 
-void Swap(Edge* e)
+void Swap(Edge2d* e)
 // Essentially turns edge e counterclockwise inside its enclosing
 // quadrilateral. The data pointers are modified accordingly.
 {
-	Edge* a = e->Oprev();
-	Edge* b = e->Sym()->Oprev();
+	Edge2d* a = e->Oprev();
+	Edge2d* b = e->Sym()->Oprev();
 	Splice(e, a);
 	Splice(e->Sym(), b);
 	Splice(e, a->Lnext());
@@ -260,17 +261,17 @@ int ccw(const Point2d& a, const Point2d& b, const Point2d& c)
 	return (TriArea(a, b, c) > 0);
 }
 
-int RightOf(const Point2d& x, Edge* e)
+int RightOf(const Point2d& x, Edge2d* e)
 {
 	return ccw(x, e->Dest2d(), e->Org2d());
 }
 
-int LeftOf(const Point2d& x, Edge* e)
+int LeftOf(const Point2d& x, Edge2d* e)
 {
 	return ccw(x, e->Org2d(), e->Dest2d());
 }
 
-int OnEdge(const Point2d& x, Edge* e)
+int OnEdge(const Point2d& x, Edge2d* e)
 // A predicate that determines if the point x is on the edge e.
 // The point is considered on if it is in the EPS-neighborhood
 // of the edge.
@@ -290,13 +291,13 @@ int OnEdge(const Point2d& x, Edge* e)
 /************* An Incremental Algorithm for the Construction of *************/
 /************************ Delaunay Diagrams *********************************/
 
-Edge* Subdivision::Locate(const Point2d& x)
+Edge2d* Subdivision::Locate(const Point2d& x)
 // Returns an edge e, s.t. either x is on e, or e is an edge of
 // a triangle containing x. The search starts from startingEdge
 // and proceeds in the general direction of x. Based on the
 // pseudocode in Guibas and Stolfi (1985) p.121.
 {
-	Edge* e = startingEdge;
+	Edge2d* e = startingEdge;
 
 	while (TRUE) {
 		if (x == e->Org2d() || x == e->Dest2d())
@@ -319,7 +320,7 @@ void Subdivision::InsertSite(const Point2d& x)
 // pseudocode from Guibas and Stolfi (1985) p.120, with slight
 // modifications and a bug fix.
 {
-	Edge* e = Locate(x);
+	Edge2d* e = Locate(x);
 	if ((x == e->Org2d()) || (x == e->Dest2d()))  // point is already in
 	    return;
 	else if (OnEdge(x, e)) {
@@ -330,7 +331,7 @@ void Subdivision::InsertSite(const Point2d& x)
 	// Connect the new point to the vertices of the containing
 	// triangle (or quadrilateral, if the new point fell on an
 	// existing edge.)
-	Edge* base = MakeEdge();
+	Edge2d* base = MakeEdge();
 	base->EndPoints(e->Org(), new Point2d(x));
 	Splice(base, e);
 	startingEdge = base;
@@ -342,7 +343,7 @@ void Subdivision::InsertSite(const Point2d& x)
 	// Examine suspect edges to ensure that the Delaunay condition
 	// is satisfied.
 	do {
-		Edge* t = e->Oprev();
+		Edge2d* t = e->Oprev();
 		if (RightOf(t->Dest2d(), e) &&
 			InCircle(e->Org2d(), t->Dest2d(), e->Dest2d(), x)) {
 				Swap(e);
@@ -388,7 +389,7 @@ void DrawFun(void){
 
 
 
-void Edge::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, double>>> & segments)
+void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, double>>> & segments, Graph& gEdges)
 // This is a recursive drawing routine that uses time stamps to
 // determine if the edge has already been drawn. This is given
 // here for testing purposes only: it is not efficient, and for
@@ -402,20 +403,14 @@ void Edge::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, do
 		// Draw the edge
 		Point2d a = Org2d();
 		Point2d b = Dest2d();
-		//bgnline(a, b);
-		// v2d((double*)&a);
-		// v2d((double*)&b);
-		// endline();
 
 		drA = a; 
 		drB = b; 
 
 		printf("Edge: (%.1f, %.1f) to (%.1f, %.1f)\n", a.x, a.y, b.x, b.y);
 		
-  		//glutDisplayFunc(DrawFun);
-		//glutDisplayFunc(myDisplay);
 
-		
+		/* Add edges to segments set for drawing */ 
 		//std::vector<std::vector<std::pair<double, double>>> all_segments, all1, all2, all3, all4;
 		std::vector<std::pair<double, double>> segment;
 		segment.emplace_back(a.x, a.y);
@@ -424,23 +419,24 @@ void Edge::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, do
 
 		// all_segments.push_back(segment);
 
+		/* Add edges to a graph */ 
+
+
 
 		//gp << "plot '-' with linespoints\n";
 		// NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
 		//gp.send2d(all_segments);
 
 		
-
-		
 		// visit neighbors
 		//printf("Draw Onext \n");
-		Onext()->Draw(stamp, segments);
+		Onext()->Draw(stamp, segments, gEdges);
 		//printf("Draw Oprev \n");
-		Oprev()->Draw(stamp, segments);
+		Oprev()->Draw(stamp, segments, gEdges);
 		//printf("Draw Dnext \n");
-		Dnext()->Draw(stamp, segments);
+		Dnext()->Draw(stamp, segments, gEdges);
 		//printf("Draw Dprev \n");
-		Dprev()->Draw(stamp, segments);
+		Dprev()->Draw(stamp, segments, gEdges);
 
 		// if (!all1.empty()) all_segments.insert(all_segments.end(), all1.begin(), all1.end());
 		// if (!all2.empty()) all_segments.insert(all_segments.end(), all2.begin(), all2.end());
@@ -455,7 +451,7 @@ void Edge::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, do
 	}
 }
 
-void Edge::EdgeDraw(void){
+void Edge2d::EdgeDraw(void){
 // Draw the edge
 	Point2d a = Org2d();
 	Point2d b = Dest2d();

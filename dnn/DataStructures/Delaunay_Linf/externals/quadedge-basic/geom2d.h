@@ -4,6 +4,9 @@
 #include <cmath>
 #include <iostream>
 
+
+#include "./../../Algorithms/ESP_plane/Point.h"
+
 #ifndef ABS
 #define ABS(a)	((a) >= 0 ? (a) : -(a))
 #endif
@@ -48,6 +51,8 @@ public:
 	int operator==(const Point2d&) const;
 	friend std::istream& operator>>(std::istream&, Point2d&);
 	friend std::ostream& operator<<(std::ostream&, const Point2d&);
+
+	Point* point; 
 };
 
 class Line {

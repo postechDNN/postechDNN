@@ -97,23 +97,71 @@ CMakeFiles/delaunay.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/delaunay.dir/main.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/main.cpp" -o CMakeFiles/delaunay.dir/main.cpp.s
 
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o: CMakeFiles/delaunay.dir/flags.make
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o: /Users/chaeyoon/AlgorithmsLab\ Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o: CMakeFiles/delaunay.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o -MF CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o.d -o CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o -c "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp"
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp" > CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.i
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp" -o CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.s
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o: CMakeFiles/delaunay.dir/flags.make
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o: /Users/chaeyoon/AlgorithmsLab\ Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o: CMakeFiles/delaunay.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o -MF CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o.d -o CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o -c "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp"
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp" > CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.i
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp" -o CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.s
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o: CMakeFiles/delaunay.dir/flags.make
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o: /Users/chaeyoon/AlgorithmsLab\ Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o: CMakeFiles/delaunay.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o -MF CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o.d -o CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o -c "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp"
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp" > CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.i
+
+CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp" -o CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.s
+
 # Object files for target delaunay
 delaunay_OBJECTS = \
 "CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.o" \
-"CMakeFiles/delaunay.dir/main.cpp.o"
+"CMakeFiles/delaunay.dir/main.cpp.o" \
+"CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o" \
+"CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o" \
+"CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o"
 
 # External object files for target delaunay
 delaunay_EXTERNAL_OBJECTS =
 
 delaunay: CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.o
 delaunay: CMakeFiles/delaunay.dir/main.cpp.o
+delaunay: CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o
+delaunay: CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o
+delaunay: CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o
 delaunay: CMakeFiles/delaunay.dir/build.make
 delaunay: /opt/homebrew/lib/libboost_filesystem-mt.dylib
 delaunay: /opt/homebrew/lib/libboost_system-mt.dylib
 delaunay: /opt/homebrew/lib/libboost_iostreams-mt.dylib
 delaunay: /opt/homebrew/lib/libboost_atomic-mt.dylib
 delaunay: CMakeFiles/delaunay.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable delaunay"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable delaunay"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/delaunay.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
