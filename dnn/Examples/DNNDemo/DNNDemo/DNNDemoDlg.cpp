@@ -135,6 +135,14 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	m_check_face.SetCheck(true);
 	m_check_f1.SetCheck(true);
 
+	// Initialize rendering object
+	this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
+	this->m_picture_opengl.setDrawObject(3, VERTEX, m_check_vertex.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
+	this->m_picture_opengl.setDrawObject(3, EDGE, m_check_edge.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+	this->m_picture_opengl.setDrawObject(3, FACE, m_check_face.GetCheck());
+
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -237,21 +245,52 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 void CDNNDemoDlg::OnBnClickedCheckVertex()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(3, VERTEX, m_check_vertex.GetCheck());
+		break;
+	default:
+		break;
+	}
+	
 }
 
 
 void CDNNDemoDlg::OnBnClickedCheckEdge()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(3, EDGE, m_check_edge.GetCheck());
+		break;
+	default:
+		break;
+	}
 }
 
 
 void CDNNDemoDlg::OnBnClickedCheckFace()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(3, FACE, m_check_face.GetCheck());
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -269,6 +308,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 	int menu = this->m_combo_func.GetCurSel();
 	switch (menu) {
 	case 0: // Read DCEL
+		this->m_picture_opengl.setMode(2);
 		this->m_check_vertex.SetWindowTextW(_T("Vertex"));
 		this->m_check_edge.SetWindowTextW(_T("Edge"));
 		this->m_check_face.SetWindowTextW(_T("Face"));
@@ -278,6 +318,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_button_delete.EnableWindow(false);
 		break;
 	case 1: // 3D nearest neighbor
+		this->m_picture_opengl.setMode(3);
 		this->m_check_vertex.SetWindowTextW(_T("Free point"));
 		this->m_check_edge.SetWindowTextW(_T("Grid"));
 		this->m_check_face.SetWindowTextW(_T("Polytope"));

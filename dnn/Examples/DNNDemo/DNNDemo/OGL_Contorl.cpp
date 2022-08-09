@@ -236,8 +236,8 @@ void OGL_Contorl::OnPaint()
 			}
 		}
 		if (this->object3D.getDrawVertices()) {
-			glColor3d(1.0, 1.0, 1.0);
-			glPointSize(1.0f);
+			glColor3d(0.0f, 1.0f, 1.0f);
+			glPointSize(2.0f);
 			glBegin(GL_POINTS);
 			for (int i = 0; i < this->object3D.getVerticsNum(); i++) {
 				OGL_Point p = this->object3D.getVertex(i).getPos();
