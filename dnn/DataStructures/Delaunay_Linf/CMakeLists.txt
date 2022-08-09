@@ -6,9 +6,7 @@ SET (ESP_PATH ./../../Algorithms/ESP_plane)
 
 file (GLOB ESP_SOURCES ${ESP_PATH}/Graph.cpp ${ESP_PATH}/Edge.cpp ${ESP_PATH}/Point.cpp )
 
-
-SET ( SRC_FILES ./externals/quadedge-basic/geom2d.h ./externals/quadedge-basic/quadedge.cpp ./externals/quadedge-basic/quadedge.h main.cpp )
-
+SET ( SRC_FILES ./externals/quadedge-basic/geom2d.h ./externals/quadedge-basic/quadedge.cpp ./externals/quadedge-basic/quadedge.h delaunay.cpp )
 
 
 find_package(OpenGL REQUIRED)
@@ -21,5 +19,5 @@ include_directories(${OPENGL_INCLUDE_DIRS}  ${GL_INCLUDE_DIRS} ${Boost_INCLUDE_D
 
 add_executable(delaunay ${SRC_FILES} ${ESP_SOURCES})
 
-target_link_libraries(delaunay ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${Boost_LIBRARIES} ${ESP_INCLUDE})
+target_link_libraries(delaunay ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${Boost_LIBRARIES})
 

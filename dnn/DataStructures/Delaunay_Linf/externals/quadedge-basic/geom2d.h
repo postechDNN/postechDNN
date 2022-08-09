@@ -43,8 +43,9 @@ public:
 class Point2d {
 public:
 	Real x, y;
-	Point2d()					{ x = 0; y = 0; }
-	Point2d(Real a, Real b)		{ x = a; y = b; }
+	Point* point; 
+	Point2d()					{ x = 0; y = 0; point = new Point();}
+	Point2d(Real a, Real b)		{ x = a; y = b; point = new Point();}
 	Point2d(const Point2d& p)	{ *this = p; }
 	Point2d operator+(const Vector2d&) const;
 	Vector2d operator-(const Point2d&) const;
@@ -52,7 +53,7 @@ public:
 	friend std::istream& operator>>(std::istream&, Point2d&);
 	friend std::ostream& operator<<(std::ostream&, const Point2d&);
 
-	Point* point; 
+
 };
 
 class Line {

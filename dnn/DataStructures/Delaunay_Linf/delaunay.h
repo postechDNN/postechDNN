@@ -7,8 +7,7 @@
 #include <vector>
 
 Edge2d* delaunay(vector<Point2d>& S);
-Point2d pointToPoint2d(Point& p);
-Graph* ptsToDelaunay(const vector<Point>& S);
+void toDelaunay(vector<Point>& ptS, Graph* G);
 
 
 

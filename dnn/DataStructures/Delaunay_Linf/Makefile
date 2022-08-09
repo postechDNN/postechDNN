@@ -201,6 +201,30 @@ Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_pla
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.s
 .PHONY : Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.s
 
+delaunay.o: delaunay.cpp.o
+.PHONY : delaunay.o
+
+# target to build an object file
+delaunay.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/delaunay.cpp.o
+.PHONY : delaunay.cpp.o
+
+delaunay.i: delaunay.cpp.i
+.PHONY : delaunay.i
+
+# target to preprocess a source file
+delaunay.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/delaunay.cpp.i
+.PHONY : delaunay.cpp.i
+
+delaunay.s: delaunay.cpp.s
+.PHONY : delaunay.s
+
+# target to generate assembly for a file
+delaunay.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/delaunay.cpp.s
+.PHONY : delaunay.cpp.s
+
 externals/quadedge-basic/quadedge.o: externals/quadedge-basic/quadedge.cpp.o
 .PHONY : externals/quadedge-basic/quadedge.o
 
@@ -225,30 +249,6 @@ externals/quadedge-basic/quadedge.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.s
 .PHONY : externals/quadedge-basic/quadedge.cpp.s
 
-main.o: main.cpp.o
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/delaunay.dir/build.make CMakeFiles/delaunay.dir/main.cpp.s
-.PHONY : main.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -267,12 +267,12 @@ help:
 	@echo "... Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.o"
 	@echo "... Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.i"
 	@echo "... Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.s"
+	@echo "... delaunay.o"
+	@echo "... delaunay.i"
+	@echo "... delaunay.s"
 	@echo "... externals/quadedge-basic/quadedge.o"
 	@echo "... externals/quadedge-basic/quadedge.i"
 	@echo "... externals/quadedge-basic/quadedge.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
 .PHONY : help
 
 

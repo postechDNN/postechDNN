@@ -83,19 +83,19 @@ CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/externals/quadedge-basic/quadedge.cpp" -o CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.s
 
-CMakeFiles/delaunay.dir/main.cpp.o: CMakeFiles/delaunay.dir/flags.make
-CMakeFiles/delaunay.dir/main.cpp.o: main.cpp
-CMakeFiles/delaunay.dir/main.cpp.o: CMakeFiles/delaunay.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/delaunay.dir/main.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/delaunay.dir/main.cpp.o -MF CMakeFiles/delaunay.dir/main.cpp.o.d -o CMakeFiles/delaunay.dir/main.cpp.o -c "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/main.cpp"
+CMakeFiles/delaunay.dir/delaunay.cpp.o: CMakeFiles/delaunay.dir/flags.make
+CMakeFiles/delaunay.dir/delaunay.cpp.o: delaunay.cpp
+CMakeFiles/delaunay.dir/delaunay.cpp.o: CMakeFiles/delaunay.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/delaunay.dir/delaunay.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/delaunay.dir/delaunay.cpp.o -MF CMakeFiles/delaunay.dir/delaunay.cpp.o.d -o CMakeFiles/delaunay.dir/delaunay.cpp.o -c "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/delaunay.cpp"
 
-CMakeFiles/delaunay.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/delaunay.dir/main.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/main.cpp" > CMakeFiles/delaunay.dir/main.cpp.i
+CMakeFiles/delaunay.dir/delaunay.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/delaunay.dir/delaunay.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/delaunay.cpp" > CMakeFiles/delaunay.dir/delaunay.cpp.i
 
-CMakeFiles/delaunay.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/delaunay.dir/main.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/main.cpp" -o CMakeFiles/delaunay.dir/main.cpp.s
+CMakeFiles/delaunay.dir/delaunay.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/delaunay.dir/delaunay.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/chaeyoon/AlgorithmsLab Dropbox/정채윤/postechDNN/dnn/DataStructures/Delaunay_Linf/delaunay.cpp" -o CMakeFiles/delaunay.dir/delaunay.cpp.s
 
 CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o: CMakeFiles/delaunay.dir/flags.make
 CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o: /Users/chaeyoon/AlgorithmsLab\ Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp
@@ -142,7 +142,7 @@ CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDN
 # Object files for target delaunay
 delaunay_OBJECTS = \
 "CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.o" \
-"CMakeFiles/delaunay.dir/main.cpp.o" \
+"CMakeFiles/delaunay.dir/delaunay.cpp.o" \
 "CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o" \
 "CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o" \
 "CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o"
@@ -151,7 +151,7 @@ delaunay_OBJECTS = \
 delaunay_EXTERNAL_OBJECTS =
 
 delaunay: CMakeFiles/delaunay.dir/externals/quadedge-basic/quadedge.cpp.o
-delaunay: CMakeFiles/delaunay.dir/main.cpp.o
+delaunay: CMakeFiles/delaunay.dir/delaunay.cpp.o
 delaunay: CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Edge.cpp.o
 delaunay: CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Graph.cpp.o
 delaunay: CMakeFiles/delaunay.dir/Users/chaeyoon/AlgorithmsLab_Dropbox/정채윤/postechDNN/dnn/Algorithms/ESP_plane/Point.cpp.o

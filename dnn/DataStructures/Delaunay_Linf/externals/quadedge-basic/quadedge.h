@@ -35,7 +35,7 @@ class Edge2d {
 	const Point2d& Dest2d() const;
 	void  EndPoints(Point2d*, Point2d*);
 	QuadEdge* Qedge()	{ return (QuadEdge *)(this - num); }
-	void Draw(unsigned int, std::vector<std::vector<std::pair<double, double>>> &,  Graph &);
+	void Draw(unsigned int, std::vector<std::vector<std::pair<double, double>>> &,  Graph *);
 	void EdgeDraw();
 };
 

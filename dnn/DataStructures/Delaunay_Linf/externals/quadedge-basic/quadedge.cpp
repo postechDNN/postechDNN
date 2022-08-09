@@ -11,69 +11,6 @@ using namespace std;
 
 Point2d drA, drB; // for drawing 
 
-// Function to initialize the drivers
-void myInit(void)
-{
-    // Clear all the screen color
-    glClearColor(1.0, 0.5, 0.0, 1.0);
- 
-    // Sets background color to orang
-    glMatrixMode(GL_PROJECTION);
- 
-    glLoadIdentity();
- 
-    // Specify the display area
-    gluOrtho2D(0.0, 400.0, 0.0, 400.0);
-}
-/*
-void myDisplay(void)
-{
-    // Clear the screen buffer
-    glClear(GL_COLOR_BUFFER_BIT);
- 
-    glPointSize(4.0);
- 
-    // Rectangular part of hut
-    glColor3f(0.5f, 0.5f, 0.5f);
- 
-    // Begin the polygon
-    glBegin(GL_POLYGON);
- 
-    // Create the polygon
-    glVertex2i(40, 40);
-    glVertex2i(320, 40);
- 
-    glVertex2i(40, 200);
-    glVertex2i(320, 200);
- 
-    glVertex2i(40, 200);
-    glVertex2i(40, 40);
- 
-    glVertex2i(320, 200);
-    glVertex2i(320, 40);
- 
-    glEnd();
- 
- 
-    // Sends all output to display
-    glFlush();
-}
-*/
-
-void bgnline(const Point2d& a, const Point2d& b){
-	printf("Draw_bgnline\n");
-
-
-
-}
-void endline(){
-
-	printf("Draw\n");
-}
-void v2d(double*){
-
-	printf("Draw\n");
-}
 
 bool LowerThan(Point2d a, Point2d b){
   return ((a.y<b.y) || (a.y==b.y) && (a.x<b.x));
@@ -389,7 +326,7 @@ void DrawFun(void){
 
 
 
-void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, double>>> & segments, Graph& gEdges)
+void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, double>>> & segments, Graph* G)
 // This is a recursive drawing routine that uses time stamps to
 // determine if the edge has already been drawn. This is given
 // here for testing purposes only: it is not efficient, and for
@@ -420,6 +357,8 @@ void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, 
 		// all_segments.push_back(segment);
 
 		/* Add edges to a graph */ 
+		Edge* gEdge = new Edge(Org2d().point, Dest2d().point);
+		G->addEdge(gEdge);
 
 
 
@@ -430,13 +369,13 @@ void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, 
 		
 		// visit neighbors
 		//printf("Draw Onext \n");
-		Onext()->Draw(stamp, segments, gEdges);
+		Onext()->Draw(stamp, segments, G);
 		//printf("Draw Oprev \n");
-		Oprev()->Draw(stamp, segments, gEdges);
+		Oprev()->Draw(stamp, segments, G);
 		//printf("Draw Dnext \n");
-		Dnext()->Draw(stamp, segments, gEdges);
+		Dnext()->Draw(stamp, segments, G);
 		//printf("Draw Dprev \n");
-		Dprev()->Draw(stamp, segments, gEdges);
+		Dprev()->Draw(stamp, segments, G);
 
 		// if (!all1.empty()) all_segments.insert(all_segments.end(), all1.begin(), all1.end());
 		// if (!all2.empty()) all_segments.insert(all_segments.end(), all2.begin(), all2.end());
