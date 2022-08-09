@@ -189,15 +189,22 @@ bool Eps_Graph_3D::cmpNadd_SinPol(indices ind, int direc, int ord) { // do the s
 
 }
 
+void Eps_Graph_3D::add_freepts(Free_Point *p) { // add points to the point set P //O
+	Free_Point& pt = fr_pts.back();
+	for (Polytope& pol : pols) {
+		assert(!pol.isIn(p)); // Assert error if a freepoint is contained in some polytope
+	}
+	anchor(*p);
+	fr_pts.push_back(*p);
+}
 
 void Eps_Graph_3D::add_freepts(vector<Free_Point> p_vec) { // add points to the point set P //O
 	for (auto p : p_vec) {
-		Free_Point& pt = fr_pts.back();
 		for (Polytope& pol : pols) {
 			assert(!pol.isIn(&p)); // Assert error if a freepoint is contained in some polytope
 		}
+		anchor(p);
 		fr_pts.push_back(p);
-		anchor(pt);
 	}
 }
 
@@ -314,7 +321,7 @@ void Eps_Graph_3D::query_anchor(Grid_Point& g) {
 
 void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacles O 
 	P.ord = ord_pol;
-	ord_pol++;
+
 	for (Free_Point& pt : fr_pts) 
 	{ 
 		bool in = P.isIn(&pt); 
@@ -330,6 +337,7 @@ void Eps_Graph_3D::add_pol(Polytope P) { // add a polygon to the set of obstacle
 		}
 	}
 	pols.push_back(P);
+	ord_pol++;
 
 	indices* diagonal = eff_region(P);
 
@@ -431,9 +439,7 @@ indices* Eps_Graph_3D::eff_region(Polytope P) { // returns a range indicating or
 vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
 	for (Polytope& pol : pols) {
-		if (pol.isIn(&p)) {
-			return {};
-		}
+		assert(!pol.isIn(&p));
 	}
 
 	vector<Free_Point> ret = {};
@@ -528,6 +534,12 @@ void Eps_Graph_3D::print_encl() {
 	}
 }
 
+void Eps_Graph_3D::print_free_point() {
+	for (Free_Point& fr : fr_pts) {
+			cout << fr.x << ' ' << fr.y << ' ' << fr.z << ' ' << endl;
+	}
+}
+
 void Eps_Graph_3D::print_edges() {
 	for (auto gp : grid) {
 		if (gp.ip.z_u == true && gp.ind.x_ind == 10 && gp.ind.y_ind == 10) {
@@ -567,15 +579,25 @@ void Eps_Graph_3D::print_kNN(Free_Point p, int k ) {
 
 Eps_Graph_3D::Eps_Graph_3D() { y_num = x_num = z_num = 0; x_min = x_max = y_min = y_max = z_min = z_max = eps = 0; }
 
+list<Free_Point> Eps_Graph_3D::get_free_points()
+{
+	return fr_pts;
+}
+
 Free_Point Eps_Graph_3D::get_free_point(int index) {
 	list<Free_Point>::iterator iter = fr_pts.begin();
 	std::advance(iter, index);
 	return *iter;
 }
-Polytope Eps_Graph_3D::get_Polytope(int index) {
-	for (auto pol : pols) {
-		if (index == pol.ord) {
-			return pol;
-		}
-	}
+
+vector<Polytope> Eps_Graph_3D::get_Polytope() {
+	return pols;
+}
+
+vector<Grid_Point> Eps_Graph_3D::get_grid() {
+	return grid;
+}
+
+vector<Edge> Eps_Graph_3D::get_path(Free_Point p, int k) {
+	
 }
