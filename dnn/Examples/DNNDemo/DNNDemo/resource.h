@@ -7,11 +7,13 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_DNNDEMO_DIALOG              102
 #define IDR_MAINFRAME                   128
+#define IDD_ADD_DIALOG                  130
 #define IDC_OPENGL                      1000
 #define IDC_COMBO_FUNC                  1003
 #define IDC_BUTTON_FILE                 1005
 #define IDC_EDIT2                       1006
 #define IDC_EDIT_FILENAME               1006
+#define IDC_EDIT_X                      1006
 #define IDC_BUTTON1                     1007
 #define IDC_BUTTON_OK                   1007
 #define IDC_CHECK_VERTEX                1008
@@ -23,14 +25,19 @@
 #define IDC_CHECK_F1                    1013
 #define IDC_BUTTON_ADD                  1014
 #define IDC_BUTTON_DEL                  1015
+#define IDC_CHECK_NOO1                  1016
+#define IDC_CHECK_NOO2                  1017
+#define IDC_EDIT_KEY                    1018
+#define IDC_EDIT_Y                      1019
+#define IDC_EDIT_Z                      1020
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        130
+#define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

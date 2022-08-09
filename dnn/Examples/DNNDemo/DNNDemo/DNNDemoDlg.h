@@ -56,4 +56,8 @@ public:
 	afx_msg void OnBnClickedButtonDel();
 	afx_msg void OnBnClickedCheckF1();
 	afx_msg void OnBnClickedCheckF2();
+	afx_msg void OnBnClickedCheckNoo1();
+	afx_msg void OnBnClickedCheckNoo2();
+	CButton m_check_noo1;
+	CButton m_check_noo2;
 };

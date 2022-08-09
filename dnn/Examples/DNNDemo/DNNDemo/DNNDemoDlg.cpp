@@ -6,6 +6,7 @@
 #include "framework.h"
 #include "DNNDemo.h"
 #include "DNNDemoDlg.h"
+#include "AddDialog.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -70,6 +71,8 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_DEL, m_button_delete);
 	DDX_Control(pDX, IDC_CHECK_F1, m_check_f1);
 	DDX_Control(pDX, IDC_CHECK_F2, m_check_f2);
+	DDX_Control(pDX, IDC_CHECK_NOO1, m_check_noo1);
+	DDX_Control(pDX, IDC_CHECK_NOO2, m_check_noo2);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -88,6 +91,8 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_DEL, &CDNNDemoDlg::OnBnClickedButtonDel)
 	ON_BN_CLICKED(IDC_CHECK_F1, &CDNNDemoDlg::OnBnClickedCheckF1)
 	ON_BN_CLICKED(IDC_CHECK_F2, &CDNNDemoDlg::OnBnClickedCheckF2)
+	ON_BN_CLICKED(IDC_CHECK_NOO1, &CDNNDemoDlg::OnBnClickedCheckNoo1)
+	ON_BN_CLICKED(IDC_CHECK_NOO2, &CDNNDemoDlg::OnBnClickedCheckNoo2)
 END_MESSAGE_MAP()
 
 
@@ -134,6 +139,7 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	m_check_edge.SetCheck(true);
 	m_check_face.SetCheck(true);
 	m_check_f1.SetCheck(true);
+	m_check_noo1.SetCheck(true);
 
 	// Initialize rendering object
 	this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
@@ -314,6 +320,8 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_face.SetWindowTextW(_T("Face"));
 		this->m_check_f1.EnableWindow(false);
 		this->m_check_f2.EnableWindow(false);
+		this->m_check_noo1.EnableWindow(false);
+		this->m_check_noo2.EnableWindow(false);
 		this->m_button_add.EnableWindow(false);
 		this->m_button_delete.EnableWindow(false);
 		break;
@@ -324,6 +332,8 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_face.SetWindowTextW(_T("Polytope"));
 		this->m_check_f1.EnableWindow(true);
 		this->m_check_f2.EnableWindow(true);
+		this->m_check_noo1.EnableWindow(true);
+		this->m_check_noo2.EnableWindow(true);
 		this->m_button_add.EnableWindow(true);
 		this->m_button_delete.EnableWindow(true);
 		break;
@@ -339,8 +349,42 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 	int menu = this->m_combo_func.GetCurSel();
 	switch (menu) {
 	case 1: // 3D nearest neighbor
-		if (m_check_f1.GetCheck()); // Add free point
-		if (m_check_f2.GetCheck()); // Add polytope
+		if (m_check_f1.GetCheck()) { // Add free point
+			if (m_check_noo1.GetCheck()) { // Add by manual
+				AddDialog dlg(EADD,3);
+				if (IDOK == dlg.DoModal()) {
+					CString keyValue = dlg.key;
+					double coordinate[3];
+					for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
+					// keyValue와 좌표로 삽입을 진행하는 함수 호출
+				}
+			}
+			else if (m_check_noo2.GetCheck()) { // Add by file
+				static TCHAR BASED_CODE szFilter[] = _T("입력 파일(*.in, *.txt) | *.IN;*.in;*.TXT;*.txt |모든파일(*.*)|*.*||");
+				CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
+				if (IDOK == dlg.DoModal()) {
+					CString pathName = dlg.GetPathName();
+					MessageBox(pathName);
+					// 아래 readDCEL처럼 add by file 함수 호출
+					// m_picture_opengl.readDCEL(path);
+				}
+			}
+		} 
+		else if (m_check_f2.GetCheck()) { // Add polytope (Only add by file)
+			if (m_check_noo1.GetCheck()) {
+				MessageBox(_T("Polytope can only be inserted by file input"));
+			}
+			else {
+				static TCHAR BASED_CODE szFilter[] = _T("입력 파일(*.in, *.txt) | *.IN;*.in;*.TXT;*.txt |모든파일(*.*)|*.*||");
+				CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
+				if (IDOK == dlg.DoModal()) {
+					CString pathName = dlg.GetPathName();
+					MessageBox(pathName);
+					// 아래 readDCEL처럼 add by file 함수 호출
+					// m_picture_opengl.readDCEL(path);
+				}
+			}
+		} 
 		break;
 	default:
 		break;
@@ -354,8 +398,30 @@ void CDNNDemoDlg::OnBnClickedButtonDel()
 	int menu = this->m_combo_func.GetCurSel();
 	switch (menu) {
 	case 1: // 3D nearest neighbor
-		if (m_check_f1.GetCheck()); // Add free point
-		if (m_check_f2.GetCheck()); // Add polytope
+		if (m_check_f1.GetCheck()) { // delete free point
+			if (m_check_noo2.GetCheck()) {
+				MessageBox(_T("Free point can only be deleted manually"));
+			}
+			else {
+				AddDialog dlg(EDELETE, 0);
+				if (IDOK == dlg.DoModal()) {
+					CString keyValue = dlg.key;
+					// keyValue로 삭제를 수행하는 함수 호출
+				}
+			}
+		} 
+		else if (m_check_f2.GetCheck()) { // delete polytope
+			if (m_check_noo2.GetCheck()) {
+				MessageBox(_T("Polytope can only be deleted manually"));
+			}
+			else {
+				AddDialog dlg(EDELETE, 0);
+				if (IDOK == dlg.DoModal()) {
+					CString keyValue = dlg.key;
+					// keyValue로 삭제를 수행하는 함수 호출
+				}
+			}
+		}
 		break;
 	default:
 		break;
@@ -366,14 +432,50 @@ void CDNNDemoDlg::OnBnClickedButtonDel()
 void CDNNDemoDlg::OnBnClickedCheckF1()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	if (m_check_f1.GetCheck()) m_check_f2.SetCheck(false);
-	else m_check_f2.SetCheck(true);
+	if (m_check_f1.GetCheck()) {
+		m_check_f2.SetCheck(false);
+		//m_check_noo1.EnableWindow(true);
+	}
+	else {
+		m_check_f2.SetCheck(true);
+		//m_check_noo1.EnableWindow(false);
+	} 
+
 }
 
 
 void CDNNDemoDlg::OnBnClickedCheckF2()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	if (m_check_f2.GetCheck()) m_check_f1.SetCheck(false);
-	else m_check_f1.SetCheck(true);
+	if (m_check_f2.GetCheck()) { 
+		m_check_f1.SetCheck(false);
+		//m_check_noo2.SetCheck(true);
+		//m_check_noo1.SetCheck(false);
+		//m_check_noo1.EnableWindow(false);
+	} 
+	else {
+		m_check_f1.SetCheck(true);
+		//m_check_noo1.EnableWindow(true);
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckNoo1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (m_check_noo1.GetCheck()) m_check_noo2.SetCheck(false);
+	else m_check_noo2.SetCheck(true);
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckNoo2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (m_check_noo1.IsWindowEnabled() == true) {
+		if (m_check_noo2.GetCheck()) m_check_noo1.SetCheck(false);
+		else m_check_noo1.SetCheck(true);
+	}
+	else {
+		m_check_noo2.SetCheck(true);
+	}
 }
