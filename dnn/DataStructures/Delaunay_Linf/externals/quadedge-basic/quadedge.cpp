@@ -1,10 +1,9 @@
 #include "quadedge.h"
 //#include "fakeirisgl.h"
-
-#include <GLUT/glut.h>
 #include <vector>
 
-#include "gnuplot-iostream.h"
+//#include "gnuplot-iostream.h"
+//#include <GLUT/glut.h>
 
 using namespace std; 
 
@@ -303,25 +302,6 @@ void Subdivision::Draw()
 	if (++timestamp == 0)
 		timestamp = 1;
 	//startingEdge->Draw(timestamp); //CHECK
-}
-
-void DrawFun(void){
-	// Clear the screen buffer
-    glClear(GL_COLOR_BUFFER_BIT);
- 
-    glPointSize(4.0);
- 
-    // Rectangular part of hut
-    glColor3f(0.5f, 0.5f, 0.5f);
- 
-    // Begin the polygon
-    glBegin(GL_LINES);
-    glVertex2d(drA.x, drA.y);
-    glVertex2d(drB.x, drB.y);
-    glEnd();
- 
- 
-
 }
 
 
