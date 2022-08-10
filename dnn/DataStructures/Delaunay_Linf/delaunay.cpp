@@ -6,15 +6,11 @@
 #include <queue> 
 
 #include "./externals/quadedge-basic/quadedge.h"
-
-//#include "quadedge.cpp"
-#include <GLUT/glut.h>
-//#include <GL/GL.h>
 #include "delaunay.h"
-
 #include <vector>
-#include "gnuplot-iostream.h"
 
+//#include "gnuplot-iostream.h"
+//#include <GLUT/glut.h>
 
 using namespace std; 
 #define EPS 1e-6
@@ -653,12 +649,13 @@ int main(int argc, char** argv){
   /* Check if a graph was successfully created */
   printf("# of graph edges : %d \n", tempG->getNumEdges());
 
-
+  /*
   Gnuplot gp;
 
   gp << "set xrange [-50:150]\nset yrange [-50:150]\n";
   gp << "plot '-' with linespoints\n";
   gp.send2d(edges); //NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
+  */
   
 
   
