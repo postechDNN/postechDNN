@@ -519,6 +519,91 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 	return ret;
 }
 
+vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
+
+	for (Polytope& pol : pols) {
+		assert(!pol.isIn(&p));
+	}
+	vector<Edge> path = {};
+	vector<int>().swap(NN_dist);
+	long long int* previous = new long long int[x_num * y_num * z_num];
+	anchor(p);
+	Grid_Point s = grid[p.host];
+	for (int& elem : dist) { elem = INT_MAX; }
+	for (unsigned int ind1 = 0; ind1 < visited.size(); ind1++) { visited[ind1] = false; }
+	for (long long int i = 0; i < y_num * x_num * z_num; i++) { previous[i] = i; }
+
+	queue<int> q = {};
+
+	dist[s.num] = 0;
+	q.push(s.num);
+	int grid_dist = 0;
+	vector<Free_Point> FPs_temp = {};
+	vector<Free_Point> FPs = {};
+
+	while (k > 0 && !q.empty()) {
+
+		// q.empty() is indeed needed twice
+		while (!q.empty() && (dist[q.front()] == grid_dist)) {
+			if (visited[q.front()] == true) {
+				q.pop();
+				continue;
+			}
+			visited[q.front()] = true;
+
+			int cur = q.front();
+			if (grid[cur].ip.x_u && visited[cur + y_num * z_num] == false) { dist[cur + y_num * z_num] = dist[cur] + 1; q.push(cur + y_num * z_num); previous[cur + y_num * z_num] = cur; }
+			if (grid[cur].ip.x_d && visited[cur - y_num * z_num] == false) { dist[cur - y_num * z_num] = dist[cur] + 1; q.push(cur - y_num * z_num); previous[cur - y_num * z_num] = cur;}
+			if (grid[cur].ip.y_u && visited[cur + z_num] == false) { dist[cur + z_num] = dist[cur] + 1; q.push(cur + z_num); previous[cur + z_num] = cur; }
+			if (grid[cur].ip.y_d && visited[cur - z_num] == false) { dist[cur - z_num] = dist[cur] + 1; q.push(cur - z_num); previous[cur - z_num] = cur; }
+			if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); previous[cur + 1] = cur;}
+			if (grid[cur].ip.z_d && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); previous[cur - 1] = cur;}
+
+			bool once=true;
+			for (auto FP : grid[q.front()].anchored) {
+				FPs_temp.push_back(*FP);
+				if (once) {
+					while (previous[cur] != cur) {
+						path.push_back({ &grid[cur], &grid[previous[cur]] });
+						cur = previous[cur];
+						once = false;
+					}
+				}
+			}
+			q.pop();
+		}
+
+		for (auto pt : FPs_temp) {
+			FPs.push_back(pt);
+		}
+
+
+		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
+		{
+			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) + pow(first.z - p.z, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2) + pow(second.z - p.z, 2);
+		});
+
+		int sz = int(FPs.size());
+		for (int i = 0; i < min(k, sz); i++) {
+			path.push_back({ &FPs[i], &grid[FPs[i].host] });
+			NN_dist.push_back(grid_dist);
+		}
+		k -= sz;
+
+		vector<Free_Point>().swap(FPs_temp);
+		vector<Free_Point>().swap(FPs);
+		grid_dist += 1;
+	}
+	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+		if ((*(*it)).x == p.x && (*(*it)).y == p.y && (*(*it)).z == p.z) {
+			grid[p.host].anchored.erase(it);
+			break;
+		}
+	}
+
+	return path;
+}
+
 void Eps_Graph_3D::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
 		cout << grid[i].ind.x_ind << grid[i].ind.y_ind << grid[i].ind.z_ind << ' ' << '|' << grid[i].ip.x_u << ' ' << '|' << grid[i].ip.y_u << grid[i].ip.z_u << ' ' << '|';
@@ -598,6 +683,8 @@ vector<Grid_Point> Eps_Graph_3D::get_grid() {
 	return grid;
 }
 
+
 vector<Edge> Eps_Graph_3D::get_path(Free_Point p, int k) {
-	
+	vector<Edge> path = path_kNN(p, k + 1);
+	return path;
 }

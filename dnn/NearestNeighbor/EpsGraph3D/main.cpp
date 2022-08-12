@@ -33,22 +33,24 @@ int main() {
 	std::list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
 	std::vector<Polytope> plts = {};
 	Eps_Graph_3D grid(frpts, plts, 10);
-	grid.print_anchor();
+	//grid.print_anchor();
 	Free_Point* q = new Free_Point(0., 0., -20.);
+
 	//grid.print_kNN(*q, 3);
 	grid.add_freepts(q);
+	grid.print_free_point();
 	grid.add_pol(*poly);
 	//grid.print_edges();
-	//grid.print_kNN(*q, 3);
+	grid.print_kNN(*q, 3);
 	grid.delete_pol(0);
 	grid.print_free_point();
-	grid.delete_freept(3);
-	grid.print_free_point();
-	grid.delete_freept(3);
-	grid.print_free_point();
+	//grid.delete_freept(3);
+	//grid.print_free_point();
+	//grid.delete_freept(3);
+	//grid.print_free_point();
 	grid.print_anchor();
 	//grid.print_edges();
-	//grid.print_kNN(*q, 3);
+	grid.print_kNN(*q, 3);
 
 	return 0;
 }

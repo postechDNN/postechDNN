@@ -1,8 +1,8 @@
 #include "Polytope.h"
 #include <queue>
 #include <assert.h>
+#include <random>
 #define BUFFERSIZE 1000
-
 
 using namespace std;
 Edge::Edge() {
@@ -26,39 +26,62 @@ Edge::Edge(Point* v1, Point* v2) {
 	length = sqrt((v1->x - v2->x)* (v1->x - v2->x)+ (v1->y- v2->y)* (v1->y - v2->y)+ (v1->z - v2->z)* (v1->z - v2->z));
 }
 
+Edge::Edge(Grid_Point* v1, Grid_Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
+}
+
+Edge::Edge(Free_Point* v1, Grid_Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
+}
+
 bool Edge::operator==(Edge e) {
 	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
 }
 
-bool Edge::below(Point* p) {
-	if (p->z > p1->z || p->z > p2->z)
+bool Edge::on(Point* p) {
+	double lambda = INFINITY;
+	if (p->x < min(p1->x, p2->x) || p->x > max(p1->x, p2->x)) { return false; }
+	if (p->y < min(p1->y, p2->y) || p->y > max(p1->y, p2->y)) { return false; }
+	if (p->z < min(p1->z, p2->z) || p->z > max(p1->z, p2->z)) { return false; }
+	if (p1->x == p2->x)
 	{
-		if ((p->x - p2->x) * (p1->y - p2->y) == (p->y - p2->y) * (p1->x - p2->x))
-		{
-			if (p1->x == p2->x && p1->y == p2->y) { return false; }
-			else if (p1->x == p2->x)
-			{
-				if((p->y - p2->y) / (p1->y - p2->y) > 0 && (p->y - p2->y) / (p1->y - p2->y) < 1)
-				{
-					if (p->z > (p->y - p2->y) / (p1->y - p2->y) * p1->z + (1 - (p->y - p2->y) / (p1->y - p2->y)) * p2->z)
-					{
-						return true;
-					}
-				}
-			}
-			else 
-			{
-				if ((p->x - p2->x) / (p1->x - p2->x) > 0 && (p->x - p2->x) / (p1->x - p2->x) < 1)
-				{
-					if (p->z > (p->x - p2->x) / (p1->x - p2->x) * p1->z + (1 - (p->x - p2->x) / (p1->x - p2->x)) * p2->z)
-					{
-						return true;
-					}
-				}
-			}
-		}
+		if (p1->y == p2->y || p1->z == p2->z) { return true; }
+		if ((p->y - p2->y) / (p1->y - p2->y) == (p->z - p2->z) / (p1->z - p2->z)) { return true; }
+		else return false;
 	}
-	return false;
+	else {
+		if (p1->y == p2->y && p1->z == p2->z) { return true; }
+		if (p1->y == p2->y) { 
+			if ((p->x - p2->x) / (p1->x - p2->x) == (p->z - p2->z) / (p1->z - p2->z)) { return true; } 
+			else return false;
+		}
+		if (p1->z == p2->z) {
+			if ((p->y - p2->y) / (p1->y - p2->y) == (p->x - p2->x) / (p1->x - p2->x)) { return true; }
+			else return false;
+		}
+		if ((p->y - p2->y) / (p1->y - p2->y) == (p->x - p2->x) / (p1->x - p2->x) && (p->y - p2->y) / (p1->y - p2->y) == (p->z - p2->z) / (p1->z - p2->z)) { return true; }
+		else return false;
+	}
+}
+
+bool Edge::cross(Point* p, Point* ray) {
+	Point vec;
+	Point normal;
+	vec.x = p2->x - p1->x; vec.y = p2->y - p1->y; vec.z = p2->z - p1->z;
+	normal.x = ray->y * vec.z - ray->z * vec.y; normal.y = ray->z * vec.x - ray->x * vec.z; normal.z = ray->x * vec.y - ray->y * vec.x;
+	if (normal.x * (p2->x - p->x) + normal.y * (p2->y - p->y) + normal.z * (p2->z - p->z) != 0) {
+		return false;
+	}
+	if (vec.x * ray->y - ray->x * vec.y == 0) { return false; }
+	double Value = (p->x * ray->y - p->y * ray->x - ray->y * p1->x + ray->x * p1->y) / (vec.x * ray->y - ray->x * vec.y);
+	double ray_Value = (vec.y * p1->x - vec.x * p1->y - p->x * vec.y + p->y * vec.x ) / (vec.x * ray->y - ray->x * vec.y);
+	if (Value >0 && Value <1 && ray_Value < 0) { return true; }
+	else return false;
+
 }
 
 Face::Face() {
@@ -83,7 +106,53 @@ std::vector<Point*> Face::getpoints()
 	return points;
 }
 
-bool Face::below(Point* p) {
+bool Face::on(Point* p, int mode) {
+	double normal[3];
+	if (mode == 0) {
+		normal[0] = (points[0]->gety() - points[1]->gety()) * (points[2]->getz() - points[1]->getz())
+			- (points[0]->getz() - points[1]->getz()) * (points[2]->gety() - points[1]->gety());
+		normal[1] = -(points[0]->getx() - points[1]->getx()) * (points[2]->getz() - points[1]->getz())
+			+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
+		normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
+			- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
+		if (normal[0] * p->getx() + normal[1] * p->gety() + normal[2] * p->getz() !=
+			normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
+			return false;
+		}
+	}
+	Point vec_to_vec[3];
+	Point vec_to_p[3];
+	Point out1[3];
+	Point out2[3];
+	double out_prod[3];
+	for (int i = 0; i < 3; i++)
+	{
+		vec_to_vec[i].setx(points[(i + 1) % 3]->getx() - points[i]->getx());
+		vec_to_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
+		vec_to_vec[i].setz(points[(i + 1) % 3]->getz() - points[i]->getz());
+		vec_to_p[i].setx(-points[i]->getx() + p->getx());
+		vec_to_p[i].sety(-points[i]->gety() + p->gety());
+		vec_to_p[i].setz(-points[i]->getz() + p->getz());
+	}
+	for (int i = 0; i < 3; i++)
+	{
+		out1[i].x = -( vec_to_p[i].y* vec_to_vec[i].z - vec_to_p[i].z * vec_to_vec[i].y);
+		out1[i].y = vec_to_p[i].x * vec_to_vec[i].z - vec_to_p[i].z * vec_to_vec[i].x;
+		out1[i].z = -(vec_to_p[i].x * vec_to_vec[i].y - vec_to_p[i].y * vec_to_vec[i].x);
+		out2[i].x =-( vec_to_vec[i].y * vec_to_vec[(i + 2) % 3].z - vec_to_vec[i].z * vec_to_vec[(i + 2) % 3].y);
+		out2[i].y = vec_to_vec[i].x * vec_to_vec[(i + 2) % 3].z - vec_to_vec[i].z * vec_to_vec[(i + 2) % 3].x;
+		out2[i].z =-( vec_to_vec[i].x * vec_to_vec[(i + 2) % 3].y - vec_to_vec[i].y * vec_to_vec[(i + 2) % 3].x);
+	}
+	if (out1[0].x * out2[0].x + out1[0].y * out2[0].y + out1[0].z * out2[0].z > 0 &&
+		out1[1].x * out2[1].x + out1[1].y * out2[1].y + out1[1].z * out2[1].z > 0 &&
+		out1[2].x * out2[2].x + out1[2].y * out2[2].y + out1[2].z * out2[2].z > 0 )
+	{
+		return true;
+	}
+	else return false;
+}
+
+bool Face::cross(Point* p, Point* ray) {
 	// Determine if the face is below from p along z-axis.
 	bool belowness = false;
 	double normal[3];
@@ -93,53 +162,18 @@ bool Face::below(Point* p) {
 		+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
 	normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
 		- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
-	if (normal[2] < 0)
-	{
-		normal[0] = -normal[0];
-		normal[1] = -normal[1];
-		normal[2] = -normal[2];
+	double constant = normal[0] * points[0]->x + normal[1] * points[0]->y + normal[2] * points[0]->z;
+	double p_value = normal[0] * p->x + normal[1] * p->y + normal[2] * p->z;
+	double ray_value = normal[0] * ray->x + normal[1] * ray->y + normal[2] * ray->z;
+	if (normal[0] * ray->x + normal[1] * ray->y + normal[2] * ray->z == 0) { return false; }
+	if ((constant - p_value) / ray_value > 0) {
+		Point* In = new Point;
+		In->x = p->x + (constant - p_value) / ray_value * ray->x;
+		In->y = p->y + (constant - p_value) / ray_value * ray->y;
+		In->z = p->z + (constant - p_value) / ray_value * ray->z;
+		return this->on(In, 1);
 	}
-	if (normal[0] * p->getx() + normal[1] * p->gety() + normal[2] * p->getz() >= 
-		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
-		belowness = true;
-	}
-	if (normal[2] == 0)
-	{
-		Edge temp[3] = {{ points[0], points[1] }, { points[1], points[2] }, { points[2], points[0] }	};
-		if ((temp[0].below(p) || temp[1].below(p) || temp[2].below(p))&& belowness)
-		{
-			return true;
-		}
-	}
-	// Check the face contains intersection of z-line contining the point and the plain expanded by the face
-	bool includeness = false;
-	Point proj_vec[3];
-	Point p_to_vec[3];
-	double out_prod[3];
-	for (int i = 0; i < 3; i++)
-	{
-		proj_vec[i].setx(points[(i + 1)%3]->getx() - points[i]->getx());
-		proj_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
-		proj_vec[i].setz(0);
-		p_to_vec[i].setx(points[i]->getx() - p->getx());
-		p_to_vec[i].sety(points[i]->gety() - p->gety());
-		p_to_vec[i].setz(0);		
-	}
-	for (int i = 0; i < 3; i++)
-	{
-		out_prod[i] = proj_vec[i].getx() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getx();
-	}
-	if (out_prod[0] * out_prod[1] > 0 && out_prod[1] * out_prod[2] > 0)
-	{
-		includeness = true;
-	}
-	if (includeness && belowness)
-	{
-		return true;
-	}
-	else {
-		return false;
-	}
+	else return false;
 }
 
 bool Face::pass(Point* p1, Point* p2, int dir){
@@ -250,7 +284,7 @@ Polytope::Polytope() {
 	z_min = INFINITY;
 	x_max = -INFINITY;
 	y_max = -INFINITY;
-	z_max = -INFINITY;
+z_max = -INFINITY;
 }
 
 Polytope::Polytope(FILE* f) {
@@ -279,7 +313,7 @@ void Polytope::setpolytope(std::vector<Face*> input)
 	{
 		faces.push_back(F);
 		num_faces++;
-		std:vector<Point*> temp = F->getpoints();
+	std:vector<Point*> temp = F->getpoints();
 		for (auto p : temp)
 		{
 			bool same = false;
@@ -297,7 +331,7 @@ void Polytope::setpolytope(std::vector<Face*> input)
 				num_points++;
 			}
 		}
-		Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]}};
+		Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]} };
 		for (int i = 0; i < 3; i++)
 		{
 			bool same = false;
@@ -331,26 +365,51 @@ void Polytope::setpolytope(std::vector<Face*> input)
 // Polytope
 bool Polytope::isIn(Point* p) {
 	int num_below = 0;
-	for (int i = 0; i < num_faces; i++)
+	bool check = true;
+	Point* ray = new Point;
+	random_device rng;
+	uniform_int_distribution<int> dist1(0, 100);
+	while (check)
 	{
-		if (this->faces[i]->below(p)) {
-			num_below++;
-		}
-	}
-	for (auto e : edges)
-	{
-		if (e.below(p))
+		bool v_check = false;
+		bool e_check = false;
+		ray->setx(static_cast<float>(dist1(rng))/100); ray->sety(static_cast<float>(dist1(rng)) / 100); ray->setz(static_cast<float>(dist1(rng)) / 100);
+		if (ray->x == 0 || ray->y == 0 || ray->z == 0)
 		{
-			num_below++;
+			continue;
 		}
-	}
-	for (auto v : vertices)
-	{
-		if (p->getx() == v->getx() && p->gety() == v->gety() && p->z > v->z)
+		for (auto v : vertices)
 		{
+			if (p == v) {
+				return false;
+			}
+			if ((p->x - v->x) / ray->x == (p->y - v->y) / ray->y && (p->y - v->y) / ray->y == (p->z - v->z) / ray->z) {
+				v_check = true;
+			}
+		}
+		if (v_check) { continue; }
+		for (auto e : edges)
+		{
+			if (e.on(p))	{
+				return false;
+			}
+			if (e.cross(p, ray)) {
+				e_check = true;
+			}
+		}
+		if (e_check) { continue; }
+		break;
+	}
+	for (auto f: faces)
+	{
+		if (f->on(p, 0)) {
+			return false;
+		}
+		if (f->cross(p, ray)) {
 			num_below++;
 		}
 	}
+
 	if (num_below % 2 == 0)
 	{
 		return false;

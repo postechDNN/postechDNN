@@ -10,9 +10,12 @@ public:
 	Edge();
 	Edge(std::vector<Point*>);
 	Edge(Point*, Point*);
+	Edge(Grid_Point*, Grid_Point*);
+	Edge(Free_Point*, Grid_Point*);
 	~Edge();
 	bool operator==(Edge);
-	bool below(Point* p);
+	bool on(Point* p);
+	bool cross(Point* p, Point* ray);
 };
 
 class Face {
@@ -24,7 +27,8 @@ public:
 	Face();
 	Face(std::vector<Point*>);
 	~Face();
-	bool below(Point* p);
+	bool on(Point* p, int mode);
+	bool cross(Point* p, Point* ray);
 	bool pass(Point* p1, Point* p2, int dir);
 	std::vector<Point*> getpoints();
 };
