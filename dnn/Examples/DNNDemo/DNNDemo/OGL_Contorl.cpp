@@ -16,12 +16,24 @@
 #define ORTHO 2.5
 #define VIEW 1.1
 
+#define MOVING_SPEED 0.1
+#define ROTATING_SPEED 0.1
+
 // OGL_Contorl
 
 IMPLEMENT_DYNAMIC(OGL_Contorl, CStatic)
 
 OGL_Contorl::OGL_Contorl(){
 	this->mode = 2;
+	this->view[0][0] = 1.1;
+	this->view[0][1] = 1.1;
+	this->view[0][2] = 1.1;
+	this->view[1][0] = 0;
+	this->view[1][1] = 0;
+	this->view[1][2] = 0;
+	this->view[2][0] = 0;
+	this->view[2][1] = 0;
+	this->view[2][2] = 1.0;
 }
 
 OGL_Contorl::~OGL_Contorl(){
@@ -46,6 +58,9 @@ BEGIN_MESSAGE_MAP(OGL_Contorl, CStatic)
 	ON_WM_DESTROY()
 	ON_WM_PAINT()
 	ON_WM_MOVE()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 
@@ -280,4 +295,50 @@ void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
 			break;
 		}
 	}
+}
+
+void OGL_Contorl::moveFront() {
+
+}
+void OGL_Contorl::moveBack() {
+
+}
+void OGL_Contorl::moveLeft() {
+
+}
+void OGL_Contorl::moveRight() {
+
+}
+
+void OGL_Contorl::rotateCamera() {
+
+}
+
+void OGL_Contorl::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	CStatic::OnLButtonDown(nFlags, point);
+
+	m_mouse_drag = true;
+}
+
+void OGL_Contorl::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	if (m_mouse_drag) {
+		this->rotateCamera();
+	}
+	CStatic::OnMouseMove(nFlags, point);
+}
+
+
+void OGL_Contorl::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	CStatic::OnLButtonUp(nFlags, point);
+
+	m_mouse_drag = false;
 }

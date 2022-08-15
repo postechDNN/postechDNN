@@ -97,6 +97,7 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_NOO1, &CDNNDemoDlg::OnBnClickedCheckNoo1)
 	ON_BN_CLICKED(IDC_CHECK_NOO2, &CDNNDemoDlg::OnBnClickedCheckNoo2)
 	ON_BN_CLICKED(IDC_BUTTON_QUERY, &CDNNDemoDlg::OnBnClickedButtonQuery)
+	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 
@@ -152,6 +153,8 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	this->m_picture_opengl.setDrawObject(3, EDGE, m_check_edge.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
 	this->m_picture_opengl.setDrawObject(3, FACE, m_check_face.GetCheck());
+
+	//this->EnableWindow(true);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -512,4 +515,80 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 	default:
 		break;
 	}
+}
+
+
+void CDNNDemoDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	CDialogEx::OnKeyDown(nChar, nRepCnt, nFlags);
+
+	switch (nChar) {
+	case 0x57: // 'w'
+		this->m_picture_opengl.moveFront();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	case 0x53: // 's'
+		this->m_picture_opengl.moveBack();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	case 0x41: // 'a'
+		this->m_picture_opengl.moveLeft();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	case 0x44: // 'd'
+		this->m_picture_opengl.moveRight();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	default:
+		break;
+	}
+
+}
+
+BOOL CDNNDemoDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		::SendMessage(this->GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+		return TRUE;
+	}
+
+	if (pMsg->message == WM_LBUTTONDOWN)
+	{	
+		CRect rect;
+		this->m_picture_opengl.GetWindowRect(rect);
+		if (rect.PtInRect(pMsg->pt)) {
+			::SendMessage(this->m_picture_opengl.GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+			return TRUE;
+		}
+	}
+	if (pMsg->message == WM_MOUSEMOVE)
+	{
+		CRect rect;
+		this->m_picture_opengl.GetWindowRect(rect);
+		if (rect.PtInRect(pMsg->pt)) {
+			::SendMessage(this->m_picture_opengl.GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+			return TRUE;
+		}
+	}
+	if (pMsg->message == WM_LBUTTONUP)
+	{
+		CRect rect;
+		this->m_picture_opengl.GetWindowRect(rect);
+		if (rect.PtInRect(pMsg->pt)) {
+			::SendMessage(this->m_picture_opengl.GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+			return TRUE;
+		}
+	}
+
+
+	return CDialogEx::PreTranslateMessage(pMsg);
 }

@@ -19,6 +19,13 @@ public:
 	void readDCEL(CString path);
 	void read3Deps(CString path);
 
+	void moveFront();
+	void moveBack();
+	void moveLeft();
+	void moveRight();
+
+	void rotateCamera();
+
 protected:
 	HGLRC m_hRC;
 	CDC* m_pDC;
@@ -31,15 +38,22 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg void OnPaint();
 	afx_msg void OnMove(int x, int y);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 
 	void setDrawObject(int m, OBJECT o, bool b);
 
 	DNN_DS DDS;
 
+	double view[3][3]; // opengl view eye[3] center[3] up[3]
+
 private:
 	int mode;
 	Object object2D;
 	Object object3D;
+	bool m_mouse_drag = false;
+public:
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };
 
 
