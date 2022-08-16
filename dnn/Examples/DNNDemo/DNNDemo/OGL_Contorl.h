@@ -24,7 +24,7 @@ public:
 	void moveLeft();
 	void moveRight();
 
-	void rotateCamera();
+	void rotateCamera(int mx, int my);
 
 protected:
 	HGLRC m_hRC;
@@ -41,16 +41,20 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 
 	void setDrawObject(int m, OBJECT o, bool b);
+	void updateVectors(); // update up vector and 
 
 	DNN_DS DDS;
 
 	double view[3][3]; // opengl view eye[3] center[3] up[3]
+	double vectors[3][3]; // up[3] left[3] right[3]
+	int mouse[2];
 
 private:
 	int mode;
 	Object object2D;
 	Object object3D;
-	bool m_mouse_drag = false;
+	bool m_mouse_drag;
+	bool isVectorUpdate;
 public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);

@@ -9,6 +9,9 @@
 #include <GL/glu.h>
 #include <random>
 
+#define _USE_MATH_DEFINES
+#include <math.h> 
+
 #pragma comment(lib, "glu32.lib" ) 
 #pragma comment(lib, "opengl32.lib" )
 
@@ -17,14 +20,21 @@
 #define VIEW 1.1
 
 #define MOVING_SPEED 0.1
-#define ROTATING_SPEED 0.1
+#define ROTATING_SPEED 0.01
+
+
 
 // OGL_Contorl
 
 IMPLEMENT_DYNAMIC(OGL_Contorl, CStatic)
 
 OGL_Contorl::OGL_Contorl(){
+	
+	// Initialize
 	this->mode = 2;
+	this->m_mouse_drag = false;
+	
+
 	this->view[0][0] = 1.1;
 	this->view[0][1] = 1.1;
 	this->view[0][2] = 1.1;
@@ -34,6 +44,11 @@ OGL_Contorl::OGL_Contorl(){
 	this->view[2][0] = 0;
 	this->view[2][1] = 0;
 	this->view[2][2] = 1.0;
+
+	// compute up vector
+	this->updateVectors();
+	this->isVectorUpdate = true;
+
 }
 
 OGL_Contorl::~OGL_Contorl(){
@@ -223,7 +238,9 @@ void OGL_Contorl::OnPaint()
 		glOrtho(-ORTHO, ORTHO, -ORTHO, ORTHO, -ORTHO, ORTHO);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		gluLookAt(VIEW, VIEW, VIEW, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+		gluLookAt(this->view[0][0], this->view[0][1], this->view[0][2],
+			this->view[1][0], this->view[1][1], this->view[1][2], 
+			this->view[2][0], this->view[2][1], this->view[2][2]);
 
 		if (this->object3D.getDrawFaces()) {
 			glColor3d(1.0, 1.0, 1.0);
@@ -252,7 +269,7 @@ void OGL_Contorl::OnPaint()
 		}
 		if (this->object3D.getDrawVertices()) {
 			glColor3d(0.0f, 1.0f, 1.0f);
-			glPointSize(2.0f);
+			glPointSize(3.0f);
 			glBegin(GL_POINTS);
 			for (int i = 0; i < this->object3D.getVerticsNum(); i++) {
 				OGL_Point p = this->object3D.getVertex(i).getPos();
@@ -297,21 +314,160 @@ void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
 	}
 }
 
-void OGL_Contorl::moveFront() {
+void OGL_Contorl::updateVectors() {
+	double va[3], vb[3]; // up vector, front vector
 
+	// compute vb
+	for (int i = 0; i < 3; i++) {
+		vb[i] = this->view[1][i] - this->view[0][i];
+	}
+
+	// compute up vector
+	double cosZ = vb[2] / std::sqrt(std::pow(vb[1],2)+ std::pow(vb[2], 2));
+	double rotateAZ = acos(cosZ);
+	if (cosZ > 0) {
+		rotateAZ = (M_PI / 2) - rotateAZ;
+	}
+	else {
+		rotateAZ = rotateAZ - (M_PI / 2);
+	}
+
+	va[0] = 0;
+	va[1] = -std::sin(-rotateAZ);
+	va[2] = std::cos(-rotateAZ);
+
+	// cross product (compute left and right vectores)
+	this->vectors[1][0] = va[1] * vb[2] - va[2] * vb[1];
+	this->vectors[1][1] = va[2] * vb[0] - va[0] * vb[2];
+	this->vectors[1][2] = va[0] * vb[1] - va[1] * vb[0];
+
+	this->vectors[2][0] = vb[1] * va[2] - vb[2] * va[1];
+	this->vectors[2][1] = vb[2] * va[0] - vb[0] * va[2];
+	this->vectors[2][2] = vb[0] * va[1] - vb[1] * va[0];
+	// normalize;
+	double norm = std::sqrt(std::pow(this->vectors[1][0], 2) + std::pow(this->vectors[1][1], 2) + std::pow(this->vectors[1][2], 2));
+	for (int i = 0; i < 3; i++) {
+		this->vectors[1][i] /= norm;
+	}
+	norm = std::sqrt(std::pow(this->vectors[2][0], 2) + std::pow(this->vectors[2][1], 2) + std::pow(this->vectors[2][2], 2));
+	for (int i = 0; i < 3; i++) {
+		this->vectors[2][i] /= norm;
+	}
+	for (int i = 0; i < 3; i++) {
+		this->vectors[0][i] = va[i];
+	}
+}
+
+void OGL_Contorl::moveFront() {
+	double move[3];
+	for (int i = 0; i < 3; i++) {
+		move[i] = this->view[1][i] - this->view[0][i];
+	}
+	for (int i = 0; i < 3; i++) {
+		this->view[0][i] += move[i] * MOVING_SPEED;
+		this->view[1][i] += move[i] * MOVING_SPEED;
+	}
 }
 void OGL_Contorl::moveBack() {
-
+	double move[3];
+	for (int i = 0; i < 3; i++) {
+		move[i] = this->view[1][i] - this->view[0][i];
+	}
+	for (int i = 0; i < 3; i++) {
+		this->view[0][i] -= move[i] * MOVING_SPEED;
+		this->view[1][i] -= move[i] * MOVING_SPEED;
+	}
 }
 void OGL_Contorl::moveLeft() {
-
+	if (!this->isVectorUpdate) {
+		this->updateVectors();
+		isVectorUpdate = true;
+	}
+	for (int i = 0; i < 3; i++) {
+		this->view[0][i] += this->vectors[1][i] * MOVING_SPEED;
+		this->view[1][i] += this->vectors[1][i] * MOVING_SPEED;
+	}
 }
 void OGL_Contorl::moveRight() {
-
+	if (!this->isVectorUpdate) {
+		this->updateVectors();
+		isVectorUpdate = true;
+	}
+	for (int i = 0; i < 3; i++) {
+		this->view[0][i] += this->vectors[2][i] * MOVING_SPEED;
+		this->view[1][i] += this->vectors[2][i] * MOVING_SPEED;
+	}
 }
 
-void OGL_Contorl::rotateCamera() {
+void OGL_Contorl::rotateCamera(int mx, int my) {
+	this->isVectorUpdate = false;
 
+	int dx = this->mouse[0] - mx;
+	int dy = this->mouse[1] - my;
+	double vb[3]; // front vector
+
+	// compute vb
+	for (int i = 0; i < 3; i++) {
+		vb[i] = this->view[1][i] - this->view[0][i];
+	}
+
+	double cosZ = vb[2] / std::sqrt(std::pow(vb[1], 2) + std::pow(vb[2], 2));
+	double rotateAZ = acos(cosZ);
+	if (cosZ > 0) {
+		rotateAZ = (M_PI / 2) - rotateAZ;
+	}
+	else {
+		rotateAZ = rotateAZ - (M_PI / 2);
+	}
+	
+	double temp[3];
+	temp[0] = vb[0];
+	temp[1] = std::cos(rotateAZ) * vb[1] - std::sin(rotateAZ) * vb[2];
+	temp[2] = std::sin(rotateAZ) * vb[1] + std::cos(rotateAZ) * vb[2];
+	for (int i = 0; i < 3; i++) vb[i] = temp[i];
+
+	double cosY = vb[1] / std::sqrt(std::pow(vb[0], 2) + std::pow(vb[1], 2));
+	double rotateAY = acos(cosZ);
+	if (cosZ > 0) {
+		rotateAY = (M_PI / 2) - rotateAY;
+	}
+	else {
+		rotateAY = rotateAY - (M_PI / 2);
+	}
+
+	temp[2] = vb[2];
+	temp[0] = std::cos(rotateAY) * vb[0] - std::sin(rotateAY) * vb[1];
+	temp[1] = std::sin(rotateAY) * vb[0] + std::cos(rotateAY) * vb[1];
+	for (int i = 0; i < 3; i++) vb[i] = temp[i];
+
+
+	double angleZ, angleY;
+	angleZ = (dx * M_PI / 180 * ROTATING_SPEED);
+	angleY = (dy * M_PI / 180 * ROTATING_SPEED);
+
+	temp[1] = vb[1];
+	temp[0] = std::cos(angleY) * vb[0] + std::sin(angleY) * vb[2];
+	temp[2] = -std::sin(angleY) * vb[0] + std::cos(angleY) * vb[2];
+	for (int i = 0; i < 3; i++) vb[i] = temp[i];
+
+	temp[0] = vb[0];
+	temp[1] = std::cos(angleZ) * vb[1] - std::sin(angleZ) * vb[2];
+	temp[2] = std::sin(angleZ) * vb[1] + std::cos(angleZ) * vb[2];
+	for (int i = 0; i < 3; i++) vb[i] = temp[i];
+
+	temp[2] = vb[2];
+	temp[0] = std::cos(-rotateAY) * vb[0] - std::sin(-rotateAY) * vb[1];
+	temp[1] = std::sin(-rotateAY) * vb[0] + std::cos(-rotateAY) * vb[1];
+	for (int i = 0; i < 3; i++) vb[i] = temp[i];
+
+	temp[0] = vb[0];
+	temp[1] = std::cos(-rotateAZ) * vb[1] - std::sin(-rotateAZ) * vb[2];
+	temp[2] = std::sin(-rotateAZ) * vb[1] + std::cos(-rotateAZ) * vb[2];
+	for (int i = 0; i < 3; i++) vb[i] = temp[i];
+
+	for (int i = 0; i < 3; i++) {
+		this->view[1][i] = vb[i] + this->view[0][i];
+	}
 }
 
 void OGL_Contorl::OnLButtonDown(UINT nFlags, CPoint point)
@@ -319,16 +475,19 @@ void OGL_Contorl::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 
 	CStatic::OnLButtonDown(nFlags, point);
-
-	m_mouse_drag = true;
+	this->mouse[0] = point.x;
+	this->mouse[1] = point.y;
+	this->m_mouse_drag = true;
 }
 
 void OGL_Contorl::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 
-	if (m_mouse_drag) {
-		this->rotateCamera();
+	if (this->m_mouse_drag) {
+		this->rotateCamera(point.x, point.y);
+		this->mouse[0] = point.x;
+		this->mouse[1] = point.y;
 	}
 	CStatic::OnMouseMove(nFlags, point);
 }
@@ -340,5 +499,5 @@ void OGL_Contorl::OnLButtonUp(UINT nFlags, CPoint point)
 
 	CStatic::OnLButtonUp(nFlags, point);
 
-	m_mouse_drag = false;
+	this->m_mouse_drag = false;
 }
