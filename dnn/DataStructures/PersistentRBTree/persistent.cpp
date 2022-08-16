@@ -290,9 +290,3 @@ void VersionTree<T>::replace(int ver, int pVer, Pnode<T>* n)
 	v[ver].root = root;
 	return;
 }
-
-
-int main()
-{
-	return 0;
-}
