@@ -16,13 +16,7 @@ using namespace std;
 
 enum Color{
 	red,
-	black,
-	double_black
-};
-
-enum Op {
-	insert_node,
-	delete_node
+	black
 };
 
 template <typename T>
@@ -59,8 +53,12 @@ public:
 		leaf->left_child = nullptr;
 		leaf->pre = nullptr;
 		leaf->next = nullptr;
-		root = leaf;
+		leaf->ins_interval = false;
+		leaf->del_interval = false;
+		leaf->top = nullptr;
+		leaf->bottom = nullptr;
 
+		root = leaf;
 		head->next = tail;
 		head->pre = nullptr;
 		tail->pre = head;
@@ -68,6 +66,7 @@ public:
 
 		rbt_size = 0;
 	}
+
 	~RBTree() {
 		delete leaf;
 		delete head;
@@ -77,21 +76,29 @@ public:
 	bool is_leaf(Node<T>*& node) {
 		return node == leaf;
 	}
+
 	void insert_bst(T key) {
 		Node<T>* node = new Node<T>;
 		node->color = red;
 		node->key = key;
-		node->parent = this->leaf;
-		node->right_child = this->leaf;
+		node->parent = leaf;
+		node->right_child = leaf;
+		node->left_child = leaf;
 		node->pre = head;
 		node->next = tail;
+		node->ins_interval = false;
+		node->del_interval = false;
+		node->top = leaf;
+		node->bottom = leaf;
 
-		Node<T>* tmp, * tmp_parent, *start, *last,*tmp_last;
+		Node<T> *tmp, * tmp_parent, *start, *start_last, *last, *tmp_last;
 		tmp = root;
-		start = nullptr;
-		last = nullptr;
-		if (tmp != leaf) {
-			while (tmp != leaf) {  //tmp !=nullptr;
+		tmp_parent = root;
+		start = leaf; // start means the start of current insertion or deletion interval
+		start_last = leaf;  //start_last means the last start
+		last = leaf;  // This means the last element of insertion or deletion interval before we reach tartget element
+		if (tmp != leaf && tmp != nullptr) {
+			while (tmp != leaf && tmp != nullptr) {  //tmp !=nullptr;
 				if (tmp->ins_interval || tmp->del_interval) {
 					start = tmp;
 					last = start;
@@ -99,21 +106,22 @@ public:
 				tmp_parent = tmp;
 				compare(tmp->key, node->key) ? tmp = tmp->left_child : tmp = tmp->right_child;
 
-				if (start != nullptr) {
+				if ((start != nullptr)&&(start->bottom!=nullptr)&&(start != leaf)&&(start->bottom!=leaf)) {
 					start->bottom->key < tmp_parent->key ? tmp_last = tmp_parent->left_child : tmp_last = tmp_parent->right_child;
-					if (tmp == leaf) {
-						start = nullptr;
-					}
-					else {
-						last = tmp_parent;
-						if (tmp_last != tmp) {
-							last->top = start->top;
-							last->bottom = start->bottom;
-							start = nullptr;
-						}
+					last = tmp_parent;
+					if (((tmp != leaf)&&(tmp_last!=tmp)) || ((tmp_last == tmp) && (tmp == start->bottom))) {
+						last = tmp;
+						start_last = start;
+						start = leaf;
 					}
 				}
 			}
+
+			if (start_last != leaf) {
+				last->top = start_last;
+				last->bottom = start_last->bottom;
+			}
+
 			if (compare(tmp_parent->key, node->key)) {
 				Node<T>* pre = tmp_parent->pre;
 				tmp_parent->left_child = node;
@@ -131,7 +139,18 @@ public:
 				next->pre = node;
 			}
 			node->parent = tmp_parent;
-			insert_balance(node, key);
+			/*
+			cout << "Current node is " << node->key << endl;
+			cout << "< Last information > " <<  endl;
+			myprint(last);
+			cout << "\n\n" << endl;
+			*/
+			insert_balance(node,last);
+			/*
+			cout << "< Last information > " << endl;
+			myprint(last);
+			cout << "\n\n" << endl;
+			*/
 		}
 		else {
 			root = node;
@@ -200,7 +219,7 @@ public:
 		}
 		//delete node with 1 child
 		else if (original->left_child == leaf || original->right_child == leaf) {
-			cout << "					delete node with 1 child case" << endl;
+			cout << "delete node with 1 child case" << endl;
 			actually = original;
 			delete_color = actually->color;
 			parent = actually->parent;
@@ -218,7 +237,7 @@ public:
 		}
 		//delete node with 2 child -> find smallest key of right sub tree
 		else {
-			cout << "					delete node with 2 child case" << endl;
+			cout << "delete node with 2 child case" << endl;
 			actually = find_right_smallest(original);
 			parent = actually->parent;
 			if (parent == original)
@@ -226,7 +245,7 @@ public:
 			delete_color = actually->color;
 			//smallest == leaf
 			if (actually->right_child == leaf) {
-				cout << "						smallest == leaf" << endl;
+				cout << "smallest == leaf" << endl;
 				replaced_node = leaf;
 
 				if (actually->parent != original) actually->parent->left_child = leaf;
@@ -275,11 +294,13 @@ public:
 		delete actually;
 
 		if (delete_color == black)
-			delete_balance(replaced_node, parent);
-
+			delete_balance(replaced_node, last);
+		//	delete_balance(replaced_node, parent);
+    
 		if (rbt_size != 0)
 			rbt_size--;
 	}
+
 	Node<T>* search(T key) {
 		Node<T>* tmp = root;
 		while (tmp != leaf) {
@@ -291,12 +312,30 @@ public:
 		}
 		return nullptr;
 	}
+
 	Color get_color(Node<T>*& node) {
 		return node->color;
 	}
+
 	void set_children(Node<T>*& node, Node<T>*& left, Node<T>*& right) {
 		node->left_child = left;
 		node->right_child = right;
+	}
+	void print_all() {
+		cout << "root=" << root->key << endl;
+		myprint(root);
+	}
+	void myprint(Node<T>*& node) {
+		
+		if ((node != leaf)&&(node!=nullptr)) {
+			//cout << "key= " << node->key << endl;
+
+			cout << "key= " << node->key << " color= " << node->color <<" top = " << node->top->key << " bottom = " << node->bottom->key << endl;
+			cout << "ins_interval= " << node->ins_interval <<" del_interval= " << node->del_interval << endl;
+			cout << "parent=" << node->parent->key << " left_child= " << node->left_child->key << " right_child= " << node->right_child->key <<"\n\n" << endl;
+		}
+		
+		
 	}
 	void print() {
 		inorder(root, 0);
@@ -307,7 +346,8 @@ public:
 		cout << "print linked list" << endl;
 		while (1) {
 			if (tmp->next != nullptr && tmp->next != tail) {
-				cout << tmp->next->key << endl;
+				//cout << tmp->next->key << endl;
+				myprint(tmp->next);
 				tmp = tmp->next;
 			}
 			else {
@@ -322,12 +362,14 @@ public:
 	int size() {
 		return rbt_size;
 	}
+
 	Node<T>* grandparent(Node<T>*& node){
 		if ((node != leaf) && (node->parent != leaf))
 			return node->parent->parent;
 		else
 			return leaf;
 	}
+
 	Node<T>* uncle(Node<T>*& node) {
 		Node<T>* gp = grandparent(node);
 		if (gp == leaf)
@@ -337,8 +379,9 @@ public:
 		else
 			return gp->left_child;
 	}
+
 	Node<T>* sibling(Node<T>*& node) {
-		if (node->parent == leaf)
+		if ((node == leaf) || (node == nullptr) || (node->parent == leaf) || (node->parent == nullptr))
 			return leaf;
 		else if (node == node->parent->left_child)
 			return node->parent->right_child;
@@ -355,6 +398,7 @@ public:
 		}
 		return nullptr;//all keys > input key
 	}
+
 	Node<T>* find_same_or_smallest_big(T key) {
 		Node<T>* tmp = head; //start from smallest
 		while (tmp->next != nullptr && tmp->next != tail) {
@@ -366,134 +410,77 @@ public:
 	}
 	//protected:
 	void left_rotation(Node<T>*& node) {
-		Node<T>* right_child = node->right_child;
-		right_child->parent = node->parent;
-		if (node->parent != leaf) { //node->parent != nullptr
+		if (node != leaf) {
+			Node<T>* child = node->right_child;
 			Node<T>* parent = node->parent;
-			node == parent->left_child ? parent->left_child = right_child : parent->right_child = right_child;
+			Node<T>* temp = node;
+			if (child->left_child != leaf && child->left_child != nullptr) {
+				child->left_child->parent = temp;
+			}
+			temp->right_child = child->left_child;
+			temp->parent = child;
+			child->left_child = temp;
+			child->parent = parent;
+			if (parent != leaf) {
+				if (parent->left_child == temp)
+					parent->left_child = child;
+				else
+					parent->right_child = child;
+			}
 		}
-		else
-			root = right_child;
-
-		node->parent = right_child;
-		if (right_child->left_child != leaf) { //right_child->left_child != nullptr
-			Node<T>* left_child = right_child->left_child;
-			node->right_child = left_child;
-			left_child->parent = node;
-		}
-		else
-			node->right_child = leaf;
-		right_child->left_child = node;
 	}
+
 	void right_rotation(Node<T>*& node) {
-		Node<T>* left_child = node->left_child;
-		left_child->parent = node->parent;
-		if (node->parent != leaf) { //node->parent != nullptr
+		if (node != leaf) {
+			Node<T>* child = node->left_child;
 			Node<T>* parent = node->parent;
-			node == parent->left_child ? parent->left_child = left_child : parent->right_child = left_child;
-		}
-		else
-			root = left_child;
+			Node<T>* temp = node;
 
-		node->parent = left_child;
-		if (left_child->right_child != leaf) { //right_child->left_child != nullptr
-			Node<T>* right_child = left_child->right_child;
-			node->left_child = right_child;
-			right_child->parent = node;
-		}
-		else
-			node->left_child = leaf;
-		left_child->right_child = node;
-	}
-	void insert_balance(Node<T>*& node, T key) {
-		Node<T>* parent = node->parent;
-		if (parent->color == black)
-			return;
-		//double red == parent is not root.
-		if (parent->parent->left_child->color == parent->parent->right_child->color) { //uncle & parent both red
-			insert_recoloring(node, parent, key);
-		}
-		else {
-			insert_restructuring(node, parent, key);
+			if (child->right_child != leaf && child->right_child != nullptr) {
+				child->right_child->parent = temp;
+			}
+			temp->left_child = child->right_child;
+			temp->parent = child;
+			child->right_child = temp;
+			child->parent = parent;
+			if (parent != leaf) {
+				if (parent->right_child == temp)
+					parent->right_child = child;
+				else
+					parent->left_child = child;
+			}
 		}
 	}
-	void insert_case1(Node<T>*& node, Node<T>*& last){      //Case1: node is root
-		Node<T>* u = uncle(node);
-		//We need to rule out the case when node is the middle of any interval
-		if (node == last) {
-			if (last->top->ins_interval == true)
-				split_insert_interval(node);
-			else if (last->top->del_interval == true)
-				split_del_interval(node);
-		}
-		//we need to rule out the case that parent is the bottom of insertion interval
-		if ((node->parent->top->ins_interval == true) && (node->parent->bottom == node->parent))
-			split_del_interval(node->parent);
 
-		//we need to rule out the case that parent is the bottom of deletion interval
-		if ((node->parent->top->del_interval == true) && (node->parent->bottom == node->parent))
-			split_del_interval(node->parent);
-
-		//we need to rule out the case that grandparent is the bottom of insertion interval
-		if ((node->parent->parent->top->ins_interval == true) && (node->parent->parent->bottom == node->parent->parent))
-			split_del_interval(node->parent->parent);
-
-		//we need to rule out the case that grandparent is the bottom of deletion interval
-		if ((node->parent->parent->top->del_interval == true) && (node->parent->parent->bottom == node->parent->parent))
-			split_del_interval(node->parent->parent);
-
-		//We need to rule out the case when sibling is the start of the insertion interval
-		if (u->ins_interval == true)
-			split_insert_interval(u);
-
-		//We need to rule out the case when sibling is the start of the deletion interval
-		if (u->del_interval == true)
-			split_del_interval(u);
-
-		if (node->parent != leaf) {    //If the node is root, there is nothing to do.
-			delete_case2(node, last);
-		}
-
-		if (node->parent == leaf)  //when node is the root node
-			node->color = black;   //we need to deal with delete interval!!!
-		else
-			insert_case2(node,last);
-	}
-	void insert_case2(Node<T>*& node, Node<T>*& last) {      //Case2: parent of the node is black
-		if (node->parent->color == black) //if node->parent is black in interval tree, then node->parent is fringe node. So, we don't need to do anything
-			return;      //Tree is valid  
-		else
-			insert_case4(node,last);
-	}
-	bool candidate_insertion(Node<T>*& node){  //this determines whether node is a candidate for insert_case3
-		Node<T>* gp = grandparent(node);
-		Node<T>* u = unlce(node);
-		if ((gp != leaf) && (u != leaf) && (gp->color == black) && (gp->left_child->color == red) && (gp->right_child->color == red))
-			return true;
-		return false;
-	}
-	void insert_case3(Node<T>*& node, Node<T>*& last){
+	void insert_balance(Node<T>*& node, Node<T>*& last) {
 		Node<T>* temp = node;
+		//We need to deal with recoloring using below if sentences
 		if (candidate_insertion(node)) {         //recoloring part
 			Node<T>* u = uncle(temp);
 			Node<T>* g = grandparent(temp);
-			if (node->parent == last) {
+			if ((node->parent == last)&&(last!=leaf)) {
 				last->parent->top = last->top;
 				last->parent->bottom = last->bottom;
 				split_insert_interval(last->parent);
 			}
 			else {
 				while (candidate_insertion(g)) {  //we change temp as the last candidate for recoloring
-					if (g == last) {
+					if ((g == last)&&(last!=leaf)) {
 						last->parent->top = last->top;
 						last->parent->bottom = last->bottom;
 						split_insert_interval(last->parent);
+						last->top = leaf;
+						last->bottom = leaf;
+						last = leaf;
 						break;
 					}
-					else if (g->parent == last) {
+					else if ((g->parent == last)&&(last!=leaf)) {
 						last->parent->top = last->top;
 						last->parent->bottom = last->bottom;
 						split_insert_interval(last->parent);
+						last->top = leaf;
+						last->bottom = leaf;
+						last = leaf;
 						break;
 					}
 					else {
@@ -514,80 +501,170 @@ public:
 				temp = g;   //we consider the rebalancing of g
 			}
 		}
-		insert_case1(temp,last);
+		//We need to deal with rebalancing using insert_case1~insert_case4
+		insert_case1(temp, last);
 	}
-	void split_insert_interval(Node<T>*& middle) {
-		if (middle->color == red) {
-			if (middle != middle->top) {//split upper chain with lower chain
-				middle->parent->color = red;
-				sibling(middle)->color = black;
-				Node<T>* new_bottom = grandparent(middle);
-				if (new_bottom == middle->top) {  //delete upper chain
-					new_bottom->ins_interval = false;
-					new_bottom->color = black;
-					new_bottom->top = leaf;
-					new_bottom->bottom->top=leaf;
-					new_bottom->bottom = leaf;
-				}
-				else {
-					middle->top->bottom = new_bottom;
-					new_bottom->top = middle->top;
-				}
+
+	void insert_case1(Node<T>*& node, Node<T>*& Last){      //Case1: node is root
+		Node<T>* u = uncle(node);
+		Node<T>* last = Last;
+		//We need to rule out the case when node is the middle of any interval
+		if ((node == last)&&(last!=leaf)) {
+			if (last->top->ins_interval == true) {
+				node->parent->top = last->top;
+				split_insert_interval(node->parent);
+				last->top = leaf;
+				last->bottom = leaf;
+				last = leaf;
 			}
-			if (middle != middle->bottom) {//split lower chain with upper chain
-				Node<T>* new_top=middle;
+			else if (last->top->del_interval == true) {
+				split_del_interval(node);
+				last->top = leaf;
+				last->bottom = leaf;
+				last = leaf;
+			}
+		}
+		
+		if ((node->parent != leaf) && ( (node->parent->top != leaf)||(node->parent->bottom!=leaf))) {
+			//we need to rule out the case that parent is the bottom of insertion interval
+			if ((node->parent->top->ins_interval == true) && (node->parent->bottom == node->parent))
+				split_insert_interval(node->parent);
+
+			//we need to rule out the case that parent is the bottom of deletion interval
+			if ((node->parent->top->del_interval == true) && (node->parent->bottom == node->parent))
+				split_del_interval(node->parent);
+		}
+		if ((node->parent!=leaf)&&(node->parent->parent != leaf) && (node->parent->parent->top != leaf)&&(node->parent->parent->bottom!=leaf)) {
+			//we need to rule out the case that grandparent is the bottom of insertion interval
+			if ((node->parent->parent->top->ins_interval == true) && (node->parent->parent->bottom == node->parent->parent))
+				split_insert_interval(node->parent->parent);
+
+			//we need to rule out the case that grandparent is the bottom of deletion interval
+			if ((node->parent->parent->top->del_interval == true) && (node->parent->parent->bottom == node->parent->parent))
+				split_del_interval(node->parent->parent);
+		}
+		if (u != leaf) {
+			//We need to rule out the case when sibling is the start of the insertion interval
+			if (u->ins_interval == true)
+				split_insert_interval(u);
+
+			//We need to rule out the case when sibling is the start of the deletion interval
+			if (u->del_interval == true)
+				split_del_interval(u);
+		}
+		if (node->parent == leaf)  //when node is the root node
+			node->color = black;   //we need to deal with delete interval!!!
+		else
+			insert_case2(node,last);
+	}
+
+	void insert_case2(Node<T>*& node, Node<T>*& last) {      //Case2: parent of the node is black
+		if (node->parent->color == black) //if node->parent is black in interval tree, then node->parent is fringe node. So, we don't need to do anything
+			return;      //Tree is valid  
+		else
+			insert_case3(node,last);
+	}
+
+	bool candidate_insertion(Node<T>*& node){  //this determines whether node is a candidate for insert_case3
+		Node<T>* gp = grandparent(node);
+		Node<T>* u = uncle(node);
+		if ((gp != leaf) && (u != leaf) && (gp->color == black) && (gp->left_child->color == red) && (gp->right_child->color == red))
+			return true;
+		return false;
+	}
+		
+	void split_insert_interval(Node<T>*& middle) {	
+		if (middle != leaf && middle != nullptr) {
+			cout << "middle" << endl;
+			myprint(middle);
+			if (middle->top != leaf && middle->top != nullptr)
+				middle->bottom = middle->top->bottom;
+			if (middle->bottom != leaf && middle->bottom != nullptr)
+				middle->top = middle->bottom->top;
+
+			if (middle->color == red) {
+				if (middle != middle->top && middle->top!=leaf && middle->top!=nullptr) {//split upper chain with lower chain
+					middle->parent->color = red;
+					sibling(middle)->color = black;
+					Node<T>* new_bottom = grandparent(middle);
+					if (new_bottom != leaf && new_bottom != nullptr) {
+						if (new_bottom == middle->top) {  //delete upper chain
+							new_bottom->color = black;
+							new_bottom->bottom = leaf;
+							new_bottom->ins_interval = false;
+						}
+						else {
+							new_bottom->top = middle->top;
+							middle->top->bottom = new_bottom;
+						}
+					}					
+				}
+				if (middle != middle->bottom && middle->bottom!=leaf && middle->bottom!=nullptr) {//split lower chain with upper chain
+					Node<T>* new_top = middle;
+					new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;//we need to find next candidate for new top
+					if (new_top != leaf && new_top != nullptr) {
+						new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;
+						if (new_top != leaf) {
+							new_top->parent->color = red;
+							sibling(new_top)->color = black;
+							if (new_top == middle->bottom) {   //delete lower chain
+								new_top->color = black;
+								new_top->top = leaf;
+							}
+							else {
+								new_top->ins_interval = true;
+								new_top->bottom = middle->bottom;
+								middle->bottom->top = new_top;
+							}
+						}
+					}
+
+				}
+				middle->color = black;
+				middle->top = leaf;
+				middle->bottom = leaf;
+				middle->ins_interval = false;
+			}
+			else {//when middle->color==black 
+				//split upper chain with lower chain
+				Node<T>* new_bottom = middle->parent;
+				if (new_bottom != leaf && new_bottom != nullptr) {
+					if (new_bottom != leaf && new_bottom != nullptr && new_bottom == middle->top) {  //delete upper chain
+						new_bottom->color = black;
+						new_bottom->bottom = leaf;
+						new_bottom->ins_interval = false;
+					}
+					else {
+						new_bottom->top = middle->top;
+						middle->top->bottom = new_bottom;
+					}
+				}			
+
+				//split lower chain with upper chain
+				Node<T>* new_top = middle;
 				new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;//we need to find next candidate for new top
-				new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;  
-				new_top->parent->color = red;
-				sibling(new_top)->color = black;
-				if (new_top == middle->bottom) {   //delete lower chain
-					new_top->top->ins_interval = false;
-					new_top->color = black;
-					new_top->top = leaf;
-					new_top->bottom->top = leaf;
-					new_top->bottom = leaf;
+				if (new_top != leaf && new_top != nullptr) {
+					new_top->parent->color = red;
+					sibling(new_top)->color = black;
+					if (new_top == middle->bottom) {   //delete lower chain
+						new_top->color = black;
+						new_top->top = leaf;
+					}
+					else {
+						new_top->ins_interval = true;
+						new_top->bottom = middle->bottom;
+						middle->bottom->top = new_top;
+					}
+					//middle->color = red;  we've already done this when new_top->parent->color=red;
+					middle->ins_interval = false;
+					middle->top = leaf;
+					middle->bottom = leaf;
 				}
-				else {
-					new_top->ins_interval = true;
-					new_top->bottom = middle->bottom;
-					middle->bottom->top = new_top;
-				}
 			}
-			middle->color = black;
-			middle->top = leaf;
-			middle->bottom = leaf;
-		}
-		else {//when middle->color==black 
-			//split upper chain with lower chain
-			Node<T>* new_bottom = middle->parent;
-			if (new_bottom == middle->top) {  //delete upper chain
-				new_bottom->ins_interval = false;
-				new_bottom->color = black;
-			}
-			else {
-				middle->top->bottom = new_bottom;
-				new_bottom->top = middle->top;
-			}
-			
-			//split lower chain with upper chain
-			Node<T>* new_top = middle;
-			new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;//we need to find next candidate for new top
-			new_top->parent->color = red;
-			sibling(new_top)->color = black;
-			if (new_top == middle->bottom) {   //delete lower chain
-				new_top->color = black;
-			}
-			else {
-				new_top->ins_interval = true;
-				new_top->bottom = middle->bottom;
-				middle->bottom->top = new_top;
-			}
-			//middle->color = red;  we've already done this when new_top->parent->color=red;
-			middle->top = leaf;
-			middle->bottom = leaf;
 		}
 	}
-	void insert_case4(Node<T>*& node, Node<T>*& last) {
+
+	void insert_case3(Node<T>*& node, Node<T>*& last) {
 		if ((last!=leaf) && ((node->parent == last) || (node->parent->parent==last))) { //By this conditional statement, we don't need to consdier any insertion interval from insert_case1 ~ insert_case 5
 			last->parent->top = last->top;
 			last->parent->bottom = last->bottom;
@@ -596,121 +673,84 @@ public:
 		}
 		else {
 			Node<T>* g = grandparent(node);
+			Node<T>* temp=leaf;
+			/*check
+			cout << "Insert case3!!" << "Target Node = " << node->key << endl;
+			myprint(node);
+			cout << "<parent> " << endl;
+			myprint(node->parent);
+			cout << "<grandparent> " << endl;
+			myprint(g);
+			*/
 			if ((node == node->parent->right_child) && (node->parent == g->left_child)) {
 				left_rotation(node->parent);
-				node = node->left_child;
+				temp = node->left_child;
 			}
 			else if ((node == node->parent->left_child) && (node->parent == g->right_child)) {
 				right_rotation(node->parent);
-				node = node->right_child;
+				temp = node->right_child;
 			}
-			insert_case5(node, last);
+			/*
+			cout << "After rotation!!" << endl;
+			myprint(node);
+			cout << "<left child> " << endl;
+			myprint(node->left_child);
+			cout << "<parent> " << endl;
+			myprint(node->parent);
+			*/
+			if (temp == leaf) {
+				insert_case4(node, last);
+			}
+			else {
+				insert_case4(temp, last);
+			}
+			/*check
+			cout << "after insert_case3" << endl;
+			myprint(node);
+			cout << "<parent> " << endl;
+			myprint(node->parent);
+			cout << "<grandparent> " << endl;
+			myprint(g);
+			*/
 		}
 	}
-	void insert_case5(Node<T>*& node, Node<T>*& last) {
+	
+	void insert_case4(Node<T>*& node, Node<T>*& last) {
 		Node<T>* g = grandparent(node);
+		/*
+		cout << "Insert case4!!" << "Target Node = " << node->key << endl;
+		myprint(node);
+		cout << "<parent> " << endl;
+		myprint(node->parent);
+		cout << "<grandparent> " << endl;
+		myprint(g);
+		*/
 		node->parent->color = black;
 		g->color = red;
-		if (node == node->parent->left)
+
+		if (root == g)  //This code is needed when g is root
+			root = node->parent;
+
+		if (node == node->parent->left_child) {
+			cout << "right_rotation" << endl;
 			right_rotation(g);
-		else
+		}
+		else {
+			cout << "left_rotation" << endl;
 			left_rotation(g);
+		}
+
+
+		/*
+		cout << "after insert_case4"<< endl;
+		myprint(node);
+		cout << "<parent> " << endl;
+		myprint(node->parent);
+		cout << "<grandparent> " << endl;
+		myprint(g);
+		*/
 	}
-	void insert_recoloring(Node<T>*& node, Node<T>*& parent, T key) {
-		Node<T>* grand = parent->parent;
-		Node<T>* uncle = nullptr;
-		grand->left_child == parent ? uncle = grand->right_child : uncle = grand->left_child;
 
-		set_color(parent, black);
-		set_color(uncle, black);
-		set_color(grand, red);
-		cout << "					recoloring" << endl;
-
-		if (grand == root || (grand->parent == root && root->color == red)) {
-			cout << "						1 step end" << endl;
-			root->color = black;
-		}
-		else {
-			insert_balance(grand, grand->key);
-			cout << "						next step need" << endl;
-		}
-	}
-	void insert_restructuring(Node<T>*& node, Node<T>*& parent, T key) {
-		Node<T>* grand = parent->parent;
-		bool com_gp = compare(grand->key, parent->key);
-		bool com_np = compare(node->key, parent->key);
-		cout << "					restructuring" << endl;
-
-		if (com_gp == com_np) {
-			cout << "						com_gp == com_np" << endl;
-			set_color(node, black);
-			set_color(grand, red);
-			set_color(parent, red);
-			if (grand == this->root) {
-				node->parent = this->leaf;
-				root = node;
-				cout << "							grand == root" << endl;
-			}
-			else {
-				node->parent = grand->parent;
-				grand == grand->parent->left_child ? grand->parent->left_child = node : grand->parent->right_child = node;
-				cout << "							grand != root" << endl;
-			}
-			if (com_gp) { // grand key > parent key
-				set_children(node, parent, grand);
-				//
-				parent->right_child = leaf;
-				grand->left_child = leaf;
-				//set_children(parent, grand->right_child, this->leaf);
-				cout << "							grand > parent" << endl;
-			}
-			else {
-				set_children(node, grand, parent);
-				//
-				parent->left_child = leaf;
-				grand->right_child = leaf;
-				//set_children(parent, this->leaf, grand->left_child);
-				cout << "							grand <= parent" << endl;
-			}
-			parent->parent = grand->parent = node;
-			//set_children(grand, this->leaf, this->leaf);
-		}
-		else {
-			cout << "						com_gp != com_np" << endl;
-			set_color(parent, black);
-			set_color(node, red);
-			set_color(grand, red);
-			if (grand == this->root) {
-				parent->parent = this->leaf;
-				root = parent;
-				cout << "							grand == root" << endl;
-			}
-			else {
-				parent->parent = grand->parent;
-				grand == grand->parent->left_child ? grand->parent->left_child = parent : grand->parent->right_child = parent;
-
-				cout << "							grand != root" << endl;
-			}
-			if (com_gp) { // grand key > parent key
-				//
-				grand->left_child = parent->right_child;
-				parent->right_child->parent = grand;
-				//set_children(grand, grand->right_child, this->leaf);
-				set_children(parent, node, grand);
-				cout << "							grand > parent" << endl;
-			}
-			else {
-				grand->right_child = parent->left_child;
-				parent->left_child->parent = grand;
-				//set_children(grand, this->leaf, grand->left_child);
-				set_children(parent, grand, node);
-				cout << "							grand <= parent" << endl;
-			}
-			//node->parent = parent;
-			grand->parent = parent;
-			//set_children(node, this->leaf, this->leaf);
-		}
-	}
 	void delete_all(Node<T>*& node) {
 		if (node->left_child != leaf) {
 			delete_all(node->left_child);
@@ -728,136 +768,6 @@ public:
 			delete node;
 		}
 	}
-	void delete_balance(Node<T>*& child, Node<T>*& parent) {
-		//(child->color)++;
-		cout << "					delete balance" << endl;
-		if (child->color == red) {
-			cout << "						child == red" << endl;
-			child->color = black;
-			return;
-		}
-
-		child->color = double_black;
-
-		Node<T>* sibling = nullptr;
-		while (child != root && child->color == double_black) {
-			if (child == parent->left_child) {
-				cout << "						left child case" << endl;
-				sibling = parent->right_child;
-				if (sibling->color == red) {
-					//case 1. sibling == red
-					sibling->color = black;
-					parent->color = red;
-					left_rotation(parent);
-
-					sibling = parent->right_child;
-					cout << "							case 1" << endl;
-				}
-				else {
-					if (sibling->right_child->color == red) {
-						//case 4. sibling == black && sibling's right_child == red
-						sibling->color = parent->color;
-						parent->color = black;
-						sibling->right_child->color = black;
-						left_rotation(parent);
-						child->color = black;
-						cout << "							case 4" << endl;
-						break;
-					}
-					else {
-						if (sibling->left_child == leaf || sibling->left_child->color == black) {
-							//case 2. sibling == black && sibling's 2 childs both black
-							cout << "							case 2" << endl;
-							sibling->color = red;
-							child->color = black;
-							if (parent->color == red) {
-								parent->color = black;
-								cout << "								parent == red" << endl;
-								break;
-							}
-							parent->color = double_black;
-							child = parent;
-							if (child == root) {
-								cout << "								child == root" << endl;
-								break;
-							}
-							cout << "								else" << endl;
-							parent = child->parent;
-							child == parent->left_child ? sibling = parent->right_child : sibling = parent->left_child;
-						}
-						else {
-							//case 3. sibling == black && sibling's left child == red, right_child == black
-							cout << "							case 3" << endl;
-							sibling->color = red;
-							sibling->left_child->color = black;
-							right_rotation(sibling);
-
-							sibling = parent->right_child;
-						}
-					}
-				}
-			}
-			else {
-				cout << "						right child case" << endl;
-				sibling = parent->left_child;
-				if (sibling->color == red) {
-					//case 1. sibling == red
-					sibling->color = black;
-					parent->color = red;
-					right_rotation(parent);
-
-					sibling = parent->left_child;
-					cout << "							case 1" << endl;
-				}
-				else {
-					if (sibling->left_child->color == red) {
-						//case 4. sibling == black && sibling's right_child == red
-						sibling->color = parent->color;
-						parent->color = black;
-						sibling->left_child->color = black;
-						right_rotation(parent);
-						child->color = black;
-						cout << "							case 4" << endl;
-						break;
-					}
-					else {
-						if (sibling->right_child == leaf || sibling->right_child->color == black) {
-							//case 2. sibling == black && sibling's 2 childs both black
-							cout << "							case 2" << endl;
-							sibling->color = red;
-							child->color = black;
-							if (parent->color == red) {
-								parent->color = black;
-								cout << "								parent == red" << endl;
-								break;
-							}
-							parent->color = double_black;
-							child = parent;
-							if (child == root) {
-								cout << "								child == root" << endl;
-								break;
-							}
-							cout << "								else" << endl;
-							parent = child->parent;
-							child == parent->left_child ? sibling = parent->right_child : sibling = parent->left_child;
-						}
-						else {
-							//case 3. sibling == black && sibling's left child == red, right_child == black
-							cout << "							case 3" << endl;
-							sibling->color = red;
-							sibling->right_child->color = black;
-							left_rotation(sibling);
-
-							sibling = parent->left_child;
-						}
-					}
-				}
-			}
-		}
-
-		if (child == root && child->color == double_black)
-			child->color = black;
-	}
 
 	void delete_handling(Node<T>*& node, Node<T>*& last) {
 		if (node->color == red) {
@@ -865,6 +775,41 @@ public:
 		}
 		else
 			delete_case1(node,last);
+	}
+
+	void delete_balance(Node<T>*& node, Node<T>*& last) {
+		Node<T>* temp = node;
+		//We need to deal with lazy coloring using below if sentences
+		if (candidate_deletion(node)) {
+			temp = node->left_child;
+			while (candidate_deletion(temp->parent)) {
+				if (temp->parent != last)
+					temp = temp->parent;
+				else if ((sibling(temp->parent)!=leaf)&&(sibling(temp->parent)->del_interval == true)) {
+					Node<T>* s = sibling(temp->parent);
+					split_del_interval(s);
+					//split_del_interval(sibling(temp->parent));
+					break;
+				}
+				else {   //This means ((temp->parent == last) && (last->top->del_interval == true))
+					split_del_interval(last);
+					break;
+				}
+			}
+			if (temp == node) {
+				sibling(temp)->color = red;
+			}
+			else {
+				temp->del_interval = true;
+				temp->bottom = node;
+				node->top = temp;
+			}
+			temp = temp->parent;
+		}
+		//We need to deal wtih rebalancing using delete_case1~delete_case5
+		if ((temp != leaf) && (temp != nullptr)) {
+			delete_case1(temp, last);
+		}
 	}
 
 	void delete_case1(Node<T>*& node, Node<T>*& last) {
@@ -878,11 +823,11 @@ public:
 				split_del_interval(node);
 		}
 		//we need to rule out the case that parent is the bottom of insertion interval
-		if ((node->parent->top->ins_interval == true) && (node->parent->bottom == node->parent))
+		if ((node != leaf) && (node != nullptr) && (node->parent->top->ins_interval == true) && (node->parent->bottom == node->parent))
 			split_del_interval(node->parent);
 
 		//we need to rule out the case that parent is the bottom of deletion interval
-		if ((node->parent->top->del_interval == true) && (node->parent->bottom == node->parent))
+		if ((node != leaf) && (node != nullptr) && (node->parent->top->del_interval == true) && (node->parent->bottom == node->parent))
 			split_del_interval(node->parent);
 
 		//We need to rule out the case when sibling is the start of the insertion interval
@@ -908,7 +853,7 @@ public:
 			else
 				right_rotation(node->parent);
 		}
-		delete_case4(node,last);
+		delete_case3(node,last);
 	}
 
 	bool candidate_deletion(Node<T>*& node) {  //this determines whether node is a candidate for insert_case3
@@ -917,113 +862,91 @@ public:
 			return true;
 		return false;
 	} 
-
-	void delete_case3(Node<T>*& node, Node<T>*& last) {
-		Node<T>* temp = node;
-		if (candidate_deletion(node)) {
-			temp = node->left_child;
-			while (candidate_deletion(temp->parent)) {
-				if(temp->parent!=last)  
-					temp = temp->parent;
-				else if (sibling(temp->parent)->del_interval == true) {
-					split_del_interval(sibling(temp->parent));
-					break;
-				}
-				else {   //This means ((temp->parent == last) && (last->top->del_interval == true))
-					split_del_interval(last);
-					break;
-				}
-			}
-			if (temp == node) {
-				sibling(temp)->color = red;
-			}
-			else {
-				temp->del_interval = true;
-				temp->bottom = node;
-				node->top = temp;
-			}
-			temp = temp->parent;
-		}
-		delete_case1(temp, last);
-	}
-
+	
 	void split_del_interval(Node<T>*& middle) {
 		//In deletion interval, there are only black nodes!
-		Node<T>* new_bottom = middle->parent;
-		Node<T>* new_top = (new_top->key > middle->bottom->key) ? new_top = middle->left_child : new_top = middle->right_child;
+		if ((middle != leaf) && (middle != nullptr)) {
+			Node<T>* new_bottom = middle->parent;
+			Node<T>* new_top = (middle->key > middle->bottom->key) ? new_top = middle->left_child : new_top = middle->right_child;
 
-		//Handle upper chain
-		if (middle != middle->top) {
-			new_bottom->top = middle->top;
-			middle->top->bottom = new_bottom;
-			sibling(middle)->color = red;
-			if (new_bottom == middle->top) {
-				new_bottom->del_interval = false;
-				new_bottom->top = leaf;
-				new_bottom->bottom = leaf;
+			//Handle upper chain
+			if (middle != middle->top && middle->top != leaf && middle->top != nullptr) {
+				new_bottom->top = middle->top;
+				middle->top->bottom = new_bottom;
+				sibling(middle)->color = red;
+				if (new_bottom == middle->top) {
+					new_bottom->del_interval = false;
+					new_bottom->top = leaf;
+					new_bottom->bottom = leaf;
+				}
 			}
-		}
 
-		//Handle lower chain
-		if (middle != middle->bottom) {
-			new_top->del_interval = true;
-			new_top->bottom = middle->bottom;
-			middle->bottom->top = new_top;
-			sibling(new_top)->color = red;
-			if (new_top == middle->bottom) {
-				new_top->top = leaf;
-				new_top->bottom = leaf;
+			//Handle lower chain
+			if (middle != middle->bottom && middle->bottom != leaf && middle->bottom != nullptr) {
+				new_top->del_interval = true;
+				new_top->bottom = middle->bottom;
+				middle->bottom->top = new_top;
+				sibling(new_top)->color = red;
+				if (new_top == middle->bottom) {
+					new_top->top = leaf;
+					new_top->bottom = leaf;
+				}
 			}
-		}
+		}		
 	}
 
+
+	void delete_case3(Node<T>*& node, Node<T>*& last) {
+		if (node != leaf && node != nullptr) {
+			Node<T>* s = sibling(node);
+			//we need to rule out the case that children of s could be the start of deletion interval.
+			if ((s->left_child != nullptr) && (s->left_child->del_interval == true))
+				split_del_interval(s->left_child);
+			if ((s->right_child != nullptr) && (s->right_child->del_interval == true))
+				split_del_interval(s->right_child);
+
+			if ((node->parent->color == red) && (s->color == black) && (s->left_child != nullptr) && (s->left_child->color == black) && (s->right_child != nullptr) && (s->right_child->color == black)) {
+				s->color = red;
+				node->parent->color = black;
+			}
+			else {
+				delete_case4(node, last);
+			}
+		}		
+	}
 
 	void delete_case4(Node<T>*& node, Node<T>*& last) {
 		Node<T>* s = sibling(node);
-		//we need to rule out the case that children of s could be the start of deletion interval.
-		if (s->left_child->del_interval == true)
-			split_del_interval(s->left_child);
-		if (s->right_child->del_interval == true)
-			split_del_interval(s->right_child);
-
-		if ((node->parent->color == red) && (s->color == black) && (s->left_child->color == black) && (s->right_child->color == black)) {
-			s->color = red;
-			node->parent->color = black;
-		}
-		else {
-			delete_case5(node, last);
-		}
-	}
-
-	void delete_case5(Node<T>*& node, Node<T>*& last) {
-		Node<T>* s = sibling(node);
-		if (s->color == black) {
+		if ((s->color == black)&&(s->left_child!=nullptr)&&(s->right_child!=nullptr)) {
 			if ((node == node->parent->left_child) && (s->right_child->color == black) && (s->left_child->color == red)) {
 				s->color = red;
 				s->left_child->color = black;
 				right_rotation(s);
 			}
-			else if ((node == node->parent->right_child) && (s->left_child->color == black) && (s->right_child->color == red)) {
+			else if ((node == node->parent->right_child) && (s->left_child!=nullptr)&&(s->left_child->color == black) &&(s->right_child!=nullptr)&& (s->right_child->color == red)) {
 				s->color = red;
 				s->right_child->color = black;
 				left_rotation(s);
 			}
 		}
-		delete_case6(node, last);
+		delete_case5(node, last);
 	}
 
-	void delete_case6(Node<T>*& node, Node<T>*& last) {
+	void delete_case5(Node<T>*& node, Node<T>*& last) {
 		Node<T>* s = sibling(node);
 		s->color = node->parent->color;
 		node->parent->color = black;
-
-		if (node == node->parent->left_child) {
+		if ((node == node->parent->left_child)&&(s->right_child!=nullptr)) {
 			s->right_child->color = black;
 			left_rotation(node->parent);
 		}
 		else {
-			s->left_child->color = black;
-			right_rotation(node->parent);
+			if (s->left_child != nullptr) {
+				s->left_child->color = black;
+				right_rotation(node->parent);
+
+			}
+			
 		}
 	}
 
@@ -1043,9 +966,11 @@ public:
 			inorder(node->right_child, depth + 1);
 		}
 	}
+
 	void set_color(Node<T>*& node, Color c) {
 		node->color = c;
 	}
+
 	Node<T>* find_right_smallest(Node<T>*& node) {
 		Node<T>* tmp = node->right_child;
 		while (tmp != leaf) {
@@ -1057,6 +982,13 @@ public:
 		}
 		return tmp;
 	}
+	Node<T>* get_root() {
+		return root;
+	}
+	Node<T>* get_leaf() {
+		return leaf;
+	}
+
 	bool compare(T key1, T key2) {
 		return key1 > key2;
 	}
