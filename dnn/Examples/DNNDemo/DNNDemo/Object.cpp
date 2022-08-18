@@ -191,8 +191,14 @@ void Object::addVertex() {
 	OGL_Vertex v;
 	this->vertices.push_back(v);
 }
+void Object::addVertex(OGL_Vertex v) {
+	this->vertices.push_back(v);
+}
 void Object::addEdge() {
 	OGL_Edge e;
+	this->edges.push_back(e);
+}
+void Object::addEdge(OGL_Edge e) {
 	this->edges.push_back(e);
 }
 void Object::addFace() {

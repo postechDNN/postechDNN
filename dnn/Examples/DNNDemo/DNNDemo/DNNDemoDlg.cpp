@@ -247,7 +247,7 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 		m_picture_opengl.readDCEL(path);
 		break;
 	case 1: // 3D nearest neighbor
-		m_picture_opengl.read3Deps(path);
+		m_picture_opengl.DDS.read3Deps(path);
 		break;
 	default:
 		break;
@@ -369,6 +369,7 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 					CString keyValue = dlg.key;
 					double coordinate[3];
 					for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
+					m_picture_opengl.DDS.add_fr(coordinate);
 					// keyValue와 좌표로 삽입을 수행하는 함수 호출
 				}
 			}
@@ -378,6 +379,7 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 				if (IDOK == dlg.DoModal()) {
 					CString pathName = dlg.GetPathName();
 					MessageBox(pathName);
+					m_picture_opengl.DDS.add_fr(pathName);
 					// 아래 readDCEL처럼 add by file 함수 호출
 					// m_picture_opengl.readDCEL(path);
 				}
@@ -393,6 +395,7 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 				if (IDOK == dlg.DoModal()) {
 					CString pathName = dlg.GetPathName();
 					MessageBox(pathName);
+					m_picture_opengl.DDS.add_poly(pathName);
 					// 아래 readDCEL처럼 add by file 함수 호출
 					// m_picture_opengl.readDCEL(path);
 				}
@@ -419,6 +422,8 @@ void CDNNDemoDlg::OnBnClickedButtonDel()
 				AddDialog dlg(EDELETE, 0);
 				if (IDOK == dlg.DoModal()) {
 					CString keyValue = dlg.key;
+					int del_key = _ttoi(keyValue);
+					m_picture_opengl.DDS.del_fr(del_key);
 					// keyValue로 삭제를 수행하는 함수 호출
 				}
 			}
@@ -431,6 +436,8 @@ void CDNNDemoDlg::OnBnClickedButtonDel()
 				AddDialog dlg(EDELETE, 0);
 				if (IDOK == dlg.DoModal()) {
 					CString keyValue = dlg.key;
+					int del_key = _ttoi(keyValue);
+					m_picture_opengl.DDS.del_poly(del_key);
 					// keyValue로 삭제를 수행하는 함수 호출
 				}
 			}
@@ -508,6 +515,7 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 			int knn = _ttoi(temp);
 			double coordinate[3];
 			for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
+			m_picture_opengl.DDS.set_knn(coordinate, knn);
 			// k값과 좌표로 query를 수행하는 함수 호출
 		}
 	}

@@ -93,7 +93,9 @@ public:
 	OGL_Edge& getEdge(int idx);
 	OGL_Face& getFace(int idx);
 	void addVertex();
+	void addVertex(OGL_Vertex v);
 	void addEdge();
+	void addEdge(OGL_Edge e);
 	void addFace();
 	void addFace(OGL_Face f);
 

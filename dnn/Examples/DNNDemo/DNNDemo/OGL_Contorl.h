@@ -4,7 +4,6 @@
 // OGL_Contorl
 
 #include "DNN_DS.h"
-#include "Object.h"
 
 enum OBJECT { VERTEX, EDGE, FACE };
 
@@ -18,6 +17,8 @@ public:
 	void setMode(int m);
 	void readDCEL(CString path);
 	void read3Deps(CString path);
+
+
 
 	void moveFront();
 	void moveBack();
@@ -51,8 +52,6 @@ public:
 
 private:
 	int mode;
-	Object object2D;
-	Object object3D;
 	bool m_mouse_drag;
 	bool isVectorUpdate;
 public:
