@@ -168,8 +168,9 @@ public:
 		Node<T>* tmp = root;
 		Node<T>* replaced_node = nullptr;
 		Node<T>* parent = nullptr;
-		Node<T>* start = nullptr;
+		Node<T>* start = leaf;
 		Node<T>* last = nullptr;
+		Node<T>* start_last = leaf;
 		Node<T>* tmp_last;
 		Color delete_color;
 		while (original != leaf) {
@@ -184,17 +185,22 @@ public:
 				compare(original->key, key) ? original = original->left_child : original = original->right_child;
 				if (original == leaf) //By this code, original is not leaf in the below codes
 					break;
-				if (start != nullptr) {
+				if (start != leaf) {
 					compare(original->parent->key, start->bottom->key) ? tmp_last = original->left_child : tmp_last = original->right_child;
 					last = original_parent;
-					if (tmp_last != original) {
-						last->top = start->top;
-						last->bottom = start->bottom;
-						start = nullptr;
+					if (tmp_last != original && tmp_last != nullptr && tmp_last != leaf) {
+						last = tmp_last;
+						start_last = start;
+						start = leaf;
 					}
 				}
 			}
 		}
+		if (start_last != leaf) {
+			last->top = start_last;
+			last->bottom = start_last->bottom;
+		}
+
 		if (original == leaf) //this case means there is no node, of which key is key
 			return;
 		Node<T>* pre = original->pre;
@@ -203,23 +209,23 @@ public:
 		next->pre = pre;
 		//delete leaf node
 		if (original->left_child == leaf && original->right_child == leaf) {
-			cout << "					delete leaf case" << endl;
+			//cout << "					delete leaf case" << endl;
 			actually = original;
 			parent = actually->parent;
 			delete_color = actually->color;
 			replaced_node = leaf;
 			if (actually == root) {
-				cout << "						root" << endl;
+				//cout << "						root" << endl;
 				root = leaf;
 			}
 			else {
-				cout << "						not root" << endl;
+				//cout << "						not root" << endl;
 				actually->parent->left_child == actually ? actually->parent->left_child = replaced_node : actually->parent->right_child = replaced_node;
 			}
 		}
 		//delete node with 1 child
 		else if (original->left_child == leaf || original->right_child == leaf) {
-			cout << "delete node with 1 child case" << endl;
+			//cout << "delete node with 1 child case" << endl;
 			actually = original;
 			delete_color = actually->color;
 			parent = actually->parent;
@@ -227,17 +233,17 @@ public:
 			replaced_node->parent = parent;
 			actually->left_child == leaf ? replaced_node = actually->right_child : replaced_node = actually->left_child;
 			if (actually == root) {
-				cout << "						root" << endl;
+				//cout << "						root" << endl;
 				root = replaced_node;
 			}
 			else {
-				cout << "						not root" << endl;
+				//cout << "						not root" << endl;
 				parent->left_child == actually ? parent->left_child = replaced_node : parent->right_child = replaced_node;
 			}
 		}
 		//delete node with 2 child -> find smallest key of right sub tree
 		else {
-			cout << "delete node with 2 child case" << endl;
+			//cout << "delete node with 2 child case" << endl;
 			actually = find_right_smallest(original);
 			parent = actually->parent;
 			if (parent == original)
@@ -245,7 +251,7 @@ public:
 			delete_color = actually->color;
 			//smallest == leaf
 			if (actually->right_child == leaf) {
-				cout << "smallest == leaf" << endl;
+				//cout << "smallest == leaf" << endl;
 				replaced_node = leaf;
 
 				if (actually->parent != original) actually->parent->left_child = leaf;
@@ -266,7 +272,7 @@ public:
 			}
 			//smallest has right child
 			else {
-				cout << "						smallest has right child" << endl;
+				//cout << "						smallest has right child" << endl;
 				replaced_node = actually->right_child;
 				if (actually->parent != original) {
 					replaced_node->parent = parent;
@@ -291,6 +297,8 @@ public:
 			}
 		}
 		//delete_color = actually->color;
+		split_insert_interval(actually);
+		split_del_interval(actually);
 		delete actually;
 
 		if (delete_color == black)
@@ -326,7 +334,6 @@ public:
 		myprint(root);
 	}
 	void myprint(Node<T>*& node) {
-		
 		if ((node != leaf)&&(node!=nullptr)) {
 			//cout << "key= " << node->key << endl;
 
@@ -334,8 +341,6 @@ public:
 			cout << "ins_interval= " << node->ins_interval <<" del_interval= " << node->del_interval << endl;
 			cout << "parent=" << node->parent->key << " left_child= " << node->left_child->key << " right_child= " << node->right_child->key <<"\n\n" << endl;
 		}
-		
-		
 	}
 	void print() {
 		inorder(root, 0);
@@ -587,7 +592,7 @@ public:
 					middle->parent->color = red;
 					sibling(middle)->color = black;
 					Node<T>* new_bottom = grandparent(middle);
-					if (new_bottom != leaf && new_bottom != nullptr) {
+					if (new_bottom != leaf && new_bottom != nullptr ) {
 						if (new_bottom == middle->top) {  //delete upper chain
 							new_bottom->color = black;
 							new_bottom->bottom = leaf;
@@ -869,8 +874,13 @@ public:
 			Node<T>* new_bottom = middle->parent;
 			Node<T>* new_top = (middle->key > middle->bottom->key) ? new_top = middle->left_child : new_top = middle->right_child;
 
+			if (middle->top != leaf && middle->top != nullptr)
+				middle->bottom = middle->top->bottom;
+			if (middle->bottom != leaf && middle->bottom != nullptr)
+				middle->top = middle->bottom->top;
+
 			//Handle upper chain
-			if (middle != middle->top && middle->top != leaf && middle->top != nullptr) {
+			if (middle != middle->top && middle->top != leaf && middle->top != nullptr && new_bottom != leaf && new_bottom != nullptr) {
 				new_bottom->top = middle->top;
 				middle->top->bottom = new_bottom;
 				sibling(middle)->color = red;
@@ -882,7 +892,7 @@ public:
 			}
 
 			//Handle lower chain
-			if (middle != middle->bottom && middle->bottom != leaf && middle->bottom != nullptr) {
+			if (middle != middle->bottom && middle->bottom != leaf && middle->bottom != nullptr && new_top != leaf && new_bottom != nullptr) {
 				new_top->del_interval = true;
 				new_top->bottom = middle->bottom;
 				middle->bottom->top = new_top;
@@ -899,15 +909,17 @@ public:
 	void delete_case3(Node<T>*& node, Node<T>*& last) {
 		if (node != leaf && node != nullptr) {
 			Node<T>* s = sibling(node);
-			//we need to rule out the case that children of s could be the start of deletion interval.
-			if ((s->left_child != nullptr) && (s->left_child->del_interval == true))
-				split_del_interval(s->left_child);
-			if ((s->right_child != nullptr) && (s->right_child->del_interval == true))
-				split_del_interval(s->right_child);
+			if (s != leaf && s != nullptr) {
+				//we need to rule out the case that children of s could be the start of deletion interval.
+				if ((s->left_child != nullptr) && (s->left_child->del_interval == true))
+					split_del_interval(s->left_child);
+				if ((s->right_child != nullptr) && (s->right_child->del_interval == true))
+					split_del_interval(s->right_child);
 
-			if ((node->parent->color == red) && (s->color == black) && (s->left_child != nullptr) && (s->left_child->color == black) && (s->right_child != nullptr) && (s->right_child->color == black)) {
-				s->color = red;
-				node->parent->color = black;
+				if ((node->parent->color == red) && (s->color == black) && (s->left_child != nullptr) && (s->left_child->color == black) && (s->right_child != nullptr) && (s->right_child->color == black)) {
+					s->color = red;
+					node->parent->color = black;
+				}
 			}
 			else {
 				delete_case4(node, last);
@@ -917,7 +929,7 @@ public:
 
 	void delete_case4(Node<T>*& node, Node<T>*& last) {
 		Node<T>* s = sibling(node);
-		if ((s->color == black)&&(s->left_child!=nullptr)&&(s->right_child!=nullptr)) {
+		if ((s!=leaf)&&(s!=nullptr)&&(s->color == black)&&(s->left_child!=nullptr)&&(s->right_child!=nullptr)) {
 			if ((node == node->parent->left_child) && (s->right_child->color == black) && (s->left_child->color == red)) {
 				s->color = red;
 				s->left_child->color = black;
@@ -934,20 +946,21 @@ public:
 
 	void delete_case5(Node<T>*& node, Node<T>*& last) {
 		Node<T>* s = sibling(node);
-		s->color = node->parent->color;
-		node->parent->color = black;
-		if ((node == node->parent->left_child)&&(s->right_child!=nullptr)) {
-			s->right_child->color = black;
-			left_rotation(node->parent);
-		}
-		else {
-			if (s->left_child != nullptr) {
-				s->left_child->color = black;
-				right_rotation(node->parent);
-
+		if (s != leaf && s != nullptr) {
+			s->color = node->parent->color;
+			node->parent->color = black;
+			if ((node == node->parent->left_child) && (s->right_child != nullptr)) {
+				s->right_child->color = black;
+				left_rotation(node->parent);
 			}
-			
-		}
+			else {
+				if (s->left_child != nullptr) {
+					s->left_child->color = black;
+					right_rotation(node->parent);
+
+				}
+			}
+		}		
 	}
 
 	void inorder(Node<T>*& node, int depth) {

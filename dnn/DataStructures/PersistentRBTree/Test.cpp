@@ -12,7 +12,7 @@ int main() {
 
 	
 	
-	for (int i = 0; i < 1000; i++) { //1000000까지 insertion clear
+	for (int i = 0; i < 10000; i++) { //1000000까지 insertion clear
 		v.push_back(i);
 		v_d.push_back(i);
 	}
@@ -55,8 +55,8 @@ int main() {
 		
 		cout << "\n\nItem to be deleted is : " << v_d[i] << endl;
 		mytree.delete_bst(v_d[i]);
-		if(i+1>750)
-			mytree.print_linked_list();
+		//if(i+1>750)
+		//	mytree.print_linked_list();
 		
 		cout << "=========================================" << endl;
 		cout << "=========================================\n\n" << endl;
