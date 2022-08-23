@@ -1,6 +1,7 @@
 #pragma once
-#include "EpsGraph3D.h"
+#include "EpsGraph3D/framework.h"
 #include "Object.h"
+#include <vector>
 
 class DNN_DS
 {
@@ -14,22 +15,20 @@ public:
 	void del_fr(int);
 	void del_poly(int);
 	void set_knn(double[3], int);
-	vector<OGL_Vertex> get_fr();
-	vector<OGL_Edge> do_knn();
-	vector<OGL_Face> get_pol();
+	std::vector<OGL_Vertex> get_fr();
+	std::vector<OGL_Edge> do_knn();
+	std::vector<OGL_Face> get_pol();
 
 	void read3Deps(CString path);
 
 // Data structure pointers 
 public:
-	Eps_Graph_3D *Graph;
+	EPS::Eps_Graph_3D *Graph;
 	Object object2D;
 	Object object3D;
 
 private:
-	Free_Point Eps_Query;
+	EPS::Free_Point Eps_Query;
 	int Eps_knn;
-
-
 };
 

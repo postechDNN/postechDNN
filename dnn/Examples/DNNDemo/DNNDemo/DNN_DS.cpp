@@ -2,6 +2,8 @@
 #include "DNN_DS.h"
 #include "fstream"
 
+using namespace std;
+
 DNN_DS::DNN_DS() {
 
 }
@@ -12,7 +14,7 @@ DNN_DS::~DNN_DS() {
 
 void DNN_DS::add_fr(double coor[3])
 {
-	Free_Point* temp = new Free_Point(coor[0], coor[1], coor[2]);
+	EPS::Free_Point* temp = new EPS::Free_Point(coor[0], coor[1], coor[2]);
 	this->Graph->add_freepts(temp);
 }
 
@@ -21,11 +23,11 @@ void DNN_DS::add_fr(CString path)
 	std::ifstream file(path);
 	int fn;
 	file >> fn;
-	vector<Free_Point> temp = {};
+	vector<EPS::Free_Point> temp = {};
 	for (int i = 0; i < fn; i++) {
 		double x, y, z;
 		file >> x >> y >> z;
-		Free_Point p(x,y,z);
+		EPS::Free_Point p(x,y,z);
 		temp.push_back(p);
 	}
 	this->Graph->add_freepts(temp);
@@ -36,17 +38,17 @@ void DNN_DS::add_poly(CString path)
 	std::ifstream file(path);
 	int fn;
 	file >> fn;
-	Polytope temp;
-	vector<Face*> t = {};
+	EPS::Polytope temp;
+	vector<EPS::Face*> t = {};
 	for (int i = 0; i < fn; i++) {
-		vector<Point*> face;
+		vector<EPS::Point*> face;
 		for (int i = 0; i < 3; i++) {
 			double x, y, z;
 			file >> x >> y >> z;
-			Point* p = new Point(x, y, z);
+			EPS::Point* p = new EPS::Point(x, y, z);
 			face.push_back(p);
 		}
-		Face* f = new Face(face);
+		EPS::Face* f = new EPS::Face(face);
 		t.push_back(f);
 	}
 	temp.setpolytope(t);
@@ -65,13 +67,13 @@ void DNN_DS::del_poly(int key)
 
 void DNN_DS::set_knn(double coor[3], int knn)
 {
-	Free_Point temp(coor[0], coor[1], coor[2]);
+	EPS::Free_Point temp(coor[0], coor[1], coor[2]);
 	Eps_Query=temp;
 }
 
 vector<OGL_Vertex> DNN_DS::get_fr()
 {
-	list<Free_Point> temp = {};
+	list<EPS::Free_Point> temp = {};
 	vector <OGL_Vertex> convert = {};
 	temp = Graph->get_free_points();
 
@@ -84,7 +86,7 @@ vector<OGL_Vertex> DNN_DS::get_fr()
 
 vector<OGL_Edge> DNN_DS::do_knn()
 {
-	vector<Edge> temp = {};
+	vector<EPS::Edge> temp = {};
 	vector <OGL_Edge> convert = {};
 	temp = Graph->get_path(Eps_Query, Eps_knn);
 
@@ -97,7 +99,7 @@ vector<OGL_Edge> DNN_DS::do_knn()
 
 vector<OGL_Face> DNN_DS::get_pol()
 {
-	vector<Polytope> temp = {};
+	vector<EPS::Polytope> temp = {};
 	vector <OGL_Face> convert = {};
 	temp = Graph->get_Polytope();
 
@@ -113,28 +115,28 @@ void DNN_DS::read3Deps(CString path)
 	std::ifstream file(path);
 	int fn, pn;
 	file >> fn >> pn;
-	vector<Free_Point> fr_temp = {};
+	vector<EPS::Free_Point> fr_temp = {};
 	for (int i = 0; i < fn; i++) {
 		double x, y, z;
 		file >> x >> y >> z;
-		Free_Point p(x, y, z);
+		EPS::Free_Point p(x, y, z);
 		fr_temp.push_back(p);
 	}
 	this->Graph->add_freepts(fr_temp);
 
 	for (int j = 0; j < pn; j++) {
-		Polytope temp;
+		EPS::Polytope temp;
 		file >> fn;
-		vector<Face*> t = {};
+		vector<EPS::Face*> t = {};
 		for (int i = 0; i < fn; i++) {
-			vector<Point*> face;
+			vector<EPS::Point*> face;
 			for (int i = 0; i < 3; i++) {
 				double x, y, z;
 				file >> x >> y >> z;
-				Point* p = new Point(x, y, z);
+				EPS::Point* p = new EPS::Point(x, y, z);
 				face.push_back(p);
 			}
-			Face* f = new Face(face);
+			EPS::Face* f = new EPS::Face(face);
 			t.push_back(f);
 		}
 		temp.setpolytope(t);

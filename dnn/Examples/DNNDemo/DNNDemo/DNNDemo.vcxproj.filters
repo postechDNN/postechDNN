@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{07fbede7-e4e7-4579-b7b2-dde9d8f1da85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{e76bb2ed-3d49-45c0-8b24-99ceb1dfbad0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\EpsGraph3D">
+      <UniqueIdentifier>{1b855f09-49f2-468b-80d5-03ae9ed0dba3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DNNDemo.h">
@@ -44,6 +53,18 @@
     </ClInclude>
     <ClInclude Include="DNN_DS.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EpsGraph3D\EpsGraph3D.h">
+      <Filter>include\EpsGraph3D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EpsGraph3D\framework.h">
+      <Filter>include\EpsGraph3D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EpsGraph3D\Point.h">
+      <Filter>include\EpsGraph3D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EpsGraph3D\Polytope.h">
+      <Filter>include\EpsGraph3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -83,5 +104,16 @@
     <Image Include="res\DNNDemo.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\StaticLib_EpsGraph3D_64.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="lib\StaticLib_EpsGraph3D_d64.lib">
+      <Filter>lib</Filter>
+    </Library>
+    <Library Include="lib\StaticLib_EpsGraph3D_d86.lib">
+      <Filter>lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>
