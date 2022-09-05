@@ -11,7 +11,7 @@ public:
 	~Edge();
 	bool operator==(Edge&);
 	bool on(Point& p);
-	Point* crossing(Edge&, bool);
+	Edge* crossing(Edge&, bool);
 	Point gets();
 	Point gett();
 	void sets(Point&);

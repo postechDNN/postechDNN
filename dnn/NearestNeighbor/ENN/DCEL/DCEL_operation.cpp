@@ -51,35 +51,41 @@ bool intersectEvent::operator==(intersectEvent& op){ //굳이 필요한가?
 
 FaceNode::FaceNode(HEdge* he, bool is_outer = false):he(he),is_outer(is_outer) {}
 
+inline bool is_below(Point& p1, Point& p2){ //return true if p1 is below p2.
+    if (std::abs(p1.gety() - p2.gety()) < tolerance && p1.getx() < p2.getx()) return true;
+    else if(p1.gety() < p2.gety()) return true;
+
+    return false;
+}
 
 void FindNewEvent(HEdgeContainer& hec_1, HEdgeContainer& hec_2, std::priority_queue<intersectEvent> &pq){
     Edge e_1 = align_edge(hec_1.hedge->getEdge()), e_2 = align_edge(hec_2.hedge->getEdge());
     //int k1 = ec_1.key, k2 = ec_2.key;
-    Point* crossPoint = e_1.crossing(e_2,true);
+    Edge* crossPoint = e_1.crossing(e_2,true);
     if(!crossPoint) return;
 
-
-    Point sweep_p = *hec_1.sweep_p;
-    double x = crossPoint->getx(), y = crossPoint->gety();
-    double x_val = sweep_p.getx(), y_val = sweep_p.gety();
-    bool is_below= false; 
-    if (std::abs(y - y_val) < tolerance && x < x_val ) is_below = true;
-    else if(y < y_val) is_below = true;
-    //if(__DEBUG_MODE__) std::cout << "FIND NEW EVENT: "<< *crossPoint <<is_below << std::endl;
-    
-    if(is_below){
-        //Except CrossPoint Event if it is on the lower endpoint(gett).
-        if(!(e_1.gett() == *crossPoint)){
-            intersectEvent iev1(*crossPoint,hec_1, intersectEvent::EVENT::CROSS);
-            pq.push(iev1);
-        }
-        if(!(e_2.gett() == *crossPoint)){
-            intersectEvent iev2(*crossPoint,hec_2, intersectEvent::EVENT::CROSS);
-            pq.push(iev2);
-        }
-
-    }
+    Point cp1 = crossPoint->gets(), cp2 = crossPoint->gett(); 
     delete crossPoint;
+    //std::vector<Point> cross_pts ={cp1};
+    Point sweep_p = *hec_1.sweep_p;
+    //double x = crossPoint->getx(), y = crossPoint->gety();
+    //double x_val = sweep_p.getx(), y_val = sweep_p.gety();
+    //bool is_below= false; 
+    //if (std::abs(y - y_val) < tolerance && x < x_val ) is_below = true;
+    //else if(y < y_val) is_below = true;
+    //if(__DEBUG_MODE__) std::cout << "FIND NEW EVENT: "<< *crossPoint <<is_below << std::endl;
+
+    if(!(cp1 == cp2) || !is_below(cp1,sweep_p)) return;
+    //Except CrossPoint Event if it is on the lower endpoint(gett).
+    
+    if(!(e_1.gett() == cp1)){
+        intersectEvent iev1(cp1,hec_1, intersectEvent::EVENT::CROSS);
+        pq.push(iev1);
+    }
+    if(!(e_2.gett() == cp1)){
+        intersectEvent iev2(cp1,hec_2, intersectEvent::EVENT::CROSS);
+        pq.push(iev2);
+    }
 }
 
 Edge align_edge(Edge e){
@@ -398,7 +404,8 @@ DCEL DCEL::merge(DCEL &op){
             T.pop(hedge_containers[k]);
         
         //Find segments passing through the event point
-        //There is at most one additional passing edge in the AVL tree
+        //Observe that there is at most one additional passing edge in the AVL tree
+        //If there are two segments, the intersection between these segments will be concerned at previous. 
         double x = ev_p.getx(), y = ev_p.gety();
         Vertex v1(x-tolerance ,y+1.), v2(x-tolerance,y-1.); 
         Vertex v3(x+tolerance ,y+1.), v4(x+tolerance,y-1.); 
@@ -527,8 +534,6 @@ DCEL DCEL::merge(DCEL &op){
     }
 
     //Now we remain to set incident face of half edges and construct faces. 
-    
-    
     DCEL ret;
     
     int v_k = 1;
@@ -539,7 +544,7 @@ DCEL DCEL::merge(DCEL &op){
     
     int e_k = 1;
     for(auto e:ret_hedges){
-        if(e->getKey()[0] !='D') continue;  //TODO: HEdge ,Vertex, Face에 key 값 지우고 그냥 dcel에서 key값 설정해주는게 맞는듯.
+        if(e->getKey()[0] !='D') continue;  //TODO: HEdge ,Vertex, Face에 key 값 지우고 그냥 dcel에서 key값 설정해주는게 맞는듯. Default 라는거 삭제하고 차라리 __로 하는게.
         e->setKey("e"+std::to_string(e_k)+"_1");
         e->getTwin()->setKey("e"+std::to_string(e_k++)+"_2");
     }
@@ -555,6 +560,8 @@ DCEL DCEL::merge(DCEL &op){
     ret.setFaces(ret_faces);
 
     //Labeling Faces Process
+    
+    
     //1. Hedge가 원래 누구꺼였는지 달아놓아함인데...아 할수 있다!!
 
 

@@ -47,18 +47,27 @@ bool Edge::on(Point& p) {
 		else return false;
 	}
 }
-double inline middle_point_of_4(double num1, double num2, double num3, double num4){
+/*double inline middle_point_of_4(double num1, double num2, double num3, double num4){
 	if(num1>num2) std::swap(num1,num2);
 	if(num3>num4) std::swap(num3,num4);
 	if(num1>num3) std::swap(num1,num3);
 	if(num2>num4) std::swap(num2,num4);
 	if(num2>num3) std::swap(num2,num3);
 	return (num2 + num3)/2;
+}*/
+
+std::pair<double,double> inline find_mid_points(double num1, double num2, double num3, double num4){
+	if(num1>num2) std::swap(num1,num2);
+	if(num3>num4) std::swap(num3,num4);
+	if(num1>num3) std::swap(num1,num3);
+	if(num2>num4) std::swap(num2,num4);
+	if(num2>num3) std::swap(num2,num3);
+	return std::pair<double,double>(num2,num3);
 }
 
 //If there is no crossing, return nullptr
 //Else, return a pointer of the point crossed. 
-Point* Edge::crossing(Edge& _e, bool closed = true) {
+Edge* Edge::crossing(Edge& _e, bool closed = true) {
 	double x_1 = this->gets().getx();
 	double y_1 = this->gets().gety();
 	double x_2 = this->gett().getx();
@@ -76,14 +85,21 @@ Point* Edge::crossing(Edge& _e, bool closed = true) {
 			if(std::abs(x_1-x_2) <ERR){	//Vertical Line
 				if(std::max(y_1,y_2) < std::min(y_3,y_4) || std::min(y_1,y_2) > std::max(y_3,y_4))	return nullptr;
 				else if(!closed && (std::abs(std::max(y_1,y_2) - std::min(y_3,y_4)) <ERR ||std::abs(std::min(y_1,y_2) - std::max(y_3,y_4))<ERR )) return nullptr;
-				else return new Point(x_1,middle_point_of_4(y_1,y_2,y_3,y_4));
+				else{	//Intersect!
+					//return new Point(x_1,middle_point_of_4(y_1,y_2,y_3,y_4));
+					std::pair<double,double> mid_pts = find_mid_points(y_1,y_2,y_3,y_4);
+					return new Edge(Point(x_1,mid_pts.first),Point(x_1,mid_pts.second));
+				}
 			}
 			else{
 				if(std::max(x_1,x_2) < std::min(x_3,x_4) || std::min(x_1,x_2) > std::max(x_3,x_4))	return nullptr;
 				else if(!closed && (std::abs(std::max(x_1,x_2) - std::min(x_3,x_4)) <ERR ||std::abs(std::min(x_1,x_2) - std::max(x_3,x_4))<ERR )) return nullptr;
 				else{
-					double mid_x = middle_point_of_4(x_1,x_2,x_3,x_4);
-					return new Point(mid_x, (y_1 -y_2) / (x_1-x_2) *(mid_x - x_1) + y_1);
+					//double mid_x = middle_point_of_4(x_1,x_2,x_3,x_4);
+					//return new Point(mid_x, (y_1 -y_2) / (x_1-x_2) *(mid_x - x_1) + y_1);
+					std::pair<double,double> mid_pts = find_mid_points(x_1,x_2,x_3,x_4);
+					return new Edge(Point(mid_pts.first,(y_1 -y_2) / (x_1-x_2) *(mid_pts.first - x_1) + y_1),
+					Point(mid_pts.second,(y_1 -y_2) / (x_1-x_2) *(mid_pts.second - x_1) + y_1));
 				}
 			}
 		}
@@ -101,8 +117,8 @@ Point* Edge::crossing(Edge& _e, bool closed = true) {
 		else {
 			double x = (1 - t) * x_1 + t * x_2;
 			double y = (1 - t) * y_1 + t * y_2;
-			Point* P = new Point(x, y);
-			return P;
+			//Point* P = new Point(x, y);
+			return new Edge(Point(x, y),Point(x, y));
 		}
 	}
 }
