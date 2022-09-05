@@ -5,8 +5,8 @@
 #include <vector>
 #include <queue> 
 
-#include "Point.h"
-#include "quadedge.h"
+#include "./externals/quadedge-basic/Point.h"
+#include "./externals/quadedge-basic/quadedge.h"
 //#include "quadedge.cpp"
 #include <GLUT/glut.h>
 //#include <GL/GL.h>
@@ -47,7 +47,7 @@ bool cmp_y_dec(Point2d a, Point2d b){
 
 int inInfCircle(const Point2d& p, const Point2d& a, const Point2d& b){
   if(a==b) {
-    printf("Two points are same. \n");
+    printf("Two points are same. Exit in inInfCircle \n");
     exit(1);
   }
 
@@ -162,15 +162,12 @@ Edge* LowerSupport(Edge* left, Edge* right){
     // Move CCW around both support hulls 
     while(1){
       if(inInfCircle(right->Dest2d(), left->Org2d(), right->Org2d()) == INSIDE){
-      printf("case1\n");
         right = right->Rprev(); //CHECK
       }
       else if(inInfCircle(left->Dest2d(), left->Org2d(), right->Org2d()) == INSIDE){
-      printf("case2\n");
         left = left->Rprev(); //CHECK
       }
       else{
-      printf("case3\n");
         return Connect(right->Sym(), left->Oprev());
       }
     }
@@ -185,7 +182,6 @@ Edge* LowerSupport(Edge* left, Edge* right){
     while((inInfCircle(left->Rnext()->Org2d(), left->Org2d(), right->Org2d()) == INSIDE) &&
           (LessThan(left->Rnext()->Org2d(), left->Org2d()))){
             left = left->Rnext();
-            printf("while in lowersupport \n");
     }
 
     // Move CCW around both support hulls 
@@ -228,9 +224,6 @@ int MyInCircle(const Point2d& a, const Point2d& b, const Point2d& c,const Point2
   //Preconditions: InInfCircle(c, a, b) = INSIDE and InInfCircle(c, b, a) is not INSIDE 
   if(!((inInfCircle(c, a, b) == INSIDE) && (inInfCircle(c, b, a) != INSIDE))){
     printf("MyInCircle: Precondition does not hold. \n");
-    printf("%d\n", inInfCircle(c, a, b));
-    printf("%d\n",  inInfCircle(c, b, a));
-    printf("%f %f, %f %f, %f %f \n", a.x, a.y, b.x, b.y, c.x, c.y);
     exit(1);
   }
 
@@ -294,7 +287,6 @@ Edge* ComputeLcand(Edge* base){
 
   /* First eliminate edges crossing infinite circle */
   if (inInfCircle(lcand->Dest2d(), base->Org2d(), base->Dest2d()) == BEFORE){
-    printf("ComputeLcand 1st step \n");
     lcand = ProdONext(lcand);
     while (inInfCircle(lcand->Dest2d(), base->Org2d(), base->Dest2d()) == BEFORE){
       DeleteEdge(lcand->Oprev());
@@ -327,7 +319,6 @@ Edge* ComputeLcand(Edge* base){
           //Eliminate lcand and get next candidate 
           t = ProdONext(lcand); 
 
-          printf("Delete Edge 1\n");
           lcand->EdgeDraw();
           ProdONext(lcand)->EdgeDraw();
 
@@ -352,7 +343,6 @@ Edge* ComputeLcand(Edge* base){
         t = current; 
         current = current->Onext(); 
         DeleteEdge(current);
-        printf("Delete Edge 2\n");
       }
       else break;
     }
@@ -468,7 +458,6 @@ Edge* delaunay(vector<Point2d>& S){
 
   // Divide sList into L and R 
   int halfSize = ceil((float)S.size()/2);
-  printf("halfsize: %d %d \n", halfSize, S.size());
   vector<Point2d> L(S.begin(), S.begin() + halfSize);
   vector<Point2d> R(S.begin()+halfSize, S.end());
 
@@ -476,16 +465,20 @@ Edge* delaunay(vector<Point2d>& S){
   Edge * lleft = delaunay(L);
   Edge * lright = delaunay(R);
 
+  printf("leftsize: %d, rightsize: %d \n", halfSize, S.size()-halfSize);
 
   printf("Draw L \n");
-  lleft->EdgeDraw(); // CHECK 1
+  
+	std::vector<std::vector<std::pair<double, double>>> temp;
+  lleft->Draw(mystamp++, temp);
+  //lleft->EdgeDraw(); // CHECK 1
+
   printf("Draw R \n");
-  lright->EdgeDraw(); // CHECK 1
+  lright->Draw(mystamp++, temp);
+  //lright->EdgeDraw(); // CHECK 1
 
   //Create common base edge and remember lowest edge 
-  printf("test1 \n");
   Edge* base = LowerSupport(lleft, lright);
-  printf("test \n");
   bool leftLower = LowerThan(lleft->Org2d(), lright->Org2d());
 
   Edge* lower; 
@@ -533,7 +526,6 @@ Edge* delaunay(vector<Point2d>& S){
         lcand = lcand->Rprev(); 
       base = Connect(rcand, lcand->Oprev());
       DeleteEdge(rcand); //Left side broke through edge 
-      printf("Delete Edge 7\n");
     }
     else if (inInfCircle(lcand->Dest2d(), base->Org2d(), base->Dest2d()) == AFTER){
       //Infinite excursion left 
@@ -541,7 +533,6 @@ Edge* delaunay(vector<Point2d>& S){
         rcand = rcand->Lnext();
       base = Connect(rcand->Lprev(), lcand->Sym());
       DeleteEdge(lcand); //Left side broke through edge 
-      printf("Delete Edge 8\n");
     }
     else break; 
 
@@ -558,19 +549,6 @@ Edge* delaunay(vector<Point2d>& S){
 
 
 int main(int argc, char** argv){
-
-
-  printf("hi\n");
-
-  glutInit(&argc, argv);  // Initialize the init function
-  
-  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); // Initialize the toolkit;
-
-  glutInitWindowSize(1200, 740); // Sets the display mode and specify the colour scheme
-
-  glutInitWindowPosition(0, 0); // Specify the window size
-
-  glutCreateWindow("Delaunay");  
 
   
   vector<Point2d> sList;
@@ -619,9 +597,17 @@ int main(int argc, char** argv){
   test4.push_back(q4);
   test4.push_back(q5);
 
+  vector<Point2d> test5;
+  Point2d w1(0, 20), w2(0, 40), w3(0, 50), w4(0, 70), w5(0, 90), w6(10, 30);
+  test5.push_back(w1);
+  test5.push_back(w2);
+  test5.push_back(w3);
+  test5.push_back(w4);
+  //test5.push_back(w5);
+  test5.push_back(w6);
 
 
-  vector<Point2d> test = test4;
+  vector<Point2d> test = test5;
   sort(test.begin(), test.end(), cmp);
   Edge* sEdge = delaunay(test);
 
@@ -638,8 +624,7 @@ int main(int argc, char** argv){
 
   gp << "set xrange [-50:150]\nset yrange [-50:150]\n";
   gp << "plot '-' with linespoints\n";
-  //NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
-  gp.send2d(edges);
+  gp.send2d(edges); //NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
   
 
   
