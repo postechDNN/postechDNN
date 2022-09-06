@@ -79,16 +79,9 @@ public:
 class DCEL {
 protected:
 	std::string key;
-	//int num_faces;
-	//int num_hedges;
-	//int num_vertices;
 	std::map<std::string, Face*> faces;
 	std::map<std::string, HEdge*> hedges;	//we store one hedge for each edges.
 	std::map<std::string, Vertex*> vertices;
-	//Vertex* lmost;
-	//Vertex* tmost;
-	//Vertex* bmost;
-	//Vertex* rmost;
 public:
 	DCEL();
 	~DCEL();

@@ -77,7 +77,7 @@ void FindNewEvent(HEdgeContainer& hec_1, HEdgeContainer& hec_2, std::priority_qu
 
     if(!(cp1 == cp2) || !is_below(cp1,sweep_p)) return;
     //Except CrossPoint Event if it is on the lower endpoint(gett).
-    
+
     if(!(e_1.gett() == cp1)){
         intersectEvent iev1(cp1,hec_1, intersectEvent::EVENT::CROSS);
         pq.push(iev1);
@@ -303,7 +303,7 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
     }
 
     //2. Make a face record using the equivalence class.
-
+    //std::cout << "The number of faces: "<< num_f << std::endl;
     std::vector<Face*> faces(num_f);
     for(int i = 0 ; i< faces.size();i++) faces[i]=new Face();
 
@@ -494,7 +494,9 @@ DCEL DCEL::merge(DCEL &op){
         }
     }
 
-    
+    std::cout<<"NUM VERTICES: " << ret_vertices.size() << std::endl;
+    std::cout<<"NUM HEDGES: " << ret_hedges.size() << std::endl;
+
     //Process of classification according to origin.
     std::vector<std::vector<HEdge*> > hedges_origin_v(ret_vertices.size()); 
     for(auto it : origin_hedges){
@@ -532,6 +534,17 @@ DCEL DCEL::merge(DCEL &op){
             he->setPrev(prev);
         }
     }
+    //DEBUG ONLY-------------
+    int kk = 0;
+    for(auto it : hedges_origin_v){
+        std::cout <<*ret_vertices[kk]<<": ";
+        for(auto itt: it){
+            std::cout << *itt->getTwin()->getOrigin()<< ' ';
+        }
+        std::cout<<std::endl;
+        kk++;
+    }
+    //------------------------
 
     //Now we remain to set incident face of half edges and construct faces. 
     DCEL ret;

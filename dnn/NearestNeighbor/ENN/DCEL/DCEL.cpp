@@ -264,6 +264,10 @@ std::vector<Face*> DCEL::getFaces() {
 }
 
 void DCEL::setFaces(std::vector<Face*> _f) {
+	for(auto f: this->faces){
+		delete f.second;
+	}
+	this->faces.clear();
 	for(auto f:_f){
 		this->faces[f->getKey()]=f;
 	}
