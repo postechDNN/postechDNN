@@ -361,7 +361,8 @@ DCEL DCEL::merge(DCEL &op){
     std::vector<int> on_pts_key(hedge_containers.size());
     std::vector<Vertex*> ret_vertices;
     std::vector<HEdge*> ret_hedges;
-    std::vector<std::pair<int, HEdge*> > origin_hedges;
+    //std::vector<std::pair<int, HEdge*> > origin_hedges;
+    std::vector<std::set<int> > hedges_graph;
 
     //Push the start and end events into the priority queue.
     for (auto hec : hedge_containers){
@@ -425,22 +426,31 @@ DCEL DCEL::merge(DCEL &op){
         Vertex *new_v = new Vertex(ev_p);
         int new_key = ret_vertices.size();
         ret_vertices.push_back(new_v);
-        
-        for(auto k:EC_union){   //k -> key of edge container.
-            int prev_v_key = on_pts_key[k];
-            Vertex *prev_v = ret_vertices[prev_v_key];
-            //Make a half-edge having p as origin.
-            HEdge *he = new HEdge(), *twin = new HEdge();
-            he->setTwin(twin), twin->setTwin(he);
-            he->setOrigin(new_v);
-            twin->setOrigin(prev_v);
-            new_v->setIncidentEdge(he);
-            prev_v->setIncidentEdge(twin);
-            ret_hedges.push_back(he);
-            ret_hedges.push_back(twin);
+        hedges_graph.push_back(std::set<int>());
 
-            origin_hedges.push_back(std::pair(new_key, he));
-            origin_hedges.push_back(std::pair(prev_v_key,twin));
+        for(auto k:EC_union){   //k -> key of edge container.
+            int prev_key = on_pts_key[k];
+            Vertex *prev_v = ret_vertices[prev_key];
+
+            //Make a half-edge graph.
+            hedges_graph[new_key].insert(prev_key);
+            //hedges_graph[prev_key].insert(new_key);
+            
+            //HEdge containing the newly defined vertex. 
+            //hedge_containers[k].hedge->getIncidentFace();
+
+            //Make a half-edge having p as origin.---------------
+            //HEdge *he = new HEdge(), *twin = new HEdge();
+            //he->setTwin(twin), twin->setTwin(he);
+            //he->setOrigin(new_v);
+            //twin->setOrigin(prev_v);
+            //new_v->setIncidentEdge(he);
+            //prev_v->setIncidentEdge(twin);
+            //ret_hedges.push_back(he);
+            //ret_hedges.push_back(twin);
+            //origin_hedges.push_back(std::pair(new_key, he));
+            //origin_hedges.push_back(std::pair(prev_key,twin));
+            //----------------------------------------------------
         }
         //std::cout <<std::endl;
         for(auto k:SC_union)
@@ -494,18 +504,36 @@ DCEL DCEL::merge(DCEL &op){
         }
     }
 
+    std::vector<std::vector<HEdge*> > hedges_origin_v(ret_vertices.size()); 
+    for(int org_k=0;org_k < hedges_graph.size(); org_k++){
+        Vertex* org = ret_vertices[org_k];
+        for(auto dest_k: hedges_graph[org_k]){
+            Vertex* dest = ret_vertices[dest_k];
+            HEdge *he = new HEdge(), *twin = new HEdge();
+            he->setTwin(twin), twin->setTwin(he);
+            he->setOrigin(org);
+            twin->setOrigin(dest);
+            org->setIncidentEdge(he);
+            dest->setIncidentEdge(twin);
+            ret_hedges.push_back(he);
+            ret_hedges.push_back(twin);
+            //origin_hedges.push_back(std::pair(new_key, he));
+            //origin_hedges.push_back(std::pair(prev_key,twin));
+            hedges_origin_v[org_k].push_back(he);
+            hedges_origin_v[dest_k].push_back(twin);
+        }
+    }
+
     std::cout<<"NUM VERTICES: " << ret_vertices.size() << std::endl;
     std::cout<<"NUM HEDGES: " << ret_hedges.size() << std::endl;
 
     //Process of classification according to origin.
-    std::vector<std::vector<HEdge*> > hedges_origin_v(ret_vertices.size()); 
-    for(auto it : origin_hedges){
-        HEdge *he = it.second;
-        hedges_origin_v[it.first].push_back(he);
-    }
+    //for(auto it : origin_hedges){
+    //    HEdge *he = it.second;
+    //    hedges_origin_v[it.first].push_back(he);
+    //}
 
     //Sort in circular order.
-
     auto angle_cmp = [](HEdge* a, HEdge* b){
         Vertex *origin = a->getOrigin();
         Vertex *p = a->getTwin()->getOrigin();
@@ -534,15 +562,16 @@ DCEL DCEL::merge(DCEL &op){
             he->setPrev(prev);
         }
     }
-    //DEBUG ONLY-------------
-    int kk = 0;
-    for(auto it : hedges_origin_v){
-        std::cout <<*ret_vertices[kk]<<": ";
-        for(auto itt: it){
-            std::cout << *itt->getTwin()->getOrigin()<< ' ';
+    if(__DEBUG_MODE__){
+        int kk = 0;
+        for(auto it : hedges_origin_v){
+            std::cout <<*ret_vertices[kk]<<": ";
+            for(auto itt: it){
+                std::cout << *itt->getTwin()->getOrigin()<< ' ';
+            }
+            std::cout<<std::endl;
+            kk++;
         }
-        std::cout<<std::endl;
-        kk++;
     }
     //------------------------
 
