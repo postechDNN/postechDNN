@@ -1,5 +1,6 @@
 #include "DCEL_operation.h"
 #include "DCEL.h"
+#include "Vector.h"
 
 Point* HEdgeContainer::sweep_p = nullptr;
 
@@ -318,6 +319,14 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         }
     }
 
+    //3. Set an incident face of half edges.
+    for(auto f:faces){
+        for(auto e: f->getOutHEdges())
+            e->setIncidentFace(f);
+        for(auto e: f->getInnerHEdges())
+            e->setIncidentFace(f);
+    }
+
     return faces;
 }
 
@@ -360,9 +369,10 @@ DCEL DCEL::merge(DCEL &op){
     //An immediate previous vertex on the edge which is above the sweep line. 
     std::vector<int> on_pts_key(hedge_containers.size());
     std::vector<Vertex*> ret_vertices;
-    std::vector<HEdge*> ret_hedges;
     //std::vector<std::pair<int, HEdge*> > origin_hedges;
-    std::vector<std::set<int> > hedges_graph;
+    //std::vector<std::set<int> > hedges_graph;
+    std::map<std::pair<int,int>, std::vector<Face*> > graph_hedges;
+
 
     //Push the start and end events into the priority queue.
     for (auto hec : hedge_containers){
@@ -426,19 +436,37 @@ DCEL DCEL::merge(DCEL &op){
         Vertex *new_v = new Vertex(ev_p);
         int new_key = ret_vertices.size();
         ret_vertices.push_back(new_v);
-        hedges_graph.push_back(std::set<int>());
+        //hedges_graph.push_back(std::set<int>());
 
         for(auto k:EC_union){   //k -> key of edge container.
             int prev_key = on_pts_key[k];
             Vertex *prev_v = ret_vertices[prev_key];
 
             //Make a half-edge graph.
-            hedges_graph[new_key].insert(prev_key);
+            //hedges_graph[new_key].insert(prev_key);
             //hedges_graph[prev_key].insert(new_key);
-            
-            //HEdge containing the newly defined vertex. 
-            //hedge_containers[k].hedge->getIncidentFace();
 
+            HEdge *he= hedge_containers[k].hedge;
+            HEdge *twin = he->getTwin();
+            Vector vec_he(*he->getOrigin(), *twin->getOrigin());
+            Vector vec_new(*new_v,*prev_v);
+            Face* he_f = he->getIncidentFace();
+            Face* twin_f = twin->getIncidentFace();
+            if (vec_he.innerProdct(vec_new) < 0)//Other direction
+                std::swap(he_f,twin_f);
+            std::pair<int,int > he_edge(new_key,prev_key);
+            std::pair<int,int > twin_edge(prev_key,new_key);
+            if(graph_hedges.find(he_edge) == graph_hedges.end())
+                graph_hedges[he_edge] = std::vector<Face*>(2, nullptr);
+            if(graph_hedges.find(twin_edge) == graph_hedges.end())
+                graph_hedges[twin_edge] = std::vector<Face*>(2, nullptr);
+            int face_idx = 0;
+            if(k >= num_edges_1) face_idx = 1;
+            graph_hedges[he_edge][face_idx] = he_f;
+            graph_hedges[twin_edge][face_idx] = twin_f; 
+            //graph_hedges[he_edge].push_back(he_f);
+            //graph_hedges[twin_edge].push_back(twin_f); 
+            
             //Make a half-edge having p as origin.---------------
             //HEdge *he = new HEdge(), *twin = new HEdge();
             //he->setTwin(twin), twin->setTwin(he);
@@ -505,33 +533,29 @@ DCEL DCEL::merge(DCEL &op){
     }
 
     std::vector<std::vector<HEdge*> > hedges_origin_v(ret_vertices.size()); 
-    for(int org_k=0;org_k < hedges_graph.size(); org_k++){
-        Vertex* org = ret_vertices[org_k];
-        for(auto dest_k: hedges_graph[org_k]){
-            Vertex* dest = ret_vertices[dest_k];
-            HEdge *he = new HEdge(), *twin = new HEdge();
-            he->setTwin(twin), twin->setTwin(he);
-            he->setOrigin(org);
-            twin->setOrigin(dest);
-            org->setIncidentEdge(he);
-            dest->setIncidentEdge(twin);
-            ret_hedges.push_back(he);
-            ret_hedges.push_back(twin);
-            //origin_hedges.push_back(std::pair(new_key, he));
-            //origin_hedges.push_back(std::pair(prev_key,twin));
-            hedges_origin_v[org_k].push_back(he);
-            hedges_origin_v[dest_k].push_back(twin);
-        }
+    std::vector<HEdge*> ret_hedges;
+    std::map<HEdge*, std::pair<int,int> > ver_indices;
+
+    for(auto it : graph_hedges){
+        int org_k = it.first.first, dest_k = it.first.second;
+        if(org_k <= dest_k) continue;
+        Vertex* org = ret_vertices[org_k], *dest = ret_vertices[dest_k];
+        HEdge *he = new HEdge(), *twin = new HEdge();
+        ver_indices[he] = std::pair<int,int> (org_k,dest_k);
+        ver_indices[twin] = std::pair<int,int> (dest_k,org_k);
+        he->setTwin(twin), twin->setTwin(he);
+        he->setOrigin(org);
+        twin->setOrigin(dest);
+        org->setIncidentEdge(he);
+        dest->setIncidentEdge(twin);
+        ret_hedges.push_back(he);
+        ret_hedges.push_back(twin);
+        hedges_origin_v[org_k].push_back(he);
+        hedges_origin_v[dest_k].push_back(twin);
     }
 
     std::cout<<"NUM VERTICES: " << ret_vertices.size() << std::endl;
     std::cout<<"NUM HEDGES: " << ret_hedges.size() << std::endl;
-
-    //Process of classification according to origin.
-    //for(auto it : origin_hedges){
-    //    HEdge *he = it.second;
-    //    hedges_origin_v[it.first].push_back(he);
-    //}
 
     //Sort in circular order.
     auto angle_cmp = [](HEdge* a, HEdge* b){
@@ -601,11 +625,35 @@ DCEL DCEL::merge(DCEL &op){
 
     ret.setFaces(ret_faces);
 
-    //Labeling Faces Process
-    
-    
-    //1. Hedge가 원래 누구꺼였는지 달아놓아함인데...아 할수 있다!!
 
+    //Labeling Faces Process
+    if(__DEBUG_MODE__)
+        std::cout <<"Labeling Faces Process Start..."<<std::endl;
+    std::map<HEdge*, bool> visit;
+
+    std::string sep = "|";
+
+    for(auto it:ret_hedges)
+        visit[it] = false;
+
+    for(int i = 0 ; i< ret_hedges.size();i++){
+        auto cur = ret_hedges[i];
+        if(visit[cur] == true) continue;
+        std::string f1,f2;
+        while(visit[cur] == false){
+            std::pair<int,int> keys = ver_indices[cur];
+            std::vector<Face*>& inc_faces = graph_hedges[std::pair<int,int >(keys.first, keys.second)];
+            if(inc_faces[0]!= nullptr) f1 = inc_faces[0]->getKey();
+            if(inc_faces[1]!= nullptr) f2 = inc_faces[1]->getKey();
+            //org_face.insert(inc_faces.begin(),inc_faces.end());
+            visit[cur] = true;
+            cur = cur->getNext();
+        }
+        cur->getIncidentFace()->setKey(f1+sep+f2);
+    }
+
+    if(__DEBUG_MODE__)
+        std::cout <<"Labeling Faces Process End..."<<std::endl;
 
     return ret;
 }
