@@ -182,11 +182,11 @@ public:
 					last = start;
 				}
 				original_parent = original;
-				compare(original->key, key) ? original = original->left_child : original = original->right_child;
+				original = compare(original->key, key) ? original->left_child : original->right_child;
 				if (original == leaf) //By this code, original is not leaf in the below codes
 					break;
 				if (start != leaf) {
-					compare(original->parent->key, start->bottom->key) ? tmp_last = original->left_child : tmp_last = original->right_child;
+					tmp_last = compare(original->parent->key, start->bottom->key) ? original->left_child : original->right_child;
 					last = original_parent;
 					if (tmp_last != original && tmp_last != nullptr && tmp_last != leaf) {
 						last = tmp_last;
@@ -220,7 +220,7 @@ public:
 			}
 			else {
 				//cout << "						not root" << endl;
-				actually->parent->left_child == actually ? actually->parent->left_child = replaced_node : actually->parent->right_child = replaced_node;
+				(actually->parent->left_child == actually) ? actually->parent->left_child : actually->parent->right_child = replaced_node;
 			}
 		}
 		//delete node with 1 child
@@ -229,18 +229,20 @@ public:
 			actually = original;
 			delete_color = actually->color;
 			parent = actually->parent;
-			original->left_child != leaf ? replaced_node = original->left_child : replaced_node = original->right_child;
+			//original->left_child != leaf ? replaced_node = original->left_child : replaced_node = original->right_child;
+			replaced_node = (original->left_child != leaf) ?  original->left_child : original->right_child;
 			replaced_node->parent = parent;
-			actually->left_child == leaf ? replaced_node = actually->right_child : replaced_node = actually->left_child;
+			//actually->left_child == leaf ? replaced_node = actually->right_child : replaced_node = actually->left_child;
+			//replaced_node = (actually->left_child == leaf) ?  actually->right_child : actually->left_child;
 			if (actually == root) {
 				//cout << "						root" << endl;
 				root = replaced_node;
 			}
 			else {
 				//cout << "						not root" << endl;
-				parent->left_child == actually ? parent->left_child = replaced_node : parent->right_child = replaced_node;
+				(parent->left_child == actually) ? parent->left_child : parent->right_child = replaced_node;
 			}
-		}
+		}  
 		//delete node with 2 child -> find smallest key of right sub tree
 		else {
 			//cout << "delete node with 2 child case" << endl;
@@ -264,7 +266,8 @@ public:
 					actually->right_child->parent = actually;
 				actually->parent = original->parent;
 				if (original != root)
-					original->parent->left_child == original ? original->parent->left_child = actually : original->parent->right_child = actually;
+					//original->parent->left_child == original ? original->parent->left_child = actually : original->parent->right_child = actually;
+					(original->parent->left_child == original) ? original->parent->left_child : original->parent->right_child = actually;
 				else
 					root = actually;
 				actually = original;
@@ -289,7 +292,8 @@ public:
 				}
 				actually->parent = original->parent;
 				if (original != root)
-					original->parent->left_child == original ? original->parent->left_child = actually : original->parent->right_child = actually;
+					//original->parent->left_child == original ? original->parent->left_child = actually : original->parent->right_child = actually;
+					(original->parent->left_child == original) ? original->parent->left_child : original->parent->right_child = actually;
 				else
 					root = actually;
 				actually = original;
@@ -606,9 +610,11 @@ public:
 				}
 				if (middle != middle->bottom && middle->bottom!=leaf && middle->bottom!=nullptr) {//split lower chain with upper chain
 					Node<T>* new_top = middle;
-					new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;//we need to find next candidate for new top
+					//new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;//we need to find next candidate for new top
+					new_top = (new_top->key > middle->bottom->key) ?  new_top->left_child : new_top->right_child;//we need to find next candidate for new top
 					if (new_top != leaf && new_top != nullptr) {
-						new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;
+						//new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;
+						new_top = (new_top->key > middle->bottom->key) ? new_top->left_child : new_top->right_child;
 						if (new_top != leaf) {
 							new_top->parent->color = red;
 							sibling(new_top)->color = black;
@@ -647,7 +653,8 @@ public:
 
 				//split lower chain with upper chain
 				Node<T>* new_top = middle;
-				new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;//we need to find next candidate for new top
+				//new_top->key > middle->bottom->key ? new_top = new_top->left_child : new_top = new_top->right_child;//we need to find next candidate for new top
+				new_top = (new_top->key > middle->bottom->key) ? new_top->left_child : new_top->right_child;//we need to find next candidate for new top
 				if (new_top != leaf && new_top != nullptr) {
 					new_top->parent->color = red;
 					sibling(new_top)->color = black;
