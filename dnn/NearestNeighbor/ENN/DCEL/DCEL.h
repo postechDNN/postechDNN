@@ -93,18 +93,7 @@ public:
 	void setVertices(std::vector<Vertex*>);
 	std::string getKey();
 	void setKey(const std::string&);
-	//void pushFace(Face*);
-	//void pushHEdge(HEdge*);
-	//void pushVertex(Vertex*);
 
-	//Vertex* getLmost();
-	//Vertex* getRmost();
-	//Vertex* getTmost();
-	//Vertex* getBmost();
-
-	//void addVertex(Point&, const std::string&);
-	//void addEdge(Vertex*, Vertex*);
-	//void deleteEdge(HEdge*);
 	HEdge* getHedge(const std::string& key);
 	Vertex* getVertex( const std::string& key);
 	Face* getFace( const std::string& key);

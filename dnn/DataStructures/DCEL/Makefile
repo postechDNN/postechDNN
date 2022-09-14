@@ -1,19 +1,22 @@
-all: DCEL.o
+all: main.exe
 
-DCEL.o : DCELtmp.o Edge.o Point.o SimplePolygon.o Vector.o ../AVLTree/AVLTree.o
-	ld -o DCEL.o -r DCELtmp.o Edge.o Point.o SimplePolygon.o Vector.o ../AVLTree/AVLTree.o
+main.exe : main.o DCEL_operation.o DCEL_IO.o DCEL.o Edge.o Point.o Vector.o
+	g++ -o main.exe main.o DCEL_operation.o DCEL_IO.o DCEL.o Edge.o Point.o Vector.o
 
-../AVLTree/AVLTree.o : 
-	(cd ../AVLTree;make all)
+main.o : main.cpp DCEL.h DCEL_IO.h AVLTree.h DCEL_IO.h Point.h Edge.h
+	g++ -o main.o -c main.cpp -std=c++17
 
-DCELtmp.o : DCEL.cpp DCEL.h Edge.h Point.h SimplePolygon.h Vector.h ../AVLTree/AVLTree.h
-	g++ -o DCELtmp.o -c DCEL.cpp -std=c++17
+DCEL_IO.o : DCEL_IO.cpp DCEL.h 
+	g++ -o DCEL_IO.o -c DCEL_IO.cpp -std=c++17
 
-SimplePolygon.o : SimplePolygon.h Edge.h SimplePolygon.cpp
-	g++ -o SimplePolygon.o -c SimplePolygon.cpp
+DCEL.o : DCEL.cpp DCEL.h Edge.h Point.h Vector.h AVLTree.h DCEL_operation.h
+	g++ -o DCEL.o -c DCEL.cpp -std=c++17
+
+DCEL_operation.o : DCEL_operation.cpp DCEL.h Vector.h
+	g++ -o DCEL_operation.o -c DCEL_operation.cpp -std=c++17
 
 Vector.o : Vector.cpp Vector.h Point.h Edge.h
-	g++ -o Vector.o -c Vector.cpp
+	g++ -o Vector.o -c Vector.cpp -std=c++17
 
 Edge.o : Edge.cpp Edge.h Point.h
 	g++ -o Edge.o -c Edge.cpp -std=c++17
@@ -22,4 +25,4 @@ Point.o : Point.cpp Point.h
 	g++ -o Point.o -c Point.cpp
 
 clean :
-	rm -r ./*.o
+	del *.o main.exe

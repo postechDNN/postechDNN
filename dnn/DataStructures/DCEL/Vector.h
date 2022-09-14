@@ -6,15 +6,14 @@
 class Vector : public Point{
 public:
 	Vector();
-	Vector(Point );
-	Vector(Point , Point);
-	//Vector(Edge );	//??
+	Vector(double x, double y);
+	Vector(Point& );
+	Vector(Point& , Point&);
 	~Vector();
-	bool operator==(Vector );
-	Vector operator- (Vector );
-	double innerProdct(Vector );
-	double outerProdct(Vector );
-	//Point getOrigin(void);
-	//Point getDest(void);
+	bool operator==(Vector& );
+	Vector operator/(double );
+	Vector operator- (Vector& );
+	double innerProdct(Vector& );
+	double outerProdct(Vector& );
 	double norm();
 };

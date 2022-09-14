@@ -20,30 +20,30 @@ int _default_f_key = 0;
 int _default_dcel_key = 0;
 
 Vertex::Vertex() : Point() {
-	this->key = "Default_v_"+std::to_string(_default_v_key++); 
+	this->key = "v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = nullptr; 
 }
 
 Vertex::Vertex(double x, double y) : Point(x,y) {
-	this->key = "Default_v_"+std::to_string(_default_v_key++); 
+	this->key = "v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = nullptr; 
 }
 
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(HEdge* _e) : Point() {
-	this->key = "Default_v_"+std::to_string(_default_v_key++); 
+	this->key = "v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = _e;
 }
 
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(const Point& _p) : Point(_p) {
-	this->key = "Default_v_"+std::to_string(_default_v_key++); 
+	this->key = "v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = nullptr;
 }
 
 //CAUTION: vertex is a origin of half edge, vertex key need to be defined.
 Vertex::Vertex(Point& _p, HEdge* _e) : Point(_p) {
-	this->key = "Default_v_"+std::to_string(_default_v_key++); 
+	this->key = "v_"+std::to_string(_default_v_key++); 
 	this->incidentEdge = _e;
 }
 
@@ -72,7 +72,7 @@ HEdge* Vertex::getIncidentEdge() {
 }
 
 HEdge::HEdge() {
-	this->key = "Default_e_"+std::to_string(_default_e_key++); 
+	this->key = "e_"+std::to_string(_default_e_key++); 
 	this->origin = nullptr;
 	this->incidentFace = nullptr;
 	this->next = nullptr;
@@ -81,7 +81,7 @@ HEdge::HEdge() {
 }
 
 HEdge::HEdge(Vertex* _v1, Vertex* _v2) {
-	this->key = "Default_e_"+std::to_string(_default_e_key++); 
+	this->key = "e_"+std::to_string(_default_e_key++); 
 	this->origin = _v1;
 	this->twin = new HEdge();
 	this->twin->origin =_v2;
@@ -174,7 +174,7 @@ void HEdge::setIncidentFace(Face *_f) {
 }
 
 Face::Face() {
-	this->key = "Default_f_"+std::to_string(_default_f_key++); 
+	this->key = "f_"+std::to_string(_default_f_key++); 
 	this->outer = nullptr;
 }
 
@@ -241,7 +241,7 @@ DCEL::DCEL() {
 	//this->num_faces = 0;
 	//this->num_hedges = 0;
 	//this->num_vertices = 0;
-	this->key = "Default_dcel_"+std::to_string(_default_dcel_key++); 
+	this->key = "dcel_"+std::to_string(_default_dcel_key++); 
 
 	Face *of = new Face();
 	of->setOuter(nullptr);
