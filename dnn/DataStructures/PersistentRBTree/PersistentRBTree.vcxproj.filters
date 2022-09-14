@@ -24,6 +24,9 @@
     <ClInclude Include="RBTree_new.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="simple_persistent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">
