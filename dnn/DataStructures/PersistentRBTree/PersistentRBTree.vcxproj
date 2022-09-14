@@ -140,8 +140,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="persistent.h" />
-    <ClInclude Include="RBtree.h" />
+    <ClInclude Include="RBTree_new.h" />
     <ClInclude Include="Red Black Tree.h" />
+    <ClInclude Include="simple_persistent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp" />
