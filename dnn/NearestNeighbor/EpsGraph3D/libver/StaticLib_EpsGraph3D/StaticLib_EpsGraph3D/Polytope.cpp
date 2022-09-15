@@ -477,3 +477,8 @@ bool EPS::Polytope::intersect(Point p1, Point p2, int dir) {
 bool EPS::Polytope::operator==(Polytope _p) {
 	return this->ord == _p.ord;
 }
+
+std::vector<EPS::Face*> EPS::Polytope::getfaces()
+{
+	return faces;
+}

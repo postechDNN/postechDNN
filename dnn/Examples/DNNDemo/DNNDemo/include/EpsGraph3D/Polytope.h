@@ -58,5 +58,6 @@ namespace EPS {
 		bool isIn(Point* p);
 		bool intersect(Point, Point, int);
 		bool operator==(Polytope);
+		std::vector<Face*> getfaces();
 	};
 }

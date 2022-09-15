@@ -78,7 +78,9 @@ vector<OGL_Vertex> DNN_DS::get_fr()
 	temp = Graph->get_free_points();
 
 	for (auto v : temp) {
-
+		OGL_Vertex tv;
+		tv.setPos(v.x, v.y, v.z);
+		convert.push_back(tv);
 	}
 
 	return convert;
@@ -91,9 +93,14 @@ vector<OGL_Edge> DNN_DS::do_knn()
 	temp = Graph->get_path(Eps_Query, Eps_knn);
 
 	for (auto e : temp) {
-
+		OGL_Edge te;
+		OGL_Point a1, a2;
+		a1 = { e.p1->x, e.p1->y, e.p1->z };
+		a2 = { e.p2->x, e.p2->y, e.p2->z };
+		te.setStartP(a1);
+		te.setEndP(a2);
+		convert.push_back(te);
 	}
-
 	return convert;
 }
 
@@ -103,8 +110,17 @@ vector<OGL_Face> DNN_DS::get_pol()
 	vector <OGL_Face> convert = {};
 	temp = Graph->get_Polytope();
 
-	for (auto p : temp) {
-		
+	for (auto pol : temp) {
+		vector<EPS::Face*> tf = pol.getfaces();
+		for (auto f : tf) {
+			OGL_Face addf;
+			vector<EPS::Point*> tp = f->getpoints();
+			for (auto p : tp) {
+				OGL_Point addp = { p->x, p->y, p->z };
+				addf.addPoint(addp);
+			}
+			convert.push_back(addf);
+		}
 	}
 
 	return convert;
