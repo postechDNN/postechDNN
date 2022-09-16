@@ -19,6 +19,7 @@ struct Version
 {
 	int parent; //index of the parent version
 	RBTree<T>* tree;  //Binary search tree of this version
+	Version() {};
 	Version(int p)
 	{
 		parent = p;

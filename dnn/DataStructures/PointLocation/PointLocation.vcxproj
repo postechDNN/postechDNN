@@ -48,7 +48,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -127,12 +126,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\DCEL\DCEL.cpp" />
+    <ClCompile Include="..\DCEL\Edge.cpp" />
+    <ClCompile Include="..\DCEL\Point.cpp" />
     <ClCompile Include="Location.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\DCEL\DCEL.h" />
-    <ClInclude Include="..\DCEL\Edge.h" />
-    <ClInclude Include="..\DCEL\Point.h" />
     <ClInclude Include="Location.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
