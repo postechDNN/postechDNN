@@ -72,3 +72,9 @@ void Graph::deleteEdge(int i, int j) {
 	adj_list[i].erase(adj_list[i].find(j));
 	adj_list[j].erase(adj_list[j].find(i));
 }
+
+void Graph::print() {
+	for (auto edge : this->edges) {
+		edge->print();
+	}
+}

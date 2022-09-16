@@ -8,7 +8,7 @@
 using namespace std;
 
 class Graph {
-private:
+public:
 	vector<Point*> vertices;
 	vector<set<int>> adj_list;
 	// vector<vector<bool>> mat;
@@ -45,5 +45,6 @@ public:
 	Graph(vector<Point*>, vector<set<int>>);
 	void addEdge(int,int);
 	void deleteEdge(int,int);
+	void print();
 };
 

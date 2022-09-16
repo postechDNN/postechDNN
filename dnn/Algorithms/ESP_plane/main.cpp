@@ -1,3 +1,4 @@
+
 #include "CS.h"
 #include <iostream>
 #include <tuple>
@@ -21,4 +22,3 @@ int main() {
 	auto CS = conforming_subdivision(s, t, vec);
 	return 0;
 }
-

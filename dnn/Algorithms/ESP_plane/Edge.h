@@ -4,7 +4,7 @@
 class Face;
 
 class Edge { // assume that each edge is oriented clockwise.
-private:
+public:
 	Point* p1;
 	Point* p2;
 	int lv; // length of the 'line_segment' equals the unit length in level lv
@@ -27,6 +27,8 @@ public:
 	Edge* getPrev();
 	Face* getTwin(Face*);
 	double getLength();
+	void print();
 };
 
-bool sortbylength(Edge& a, Edge& b);
+// bool sortbylength(Edge& a, Edge& b);
+bool sortbylength(Edge* a, Edge* b);

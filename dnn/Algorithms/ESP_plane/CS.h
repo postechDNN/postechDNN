@@ -6,10 +6,11 @@
 // #include <vector>
 #include "RP.h"
 #include <list>
+#include "./../../DataStructures/Delaunay_Linf/delaunay.h"
 // #include "basic.h"
 
 using namespace std;
-typedef struct subdivision subdivision;
+typedef struct Subdivision Subdivision;
 
 /*
 double operator-(const Point& a, const Point& b);
@@ -20,10 +21,12 @@ int my_find(int x, int* root, int count);
 int my_union(int x, int y, int* root, int* rank, int count);
 */
 
+/*
 struct Subdivision{
 	vector<Face*> FCs; // faces
 	vector<Edge*> EGs; // segments
 };
+*/
 
 class conforming_subdivision {
 public: // 변수
@@ -32,7 +35,7 @@ public: // 변수
 	vector<Point*> obstacle_vertices;
 	vector<i_quad*> Q_old, Q_i; // set of i-quads // Q_im4
 	vector <Graph*> MSF_old, MSF_i;
-	Subdivision S;
+	// Subdivision S;
 	int rp_index; // RectPoly_index
 
 public: // 함수

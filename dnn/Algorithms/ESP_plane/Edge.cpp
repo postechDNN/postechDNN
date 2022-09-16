@@ -1,5 +1,6 @@
 #include "Edge.h"
 #include "Face.h"
+#include <iostream>
 
 Edge::Edge() {}
 Edge::~Edge() {}
@@ -38,6 +39,18 @@ double Edge::getLength() {
 	return length;
 }
 
+void Edge::print() {
+	std::cout << std::endl;
+	this->p1->print();
+	this->p2->print();
+}
+
+/*
 bool sortbylength(Edge& a, Edge& b) {
 	return (a.getLength() < b.getLength());
+}
+*/
+
+bool sortbylength(Edge* a, Edge* b) {
+	return (a->getLength() < b->getLength());
 }

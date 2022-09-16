@@ -148,9 +148,11 @@ bool conforming_subdivision::overlap(i_quad* q1, i_quad* q2) {
 	else { return false; }
 }
 
+/*
 vector<tuple<int, int, double>> conforming_subdivision::delaunay(Graph*) {
 	return {};
 }
+*/
 
 bool conforming_subdivision::is_simple(i_quad* q) {
 	/*
@@ -242,15 +244,17 @@ void conforming_subdivision::build_subdivision() {
 	// vector<Graph*> N = {}; // set of trees with cardinality more than one
 	// compute L_inf Delaunay triangulation DT, say, vector<tuple<int, int>> DT = delaunay(G).
 	// assume that DT is given as edges (equivalently, vertex-vertex pairs).
-	vector<tuple<int, int>> DT = {};
+	// vector<tuple<int, int>> DT = {};
 	vector<Edge*> edges = {};
 	Graph* G = new Graph(srcNobs, {}, Q_old, -1);
 
-	for (auto edge : DT) {
-		Edge* E = new Edge(G->getVertex(get<0>(edge)), G->getVertex(get<1>(edge)));
-		edges.push_back(E);
-	}
-	// sort(edges.begin(), edges.end(), sortbylength); // sort edges in increasing order of length
+	toDelaunay(srcNobs, G);
+
+	// after computing Delaunay triangulation, we compute minimum spanning forest
+
+	// sort edges in increasing order of length
+	// sort(edges.begin(), edges.end(), sortbylength);
+	sort(G->edges.begin(), G->edges.end(), sortbylength); 
 
 	int num_vertices = G->getNumVertices();
 	int* root; int* rank;
@@ -287,7 +291,9 @@ void conforming_subdivision::build_subdivision() {
 					int Ts[2] = { T1,T2 };
 					for (auto Tx : Ts) {
 						auto it = N.find(Tx);
+						// if Tx is in N, then remove Tx from N.
 						if (it != N.end()) { N.erase(it); }
+						// else, compute the singleton quad.
 						else {
 							for (int m = 0; m < int((i - 2 - i_old) / 2); i++) {
 								i_quad* temp = MSF_old[Tx]->getQ_iT(0);
@@ -306,7 +312,9 @@ void conforming_subdivision::build_subdivision() {
 					vector<i_quad*> temp2 = MSF_old[nonroot]->getQ_ioldT();
 					temp.insert(temp.end(), temp2.begin(), temp2.end());
 					MSF_old[newroot]->setQ_ioldT(temp);
+					// 합쳤으니까, 기존 것들은 삭제.
 					delete MSF_old[nonroot]; MSF_old[nonroot] = NULL;
+					// put T' in N.
 					N.insert(newroot);
 
 					first = false;
@@ -316,18 +324,27 @@ void conforming_subdivision::build_subdivision() {
 
 		MSF_i = MSF_old;
 		for (auto n : N) {
+			// for each T in N do
 			auto T = MSF_i[n];
+
+			// initialize Q(i, T) = \emptyset
 			T->setQ_iT({});
+
+			// for each equivalence class S
 			auto temp = equiv_classes(T->getQ_ioldT());
 			auto EC = temp.first;  auto Qs = temp.second;
 			for (auto ec : EC) {
 				vector<i_quad*> S = {};
 				for (auto num : ec) { S.push_back(Qs[num]); }
+				// Q(i, T) = Q(i, T) \union growth(S)
 				T->addQ_iT(growth(S));
 
+				// compute the equivalence classes of Q(i, T) by plane sweep
 				auto temp = equiv_classes(T->getQ_iT());
 				auto EC = temp.first;  auto Q_iT = temp.second; // Q_iT is a subset of the Qs just above.
 			}
+
+			// perform steps 3 and 4 of build-subdivision on Q(i, T).
 
 			// (* 3. Process simple components of ≡_i-2 that are about to merge with some other components. *)
 			for (auto q : T->getQ_ioldT()) {
