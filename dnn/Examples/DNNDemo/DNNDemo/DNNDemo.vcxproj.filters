@@ -115,5 +115,8 @@
     <Library Include="lib\StaticLib_EpsGraph3D_d86.lib">
       <Filter>lib</Filter>
     </Library>
+    <Library Include="lib\StaticLib_EpsGraph3D_86.lib">
+      <Filter>lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>

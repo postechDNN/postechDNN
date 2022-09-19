@@ -4,6 +4,7 @@
 
 //this class defines a point in 2D space
 #define ERR 1e-6
+
 EPS::Point::Point() {
 	this->x = 0.;
 	this->y = 0.;

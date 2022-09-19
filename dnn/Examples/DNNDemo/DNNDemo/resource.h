@@ -33,7 +33,9 @@
 #define IDC_BUTTON_QUERY                1021
 #define IDC_EDIT_Q1                     1022
 #define IDC_STATIC_Q1                   1023
-#define IDC_BUTTON_POV                  1024
+#define IDC_EDIT_QR1                    1025
+#define IDC_EDIT_QR2                    1026
+#define IDC_EDIT_QR3                    1027
 
 // Next default values for new objects
 // 
@@ -41,7 +43,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

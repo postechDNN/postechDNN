@@ -239,6 +239,7 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\StaticLib_EpsGraph3D_64.lib" />
+    <Library Include="lib\StaticLib_EpsGraph3D_86.lib" />
     <Library Include="lib\StaticLib_EpsGraph3D_d64.lib" />
     <Library Include="lib\StaticLib_EpsGraph3D_d86.lib" />
   </ItemGroup>

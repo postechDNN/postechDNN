@@ -76,6 +76,9 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_Q1, m_static_q1);
 	DDX_Control(pDX, IDC_BUTTON_QUERY, m_button_query);
 	DDX_Control(pDX, IDC_EDIT_Q1, m_edit_q1);
+	DDX_Control(pDX, IDC_EDIT_QR1, m_edit_qr1);
+	DDX_Control(pDX, IDC_EDIT_QR2, m_edit_qr2);
+	DDX_Control(pDX, IDC_EDIT_QR3, m_edit_qr3);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -517,6 +520,18 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 			for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
 			m_picture_opengl.DDS.set_knn(coordinate, knn);
 			// k값과 좌표로 query를 수행하는 함수 호출
+
+			// Print result
+			CString temp;
+			// Query data size
+			temp.Format(_T("%d"), m_picture_opengl.DDS.get_physical_memory() + m_picture_opengl.DDS.get_virtual_memory());
+			m_edit_qr1.SetWindowTextW(temp);
+			// Query time
+			temp.Format(_T("%d"), m_picture_opengl.DDS.get_execution_time());
+			m_edit_qr2.SetWindowTextW(temp);
+			// Query accuracy
+			//temp.Format(_T("%f"), m_picture_opengl.DDS.get_accuracy());
+			//m_edit_qr3.SetWindowTextW(temp);
 		}
 	}
 		break;

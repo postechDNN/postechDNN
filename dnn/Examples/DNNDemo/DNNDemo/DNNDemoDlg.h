@@ -66,4 +66,7 @@ public:
 	CEdit m_edit_q1;
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	CEdit m_edit_qr1;
+	CEdit m_edit_qr2;
+	CEdit m_edit_qr3;
 };
