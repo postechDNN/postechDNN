@@ -7,6 +7,8 @@
 
 #include "./../../Algorithms/ESP_plane/Point.h"
 
+
+
 class QuadEdge;
 
 class Edge2d {

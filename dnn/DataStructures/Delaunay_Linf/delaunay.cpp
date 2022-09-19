@@ -554,33 +554,39 @@ Point2d pointToPoint2d(Point* p){
   return *newP;
 }
 
-void toDelaunay(vector<Point>& ptS, Graph* G){
-  
-  vector<Point2d> S;
-  for (int i=0; i<ptS.size(); i++){
-    S.push_back(pointToPoint2d(&(ptS[i])));
-  }
+void toDelaunay(vector<Point*> ptS, Graph* G) {
 
+vector<Point2d> S;
+for (int i = 0; i < ptS.size(); i++) {
+	S.push_back(pointToPoint2d(ptS[i]));
+}
 
-  
   sort(S.begin(), S.end(), cmp);
   Edge2d* sEdge = delaunay(S);
 
-	std::vector<std::vector<std::pair<double, double>>> edges;
+  std::vector<std::vector<std::pair<double, double>>> edges;
   sEdge->Draw(++mystamp, edges, G);
 
   return;
 }
 
-
+/*
 int main(int argc, char** argv){
 
   
   vector<Point2d> sList;
-	Point2d s1(0,0), s2(20,20), s3(40,30);
+  Point2d s1(0,0), s2(20,20), s3(40,30);
   sList.push_back(s1);
   sList.push_back(s2);
   sList.push_back(s3);
+
+  vector<Point2d> test0;
+  Point2d pp1(0, 0), pp2(8, 0), pp3(16, -8), pp4(16, 6), pp5(24, 24);
+  test0.push_back(pp1);
+  test0.push_back(pp2);
+  test0.push_back(pp3);
+  test0.push_back(pp4);
+  test0.push_back(pp5);
 
   vector<Point2d> test1; 
   Point2d p1(10, 0), p2(0, 20), p3(20, 50), p4(40, 30), p5(30, 7), p6(50, 10), p7(60, 40), p8(50, -10), p9(60, -20);
@@ -591,7 +597,7 @@ int main(int argc, char** argv){
   test1.push_back(p5);
   test1.push_back(p6);
   test1.push_back(p7);
-	//Subdivision mesh(p1, p2, p3);
+  //Subdivision mesh(p1, p2, p3);
 
   vector<Point2d> test2; 
   test2.push_back(p1);
@@ -632,7 +638,7 @@ int main(int argc, char** argv){
   test5.push_back(w6);
 
 
-  vector<Point2d> test = test5;
+  vector<Point2d> test = test0;
   sort(test.begin(), test.end(), cmp);
   Edge2d* sEdge = delaunay(test);
 
@@ -646,16 +652,14 @@ int main(int argc, char** argv){
   Graph* tempG = new Graph();
   sEdge->Draw(1000, edges, tempG);
 
-  /* Check if a graph was successfully created */
+  // Check if a graph was successfully created
   printf("# of graph edges : %d \n", tempG->getNumEdges());
 
-  /*
-  Gnuplot gp;
+  // Gnuplot gp;
 
-  gp << "set xrange [-50:150]\nset yrange [-50:150]\n";
-  gp << "plot '-' with linespoints\n";
-  gp.send2d(edges); //NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
-  */
+  // gp << "set xrange [-50:150]\nset yrange [-50:150]\n";
+  // gp << "plot '-' with linespoints\n";
+  // gp.send2d(edges); //NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
   
 
   
@@ -676,4 +680,4 @@ int main(int argc, char** argv){
 	return 0;
 
 }
-
+*/

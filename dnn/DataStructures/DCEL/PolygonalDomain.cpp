@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 
+
 PolygonalDomain::PolygonalDomain() {
 	this->obstacles = new std::vector<SimplePolygon*>();
 }

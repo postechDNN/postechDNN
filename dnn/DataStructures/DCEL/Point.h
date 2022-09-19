@@ -1,23 +1,30 @@
 #pragma once
+#include <iostream>
 //this class defines a point in 2D space
 
-//can use int, double
-class Point {
-protected:
-	double x, y;
+//can use double
 
-public:
+// 
+using namespace std;
 
-	Point();
-	Point(double, double);
-	Point(Point&);
-	~Point();
-	bool operator==(Point);
-	Point operator- (Point);
-	double getx(void);
-	void setx(double);
-	double gety(void);
-	void sety(double);
+namespace JH{
+	class Point {
+	protected:
+		double x, y;
 
-	double distance(Point);
-};
+	public:
+		Point();
+		Point(double, double);
+		Point(const Point&);
+		~Point();
+		bool operator==(Point);
+		Point operator- (Point);
+		double getx(void) const;
+		void setx(double);
+		double gety(void) const;
+		void sety(double);
+		double distance(Point);
+
+		friend std::ostream& operator<<(std::ostream& os, const Point& p); //For testing
+	};
+}

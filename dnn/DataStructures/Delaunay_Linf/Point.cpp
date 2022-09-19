@@ -4,6 +4,8 @@
 
 //this class defines a point in 2D space
 
+using namespace CY;
+
 Point::Point() {
 	this->x = 0.;
 	this->y = 0.;

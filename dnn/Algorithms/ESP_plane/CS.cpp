@@ -248,7 +248,7 @@ void conforming_subdivision::build_subdivision() {
 	vector<Edge*> edges = {};
 	Graph* G = new Graph(srcNobs, {}, Q_old, -1);
 
-	toDelaunay(srcNobs, G);
+	// toDelaunay(srcNobs, G);
 
 	// after computing Delaunay triangulation, we compute minimum spanning forest
 
@@ -266,6 +266,8 @@ void conforming_subdivision::build_subdivision() {
 		rank[j] = 0;
 	}
 	int j = 0;
+
+	DCEL D;
 
 	while (Q_i.size() > 1) { // until all components merge into one, process sorted edges one by one.
 		vector<Edge*> new_edges = {};
@@ -360,9 +362,16 @@ void conforming_subdivision::build_subdivision() {
 				for (auto i : ec) { // insert each element in each equivalence class, given with an index in Q_i, into Qs.
 					Qs.push_back(Q_i[i]);
 				}
-			
-				RP* R1 = Union(Qs, 2);
-				RP* R2 = Union(Qs, 4);
+
+			RP* R1 = Union(Qs, 2);
+			DCEL D1 = makeDCEL(R1);
+			D.merge(D1);
+			RP* R2 = Union(Qs, 4);
+			DCEL D2 = makeDCEL(R2);
+			D.merge(D2);
+				
+
+				// rectilinear polygon
 
 				// Draw (i-2)-boxes to fill the region between the boundaries of R1 and R2.
 				// Draw i-boxes to ll the region between the boundaries of R1 and S; 

@@ -1,7 +1,6 @@
 #pragma once
 #include "SimplePolygon.h"
 
-
 class PolygonalDomain {
 private:
 	std::vector<SimplePolygon*>* obstacles;

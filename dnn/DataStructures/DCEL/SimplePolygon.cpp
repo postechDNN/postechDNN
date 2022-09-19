@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <vector>
 
+
+// using Point;
+
 SimplePolygon::SimplePolygon() {
 	this->edges = new std::vector<Edge*>();
 }

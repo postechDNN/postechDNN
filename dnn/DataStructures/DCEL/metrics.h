@@ -1,5 +1,7 @@
 #pragma once
-#include "Point.h"
+#include "./..//..//Algorithms/ESP_plane/Point.h"
+
+
 
 double l_1_metric(Point& p_1, Point& p_2);
 double l_2_metric(Point& p_1, Point& p_2);

@@ -1,15 +1,14 @@
 #include "quadedge.h"
 //#include "fakeirisgl.h"
 #include <vector>
+#include <algorithm>
 
 //#include "gnuplot-iostream.h"
 //#include <GLUT/glut.h>
 
-using namespace std; 
-
+using namespace std;
 
 Point2d drA, drB; // for drawing 
-
 
 bool LowerThan(Point2d a, Point2d b){
   return ((a.y<b.y) || (a.y==b.y) && (a.x<b.x));
@@ -339,8 +338,6 @@ void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, 
 		/* Add edges to a graph */ 
 		Edge* gEdge = new Edge(Org2d().point, Dest2d().point);
 		G->addEdge(gEdge);
-
-
 
 		//gp << "plot '-' with linespoints\n";
 		// NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.

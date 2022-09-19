@@ -2,22 +2,27 @@
 //this class defines a point in 2D space
 
 //can use int, double
-class Point {
-protected:
-	double x, y;
 
-public:
+//using namespace CY;
 
-	Point();
-	Point(double, double);
-	Point(Point&);
-	~Point();
-	bool operator==(Point);
-	Point operator- (Point);
-	double getx(void);
-	void setx(double);
-	double gety(void);
-	void sety(double);
+namespace CY {
+	class Point {
+	protected:
+		double x, y;
 
-	double distance(Point);
-};
+	public:
+
+		Point();
+		Point(double, double);
+		Point(CY::Point&);
+		~Point();
+		bool operator==(CY::Point);
+		CY::Point operator- (CY::Point);
+		double getx(void);
+		void setx(double);
+		double gety(void);
+		void sety(double);
+
+		double distance(CY::Point);
+	};
+}

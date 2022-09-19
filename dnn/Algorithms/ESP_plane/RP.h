@@ -7,11 +7,12 @@
 #include "i_quad.h"
 
 using namespace std;
+
 typedef tuple<int, int> tii;
 typedef tuple<int, int, int, vector<tuple<int, int>>*> quadruple; // quadruple: start, end, count, path
 
 class RP {
-private:
+public:
 	vector<Point*> vers; // vertices
 
 public:

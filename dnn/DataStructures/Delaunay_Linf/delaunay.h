@@ -7,11 +7,7 @@
 #include <vector>
 
 Edge2d* delaunay(vector<Point2d>& S);
-void toDelaunay(vector<Point>& ptS, Graph* G);
-
-
-
-
-
+void toDelaunay(vector<Point*> ptS, Graph* G);
+// vector<Point>& 에서 vector<Point*>로 변경함
 
 #endif

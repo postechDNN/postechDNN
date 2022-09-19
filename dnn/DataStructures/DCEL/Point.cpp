@@ -4,6 +4,8 @@
 
 //this class defines a point in 2D space
 
+
+
 Point::Point() {
 	this->x = 0.;
 	this->y = 0.;
@@ -12,9 +14,9 @@ Point::Point(double _x, double _y) {
 	this->x = _x;
 	this->y = _y;
 }
-Point::Point(Point& _p) {
-	this->x = _p.getx();
-	this->y = _p.gety();
+Point::Point(const Point& _p) {
+	this->x = _p.x;
+	this->y = _p.y;
 }
 Point::~Point() {}
 
@@ -27,7 +29,7 @@ Point Point::operator- (Point _p) {
 	return p;
 }
 
-double Point::getx() {
+double Point::getx() const {
 	return this->x;
 }
 
@@ -35,8 +37,7 @@ void Point::setx(double _x) {
 	this->x = _x;
 }
 
-
-double Point::gety() {
+double Point::gety() const{
 	return this->y;
 }
 
@@ -46,4 +47,9 @@ void Point::sety(double _y) {
 
 double Point::distance(Point _p) {
 	return sqrt(pow(_p.x - this->x, 2) + pow(_p.y - this->y, 2));
+}
+
+std::ostream& operator<<(std::ostream& os, const Point& p){
+	os << '('<<p.getx()<<", "<<p.gety()<<')';
+	return os;
 }

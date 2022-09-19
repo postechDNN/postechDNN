@@ -3,6 +3,8 @@
 
 //this class defines a vector in 2D space
 
+// 
+
 Vector::Vector() {
 	this->x = 0;
 	this->y = 0;
@@ -11,12 +13,14 @@ Vector::Vector() {
 	this->dest = new Point(0., 0.);*/
 }
 
-Vector::Vector(Point _p){
+Vector::Vector(double x, double y): Point(x,y){};
+
+Vector::Vector(Point& _p){
 	this->x = _p.getx();
 	this->y = _p.gety();
 }
 
-Vector::Vector(Point _origin, Point _dest) {
+Vector::Vector(Point& _origin, Point& _dest) {
 	this->x = _dest.getx() - _origin.getx();
 	this->y = _dest.gety() - _origin.gety();
 	
@@ -34,14 +38,14 @@ Vector::Vector(Edge * _e) {
 Vector::~Vector() {}
 
 
-bool Vector::operator==(Vector _v) {
+bool Vector::operator==(Vector& _v) {
 	return abs(this->x - _v.x) < 1e-6 && abs(this->y - _v.y) < 1e-6; 
 	/*
 	return this->origin == _v->getOrigin() && this->dest == _v->getDest();*/
 }
 
-Vector Vector::operator- (Vector _v) {
-	return Vector(Point(this->x - _v.x, this->y - _v.y));
+Vector Vector::operator- (Vector& _v) {
+	return Vector(this->x - _v.x, this->y - _v.y);
 	/*
 	Point * _origin = new Point(this->origin - _v->getOrigin());
 	Point * _dest = new Point(this->dest - _v->getDest());
@@ -50,14 +54,18 @@ Vector Vector::operator- (Vector _v) {
 
 };
 
-double Vector::innerProdct(Vector _v) {
+Vector Vector::operator/ (double c){
+	return Vector(this->x/c, this->y/c);
+}
+
+double Vector::innerProdct(Vector& _v) {
 	return this->x * _v.x + this->y * _v.y;
 	/*
 	return ((this->getDest()-this->getOrigin()).getx()* (_v->getDest() - _v->getOrigin()).getx() + (this->getDest() - this->getOrigin()).gety()* (_v->getDest() - _v->getOrigin()).gety());
 */
 };
 
-double Vector::outerProdct(Vector _v) {
+double Vector::outerProdct(Vector& _v) {
 
 	return this->x * _v.y - this->y * _v.x;
 	/*

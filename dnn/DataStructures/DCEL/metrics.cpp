@@ -2,6 +2,8 @@
 #include <math.h>
 #include <algorithm>
 
+
+
 double l_p_metric(Point& p_1, Point& p_2, int p)
 {
 	return sqrt(pow(p_1.getx() - p_2.getx(), p) + pow(p_1.gety() - p_2.gety(), p));
