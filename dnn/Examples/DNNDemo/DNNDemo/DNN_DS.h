@@ -18,6 +18,9 @@ public:
 	std::vector<OGL_Vertex> get_fr();
 	std::vector<OGL_Edge> do_knn();
 	std::vector<OGL_Face> get_pol();
+	long long int get_virtual_memory();
+	long long int get_physical_memory();
+	long long int get_execution_time();
 
 	void read3Deps(CString path);
 
@@ -30,5 +33,7 @@ public:
 private:
 	EPS::Free_Point Eps_Query;
 	int Eps_knn;
+	MEMORYSTATUSEX memory;
+	long long int exe_time;
 };
 

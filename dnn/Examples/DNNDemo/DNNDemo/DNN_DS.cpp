@@ -1,11 +1,15 @@
 #include "pch.h"
 #include "DNN_DS.h"
 #include "fstream"
+#include "windows.h"
+#include "chrono"
 
 using namespace std;
+#define DIV 1024
 
 DNN_DS::DNN_DS() {
-
+	memory.dwLength = sizeof(memory);
+	exe_time = 0;
 }
 
 DNN_DS::~DNN_DS() {
@@ -90,7 +94,11 @@ vector<OGL_Edge> DNN_DS::do_knn()
 {
 	vector<EPS::Edge> temp = {};
 	vector <OGL_Edge> convert = {};
+	auto start = chrono::high_resolution_clock::now();
 	temp = Graph->get_path(Eps_Query, Eps_knn);
+	auto stop = chrono::high_resolution_clock::now();
+	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+	exe_time = duration.count();
 
 	for (auto e : temp) {
 		OGL_Edge te;
@@ -173,4 +181,19 @@ void DNN_DS::read3Deps(CString path)
 		object3D.addFace(f);
 	}
 
+}
+
+long long int DNN_DS::get_virtual_memory()
+{
+	return memory.ullTotalVirtual / DIV;
+}
+
+long long int DNN_DS::get_physical_memory()
+{
+	return memory.ullTotalPhys / DIV;
+}
+
+long long int DNN_DS::get_execution_time()
+{
+	return exe_time;
 }
