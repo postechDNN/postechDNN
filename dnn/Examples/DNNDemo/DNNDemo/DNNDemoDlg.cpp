@@ -522,7 +522,6 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 			// k값과 좌표로 query를 수행하는 함수 호출
 
 			// Print result
-			CString temp;
 			// Query data size
 			temp.Format(_T("%d"), m_picture_opengl.DDS.get_physical_memory() + m_picture_opengl.DDS.get_virtual_memory());
 			m_edit_qr1.SetWindowTextW(temp);

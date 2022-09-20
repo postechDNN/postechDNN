@@ -49,6 +49,7 @@ public:
 	double view[3][3]; // opengl view eye[3] center[3] up[3]
 	double vectors[3][3]; // up[3] left[3] right[3]
 	int mouse[2];
+	bool isChange;
 
 private:
 	int mode;

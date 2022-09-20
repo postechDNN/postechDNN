@@ -173,7 +173,6 @@ void OGL_Contorl::OnPaint()
 	double normTrans[3];
 	double normMul[3];
 
-	// 사각형 테스트
 	if (this->mode == 2) {
 		this->DDS.object2D.getNorm(normTrans, normMul, 2);
 

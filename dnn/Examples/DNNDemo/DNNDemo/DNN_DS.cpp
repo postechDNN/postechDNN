@@ -8,6 +8,7 @@ using namespace std;
 #define DIV 1024
 
 DNN_DS::DNN_DS() {
+	this->Graph = new EPS::Eps_Graph_3D();
 	memory.dwLength = sizeof(memory);
 	exe_time = 0;
 }
