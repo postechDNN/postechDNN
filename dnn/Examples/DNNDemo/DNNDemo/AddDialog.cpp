@@ -35,6 +35,7 @@ void AddDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_X, m_edit_x);
 	DDX_Control(pDX, IDC_EDIT_Y, m_edit_y);
 	DDX_Control(pDX, IDC_EDIT_Z, m_edit_z);
+	DDX_Control(pDX, IDC_STATIC_KEY, m_static_key);
 }
 
 
@@ -91,7 +92,9 @@ BOOL AddDialog::OnInitDialog()
 	}
 	else if (this->control_mode == EQUERY) {
 		this->SetWindowTextW(_T("Query Control"));
-		this->m_edit_key.EnableWindow(false);
+		this->SetDlgItemTextW(IDC_STATIC_KEY, _T("KNN"));
+		//this->m_static_key.SetDlgItemTextW(_T("KNN"));
+
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control

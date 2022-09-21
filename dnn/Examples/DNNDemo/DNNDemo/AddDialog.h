@@ -34,4 +34,5 @@ public:
 	CEdit m_edit_z;
 	afx_msg void OnBnClickedOk();
 	virtual BOOL OnInitDialog();
+	CStatic m_static_key;
 };

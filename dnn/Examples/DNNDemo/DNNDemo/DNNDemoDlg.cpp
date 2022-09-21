@@ -513,9 +513,8 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 	{
 		AddDialog dlg(EQUERY, 3);
 		if (IDOK == dlg.DoModal()) {
-			CString temp;
-			this->m_edit_q1.GetWindowTextW(temp);
-			int knn = _ttoi(temp);
+			
+			int knn = _ttoi(dlg.key);
 			double coordinate[3];
 			for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
 			m_picture_opengl.DDS.set_knn(coordinate, knn);
@@ -523,6 +522,9 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 
 			// Print result
 			// Query data size
+			
+			this->m_edit_q1.SetWindowTextW(dlg.key);
+			CString temp;
 			temp.Format(_T("%d"), m_picture_opengl.DDS.get_physical_memory() + m_picture_opengl.DDS.get_virtual_memory());
 			m_edit_qr1.SetWindowTextW(temp);
 			// Query time
