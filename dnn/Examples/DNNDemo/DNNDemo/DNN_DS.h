@@ -31,6 +31,10 @@ public:
 	Object object3D;
 
 private:
+	std::vector<EPS::Polytope> store_add_pol;
+	std::vector<EPS::Free_Point> store_add_fr;
+	std::vector<int> del_pol_key;
+	std::vector<int> del_fr_key;
 	EPS::Free_Point Eps_Query;
 	int Eps_knn;
 	MEMORYSTATUSEX memory;

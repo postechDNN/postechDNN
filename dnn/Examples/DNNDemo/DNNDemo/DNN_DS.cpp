@@ -11,6 +11,10 @@ DNN_DS::DNN_DS() {
 	this->Graph = new EPS::Eps_Graph_3D();
 	memory.dwLength = sizeof(memory);
 	exe_time = 0;
+	store_add_pol = {};
+	store_add_fr = {};
+	del_pol_key = {};
+	del_fr_key = {};
 }
 
 DNN_DS::~DNN_DS() {
@@ -20,7 +24,7 @@ DNN_DS::~DNN_DS() {
 void DNN_DS::add_fr(double coor[3])
 {
 	EPS::Free_Point* temp = new EPS::Free_Point(coor[0], coor[1], coor[2]);
-	this->Graph->add_freepts(temp);
+	store_add_fr.push_back(*temp);
 }
 
 void DNN_DS::add_fr(CString path)
@@ -28,14 +32,12 @@ void DNN_DS::add_fr(CString path)
 	std::ifstream file(path);
 	int fn;
 	file >> fn;
-	vector<EPS::Free_Point> temp = {};
 	for (int i = 0; i < fn; i++) {
 		double x, y, z;
 		file >> x >> y >> z;
 		EPS::Free_Point p(x,y,z);
-		temp.push_back(p);
+		store_add_fr.push_back(p);
 	}
-	this->Graph->add_freepts(temp);
 }
 
 void DNN_DS::add_poly(CString path)
@@ -57,17 +59,17 @@ void DNN_DS::add_poly(CString path)
 		t.push_back(f);
 	}
 	temp.setpolytope(t);
-	this->Graph->add_pol(temp);
+	store_add_pol.push_back(temp);
 }
 
 void DNN_DS::del_fr(int key)
 {
-	Graph->delete_freept(key);
+	del_fr_key.push_back(key);
 }
 
 void DNN_DS::del_poly(int key)
 {
-	Graph->delete_pol(key);
+	del_pol_key.push_back(key);
 }
 
 void DNN_DS::set_knn(double coor[3], int knn)
@@ -139,16 +141,17 @@ void DNN_DS::read3Deps(CString path)
 {
 	std::ifstream file(path);
 	int fn, pn;
-	file >> fn >> pn;
-	vector<EPS::Free_Point> fr_temp = {};
+	double eps;
+	file >> fn >> pn >> eps;
+	list<EPS::Free_Point> fr_temp = {};
 	for (int i = 0; i < fn; i++) {
 		double x, y, z;
 		file >> x >> y >> z;
 		EPS::Free_Point p(x, y, z);
 		fr_temp.push_back(p);
 	}
-	this->Graph->add_freepts(fr_temp);
 
+	vector<EPS::Polytope> pol_temp = {};
 	for (int j = 0; j < pn; j++) {
 		EPS::Polytope temp;
 		file >> fn;
@@ -165,7 +168,19 @@ void DNN_DS::read3Deps(CString path)
 			t.push_back(f);
 		}
 		temp.setpolytope(t);
-		this->Graph->add_pol(temp);
+		pol_temp.push_back(temp);
+	}
+	EPS::Eps_Graph_3D grid(fr_temp, pol_temp, eps);
+	this->Graph = &grid;
+	for (auto p : store_add_pol) {
+		Graph->add_pol(p);
+	}
+	Graph->add_freepts(store_add_fr);
+	for (auto del : del_pol_key) {
+		Graph->delete_pol(del);
+	}
+	for (auto del : del_fr_key) {
+		Graph->delete_freept(del);
 	}
 
 	vector<OGL_Vertex> v_temp = get_fr();
