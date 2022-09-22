@@ -76,6 +76,7 @@ void DNN_DS::set_knn(double coor[3], int knn)
 {
 	EPS::Free_Point temp(coor[0], coor[1], coor[2]);
 	Eps_Query=temp;
+	Eps_knn = knn;
 }
 
 vector<OGL_Vertex> DNN_DS::get_fr()

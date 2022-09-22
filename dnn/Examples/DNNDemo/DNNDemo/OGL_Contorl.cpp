@@ -500,6 +500,6 @@ void OGL_Contorl::OnLButtonUp(UINT nFlags, CPoint point)
 // EPSGraph function
 
 void OGL_Contorl::read3Deps(CString path) {
-	this->DDS.object3D.read3Deps(path);
+	this->DDS.read3Deps(path);
 	Invalidate();
 }
