@@ -501,6 +501,9 @@ void OGL_Contorl::OnLButtonUp(UINT nFlags, CPoint point)
 
 void OGL_Contorl::read3Deps(CString path) {
 	this->DDS.read3Deps(path);
+<<<<<<< HEAD
 	this->DDS.object3D.updateNorm(3);
+=======
+>>>>>>> 01192a494847673d5d9a34ebcee6939e60a4fac4
 	Invalidate();
 }
