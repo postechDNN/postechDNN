@@ -50,6 +50,9 @@ void OGL_Point::setZ(double z) {
 OGL_Vertex::OGL_Vertex() {
 
 }
+OGL_Vertex::OGL_Vertex(double x, double y, double z) {
+	this->setPos(x, y, z);
+}
 OGL_Vertex::~OGL_Vertex() {
 	
 }

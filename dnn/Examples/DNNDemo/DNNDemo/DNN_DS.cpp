@@ -25,6 +25,9 @@ void DNN_DS::add_fr(double coor[3])
 {
 	EPS::Free_Point* temp = new EPS::Free_Point(coor[0], coor[1], coor[2]);
 	store_add_fr.push_back(*temp);
+
+	this->object3D.addVertex(OGL_Vertex(coor[0], coor[1], coor[2]));
+	this->object3D.updateNorm(3);
 }
 
 void DNN_DS::add_fr(CString path)
@@ -37,7 +40,10 @@ void DNN_DS::add_fr(CString path)
 		file >> x >> y >> z;
 		EPS::Free_Point p(x,y,z);
 		store_add_fr.push_back(p);
+
+		this->object3D.addVertex(OGL_Vertex(x, y, z));
 	}
+	this->object3D.updateNorm(3);
 }
 
 void DNN_DS::add_poly(CString path)
@@ -49,17 +55,22 @@ void DNN_DS::add_poly(CString path)
 	vector<EPS::Face*> t = {};
 	for (int i = 0; i < fn; i++) {
 		vector<EPS::Point*> face;
+		OGL_Face ogl_face;
 		for (int i = 0; i < 3; i++) {
 			double x, y, z;
 			file >> x >> y >> z;
 			EPS::Point* p = new EPS::Point(x, y, z);
 			face.push_back(p);
+			ogl_face.addPoint(OGL_Point(x, y, z));
 		}
 		EPS::Face* f = new EPS::Face(face);
 		t.push_back(f);
+
+		this->object3D.addFace(ogl_face);
 	}
 	temp.setpolytope(t);
 	store_add_pol.push_back(temp);
+	this->object3D.updateNorm(3);
 }
 
 void DNN_DS::del_fr(int key)

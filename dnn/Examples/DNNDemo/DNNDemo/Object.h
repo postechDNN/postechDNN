@@ -25,6 +25,7 @@ private:
 class OGL_Vertex {
 public:
 	OGL_Vertex();
+	OGL_Vertex(double x, double y, double z);
 	~OGL_Vertex();
 	std::string getName();
 	OGL_Point& getPos();

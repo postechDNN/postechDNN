@@ -18,8 +18,6 @@ public:
 	void readDCEL(CString path);
 	void read3Deps(CString path);
 
-
-
 	void moveFront();
 	void moveBack();
 	void moveLeft();

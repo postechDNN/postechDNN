@@ -264,7 +264,7 @@ void OGL_Contorl::OnPaint()
 		}
 		if (this->DDS.object3D.getDrawVertices()) {
 			glColor3d(0.0f, 1.0f, 1.0f);
-			glPointSize(3.0f);
+			glPointSize(1.0f);
 			glBegin(GL_POINTS);
 			for (int i = 0; i < this->DDS.object3D.getVerticsNum(); i++) {
 				OGL_Point p = this->DDS.object3D.getVertex(i).getPos();
@@ -500,6 +500,7 @@ void OGL_Contorl::OnLButtonUp(UINT nFlags, CPoint point)
 // EPSGraph function
 
 void OGL_Contorl::read3Deps(CString path) {
-	this->DDS.object3D.read3Deps(path);
+	this->DDS.read3Deps(path);
+	this->DDS.object3D.updateNorm(3);
 	Invalidate();
 }

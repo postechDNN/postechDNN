@@ -250,7 +250,7 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 		m_picture_opengl.readDCEL(path);
 		break;
 	case 1: // 3D nearest neighbor
-		m_picture_opengl.DDS.read3Deps(path);
+		m_picture_opengl.read3Deps(path);
 		break;
 	default:
 		break;
@@ -374,6 +374,8 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 					for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
 					m_picture_opengl.DDS.add_fr(coordinate);
 					// keyValue와 좌표로 삽입을 수행하는 함수 호출
+					Invalidate(TRUE);
+					UpdateWindow();
 				}
 			}
 			else if (m_check_noo2.GetCheck()) { // Add by file
@@ -385,6 +387,7 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 					m_picture_opengl.DDS.add_fr(pathName);
 					// 아래 readDCEL처럼 add by file 함수 호출
 					// m_picture_opengl.readDCEL(path);
+					Invalidate(TRUE);
 				}
 			}
 		} 
@@ -401,6 +404,7 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 					m_picture_opengl.DDS.add_poly(pathName);
 					// 아래 readDCEL처럼 add by file 함수 호출
 					// m_picture_opengl.readDCEL(path);
+					Invalidate(TRUE);
 				}
 			}
 		} 
