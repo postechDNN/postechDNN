@@ -289,7 +289,7 @@ void OGL_Contorl::OnMove(int x, int y)
 }
 
 void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
-	if (m == 2) {
+	if (m == 2 || m==3) {
 		switch (o) {
 		case 0:
 			this->DDS.object2D.setDrawVertices(b);
