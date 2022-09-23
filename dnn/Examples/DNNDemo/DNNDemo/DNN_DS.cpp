@@ -206,6 +206,17 @@ void DNN_DS::read3Deps(CString path)
 		object3D.addEdge(e);
 	}
 	for (auto f : f_temp) {
+		for (int i = 0; i < 3; i++) {
+			OGL_Edge temp;
+			temp.isCustom = true;
+			temp.color[0] = 0.5f;
+			temp.color[1] = 0.5f;
+			temp.color[2] = 0.5f;
+			temp.width = 2.0f;
+			temp.setStartP(f.getPoint(i % 3));
+			temp.setEndP(f.getPoint((i+1) % 3));
+			object3D.addEdge(temp);
+		}
 		object3D.addFace(f);
 	}
 

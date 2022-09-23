@@ -48,10 +48,11 @@ void OGL_Point::setZ(double z) {
 
 // Vertex
 OGL_Vertex::OGL_Vertex() {
-
+	this->isCustom = false;
 }
 OGL_Vertex::OGL_Vertex(double x, double y, double z) {
 	this->setPos(x, y, z);
+	this->isCustom = false;
 }
 OGL_Vertex::~OGL_Vertex() {
 	
@@ -80,10 +81,12 @@ OGL_Edge::OGL_Edge() {
 	OGL_Point p;
 	endpoints.push_back(p);
 	endpoints.push_back(p);
+	this->isCustom = false;
 }
 OGL_Edge::OGL_Edge(OGL_Point s, OGL_Point e) {
 	endpoints.push_back(s);
 	endpoints.push_back(e);
+	this->isCustom = false;
 }
 OGL_Edge::~OGL_Edge() {
 	this->endpoints.clear();
@@ -127,7 +130,7 @@ void OGL_Edge::setNext(std::string n) {
 
 // Face
 OGL_Face::OGL_Face() {
-
+	this->isCustom = false;
 }
 OGL_Face::~OGL_Face() {
 	this->vertices.clear();

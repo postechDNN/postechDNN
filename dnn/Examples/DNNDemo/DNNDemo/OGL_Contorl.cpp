@@ -238,12 +238,15 @@ void OGL_Contorl::OnPaint()
 			this->view[2][0], this->view[2][1], this->view[2][2]);
 
 		if (this->DDS.object3D.getDrawFaces()) {
-			glColor3d(1.0, 1.0, 1.0);
+			
 			
 			for (int i = 0; i < this->DDS.object3D.getFacesNum(); i++) {
+				OGL_Face* nowF = &this->DDS.object3D.getFace(i);
+				if (nowF->isCustom) glColor3f(nowF->color[0], nowF->color[1], nowF->color[2]);
+				else glColor3d(1.0, 1.0, 1.0);
 				glBegin(GL_POLYGON);
-				for (int j = 0; j < this->DDS.object3D.getFace(i).getSize(); j++) {
-					OGL_Point p = this->DDS.object3D.getFace(i).getPoint(j);
+				for (int j = 0; j < nowF->getSize(); j++) {
+					OGL_Point p = nowF->getPoint(j);
 					glVertex3d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1], (p.getZ() - normTrans[2]) / normMul[2]);
 				}
 				glEnd();
@@ -251,12 +254,19 @@ void OGL_Contorl::OnPaint()
 
 		}
 		if (this->DDS.object3D.getDrawEdges()) {
-			glColor3d(1.0, 1.0, 1.0);
-			glLineWidth(1.0f);
 			for (int i = 0; i < this->DDS.object3D.getEdgesNum(); i++) {
+				OGL_Edge* nowE = &this->DDS.object3D.getEdge(i);
 				glBegin(GL_LINES);
-				OGL_Point sp = this->DDS.object3D.getEdge(i).getStartP();
-				OGL_Point ep = this->DDS.object3D.getEdge(i).getEndP();
+				if (nowE->isCustom) {
+					glColor3f(nowE->color[0], nowE->color[1], nowE->color[2]);
+					glLineWidth(nowE->width = 1.0f);
+				}
+				else {
+					glColor3d(1.0, 1.0, 1.0);
+					glLineWidth(1.0f);
+				}
+				OGL_Point sp = nowE->getStartP();
+				OGL_Point ep = nowE->getEndP();
 				glVertex3d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1], (sp.getZ() - normTrans[2]) / normMul[2]);
 				glVertex3d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1], (ep.getZ() - normTrans[2]) / normMul[2]);
 				glEnd();

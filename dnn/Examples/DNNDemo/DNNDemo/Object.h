@@ -3,6 +3,11 @@
 #include <vector>
 #include <string>
 
+#include <GL/gl.h> 
+#include <GL/glu.h>
+
+#pragma comment(lib, "opengl32.lib" )
+
 class OGL_Point {
 public:
 	OGL_Point();
@@ -32,6 +37,11 @@ public:
 	void setName(std::string n);
 	void setPos(double x, double y);
 	void setPos(double x, double y, double z);
+
+	bool isCustom;
+	GLfloat color[3];
+	GLfloat width;
+
 private:
 	std::string name;
 	OGL_Point pos;
@@ -54,6 +64,11 @@ public:
 	void setFace(std::string f);
 	void setTwin(std::string t);
 	void setNext(std::string n);
+
+	bool isCustom;
+	GLfloat color[3];
+	GLfloat width;
+
 private:
 	std::string name;
 	std::vector<OGL_Point> endpoints;
@@ -76,6 +91,11 @@ public:
 	void setName(std::string n);
 	void setInner(bool i);
 	std::string getInnerEdge(int idx);
+
+	bool isCustom;
+	GLfloat color[3];
+	GLfloat width;
+
 private:
 	std::string name;
 	std::vector<OGL_Point> vertices;

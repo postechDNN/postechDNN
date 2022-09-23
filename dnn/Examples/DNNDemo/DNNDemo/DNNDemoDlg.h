@@ -69,4 +69,8 @@ public:
 	CEdit m_edit_qr1;
 	CEdit m_edit_qr2;
 	CEdit m_edit_qr3;
+	CButton m_button_view;
+	CEdit m_edit_vx;
+	CEdit m_edit_vy;
+	CEdit m_edit_vz;
 };

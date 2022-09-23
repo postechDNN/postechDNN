@@ -79,6 +79,10 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_QR1, m_edit_qr1);
 	DDX_Control(pDX, IDC_EDIT_QR2, m_edit_qr2);
 	DDX_Control(pDX, IDC_EDIT_QR3, m_edit_qr3);
+	DDX_Control(pDX, IDC_BUTTON_VIEW, m_button_view);
+	DDX_Control(pDX, IDC_EDIT_VX, m_edit_vx);
+	DDX_Control(pDX, IDC_EDIT_VY, m_edit_vy);
+	DDX_Control(pDX, IDC_EDIT_VZ, m_edit_vz);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
