@@ -435,6 +435,11 @@ DCEL* conforming_subdivision::build_subdivision() {
 }
 
 
+DCEL* conforming_subdivision::build_ls_subdivision() {
+	DCEL* S = build_subdivision();
+	point_location* P = Point_Location(obstacle_vertices);
+}
+
 	// https://stackoverflow.com/questions/1505675/power-of-an-integer-in-c
 int myPow(int x, unsigned int p)
 {
