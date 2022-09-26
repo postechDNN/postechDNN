@@ -57,7 +57,7 @@
 	};
 
 	class Face {
-	protected:
+	public:
 		std::string key;
 		HEdge* outer;	//If outer is null pointer, it is outmost face in DCEL.
 		std::vector<HEdge*> inners;

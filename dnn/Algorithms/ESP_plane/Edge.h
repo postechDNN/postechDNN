@@ -10,6 +10,7 @@ class Face;
 		Point* p2;
 		int lv; // length of the 'line_segment' equals the unit length in level lv
 		double Length;
+		double Length_inf;
 		Face* f1; 
 		Face* f2;
 		Edge* next;
@@ -30,6 +31,7 @@ class Face;
 		Edge* getPrev();
 		Face* getTwin(Face*);
 		double getLength();
+		double getLength_inf();
 		void print();
 
 		Edge(const Point& _s, const Point& _t);
@@ -47,3 +49,4 @@ class Face;
 	// bool sortbylength(Edge& a, Edge& b);
 
 bool sortbylength(Edge* a, Edge* b);
+bool sortbylength_inf(Edge* a, Edge* b);

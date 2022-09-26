@@ -664,10 +664,34 @@ DCEL DCEL::merge(DCEL &op){
 
 // convert a RP class into HEdges class
 std::vector<HEdge*> RP2HEdges(RP* rp) {
-	return {};
+	std::vector<HEdge*> vec;
+	for (int i = 0; i < rp->vers.size()-1; i++) {
+		vec.push_back(new HEdge(new Vertex(*rp->vers[i]), new Vertex(*rp->vers[i+1])));
+	}
+	vec.push_back(new HEdge(new Vertex(*rp->vers[rp->vers.size()-1]), new Vertex(*rp->vers[0])));
+
+	return vec;
+}
+
+std::vector<Vertex*> RP2Vers(RP* rp) {
+	std::vector<Vertex*> vec;
+	for (int i = 0; i < rp->vers.size(); i++) {
+		vec.push_back(new Vertex(*rp->vers[i]));
+	}
+
+	return vec;
 }
 
 // make DCEL with a single face (interior of a rectilinear polygon rp)
-DCEL makeDCEL(RP* RP) {
-	return DCEL();
+DCEL* makeDCEL(RP* rp) {
+	DCEL* D = new DCEL;
+
+	auto vec = RP2HEdges(rp);
+	auto faces = ConstructFaces(vec);
+
+	D->setHedges(vec);
+	D->setVertices(RP2Vers(rp));
+	D->setFaces(faces);
+
+	return D;
 }

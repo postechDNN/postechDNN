@@ -60,7 +60,7 @@ struct Subdivision{
 		void draw_CXBD(i_box);
 		// void fill_R1R2(vector<core>, vector<i_quad>);
 		// void fill_R1S(vector<core>, vector<i_quad>);
-		void build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
+		DCEL* build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
 		pair<vector<vector<int>>, vector<i_quad*>> equiv_classes(vector<i_quad*>);
 	};
 

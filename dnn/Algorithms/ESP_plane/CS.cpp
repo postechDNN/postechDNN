@@ -24,7 +24,6 @@ conforming_subdivision::conforming_subdivision(Point* _src, Point* _dst, vector<
 	dst->setIndex(obstacle_vertices.size() + 1);
 	Q_old = Q_i = {};
 	MSF_old = MSF_i = {};
-	this->build_subdivision();
 }
 
 bool conforming_subdivision::contained(i_quad* q1, i_quad* q2) { // check if (q1 set_union q2) can be contained in a 2 * 2 array of (i+2) boxes
@@ -228,7 +227,9 @@ pair<vector<vector<int>>, vector<i_quad*>> conforming_subdivision::equiv_classes
 }
 // vector<vector<int>> conforming_subdivision::trans_closure(vector<vector<bool>> adj_mat)
 
-void conforming_subdivision::build_subdivision() {
+DCEL* conforming_subdivision::build_subdivision() {
+	DCEL* D = new DCEL;
+
 	int i = -2;
 	vector<Point*> srcNobs = obstacle_vertices; // source and obstacles.
 	srcNobs.push_back(src);
@@ -237,119 +238,158 @@ void conforming_subdivision::build_subdivision() {
 	for (auto pt : srcNobs) { 
 		i_quad* Q = new i_quad(-2, 0.25 * int(floor(pt->getX()/ 0.25) - 1), 0.25 * int(floor(pt->getY() / 0.25) - 1));
 		Q_old.push_back(Q); 
-		MSF_old.push_back(new Graph({ pt }, {}, { Q }, pt->getIndex()));
+		MSF_i.push_back(new Graph({ pt }, {}, { Q }, pt->getIndex()));
 	}
 
-	set<int> N = {}; // set of trees with cardinality more than one. we store the indices of the trees.
-	// vector<Graph*> N = {}; // set of trees with cardinality more than one
-	// compute L_inf Delaunay triangulation DT, say, vector<tuple<int, int>> DT = delaunay(G).
-	// assume that DT is given as edges (equivalently, vertex-vertex pairs).
-	// vector<tuple<int, int>> DT = {};
-	vector<Edge*> edges = {};
+	// set of trees with cardinality more than one. we store the indices of the trees.
+	set<int> N = {}; 
+
+	// 현재 Q_old에는 srcNobs에 해당하는 quad들이 들어 있음
 	Graph* G = new Graph(srcNobs, {}, Q_old, -1);
 
-	// toDelaunay(srcNobs, G);
+	// compute delaunay triangulation
+	// srcNobs에 해당하는 Point들을 받아서, 그것의 delaunay triangulation에 해당하는 Graph를 반환
+	toDelaunay(srcNobs, G);
 
 	// after computing Delaunay triangulation, we compute minimum spanning forest
 
 	// sort edges in increasing order of length
 	// sort(edges.begin(), edges.end(), sortbylength);
-	sort(G->edges.begin(), G->edges.end(), sortbylength); 
+	sort(G->edges.begin(), G->edges.end(), sortbylength_inf); 
 
+	// remove duplicated edges
+	// *** G->edges와 edges 구분 필요. ***
+	auto it = G->edges.begin();
+	while (it != G->edges.end()) {
+		auto it2 = it; it2++;
+		if (it2 == G->edges.end()) break;
+		
+		if ((*it)->p1->index == (*it2)->p1->index && (*it)->p2->index == (*it2)->p2->index) {
+			it = G->edges.erase(it);
+			G->num_edges--;	
+		}
+		else it++;
+	}
+
+	//  Kruskal's algorithm
 	int num_vertices = G->getNumVertices();
 	int* root; int* rank;
-	root = new int[num_vertices]; // union-and-find for Kruskal's algorithm
+	root = new int[num_vertices]; 
 	rank = new int[num_vertices];
 
+	// srcNobs의 size만큼 makeset operation을 진행. (initialization for Kruskal)
 	for (int j = 0; j < num_vertices; j++) {
 		root[j] = j;
 		rank[j] = 0;
 	}
-	int j = 0;
+	Q_i = Q_old;
 
-	DCEL D;
-
-	while (Q_i.size() > 1) { // until all components merge into one, process sorted edges one by one.
-		vector<Edge*> new_edges = {};
+	vector<Edge*> new_edges;
+	// until all components merge into one, process sorted edges (G->edges) one by one.
+	while (Q_i.size() > 1) { 
+		vector<Edge*>().swap(new_edges);
 		int i_old = i;
+		// sorted된 G->edges에서 순서대로 꺼낼 edge의 (L_inf) 길이
 		double edge_length;
-		int k, k_old;
+		// for each edge length, we compute k (at k-th stage we stop and process)
+		// k_old는 k와 비교하면서 간보려고. 지금처럼 매 while문마다 -1로 초기화해 주는 것이 좋은 듯.
+		int k = -1, k_old = -1;
+		// j는 현재 보고 있는 G->edges의 index
+		int j = 0;
 		bool first = true;
+
 		if (N.size() > 0) { i += 2; }
 		else { // set i to the smallest even i' > i such that MSF(i') is not equal to MSF(i).
 			// each time, if possible, we compute T_1, T_2, to avoid storing several edges connecting the same two trees as new edges.
+
 			while (true) {
-				int v1 = edges[j]->getP1()->getIndex(), v2 = edges[j]->getP2()->getIndex();
+				int v1 = G->edges[j]->p1->index, v2 = G->edges[j]->p2->index;
 				int T1 = my_find(v1, root, num_vertices), T2 = my_find(v2, root, num_vertices); // T1 and T2 are indices of the corresponding graphs
+				
+				// edge의 양 끝점에 해당하는 두 tree가 이미 연결되어 있으면, Kruskal의 방식대로 이 edge를 넘어감
 				if (T1 == T2) { j += 1; }
 				else {
-					edge_length = edges[j]->getLength();
+					edge_length = G->edges[j]->getLength_inf();
 
 					if (first) { i = k_old = 2 * ceil(0.5 * log2(edge_length / 6)); }
 					else { i = k = 2 * ceil(0.5 * log2(edge_length / 6)); }
 
+					// first - MSF가 달라지기 위해 적어도 하나의 edge는 추가해야 하므로, 이와 관련한 변수. 
+					// k와 k_old가 같으면 계속 j를 늘려야 함.
 					if (!first && (k != k_old)) { break; }
 
+					// pseudocode에서와 달리 tree를 계속 합치기. 두 tree의 index와 관련한.
 					int Ts[2] = { T1,T2 };
 					for (auto Tx : Ts) {
 						auto it = N.find(Tx);
-						// if Tx is in N, then remove Tx from N.
+						// if Tx is in N, then remove Tx from N. 
+						// 어차피 다시 들어가게 돼 있으므로 지금 빼는 것이 맞음
 						if (it != N.end()) { N.erase(it); }
-						// else, compute the singleton quad.
+						// else, compute the singleton (i-2)-quad.
+						// 다시 말해, vertex를 포함하는 quad를 만드는 과정.
 						else {
-							for (int m = 0; m < int((i - 2 - i_old) / 2); i++) {
-								i_quad* temp = MSF_old[Tx]->getQ_iT(0);
-								MSF_old[Tx]->setQ_ioldT({ bigger_quad(temp) });
+							// 이 경우, |Q(i, Tx)| = 1이므로 Q_iT의 첫번째 원소가 해당하는 i-quad임
+							// 직전 step까지 quad를 키움.
+							for (int m = 0; m < int((i - 2 - i_old) / 2); m++) {
+								i_quad* temp = MSF_i[Tx]->Q_iT[0]; // 매번 같은 애가 잡힘.
+								MSF_i[Tx]->Q_iT.push_back(bigger_quad(temp));
+								MSF_i[Tx]->Q_iT.erase(MSF_i[Tx]->Q_iT.begin());
 							}
 						}
 					}
-					// join T1 and T2 to get T'...
-					int newroot = my_union(T1, T2, root, rank, -1); int nonroot;
-					if (newroot != T1) { nonroot = T1; }
-					else { nonroot = T2; }
-					Graph* merged = MSF_old[newroot]->operator+(MSF_old[nonroot]);
-					merged->addEdge(edges[j]);
-					MSF_old[nonroot] = merged; 
-					vector<i_quad*> temp = MSF_old[newroot]->getQ_ioldT();
-					vector<i_quad*> temp2 = MSF_old[nonroot]->getQ_ioldT();
-					temp.insert(temp.end(), temp2.begin(), temp2.end());
-					MSF_old[newroot]->setQ_ioldT(temp);
+					// join T1 and T2 to get T'
+					// my_union은 merge이후 tree의 root를 반환
+					int newroot = my_union(T1, T2, root, rank, -1); 
+					// nonroot는 기존에 root였으나 merge이후 root가 아니게된 애.
+					int nonroot;
+					if (newroot != T1) { nonroot = T1; } else { nonroot = T2; }
+					// 두 그래프를 합치고 edge까지 추가해서, 기존 nonroot의 위치에 저장.
+					MSF_i[newroot]->operator+(MSF_i[nonroot]);
+					MSF_i[newroot]->addEdge(G->edges[j]);
+					// Q_iT를 union
+					MSF_i[newroot]->Q_iT.insert(MSF_i[newroot]->Q_iT.end(), MSF_i[nonroot]->Q_iT.begin(), MSF_i[nonroot]->Q_iT.end());
 					// 합쳤으니까, 기존 것들은 삭제.
-					delete MSF_old[nonroot]; MSF_old[nonroot] = NULL;
+					delete MSF_i[nonroot]; MSF_i[nonroot] = NULL;
 					// put T' in N.
 					N.insert(newroot);
 
+					j++;
 					first = false;
 				}
 			}
 		}
+		// 그냥 MSF_i에 계산하면 될 것 같지만, 일단 둬보기 ***
+		MSF_old = MSF_i;
 
-		MSF_i = MSF_old;
+		// for each T in N do. 아래 auto까지 두 줄에 해당하는 내용임
 		for (auto n : N) {
-			// for each T in N do
 			auto T = MSF_i[n];
-
+			
+			T->Q_old = T->Q_iT;
 			// initialize Q(i, T) = \emptyset
 			T->setQ_iT({});
 
-			// for each equivalence class S
-			auto temp = equiv_classes(T->getQ_ioldT());
+			// for each equivalence class S of Q(i-2, T)) do
+			auto temp = equiv_classes(T->getQ_old());
+			// EC stands for equivalence class
 			auto EC = temp.first;  auto Qs = temp.second;
 			for (auto ec : EC) {
 				vector<i_quad*> S = {};
 				for (auto num : ec) { S.push_back(Qs[num]); }
 				// Q(i, T) = Q(i, T) \union growth(S)
 				T->addQ_iT(growth(S));
-
-				// compute the equivalence classes of Q(i, T) by plane sweep
-				auto temp = equiv_classes(T->getQ_iT());
-				auto EC = temp.first;  auto Q_iT = temp.second; // Q_iT is a subset of the Qs just above.
 			}
+
+			// 이제 Q_iT의 lv은 i-2가 아니라 i가 됨.
+			// 앞의 equivalence class와 다르지만 같은 변수명(temp, EC, Qs) 사용
+			// compute the equivalence classes of Q(i, T) by plane sweep
+			temp = equiv_classes(T->getQ_iT());
+			EC = temp.first;  Qs = temp.second; // Q_iT is a subset of the Qs just above.
 
 			// perform steps 3 and 4 of build-subdivision on Q(i, T).
 
 			// (* 3. Process simple components of ≡_i-2 that are about to merge with some other components. *)
-			for (auto q : T->getQ_ioldT()) {
+			for (auto q : T->getQ_old()) {
 				// at this moment, q->G is correctly computed.
 				if (about_to_merge(q)) {} // draw_SPBD(q);
 			}
@@ -363,12 +403,13 @@ void conforming_subdivision::build_subdivision() {
 					Qs.push_back(Q_i[i]);
 				}
 
+
 			RP* R1 = Union(Qs, 2);
-			DCEL D1 = makeDCEL(R1);
-			D.merge(D1);
+			DCEL* D1 = makeDCEL(R1);
+			D->merge(*D1);
 			RP* R2 = Union(Qs, 4);
-			DCEL D2 = makeDCEL(R2);
-			D.merge(D2);
+			DCEL* D2 = makeDCEL(R2);
+			D->merge(*D2);
 				
 
 				// rectilinear polygon
@@ -378,7 +419,7 @@ void conforming_subdivision::build_subdivision() {
 				// break each cell boundary with an endpoint incident to R1 into four edges of length 2^(i-2), to satisfy Invariant 1.
 			}
 
-			
+			// If |Q(i, T)| = 1 then delete T from N.
 			if (T->getQ_iT().size() == 1) {
 				auto it = N.find(T->getIndex());
 				if (it != N.end()) { N.erase(it); }
@@ -389,6 +430,8 @@ void conforming_subdivision::build_subdivision() {
 		Q_old.resize(Q_i.size());
 		std::copy(Q_i.begin(), Q_i.end(), Q_old.begin());
 	}
+
+	return D;
 }
 
 
@@ -433,10 +476,11 @@ int my_union(int x, int y, int* root, int* rank, int count) {
 	}
 	else {
 		root[y] = x; // y의 root를 x로 변경
-		return x; // return the new root
 
 		if (rank[x] == rank[y])
 			rank[x]++; // 만약 높이가 같다면 합친 후 (x의 높이 + 1)
+
+		return x; // return the new root
 	}
 }
 

@@ -14,6 +14,7 @@ Edge::~Edge() {}
 Edge::Edge(Point* _p1, Point* _p2) {
 	p1 = _p1; p2 = _p2;
 	Length = sqrt(pow(p1->getX() - p2->getX(), 2) + pow(p1->getY() - p2->getY(), 2));
+	Length_inf = max(abs(p1->x - p2->x), abs(p1->y - p2->y));
 }
 
 void Edge::editP1(Point* _pt) {
@@ -42,6 +43,10 @@ Face* Edge::getTwin(Face* f) {
 	else { return f1; }
 }
 */
+
+double Edge::getLength_inf() {
+	return Length_inf;
+}
 
 double Edge::getLength() {
 	return Length;
@@ -198,4 +203,10 @@ bool sortbylength(Edge& a, Edge& b) {
 
 bool sortbylength(Edge* a, Edge* b) {
 	return (a->getLength() < b->getLength());
+}
+
+// sort edges in increasing order, l_inf distance
+bool sortbylength_inf(Edge* a, Edge* b) {
+	auto P1 = a->p1, P2 = a->p2, P3 = b->p1, P4 = b->p2;
+	return max(abs(P1->x - P2->x), abs(P1->y - P2->y)) < max(abs(P3->x - P4->x), abs(P3->y - P4->y));
 }

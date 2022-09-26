@@ -57,4 +57,5 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*>& hedges);
 
 // HWI added
 std::vector<HEdge*> RP2HEdges(RP* rp); // convert a RP class into HEdges class
-DCEL makeDCEL(RP* rp); // make DCEL with a single face (interior of a rectilinear polygon rp)
+std::vector<Vertex*> RP2Vers(RP* rp);
+DCEL* makeDCEL(RP* rp); // make DCEL with a single face (interior of a rectilinear polygon rp)

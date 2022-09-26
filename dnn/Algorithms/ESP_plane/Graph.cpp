@@ -4,6 +4,9 @@
 Graph::Graph() {}
 Graph::~Graph() {}
 
+
+// Graph의 기본 생성자. 알고리즘에서 주로 다룰 Graph는 tree임.
+// for each tree vertex와, containing quad Q(i, T) 역시 유지하고 있어야 함.
 Graph::Graph(vector<Point*> _vertices, vector<Edge*> _edges, vector<i_quad*> Qs, int _index) {
 	vertices = _vertices;
 	edges = _edges;
@@ -39,9 +42,9 @@ int Graph::getNumVertices() {
 
 int Graph::getNumEdges() { return num_edges; }
 
-vector<i_quad*> Graph::getQ_ioldT() { return Q_ioldT; }
-void Graph::setQ_ioldT(vector<i_quad*> _q) { Q_ioldT = _q; }
-i_quad* Graph::getQ_ioldT(int i) { return Q_ioldT[i]; }
+vector<i_quad*> Graph::getQ_old() { return Q_old; }
+void Graph::setQ_old(vector<i_quad*> _q) { Q_old = _q; }
+i_quad* Graph::getQ_old(int i) { return Q_old[i]; }
 
 vector<i_quad*> Graph::getQ_iT() { return Q_iT; }
 void Graph::setQ_iT(vector<i_quad*> _q) { Q_iT = _q; }

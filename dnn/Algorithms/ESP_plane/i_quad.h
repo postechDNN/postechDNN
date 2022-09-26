@@ -21,8 +21,8 @@ private:
 public:
 	i_quad();
 	~i_quad();
-	i_quad(int, int);
-	i_quad(double, double);
+	// i_quad(int, int);
+	// i_quad(double, double);
 	i_quad(int,int,int);
 	i_quad(int, double, double);
 	friend bool operator>(i_quad& a, i_quad& b);
