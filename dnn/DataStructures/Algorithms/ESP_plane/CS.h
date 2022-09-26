@@ -54,7 +54,6 @@ struct Subdivision{
 		bool about_to_merge(i_quad*); // about to merge
 		DCEL build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
 		pair<vector<vector<int>>, vector<i_quad*>> equiv_classes(vector<i_quad*>);
-		DCEL* build_ls_subdivision();
 	};
 
 int myPow(int x, unsigned int p);

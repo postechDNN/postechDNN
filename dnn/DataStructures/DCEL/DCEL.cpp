@@ -93,6 +93,10 @@ HEdge::HEdge(Vertex* _v1, Vertex* _v2) {
 	this->prev = this->twin;
 	this->twin->next = this;
 	this->twin->prev = this;
+
+	// HWI added. is it correct?
+	this->origin->setIncidentEdge(this);
+	this->twin->origin->setIncidentEdge(this->twin);
 	//this->twin->s = *_v2;
 	//this->twin->t = *_v1;
 }
