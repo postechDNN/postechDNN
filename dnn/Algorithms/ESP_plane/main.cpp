@@ -20,6 +20,6 @@ int main() {
 	// i_quad* q2 = new i_quad(3, 7.9, 0.1); vec.push_back(q2);
 	
 	auto CS = conforming_subdivision(s, t, vec);
-	DCEL* D = CS.build_subdivision();
+	DCEL D = CS.build_subdivision();
 	return 0;
 }

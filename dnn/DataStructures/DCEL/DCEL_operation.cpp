@@ -662,13 +662,34 @@ DCEL DCEL::merge(DCEL &op){
     return ret;
 }
 
-// convert a RP class into HEdges class
+// convert a RP class into HEdges class. 양쪽 방향 모두 있어야 함.
 std::vector<HEdge*> RP2HEdges(RP* rp) {
 	std::vector<HEdge*> vec;
-	for (int i = 0; i < rp->vers.size()-1; i++) {
-		vec.push_back(new HEdge(new Vertex(*rp->vers[i]), new Vertex(*rp->vers[i+1])));
+	int sz = rp->vers.size();
+	for (int i = 0; i < sz; i++) {
+		vec.push_back(new HEdge(new Vertex(*rp->vers[i]), new Vertex(*rp->vers[(i+1) % sz])));
 	}
-	vec.push_back(new HEdge(new Vertex(*rp->vers[rp->vers.size()-1]), new Vertex(*rp->vers[0])));
+	for (int i = 0; i < sz; i++) {
+		vec.push_back(vec[i]->getTwin());
+		// vec.insert(vec.begin() + i * 2 + 1, vec[i]->getTwin());
+	}
+
+	// update size. 기존의 2배
+	sz = vec.size();
+
+	for (int i = 0; i < sz / 2 - 1; i++) {
+		vec[i]->setNext(vec[i+1]);
+		vec[i+1]->setPrev(vec[i]);
+	}
+	vec[sz / 2 - 1]->setNext(vec[0]);
+	vec[0]->setPrev(vec[sz / 2 - 1]);
+
+	for (int i = sz / 2; i < sz - 1; i++) {
+		vec[i]->setPrev(vec[i + 1]);
+		vec[i + 1]->setNext(vec[i]);
+	}
+	vec[sz - 1]->setPrev(vec[sz / 2]);
+	vec[sz / 2]->setNext(vec[sz - 1]);
 
 	return vec;
 }
@@ -682,16 +703,42 @@ std::vector<Vertex*> RP2Vers(RP* rp) {
 	return vec;
 }
 
+RP* quad2RP(i_quad* Q) {
+	RP* R = new RP;
+	R->vers.push_back(new Point(Q->x, Q->y));
+	R->vers.push_back(new Point(Q->x + pow(2, Q->lv), Q->y));
+	R->vers.push_back(new Point(Q->x + pow(2, Q->lv), Q->y + pow(2, Q->lv)));
+	R->vers.push_back(new Point(Q->x, Q->y + pow(2, Q->lv)));
+
+	return R;
+}
+
 // make DCEL with a single face (interior of a rectilinear polygon rp)
 DCEL* makeDCEL(RP* rp) {
 	DCEL* D = new DCEL;
 
 	auto vec = RP2HEdges(rp);
-	auto faces = ConstructFaces(vec);
-
 	D->setHedges(vec);
 	D->setVertices(RP2Vers(rp));
-	D->setFaces(faces);
+
+	int sz = vec.size();
+
+	Face* F_out = new Face;
+	for (int i = sz - 1; i >= sz / 2; i--) {
+		F_out->addInner(vec[i]);
+	}
+
+	Face* F_in = new Face;
+	F_in->setOuter(vec[vec.size()/2]); // first outer edge
+	for (int i = 0; i < sz / 2; i++) {
+		F_in->addInner(vec[i]);
+	}
+	F_in->getOuter()->setIncidentFace(F_out);
+
+	// F->addInner();
+	// F->setOuter();
+	// auto faces = ConstructFaces(vec);
+	D->setFaces({F_out, F_in});
 
 	return D;
 }
