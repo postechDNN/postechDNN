@@ -425,8 +425,29 @@ DCEL conforming_subdivision::build_subdivision() {
 
 
 DCEL* conforming_subdivision::build_ls_subdivision() {
-	DCEL* S = build_subdivision();
-	point_location* P = Point_Location(obstacle_vertices);
+	DCEL* S1 = build_subdivision();  //기존의 strong 2-conforming subdivision
+	point_location* P = Point_Location(obstacle_vertices); // point location data structure 생성
+	DCEL S2; DCEL S3;
+	for (auto pt : obstacle_vertices) {
+		bool check = true;
+		Vertex* now = pt;
+		while (check){
+			HEdge* e = S1->getOutgoingHEdges(*now);
+			Vertex v = e->getTwin()->getOrigin();
+			//check result of point location query
+			if () {
+				HEdge newe(now, *v);
+				S2.setHedges(*newe);
+				check = false;
+			}
+			else {
+				S2.setHedges(e);
+				now = v;
+			}
+		}
+		//update S3;
+	}
+	DCEL* D = DCEL::merge(S)
 }
 
 	// https://stackoverflow.com/questions/1505675/power-of-an-integer-in-c
