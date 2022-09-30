@@ -179,6 +179,67 @@ void HEdge::setIncidentFace(Face *_f) {
 	this->incidentFace = _f;
 }
 
+//If there is no crossing, return nullptr
+//Else, return a pointer of the point crossed. 
+Point* HEdge::crossing(HEdge& _e, bool closed) {
+	double x_1 = this->origin->getx();
+	double y_1 = this->origin->gety();
+	double x_2 = this->twin->origin->getx();
+	double y_2 = this->twin->origin->gety();
+	double x_3 = _e.origin->getx();
+	double y_3 = _e.origin->gety();
+	double x_4 = _e.twin->origin->getx();
+	double y_4 = _e.twin->origin->gety();
+
+	double d = (y_4 - y_3) * (x_2 - x_1) - (x_4 - x_3) * (y_2 - y_1);	// (x1,y1) ~ (x2,y2) and (x3,y3) ~ (x4,y4)
+	double t = (x_4 - x_3) * (y_1 - y_3) - (y_4 - y_3) * (x_1 - x_3);	// (x1,y1) ~ (x3,y3) and (x3,y3) ~ (x4,y4)
+	double s = (x_2 - x_1) * (y_1 - y_3) - (y_2 - y_1) * (x_1 - x_3);	// (x1,y1) ~ (x2,y2) and (x1,y1) ~ (x3,y3)
+	if (std::abs(d) < ERR) {	//two line segment have same slope.
+		if (std::abs(t) < ERR) {	//two line segment lies on same line.
+			if (std::abs(x_1 - x_2) < ERR) {	//Vertical Line
+				if (std::max(y_1, y_2) < std::min(y_3, y_4) || std::min(y_1, y_2) > std::max(y_3, y_4))	return nullptr;
+				else if (!closed && (std::abs(std::max(y_1, y_2) - std::min(y_3, y_4)) < ERR || std::abs(std::min(y_1, y_2) - std::max(y_3, y_4)) < ERR)) return nullptr;
+				else {	//Intersect!
+					//return new Point(x_1,middle_point_of_4(y_1,y_2,y_3,y_4));
+					std::pair<double, double> mid_pts = find_mid_points(y_1, y_2, y_3, y_4);
+					// return new Edge(Point(x_1, mid_pts.first), Point(x_1, mid_pts.second));
+					return new Point(x_1, mid_pts.second);
+				}
+			}
+			else {
+				if (std::max(x_1, x_2) < std::min(x_3, x_4) || std::min(x_1, x_2) > std::max(x_3, x_4))	return nullptr;
+				else if (!closed && (std::abs(std::max(x_1, x_2) - std::min(x_3, x_4)) < ERR || std::abs(std::min(x_1, x_2) - std::max(x_3, x_4)) < ERR)) return nullptr;
+				else {
+					//double mid_x = middle_point_of_4(x_1,x_2,x_3,x_4);
+					//return new Point(mid_x, (y_1 -y_2) / (x_1-x_2) *(mid_x - x_1) + y_1);
+					std::pair<double, double> mid_pts = find_mid_points(x_1, x_2, x_3, x_4);
+					// return new Edge(Point(mid_pts.first, (y_1 - y_2) / (x_1 - x_2) * (mid_pts.first - x_1) + y_1),
+					//		Point(mid_pts.second, (y_1 - y_2) / (x_1 - x_2) * (mid_pts.second - x_1) + y_1));
+					return new Point(mid_pts.second, (y_1 - y_2) / (x_1 - x_2) * (mid_pts.second - x_1) + y_1);
+				}
+			}
+		}
+		else return nullptr;
+	}
+	else {
+		t = t / d;
+		s = s / d;
+		if (t > 1 || s > 1 || t < 0 || s < 0) {
+			return nullptr;
+		}
+		else if ((std::abs(t) < ERR || std::abs(t - 1.) < ERR || std::abs(s) < ERR || std::abs(s - 1.) < ERR) && !closed) {
+			return nullptr;
+		}
+		else {
+			double x = (1 - t) * x_1 + t * x_2;
+			double y = (1 - t) * y_1 + t * y_2;
+			//Point* P = new Point(x, y);
+			// return new Edge(Point(x, y), Point(x, y));
+			return new Point(x, y);
+		}
+	}
+}
+
 Face::Face() {
 	this->key = "f_"+std::to_string(_default_f_key++); 
 	this->outer = nullptr;

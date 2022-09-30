@@ -753,3 +753,18 @@ DCEL* makeDCEL(RP* rp) {
 
 	return D;
 }
+
+DCEL* makeDCEL(std::vector<Vertex*> v) {
+	DCEL* D = new DCEL;
+	std::vector<HEdge*> vec;
+	for (int i = 0; i < v.size() - 1; i++) {
+		vec.push_back(new HEdge(new Vertex(*v[i]), new Vertex(*v[i + 1])));
+	}
+	vec.push_back(new HEdge(new Vertex(*v[v.size() - 1]), new Vertex(*v[0])));
+	auto faces = ConstructFaces(vec);
+	D->setHedges(vec);
+	D->setVertices(v);
+	D->setFaces(faces);
+
+	return D;
+}

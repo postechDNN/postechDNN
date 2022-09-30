@@ -9,16 +9,15 @@ using namespace std;
 
 int main() {
 
-	std::vector<Point*> vec = { new Point(100.1, 100.1), new Point(16.1, 6.1) };
+	vector<vector<Point*>> obs;
+	vector<Point*> ob1 = { new Point(6.1, 8.1), new Point(8.1, 8.1), new Point(8.1, -8.1), new Point(6.1, -8.1) };
+	obs.push_back(ob1);
 	Point* s = new Point(0.1, 0.1);
 	Point* t = new Point(30.1, 2.1);
 
-	Point* p1 = new Point(16.01, -8.01); vec.push_back(p1);
-	Point* p2 = new Point(7.9, 0.4); vec.push_back(p2);
-
-	auto CS = conforming_subdivision(s, t, vec); 
-	DCEL D = CS.build_subdivision(); // constructs vertex conforming subdivision
-	// DCEL D_ls = build_ls_subdivision(D); // constructs edge conforming subdivision
+	auto CS = conforming_subdivision(s, t, obs); 
+	DCEL* D = CS.build_subdivision(); // constructs vertex conforming subdivision
+	// DCEL* D_ls = build_ls_subdivision(D); // constructs edge conforming subdivision
 
 	return 0;
 }

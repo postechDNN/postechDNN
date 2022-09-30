@@ -8,6 +8,7 @@
 #include <list>
 #include "./../../DataStructures/Delaunay_Linf/delaunay.h"
 #include "./../../DataStructures/DCEL/DCEL_operation.h"
+#include "./../../DataStructures/PointLocation/Location.h"
 // #include "basic.h"
 
 using namespace std;
@@ -34,7 +35,7 @@ struct Subdivision{
 	public: // 변수
 		list<i_quad*> Q_pointer;
 		Point* src; Point* dst;
-		vector<Point*> obstacle_vertices;
+		vector<vector<Point*>> obstacles;
 		vector<i_quad*> Q_old, Q_i; // set of i-quads // Q_im4
 		vector <Graph*> MSF_old, MSF_i;
 		// Subdivision S;
@@ -43,7 +44,7 @@ struct Subdivision{
 	public: // 함수
 		conforming_subdivision();
 		~conforming_subdivision();
-		conforming_subdivision(Point*, Point*, vector<Point*>);
+		conforming_subdivision(Point*, Point*, vector<vector<Point*>>);
 		bool contained(i_quad*, i_quad*);
 		i_quad* bigger_quad(i_quad*, i_quad*);
 		i_quad* bigger_quad(i_quad*);
@@ -52,9 +53,9 @@ struct Subdivision{
 		vector<i_quad*> growth(vector<i_quad*>); // growth(S)
 		bool overlap(i_quad*, i_quad*);
 		bool about_to_merge(i_quad*); // about to merge
-		DCEL build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
+		DCEL* build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
 		pair<vector<vector<int>>, vector<i_quad*>> equiv_classes(vector<i_quad*>);
-		DCEL* build_ls_subdivision();
+		DCEL* build_ls_subdivision(DCEL*);
 	};
 
 int myPow(int x, unsigned int p);

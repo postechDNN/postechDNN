@@ -54,6 +54,7 @@
 		Face* getIncidentFace();
 		void setIncidentFace(Face*);
 		Edge getEdge();
+		Point* crossing(HEdge&, bool = true);
 	};
 
 	class Face {
@@ -104,3 +105,5 @@
 		// int inPolygon(std::vector<HEdge*>, Point);
 		DCEL merge(DCEL&);
 	};
+
+	std::pair<double, double> inline find_mid_points(double num1, double num2, double num3, double num4);

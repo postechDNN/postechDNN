@@ -17,11 +17,14 @@ typedef struct Q_iT Q_iT;
 
 conforming_subdivision::conforming_subdivision() {}
 conforming_subdivision::~conforming_subdivision() {}
-conforming_subdivision::conforming_subdivision(Point* _src, Point* _dst, vector<Point*> _vs) {
-	src = _src; dst = _dst; obstacle_vertices = _vs;
+conforming_subdivision::conforming_subdivision(Point* _src, Point* _dst, vector<vector<Point*>> _vs) {
+	int obver_id = 2;
+	src = _src; dst = _dst;  obstacles = _vs;
 	src->setIndex(0);
-	for (int i = 0; i < obstacle_vertices.size(); i++) { obstacle_vertices[i]->setIndex(i + 1); }
-	dst->setIndex(obstacle_vertices.size() + 1);
+	for (int j = 0; j < obstacles.size(); j++) {
+		for (int i = 0; i < obstacles[j].size(); i++) { obstacles[j][i]->setIndex(obver_id); obver_id++;}
+	}
+	dst->setIndex(1);
 	Q_old = Q_i = {};
 	MSF_old = MSF_i = {};
 }
@@ -216,11 +219,18 @@ pair<vector<vector<int>>, vector<i_quad*>> conforming_subdivision::equiv_classes
 }
 // vector<vector<int>> conforming_subdivision::trans_closure(vector<vector<bool>> adj_mat)
 
-DCEL conforming_subdivision::build_subdivision() {
-	DCEL D;
+DCEL* conforming_subdivision::build_subdivision() {
+	DCEL* D = new DCEL;
 
 	int i = -2;
-	vector<Point*> srcNobs = obstacle_vertices; // source and obstacles.
+
+	vector<Point*> srcNobs; // source and obstacles.
+
+	for (auto ob : obstacles) {
+		for (auto pt : ob) {
+			srcNobs.push_back(pt);
+		}
+	}
 	srcNobs.push_back(src);
 
 	// for each point in srcNobs, construct a graph (an isolated vertex) and transform it into an i_quad. 
@@ -394,11 +404,11 @@ DCEL conforming_subdivision::build_subdivision() {
 
 			RP* R1 = Union(Qs, 2);
 			DCEL* D1 = makeDCEL(R1);
-			DCEL temp = D.merge(*D1);
+			DCEL* temp = new DCEL(D->merge(*D1));
 			D = temp;
 			RP* R2 = Union(Qs, 4);
 			DCEL* D2 = makeDCEL(R2);
-			DCEL temp2 = (*D1).merge(*D2);
+			DCEL* temp2 = new DCEL(D->merge(*D2));
 			D = temp2;
 
 			// rectilinear polygon
@@ -423,30 +433,113 @@ DCEL conforming_subdivision::build_subdivision() {
 	return D;
 }
 
-DCEL* conforming_subdivision::build_ls_subdivision() {
-	DCEL* S1 = build_subdivision();  //������ strong 2-conforming subdivision
-	point_location* P = Point_Location(obstacle_vertices); // point location data structure ����
-	DCEL S2; DCEL S3;
-	for (auto pt : obstacle_vertices) {
-		bool check = true;
-		Vertex* now = pt;
-		while (check) {
-			HEdge* e = S1->getOutgoingHEdges(*now);
-			Vertex v = e->getTwin()->getOrigin();
+DCEL* conforming_subdivision::build_ls_subdivision(DCEL* D) { // vertex conforming subdivision as input
+	DCEL* S = new DCEL;
+	
+	// merge DCELs made from each obstacle 
+	for (auto ob : obstacles) {
+		vector<Vertex*> vers;
+		for (auto pt : ob) {
+			Vertex* now = new Vertex(*pt);
+			vers.push_back(now);
+		}
+		DCEL* S1 = makeDCEL(vers);
+		DCEL* temp = new DCEL(S->merge(*S1));
+		S = temp;
+	}
+
+	vector<HEdge*> vec;
+	vector<Vertex*> vec2;
+
+	auto LC1 = Location(S);
+	DCEL* S2 = new DCEL; DCEL* S3 = new DCEL;
+	for (auto ob : obstacles) {
+		for (auto pt : ob) {
+			bool check = true; // determines when to stop
+			Vertex* now = D->getVertex("v_" + std::to_string(pt->index));
+			// conforming vertex 
+			vec2.push_back(now);
+
 			//check result of point location query
-			if () {
-				HEdge newe(now, *v);
-				S2.setHedges(*newe);
-				check = false;
-			}
-			else {
-				S2.setHedges(e);
-				now = v;
+			while (check) {
+				// traverse around 'now'
+				vector<HEdge*> es = S->getOutgoingHEdges(now);
+				for (HEdge* e : es) {
+					Vertex* v = e->getTwin()->getOrigin();
+					Face* F = LC1.locate(v);
+
+					if (!F->isOutMost()) {
+						for (auto ed : F->getInnerHEdges()) {
+							Point* temp = ed->crossing(*e);
+							Vertex* inter_p = new Vertex(*temp);
+							HEdge* short_e = new HEdge(now, inter_p);
+							vec.push_back(short_e);
+							vec2.push_back(inter_p);
+							check = false;
+						}
+					}
+					else {
+						vec.push_back(e);
+						now = v;
+					}
+				}
 			}
 		}
-		//update S3;
 	}
-	DCEL* D = DCEL::merge(S)
+	S2->setHedges(vec);
+	S2->setFaces(ConstructFaces(vec));
+	S2->setVertices(vec2);
+
+
+	//update S3;
+	DCEL* temp = new DCEL(S->merge(*S2));
+	S = temp;
+
+	auto LC2 = Location(D);
+
+	vector<HEdge*>().swap(vec);
+	vector<Vertex*>().swap(vec2);
+
+	// 각 obstacle vertex에 대해서 찾아 주고, 기존 cell에 포함돼 있다면 위/아래로 ray shooting 했을 때의 edge를 찾아야 함
+	for (auto ob : obstacles) {
+		for (auto pt : ob) {
+			Vertex* now = D->getVertex("v_" + std::to_string(pt->index));
+			vec2.push_back(now);
+			Face* F = LC2.locate(now);
+
+			Vertex* top_v = new Vertex(now->getx(), DBL_MAX);
+			Vertex* bot_v = new Vertex(now->getx(), DBL_MIN);
+			HEdge* top_e = new HEdge(now, top_v);
+			HEdge* bot_e = new HEdge(now, bot_v);
+
+			// for each edge
+			for (auto e : F->getInnerHEdges()) {	
+				Point* temp1 = e->crossing(*top_e);
+				Point* temp2 = e->crossing(*bot_e);
+
+				if (temp1 != NULL) {
+					Vertex* v1 = new Vertex(*temp1);
+					vec2.push_back(v1);
+					vec.push_back(new HEdge(now, v1));
+				}
+
+				if (temp2 != NULL) {
+					Vertex* v2 = new Vertex(*temp2);
+					vec2.push_back(v2);
+					vec.push_back(new HEdge(now, v2));
+				}
+			}
+		}
+	}
+	S3->setHedges(vec);
+	S3->setFaces(ConstructFaces(vec));
+	S3->setVertices(vec2);
+
+
+	DCEL* temp2 = new DCEL(S->merge(*S3));
+	S = temp2;
+
+	return S;
 }
 
 	// https://stackoverflow.com/questions/1505675/power-of-an-integer-in-c

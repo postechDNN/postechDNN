@@ -1,6 +1,7 @@
 #pragma once
 #include "Point.h"
 #define ERR 1e-6
+#include <utility>
 
 class Face;
 
@@ -50,3 +51,4 @@ class Face;
 
 bool sortbylength(Edge* a, Edge* b);
 bool sortbylength_inf(Edge* a, Edge* b);
+std::pair<double, double> inline find_mid_points(double num1, double num2, double num3, double num4);
