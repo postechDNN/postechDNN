@@ -665,9 +665,15 @@ DCEL DCEL::merge(DCEL &op){
 // convert a RP class into HEdges class. 양쪽 방향 모두 있어야 함.
 std::vector<HEdge*> RP2HEdges(RP* rp) {
 	std::vector<HEdge*> vec;
+	std::vector<Vertex*> vers;
+
+	for (auto ver : rp->vers) {
+		vers.push_back(new Vertex(*ver));
+	}
+
 	int sz = rp->vers.size();
 	for (int i = 0; i < sz; i++) {
-		vec.push_back(new HEdge(new Vertex(*rp->vers[i]), new Vertex(*rp->vers[(i+1) % sz])));
+		vec.push_back(new HEdge(vers[i], vers[(i+1) % sz]));
 	}
 	for (int i = 0; i < sz; i++) {
 		vec.push_back(vec[i]->getTwin());
@@ -721,6 +727,10 @@ DCEL* makeDCEL(RP* rp) {
 	D->setHedges(vec);
 	D->setVertices(RP2Vers(rp));
 
+	auto faces = ConstructFaces(vec);
+	D->setFaces(faces);
+
+	/*
 	int sz = vec.size();
 
 	Face* F_out = new Face;
@@ -737,23 +747,9 @@ DCEL* makeDCEL(RP* rp) {
 
 	// F->addInner();
 	// F->setOuter();
-	// auto faces = ConstructFaces(vec);
+
 	D->setFaces({F_out, F_in});
+	*/
 
 	return D;
-}
-
-DCEL* makeDCEL(std::vector<Vertex*> v) {
-    DCEL* D = new DCEL;
-    std::vector<HEdge*> vec;
-    for (int i = 0; i < v.size() - 1; i++) {
-        vec.push_back(new HEdge(new Vertex(v[i]), new Vertex(v[i + 1])));
-    }
-    vec.push_back(new HEdge(new Vertex(v[v.size() - 1]), new Vertex(v[0])));
-    auto faces = ConstructFaces(vec);
-    D->setHedges(vec);
-    D->setVertices(RP2Vers(v));
-    D->setFaces(faces);
-
-    return D;
 }

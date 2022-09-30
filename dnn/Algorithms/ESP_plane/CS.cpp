@@ -1,4 +1,4 @@
-#pragma warning(disable : 4996)
+ï»¿#pragma warning(disable : 4996)
 
 #include <cmath>
 #include <algorithm>
@@ -147,15 +147,15 @@ bool conforming_subdivision::overlap(i_quad* q1, i_quad* q2) {
 	else { return false; }
 }
 
-bool conforming_subdivision::about_to_merge(i_quad* q) { // simpleÀº component¿¡ ´ëÇØ¼­ Á¤ÀÇµÇ´Â °³³äÀÓ
-// build-subdivision step 4¿¡¼­ Ã¼Å©ÇÏ´Â °ÍÀº ÃæºĞÁ¶°Ç. ÀÌ ÇÔ¼ö ³»¿¡¼­´Â ½ÃÅ°´Â´ë·Î simpleÀÇ ÇÊ¿äÁ¶°Ç ¸ğµÎ Ã¼Å© ÇÊ¿ä.
+bool conforming_subdivision::about_to_merge(i_quad* q) { // simpleì€ componentì— ëŒ€í•´ì„œ ì •ì˜ë˜ëŠ” ê°œë…ì„
+// build-subdivision step 4ì—ì„œ ì²´í¬í•˜ëŠ” ê²ƒì€ ì¶©ë¶„ì¡°ê±´. ì´ í•¨ìˆ˜ ë‚´ì—ì„œëŠ” ì‹œí‚¤ëŠ”ëŒ€ë¡œ simpleì˜ í•„ìš”ì¡°ê±´ ëª¨ë‘ ì²´í¬ í•„ìš”.
 	if (q->is_simple && !q->G->is_simple) { return true; }
 	else { return false; }
 }
-// q¶û q_bar´Â i-quadÀÌ¹Ç·Î outer_boundary Á¶°ÇÀº ±×³É ¸¸Á·µÊ
+// që‘ q_barëŠ” i-quadì´ë¯€ë¡œ outer_boundary ì¡°ê±´ì€ ê·¸ëƒ¥ ë§Œì¡±ë¨
 
-// ÀÏ´Ü unionÀ¸·Î °¡Áö°í ÀÖ´ÂÁö ¾Æ´ÑÁöºÎÅÍ ÆÇ´ÜÇØ¾ß ÇÒµí?
-// °³º° quad·Î Á¸ÀçÇÏ´Â °Ç ¸Â´Â µí. pair<int*, vector<i_quad*>> 
+// ì¼ë‹¨ unionìœ¼ë¡œ ê°€ì§€ê³  ìˆëŠ”ì§€ ì•„ë‹Œì§€ë¶€í„° íŒë‹¨í•´ì•¼ í• ë“¯?
+// ê°œë³„ quadë¡œ ì¡´ì¬í•˜ëŠ” ê±´ ë§ëŠ” ë“¯. pair<int*, vector<i_quad*>> 
 // the first argument in pair gives, for each input i_quad, which equivalent classes it is contained, in order.
 // the second argument in pair gives, 
 pair<vector<vector<int>>, vector<i_quad*>> conforming_subdivision::equiv_classes(vector<i_quad*> Qs) { 
@@ -233,11 +233,11 @@ DCEL conforming_subdivision::build_subdivision() {
 	// set of trees with cardinality more than one. we store the indices of the trees.
 	set<int> N = {}; 
 
-	// ÇöÀç Q_old¿¡´Â srcNobs¿¡ ÇØ´çÇÏ´Â quadµéÀÌ µé¾î ÀÖÀ½
+	// í˜„ì¬ Q_oldì—ëŠ” srcNobsì— í•´ë‹¹í•˜ëŠ” quadë“¤ì´ ë“¤ì–´ ìˆìŒ
 	Graph* G = new Graph(srcNobs, {}, Q_old, -1);
 
 	// compute delaunay triangulation
-	// srcNobs¿¡ ÇØ´çÇÏ´Â PointµéÀ» ¹Ş¾Æ¼­, ±×°ÍÀÇ delaunay triangulation¿¡ ÇØ´çÇÏ´Â Graph¸¦ ¹İÈ¯
+	// srcNobsì— í•´ë‹¹í•˜ëŠ” Pointë“¤ì„ ë°›ì•„ì„œ, ê·¸ê²ƒì˜ delaunay triangulationì— í•´ë‹¹í•˜ëŠ” Graphë¥¼ ë°˜í™˜
 	toDelaunay(srcNobs, G);
 
 	// after computing Delaunay triangulation, we compute minimum spanning forest
@@ -247,7 +247,7 @@ DCEL conforming_subdivision::build_subdivision() {
 	sort(G->edges.begin(), G->edges.end(), sortbylength_inf); 
 
 	// remove duplicated edges
-	// *** G->edges¿Í edges ±¸ºĞ ÇÊ¿ä. ***
+	// *** G->edgesì™€ edges êµ¬ë¶„ í•„ìš”. ***
 	auto it = G->edges.begin();
 	while (it != G->edges.end()) {
 		auto it2 = it; it2++;
@@ -266,7 +266,7 @@ DCEL conforming_subdivision::build_subdivision() {
 	root = new int[num_vertices]; 
 	rank = new int[num_vertices];
 
-	// srcNobsÀÇ size¸¸Å­ makeset operationÀ» ÁøÇà. (initialization for Kruskal)
+	// srcNobsì˜ sizeë§Œí¼ makeset operationì„ ì§„í–‰. (initialization for Kruskal)
 	for (int j = 0; j < num_vertices; j++) {
 		root[j] = j;
 		rank[j] = 0;
@@ -278,12 +278,12 @@ DCEL conforming_subdivision::build_subdivision() {
 	while (Q_i.size() > 1) { 
 		vector<Edge*>().swap(new_edges);
 		int i_old = i;
-		// sortedµÈ G->edges¿¡¼­ ¼ø¼­´ë·Î ²¨³¾ edgeÀÇ (L_inf) ±æÀÌ
+		// sortedëœ G->edgesì—ì„œ ìˆœì„œëŒ€ë¡œ êº¼ë‚¼ edgeì˜ (L_inf) ê¸¸ì´
 		double edge_length;
 		// for each edge length, we compute k (at k-th stage we stop and process)
-		// k_old´Â k¿Í ºñ±³ÇÏ¸é¼­ °£º¸·Á°í. Áö±İÃ³·³ ¸Å while¹®¸¶´Ù -1·Î ÃÊ±âÈ­ÇØ ÁÖ´Â °ÍÀÌ ÁÁÀº µí.
+		// k_oldëŠ” kì™€ ë¹„êµí•˜ë©´ì„œ ê°„ë³´ë ¤ê³ . ì§€ê¸ˆì²˜ëŸ¼ ë§¤ whileë¬¸ë§ˆë‹¤ -1ë¡œ ì´ˆê¸°í™”í•´ ì£¼ëŠ” ê²ƒì´ ì¢‹ì€ ë“¯.
 		int k = -1, k_old = -1;
-		// j´Â ÇöÀç º¸°í ÀÖ´Â G->edgesÀÇ index
+		// jëŠ” í˜„ì¬ ë³´ê³  ìˆëŠ” G->edgesì˜ index
 		int j = 0;
 		bool first = true;
 
@@ -295,7 +295,7 @@ DCEL conforming_subdivision::build_subdivision() {
 				int v1 = G->edges[j]->p1->index, v2 = G->edges[j]->p2->index;
 				int T1 = my_find(v1, root, num_vertices), T2 = my_find(v2, root, num_vertices); // T1 and T2 are indices of the corresponding graphs
 				
-				// edgeÀÇ ¾ç ³¡Á¡¿¡ ÇØ´çÇÏ´Â µÎ tree°¡ ÀÌ¹Ì ¿¬°áµÇ¾î ÀÖÀ¸¸é, KruskalÀÇ ¹æ½Ä´ë·Î ÀÌ edge¸¦ ³Ñ¾î°¨
+				// edgeì˜ ì–‘ ëì ì— í•´ë‹¹í•˜ëŠ” ë‘ treeê°€ ì´ë¯¸ ì—°ê²°ë˜ì–´ ìˆìœ¼ë©´, Kruskalì˜ ë°©ì‹ëŒ€ë¡œ ì´ edgeë¥¼ ë„˜ì–´ê°
 				if (T1 == T2) { j += 1; }
 				else {
 					edge_length = G->edges[j]->getLength_inf();
@@ -303,41 +303,41 @@ DCEL conforming_subdivision::build_subdivision() {
 					if (first) { i = k_old = 2 * ceil(0.5 * log2(edge_length / 6)); }
 					else { i = k = 2 * ceil(0.5 * log2(edge_length / 6)); }
 
-					// first - MSF°¡ ´Ş¶óÁö±â À§ÇØ Àû¾îµµ ÇÏ³ªÀÇ edge´Â Ãß°¡ÇØ¾ß ÇÏ¹Ç·Î, ÀÌ¿Í °ü·ÃÇÑ º¯¼ö. 
-					// k¿Í k_old°¡ °°À¸¸é °è¼Ó j¸¦ ´Ã·Á¾ß ÇÔ.
+					// first - MSFê°€ ë‹¬ë¼ì§€ê¸° ìœ„í•´ ì ì–´ë„ í•˜ë‚˜ì˜ edgeëŠ” ì¶”ê°€í•´ì•¼ í•˜ë¯€ë¡œ, ì´ì™€ ê´€ë ¨í•œ ë³€ìˆ˜. 
+					// kì™€ k_oldê°€ ê°™ìœ¼ë©´ ê³„ì† jë¥¼ ëŠ˜ë ¤ì•¼ í•¨.
 					if (!first && (k != k_old)) { break; }
 
-					// pseudocode¿¡¼­¿Í ´Ş¸® tree¸¦ °è¼Ó ÇÕÄ¡±â. µÎ treeÀÇ index¿Í °ü·ÃÇÑ.
+					// pseudocodeì—ì„œì™€ ë‹¬ë¦¬ treeë¥¼ ê³„ì† í•©ì¹˜ê¸°. ë‘ treeì˜ indexì™€ ê´€ë ¨í•œ.
 					int Ts[2] = { T1,T2 };
 					for (auto Tx : Ts) {
 						auto it = N.find(Tx);
 						// if Tx is in N, then remove Tx from N. 
-						// ¾îÂ÷ÇÇ ´Ù½Ã µé¾î°¡°Ô µÅ ÀÖÀ¸¹Ç·Î Áö±İ »©´Â °ÍÀÌ ¸ÂÀ½
+						// ì–´ì°¨í”¼ ë‹¤ì‹œ ë“¤ì–´ê°€ê²Œ ë¼ ìˆìœ¼ë¯€ë¡œ ì§€ê¸ˆ ë¹¼ëŠ” ê²ƒì´ ë§ìŒ
 						if (it != N.end()) { N.erase(it); }
 						// else, compute the singleton (i-2)-quad.
-						// ´Ù½Ã ¸»ÇØ, vertex¸¦ Æ÷ÇÔÇÏ´Â quad¸¦ ¸¸µå´Â °úÁ¤.
+						// ë‹¤ì‹œ ë§í•´, vertexë¥¼ í¬í•¨í•˜ëŠ” quadë¥¼ ë§Œë“œëŠ” ê³¼ì •.
 						else {
-							// ÀÌ °æ¿ì, |Q(i, Tx)| = 1ÀÌ¹Ç·Î Q_iTÀÇ Ã¹¹øÂ° ¿ø¼Ò°¡ ÇØ´çÇÏ´Â i-quadÀÓ
-							// Á÷Àü step±îÁö quad¸¦ Å°¿ò.
+							// ì´ ê²½ìš°, |Q(i, Tx)| = 1ì´ë¯€ë¡œ Q_iTì˜ ì²«ë²ˆì§¸ ì›ì†Œê°€ í•´ë‹¹í•˜ëŠ” i-quadì„
+							// ì§ì „ stepê¹Œì§€ quadë¥¼ í‚¤ì›€.
 							for (int m = 0; m < int((i - 2 - i_old) / 2); m++) {
-								i_quad* temp = MSF_i[Tx]->Q_iT[0]; // ¸Å¹ø °°Àº ¾Ö°¡ ÀâÈû.
+								i_quad* temp = MSF_i[Tx]->Q_iT[0]; // ë§¤ë²ˆ ê°™ì€ ì• ê°€ ì¡í˜.
 								MSF_i[Tx]->Q_iT.push_back(bigger_quad(temp));
 								MSF_i[Tx]->Q_iT.erase(MSF_i[Tx]->Q_iT.begin());
 							}
 						}
 					}
 					// join T1 and T2 to get T'
-					// my_unionÀº mergeÀÌÈÄ treeÀÇ root¸¦ ¹İÈ¯
+					// my_unionì€ mergeì´í›„ treeì˜ rootë¥¼ ë°˜í™˜
 					int newroot = my_union(T1, T2, root, rank, -1); 
-					// nonroot´Â ±âÁ¸¿¡ root¿´À¸³ª mergeÀÌÈÄ root°¡ ¾Æ´Ï°ÔµÈ ¾Ö.
+					// nonrootëŠ” ê¸°ì¡´ì— rootì˜€ìœ¼ë‚˜ mergeì´í›„ rootê°€ ì•„ë‹ˆê²Œëœ ì• .
 					int nonroot;
 					if (newroot != T1) { nonroot = T1; } else { nonroot = T2; }
-					// µÎ ±×·¡ÇÁ¸¦ ÇÕÄ¡°í edge±îÁö Ãß°¡ÇØ¼­, ±âÁ¸ nonrootÀÇ À§Ä¡¿¡ ÀúÀå.
+					// ë‘ ê·¸ë˜í”„ë¥¼ í•©ì¹˜ê³  edgeê¹Œì§€ ì¶”ê°€í•´ì„œ, ê¸°ì¡´ nonrootì˜ ìœ„ì¹˜ì— ì €ì¥.
 					MSF_i[newroot]->operator+(MSF_i[nonroot]);
 					MSF_i[newroot]->addEdge(G->edges[j]);
-					// Q_iT¸¦ union
+					// Q_iTë¥¼ union
 					MSF_i[newroot]->Q_iT.insert(MSF_i[newroot]->Q_iT.end(), MSF_i[nonroot]->Q_iT.begin(), MSF_i[nonroot]->Q_iT.end());
-					// ÇÕÃÆÀ¸´Ï±î, ±âÁ¸ °ÍµéÀº »èÁ¦.
+					// í•©ì³¤ìœ¼ë‹ˆê¹Œ, ê¸°ì¡´ ê²ƒë“¤ì€ ì‚­ì œ.
 					delete MSF_i[nonroot]; MSF_i[nonroot] = NULL;
 					// put T' in N.
 					N.insert(newroot);
@@ -349,7 +349,7 @@ DCEL conforming_subdivision::build_subdivision() {
 		}
 		MSF_old = MSF_i;
 
-		// for each T in N do. ¾Æ·¡ auto±îÁö µÎ ÁÙ¿¡ ÇØ´çÇÏ´Â ³»¿ëÀÓ
+		// for each T in N do. ì•„ë˜ autoê¹Œì§€ ë‘ ì¤„ì— í•´ë‹¹í•˜ëŠ” ë‚´ìš©ì„
 		for (auto n : N) {
 			auto T = MSF_i[n];
 			
@@ -368,15 +368,15 @@ DCEL conforming_subdivision::build_subdivision() {
 				T->addQ_iT(growth(S));
 			}
 
-			// ÀÌÁ¦ Q_iTÀÇ lvÀº i-2°¡ ¾Æ´Ï¶ó i°¡ µÊ.
-			// ¾ÕÀÇ equivalence class¿Í ´Ù¸£Áö¸¸ °°Àº º¯¼ö¸í(temp, EC, Qs) »ç¿ë
+			// ì´ì œ Q_iTì˜ lvì€ i-2ê°€ ì•„ë‹ˆë¼ iê°€ ë¨.
+			// ì•ì˜ equivalence classì™€ ë‹¤ë¥´ì§€ë§Œ ê°™ì€ ë³€ìˆ˜ëª…(temp, EC, Qs) ì‚¬ìš©
 			// compute the equivalence classes of Q(i, T) by plane sweep
 			temp = equiv_classes(T->getQ_iT());
 			EC = temp.first;  Qs = temp.second; // Q_iT is a subset of the Qs just above.
 
 			// perform steps 3 and 4 of build-subdivision on Q(i, T).
 
-			// (* 3. Process simple components of ¡Õ_i-2 that are about to merge with some other components. *)
+			// (* 3. Process simple components of â‰¡_i-2 that are about to merge with some other components. *)
 			for (auto q : T->getQ_old()) {
 				// at this moment, q->G is correctly computed.
 				if (about_to_merge(q)) { // *** need to check once more ***
@@ -394,12 +394,12 @@ DCEL conforming_subdivision::build_subdivision() {
 
 			RP* R1 = Union(Qs, 2);
 			DCEL* D1 = makeDCEL(R1);
-			// DCEL temp = D.merge(*D1);
-			// D = temp;
+			DCEL temp = D.merge(*D1);
+			D = temp;
 			RP* R2 = Union(Qs, 4);
 			DCEL* D2 = makeDCEL(R2);
-			// DCEL temp2 = (*D1).merge(*D2);
-			// D = temp2;
+			DCEL temp2 = (*D1).merge(*D2);
+			D = temp2;
 
 			// rectilinear polygon
 
@@ -423,15 +423,14 @@ DCEL conforming_subdivision::build_subdivision() {
 	return D;
 }
 
-
 DCEL* conforming_subdivision::build_ls_subdivision() {
-	DCEL* S1 = build_subdivision();  //±âÁ¸ÀÇ strong 2-conforming subdivision
-	point_location* P = Point_Location(obstacle_vertices); // point location data structure »ı¼º
+	DCEL* S1 = build_subdivision();  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ strong 2-conforming subdivision
+	point_location* P = Point_Location(obstacle_vertices); // point location data structure ï¿½ï¿½ï¿½ï¿½
 	DCEL S2; DCEL S3;
 	for (auto pt : obstacle_vertices) {
 		bool check = true;
 		Vertex* now = pt;
-		while (check){
+		while (check) {
 			HEdge* e = S1->getOutgoingHEdges(*now);
 			Vertex v = e->getTwin()->getOrigin();
 			//check result of point location query
@@ -463,43 +462,44 @@ int myPow(int x, unsigned int p)
 
 // https://gmlwjd9405.github.io/2018/08/31/algorithm-union-find.html
 int my_find(int x, int* root, int count) {
-	// ·çÆ® ³ëµå´Â ºÎ¸ğ ³ëµå ¹øÈ£·Î ÀÚ±â ÀÚ½ÅÀ» °¡Áø´Ù.
+	// ë£¨íŠ¸ ë…¸ë“œëŠ” ë¶€ëª¨ ë…¸ë“œ ë²ˆí˜¸ë¡œ ìê¸° ìì‹ ì„ ê°€ì§„ë‹¤.
 	if (root[x] == x) {
 		return x;
 	}
 	else {
-		// "°æ·Î ¾ĞÃà(Path Compression)"
-		// find ÇÏ¸é¼­ ¸¸³­ ¸ğµç °ªÀÇ ºÎ¸ğ ³ëµå¸¦ root·Î ¸¸µç´Ù.
+		// "ê²½ë¡œ ì••ì¶•(Path Compression)"
+		// find í•˜ë©´ì„œ ë§Œë‚œ ëª¨ë“  ê°’ì˜ ë¶€ëª¨ ë…¸ë“œë¥¼ rootë¡œ ë§Œë“ ë‹¤.
 		return root[x] = my_find(root[x], root, count);
 	}
 }
 
-/* union1(x, y): union-by-rank ÃÖÀûÈ­ */
+/* union1(x, y): union-by-rank ìµœì í™” */
 int my_union(int x, int y, int* root, int* rank, int count) {
 	x = my_find(x, root, count);
 	y = my_find(y, root, count);
 
-	// µÎ °ªÀÇ root°¡ °°À¸¸é(ÀÌ¹Ì °°Àº Æ®¸®) ÇÕÄ¡Áö ¾Ê´Â´Ù.
+	// ë‘ ê°’ì˜ rootê°€ ê°™ìœ¼ë©´(ì´ë¯¸ ê°™ì€ íŠ¸ë¦¬) í•©ì¹˜ì§€ ì•ŠëŠ”ë‹¤.
 	if (x == y)
-		return -1; // debug ÇÊ¿ä. ¸Â³ª?
+		return -1; // debug í•„ìš”. ë§ë‚˜?
 
-	// "union-by-rank ÃÖÀûÈ­"
-	// Ç×»ó ³ôÀÌ°¡ ´õ ³·Àº Æ®¸®¸¦ ³ôÀÌ°¡ ³ôÀº Æ®¸® ¹Ø¿¡ ³Ö´Â´Ù. Áï, ³ôÀÌ°¡ ´õ ³ôÀº ÂÊÀ» root·Î »ïÀ½
+	// "union-by-rank ìµœì í™”"
+	// í•­ìƒ ë†’ì´ê°€ ë” ë‚®ì€ íŠ¸ë¦¬ë¥¼ ë†’ì´ê°€ ë†’ì€ íŠ¸ë¦¬ ë°‘ì— ë„£ëŠ”ë‹¤. ì¦‰, ë†’ì´ê°€ ë” ë†’ì€ ìª½ì„ rootë¡œ ì‚¼ìŒ
 	if (rank[x] < rank[y]) {
-		root[x] = y; // xÀÇ root¸¦ y·Î º¯°æ
+		root[x] = y; // xì˜ rootë¥¼ yë¡œ ë³€ê²½
 		return y; // return the new root
 	}
 	else {
-		root[y] = x; // yÀÇ root¸¦ x·Î º¯°æ
+		root[y] = x; // yì˜ rootë¥¼ xë¡œ ë³€ê²½
 
 		if (rank[x] == rank[y])
-			rank[x]++; // ¸¸¾à ³ôÀÌ°¡ °°´Ù¸é ÇÕÄ£ ÈÄ (xÀÇ ³ôÀÌ + 1)
+			rank[x]++; // ë§Œì•½ ë†’ì´ê°€ ê°™ë‹¤ë©´ í•©ì¹œ í›„ (xì˜ ë†’ì´ + 1)
 
 		return x; // return the new root
 	}
 }
 
 double my_log2(double x) { return log(x) / log(2); }
+
 
 
 
