@@ -443,7 +443,7 @@ DCEL* conforming_subdivision::build_ls_subdivision(DCEL* D) { // vertex conformi
 			Vertex* now = new Vertex(*pt);
 			vers.push_back(now);
 		}
-		DCEL* S1 = makeDCEL(vers);
+		DCEL* S1 = makeDCEL(vers, false);
 		DCEL* temp = new DCEL(S->merge(*S1));
 		S = temp;
 	}
@@ -540,6 +540,69 @@ DCEL* conforming_subdivision::build_ls_subdivision(DCEL* D) { // vertex conformi
 	S = temp2;
 
 	return S;
+}
+
+void conforming_subdivision::propagation(DCEL* D) { // ls_subdivision as input
+
+	vector<HEdge*> he_vec;
+	
+	int te_num = 0;
+	for (auto e : D->getHedges()) { // count # of transparent edges
+		if (e->type) {
+			te_num += 1;
+			he_vec.push_back(e);
+		}
+	}
+
+	// vector<double> c_times; c_times.assign(te_num, -1);
+	int ori_num = te_num;
+
+	while (te_num > 0) {// there is an unprocessed transparent edge
+		double min_ct = DBL_MAX;
+		int e_i = -1;
+		for (int i = 0; i < ori_num; i++) {
+			if (min_ct > he_vec[i]->covertime) min_ct = he_vec[i]->covertime;
+			e_i = i;
+		} // e_i is the hedge index with the minimum covertime
+
+		auto e = he_vec[e_i];
+
+		
+		compute_aw(e); // compute the approximate wavefronts at e
+		compute_sdist(e->getOrigin()); compute_sdist(e->getTwin()->getOrigin()); // compute d(v, s) for each endpoint v of e
+
+		for (auto g : e->output) {
+			double t_g = compute_eg() // computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
+			g->covertime = min(g->covertime, t_g + g->length);
+				
+		}
+
+		// compute approximate wavefronts at e based on the 
+		for (auto te : he_vec) {
+			
+		}
+		// minimum
+		// select
+	}
+}
+
+void conforming_subdivision::compute_aw(HEdge* e) { // compute approximate wavefront
+	vector<HEdge*> vec;
+
+	for (auto f : e->input) {
+		if (f->covertime < e->covertime) vec.push_back(f);
+	}
+
+	// need to implement later
+}
+
+void conforming_subdivision::compute_sdist(Vertex* v) { // compute d(v,s), for source point s, exactly for an endpoint v of an edge e
+
+}
+
+// computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
+double conforming_subdivision::compute_eg(Vertex*) { 
+
 }
 
 	// https://stackoverflow.com/questions/1505675/power-of-an-integer-in-c

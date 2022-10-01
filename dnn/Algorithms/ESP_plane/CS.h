@@ -55,7 +55,11 @@ struct Subdivision{
 		bool about_to_merge(i_quad*); // about to merge
 		DCEL* build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
 		pair<vector<vector<int>>, vector<i_quad*>> equiv_classes(vector<i_quad*>);
-		DCEL* build_ls_subdivision(DCEL*);
+		DCEL* build_ls_subdivision(DCEL*); 
+		void propagation(DCEL* D);
+		void compute_aw(HEdge*);
+		void compute_sdist(Vertex*);
+		double compute_eg(Vertex*);
 	};
 
 int myPow(int x, unsigned int p);

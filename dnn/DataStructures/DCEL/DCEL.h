@@ -31,14 +31,20 @@
 	};
 
 	class HEdge {
-	protected:
+	public:
 		std::string key; 
 		Vertex* origin;
 		HEdge* next, *prev, * twin;
 		Face* incidentFace; //Incident face is the face which lies on the left to the half edge.
+		bool type;
+		vector<HEdge*> input, output; // consists of the transparent edges on the boundary of u(e)
+		double covertime;
+		double length;
+		vector<Vertex*> a_wavefront;
+
 	public:
 		HEdge();
-		HEdge(Vertex*, Vertex*);
+		HEdge(Vertex*, Vertex*, bool _type = true);
 		~HEdge();
 
 		std::string getKey();

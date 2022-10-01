@@ -664,6 +664,39 @@ DCEL DCEL::merge(DCEL &op){
 
 // convert a RP class into HEdges class. 양쪽 방향 모두 있어야 함.
 std::vector<HEdge*> RP2HEdges(RP* rp) {
+	std::vector<Vertex* > vertices;
+	std::vector<HEdge* > hedges;
+	std::vector<HEdge* > twins;
+
+	for (int i = 0; i < rp->vers.size(); i++)
+		vertices.push_back(new Vertex(*rp->vers[i]));
+
+	for (int i = 0; i < vertices.size(); i++) {
+		int j = (i + 1) % vertices.size();
+		HEdge* he = new HEdge(), * twin = new HEdge();
+		he->setOrigin(vertices[i]), twin->setOrigin(vertices[j]);
+		he->setTwin(twin), twin->setTwin(he);
+		hedges.push_back(he), twins.push_back(twin);
+	}
+	for (int i = 0; i < hedges.size(); i++) {
+		int j = (i + 1) % hedges.size();
+		hedges[i]->setNext(hedges[j]);
+		hedges[j]->setPrev(hedges[i]);
+	}
+	for (int i = 0; i < twins.size(); i++) {
+		int j = (i + 1) % twins.size();
+		twins[i]->setPrev(twins[j]);
+		twins[j]->setNext(twins[i]);
+	}
+
+	std::vector<HEdge*> ret_hedges;
+	ret_hedges.insert(ret_hedges.begin(), hedges.begin(), hedges.end());
+	ret_hedges.insert(ret_hedges.begin(), twins.begin(), twins.end());
+
+	return ret_hedges;
+
+
+	/*
 	std::vector<HEdge*> vec;
 	std::vector<Vertex*> vers;
 
@@ -698,6 +731,7 @@ std::vector<HEdge*> RP2HEdges(RP* rp) {
 	vec[sz / 2]->setNext(vec[sz - 1]);
 
 	return vec;
+	*/
 }
 
 std::vector<Vertex*> RP2Vers(RP* rp) {
@@ -724,6 +758,13 @@ DCEL* makeDCEL(RP* rp) {
 	DCEL* D = new DCEL;
 
 	auto vec = RP2HEdges(rp);
+
+	auto cur = vec[0];
+	do {
+		cur = cur->getNext();
+	}while(cur != vec[0]);
+	std::cout <<"END\n";
+
 	D->setHedges(vec);
 	D->setVertices(RP2Vers(rp));
 
@@ -754,13 +795,13 @@ DCEL* makeDCEL(RP* rp) {
 	return D;
 }
 
-DCEL* makeDCEL(std::vector<Vertex*> v) {
+DCEL* makeDCEL(std::vector<Vertex*> v, bool type) {
 	DCEL* D = new DCEL;
 	std::vector<HEdge*> vec;
 	for (int i = 0; i < v.size() - 1; i++) {
-		vec.push_back(new HEdge(new Vertex(*v[i]), new Vertex(*v[i + 1])));
+		vec.push_back(new HEdge(new Vertex(*v[i]), new Vertex(*v[i + 1]), type));
 	}
-	vec.push_back(new HEdge(new Vertex(*v[v.size() - 1]), new Vertex(*v[0])));
+	vec.push_back(new HEdge(new Vertex(*v[v.size() - 1]), new Vertex(*v[0]), type));
 	auto faces = ConstructFaces(vec);
 	D->setHedges(vec);
 	D->setVertices(v);

@@ -80,9 +80,11 @@ HEdge::HEdge() {
 	this->next = nullptr;
 	this->prev = nullptr;
 	this->twin = nullptr;
+	this->type = true; // true - transparent, false - opaque
+	this->length = -1;
 }
 
-HEdge::HEdge(Vertex* _v1, Vertex* _v2) {
+HEdge::HEdge(Vertex* _v1, Vertex* _v2, bool _type) {
 	this->key = "e_"+std::to_string(_default_e_key++); 
 	this->origin = _v1;
 	this->twin = new HEdge();
@@ -93,6 +95,8 @@ HEdge::HEdge(Vertex* _v1, Vertex* _v2) {
 	this->prev = this->twin;
 	this->twin->next = this;
 	this->twin->prev = this;
+	this->type = true; // true - transparent, false - opaque
+	this->length = sqrt(pow(_v1->getX() - _v2->getX(), 2) + pow(_v1->getY() - _v2->getY(), 2));
 
 	// HWI added. is it correct?
 	this->origin->setIncidentEdge(this);
