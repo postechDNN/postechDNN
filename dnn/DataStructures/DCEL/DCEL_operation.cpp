@@ -119,6 +119,7 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         //NEED TO BE CERTIFICATED
     }
 
+
     //Push the start and end events into the priority queue.
     Point sweep_p;
     AVLTree<HEdgeContainer> T;
@@ -215,8 +216,6 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             continue;
 
         int fn_key = face_nodes.size();
-        face_nodes.push_back(FaceNode(he));
-        adj_list.push_back(std::vector<int>());
 
         HEdge *lb_he = he; //whose origin is left bottom most vertex 
 
@@ -232,6 +231,9 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             cur = cur->getNext();
         }while(cur != he);
 
+        face_nodes.push_back(FaceNode(lb_he));
+        adj_list.push_back(std::vector<int>());
+
         //Determine whether it is hole boundary or outer boundary. 
         HEdge *prev_lb = lb_he->getPrev();
         Point vec_a = get_vec(prev_lb),vec_b = get_vec(lb_he);
@@ -244,6 +246,7 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         else if(cross_vec_ab > 0){   //Left turn = counterclockwise traverse = outer boundary
             face_nodes[fn_key].is_outer = true;
         }
+
     }
 
     //Construct the edge relation between Face Nodes in Graph
@@ -277,6 +280,12 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         }
     }
 
+    // std::cout <<"TEST "<<face_nodes.size()<<std::endl;
+    // for(int i = 0 ; i<face_nodes.size();i++){
+    //     std::cout <<i <<": ";
+    //     for(auto k : adj_list[i]) std::cout<< k <<' ';
+    //     std::cout <<std::endl;
+    // }
 
     //Traverse a graph for face nodes and determine the number of faces and set incident face of each half edge.
     
