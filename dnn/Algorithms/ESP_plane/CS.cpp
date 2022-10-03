@@ -627,15 +627,33 @@ void conforming_subdivision::propagation(DCEL* D, priority_queue<pair<double, Ve
 	// return ret;
 }
 
-void conforming_subdivision::buildSPM(DCEL* D) {
-//	for (auto f : D->getFaces()) {
-//		vector<> // hyperbolic functions
-		// construct arc
-		// how to compute bisector?
-
-//		f->mark; // for generators in face f
-//	}
+void conforming_subdivision::buildSPM(DCEL* D, Point* s) {
+	for (auto f : D->getFaces()) {
+		vector<Vertex*> vs = f->mark;
+		for (auto e : f->getInnerHEdges()) {
+			for (auto v : vs){
+				if (e.on(v) && e->type) {
+					e->predecessor = v;
+					e->weight = compute_sdist(e*);
+				}
+				else {
+					e->weight = DBL_MAX;
+				}
+			}
+		}
+		for (auto e : f->getInnerHEdges()) {
+			for (auto g : g->getInnerHEdges()) {
+				f->hyperbola.push_back(calculate_arc(e*, g*));
+			}
+		}	
+	}
 }
+
+Arc* conforming_subdivision::calculate_arc(HEdge* e, HEdge* f) { //calculate arc such that for the point of the arc, the distance from e and from f is same 
+	Vertex* v1 = e->predecessor;
+	Vertex* v2 = f->predecessor;
+}
+
 
 // bisector events
 void conforming_subdivision::marking(DCEL* D){ // marking rules for generators

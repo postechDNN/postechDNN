@@ -64,6 +64,8 @@
 		vector<Vertex*> a_wavefront; // approximate wavefront
 		Wavefront wavelet;
 		SimplePolygon* WCR; // well-covering region. can be represented as a simple polygon
+		double weight;
+		Vertex* predecessor;
 
 
 	public:
@@ -94,6 +96,7 @@
 		HEdge* outer;	//If outer is null pointer, it is outmost face in DCEL.
 		std::vector<HEdge*> inners;
 		vector<Vertex*> mark;
+		vector<Arc> hyperbola;
 
 	public:
 		Face();
@@ -111,7 +114,7 @@
 		std::vector<HEdge*> getInnerHEdges();
 	};
 
-	class Ark {
+	class Arc {
 	public:
 		std::string key;
 		Vertex* origin;

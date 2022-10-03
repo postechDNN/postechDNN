@@ -80,7 +80,7 @@ class conforming_subdivision {
 		
 		priority_queue<pair<double, Vertex*>> multisource_init(DCEL*, vector<Point*>);
 		void propagation(DCEL*,  priority_queue<pair<double, Vertex*>>); // wavefront propagation phase
-		void buildSPM(DCEL*); // map computation phase. when constructing it, it uses infos obtained from propagation
+		void buildSPM(DCEL*, Point*); // map computation phase. when constructing it, it uses infos obtained from propagation
 
 		// 
 	};
