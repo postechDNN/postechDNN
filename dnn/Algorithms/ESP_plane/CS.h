@@ -9,6 +9,7 @@
 #include "./../../DataStructures/Delaunay_Linf/delaunay.h"
 #include "./../../DataStructures/DCEL/DCEL_operation.h"
 #include "./../../DataStructures/PointLocation/Location.h"
+#include "./../../DataStructures/DCEL/Vector.h"
 // #include "basic.h"
 
 using namespace std;
@@ -31,8 +32,25 @@ struct Subdivision{
 };
 */
 
+
+
+//Wavefront is defined on edge by a sequence of obstacle vertices with their shortest path distances from s
+class Wavefront{
+	public: 
+	std::vector<Vertex*> generators;
+	HEdge *edge; 
+	std::vector<Point> intervals;
+	std::vector<double> dists; 
+	
+	public:
+	Wavefront();
+	~Wavefront();
+	Wavefront(std::vector<Vertex*>,std::vector<double>, HEdge *);
+	Wavefront propagate(HEdge *);
+};
+
 class conforming_subdivision {
-	public: // º¯¼ö
+	public: // ï¿½ï¿½ï¿½ï¿½
 		list<i_quad*> Q_pointer;
 		Point* src; Point* dst;
 		vector<vector<Point*>> obstacles;
@@ -41,7 +59,7 @@ class conforming_subdivision {
 		// Subdivision S;
 		int rp_index; // RectPoly_index
 
-	public: // ÇÔ¼ö
+	public: // ï¿½Ô¼ï¿½
 		conforming_subdivision();
 		~conforming_subdivision();
 		conforming_subdivision(Point*, Point*, vector<vector<Point*>>);
@@ -59,8 +77,9 @@ class conforming_subdivision {
 
 		// for buildSPM
 		void compute_aw(HEdge*);
-		void compute_sdist(Vertex*);
-		double compute_eg(HEdge*);
+		double compute_sdist(HEdge*);
+		//double compute_eg(HEdge*);
+		void update_covertime(HEdge*);
 		void marking(DCEL*); // 
 		Vertex* claim(HEdge*);
 		Vertex* claim(Vertex*);
@@ -69,7 +88,6 @@ class conforming_subdivision {
 		DCEL* build_ls_subdivision(DCEL*);
 		void propagation(DCEL*, Point*); // wavefront propagation phase
 		void buildSPM(DCEL*); // map computation phase. when constructing it, it uses infos obtained from propagation
-		
 	};
 
 int myPow(int x, unsigned int p);

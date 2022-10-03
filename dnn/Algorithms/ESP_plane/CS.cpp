@@ -7,6 +7,7 @@
 #include <tuple>
 #include <set>
 #include "CS.h"
+
 // #include "basic.h"
 
 // #define EPS 0.000001
@@ -604,12 +605,13 @@ void conforming_subdivision::propagation(DCEL* D, Point* src) { // ls_subdivisio
 		auto e = he_vec[e_i];
 		
 		compute_aw(e); // compute the approximate wavefronts at e
-		compute_sdist(e->getOrigin()); compute_sdist(e->getTwin()->getOrigin()); // compute d(v, s) for each endpoint v of e
+		e->getOrigin()->dist = compute_sdist(e); 
+		e->getTwin()->getOrigin()->dist = compute_sdist(e->getTwin()); // compute d(v, s) for each endpoint v of e
 
 		for (auto g : e->output) {
-			double t_g = compute_eg(g); // computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
-			g->covertime = min(g->covertime, t_g + g->length);
-			
+			//double t_g = compute_eg(g); // computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
+			//g->covertime = min(g->covertime, t_g + g->length);
+			update_covertime(g);
 		}
 	}
 
@@ -711,23 +713,83 @@ void conforming_subdivision::marking(DCEL* D){ // marking rules for generators
 
 }
 
+Point* compute_bisect_on_edge(Vertex *a,double dist_a, Vertex *b, double dist_b, HEdge *e){
+	Vector p(*e->getOrigin());
+	Vector q(*e->getTwin()->getOrigin());
+	double dist_ap = (Vector(*a)-p).norm()+dist_a, dist_aq = (Vector(*a)-q).norm()+dist_a;
+	double dist_bq = (Vector(*b)-q).norm()+dist_b, dist_bp = (Vector(*b)-p).norm()+dist_b;
+	if(dist_ap < dist_bp && dist_aq < dist_bq) //Then b is occupied by a, that is b can not be concerned in a bisect on the edge e
+		return nullptr; 
+	else return new Point((p/(1/dist_bq) + q/(1/dist_ap))/(dist_ap+dist_bq)); //compute the intersection point between the bisect and the edge.
+}
+
+//Make a wavefront on e by using a generator and dists
+Wavefront::Wavefront(std::vector<Vertex*> generators ,std::vector<double> dists, HEdge *edge){
+	this->edge = edge;
+	Point* p = nullptr;
+	int i;
+	for(i = 0 ; i < generators.size()-1;i++){
+		p = compute_bisect_on_edge(generators[i],dists[i], generators[i+1],dists[i+1], edge);
+		if(p != nullptr){	//There is a bisector
+			this->generators.push_back(generators[i]);
+			this->dists.push_back(dists[i]);
+			this->intervals.push_back(*p);
+		}
+	}
+	this->generators.push_back(generators[i]);
+	this->dists.push_back(dists[i]);
+	this->intervals.push_back(*edge->getTwin()->getOrigin());
+}
+
+
+//Propagate wavefront to e, that is compute W(f,e) where f is an this->edge
+//e and f are incident edge in a cell.
+Wavefront Wavefront::propagate(HEdge *e){
+	Vector f_1(*this->edge->getOrigin());
+	Vector f_2(*this->edge->getTwin()->getOrigin());
+
+	Vector e_1(*e->getOrigin());
+	Vector e_2(*e->getTwin()->getOrigin());
+	Wavefront ret_wave;
+	for(int i = 0 ; i<this->generators.size();i++){
+		Vector r(this->intervals[i]);
+		double dis_p =Vector(r,e_1).norm();
+		double dis_q = Vector(r,e_2).norm();
+		ret_wave.generators.push_back(this->generators[i]);
+		ret_wave.dists.push_back(std::min(dis_p,dis_q));
+		double s = (f_1 - r).norm(), t = (f_2-r).norm();
+		Vector mid_p = (e_1/(1/s) + e_2/(1/t) )/(s+t);
+		ret_wave.intervals.push_back(mid_p);
+	}
+	return ret_wave;
+}
+
+
 void conforming_subdivision::compute_aw(HEdge* e) { // compute approximate wavefront
 	vector<HEdge*> vec;
-	
+	//compute all W(f,e)'s for all f in input(e) such that covertime of f is smaller than e's.
 	for (auto f : e->input) {
-		if (f->covertime < e->covertime) vec.push_back(f);
+		if (f->covertime < e->covertime){
+			Wavefront wave_f = f->wavelet;
+			e->wavelet = wave_f.propagate(e);
+		}
 	}
-
-	// need to implement later
 }
 
-void conforming_subdivision::compute_sdist(Vertex* v) { // compute d(v,s), for source point s, exactly for an endpoint v of an edge e
 
+double conforming_subdivision::compute_sdist(HEdge *e) { // compute d(v,s), for source point s, exactly for an endpoint v of an edge e
+	Wavefront wave= e->wavelet;
+	return wave.dists[wave.dists.size()-1];
 }
 
-// computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
-double conforming_subdivision::compute_eg(HEdge*) { 
-	return 0;
+// computes the time t_g s.t. the approximate wavefront from e first engulfs an endpoint of g
+void conforming_subdivision::update_covertime(HEdge *e) {
+	Wavefront wave = e->wavelet;
+	for(auto g:e->output){
+		Wavefront wave_f= wave.propagate(g);
+		double t_g = wave_f.dists[wave_f.dists.size()-1];
+		g->covertime = std::min(g->covertime, t_g+g->getEdge().getLength());
+	}
 }
 
 Vertex* conforming_subdivision::claim(HEdge*){
