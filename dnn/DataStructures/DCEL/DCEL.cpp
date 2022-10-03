@@ -491,6 +491,52 @@ std::vector<HEdge*> DCEL::getIncomingHEdges(Vertex* v) {
 	return output;
 }
 
+Wavefront::Wavefront(){}
+Wavefront::~Wavefront() {}
+
+//Make a wavefront on e by using a generator and dists
+Wavefront::Wavefront(std::vector<Vertex*> generators, std::vector<double> dists, HEdge* edge) {
+	this->edge = edge;
+	Point* p = nullptr;
+	int i;
+	for (i = 0; i < generators.size() - 1; i++) {
+		p = compute_bisect_on_edge(generators[i], dists[i], generators[i + 1], dists[i + 1], edge);
+		if (p != nullptr) {	//There is a bisector
+			this->generators.push_back(generators[i]);
+			this->dists.push_back(dists[i]);
+			this->intervals.push_back(*p);
+		}
+	}
+	this->generators.push_back(generators[i]);
+	this->dists.push_back(dists[i]);
+	this->intervals.push_back(*edge->getTwin()->getOrigin());
+}
+
+
+//Propagate wavefront to e, that is compute W(f,e) where f is an this->edge
+//e and f are incident edge in a cell.
+Wavefront Wavefront::propagate(HEdge* e) {
+	Vector f_1(*this->edge->getOrigin());
+	Vector f_2(*this->edge->getTwin()->getOrigin());
+
+	Vector e_1(*e->getOrigin());
+	Vector e_2(*e->getTwin()->getOrigin());
+	Wavefront ret_wave;
+	for (int i = 0; i < this->generators.size(); i++) {
+		Vector r(this->intervals[i]);
+		double dis_p = Vector(r, e_1).norm();
+		double dis_q = Vector(r, e_2).norm();
+		ret_wave.generators.push_back(this->generators[i]);
+		ret_wave.dists.push_back(std::min(dis_p, dis_q));
+		double s = (f_1 - r).norm(), t = (f_2 - r).norm();
+		Vector t1 = e_1 / (1 / s), t2 = e_2 / (1 / t);
+		Vector mid_p = ( t1+ t2) / (s + t);
+		ret_wave.intervals.push_back(mid_p);
+	}
+	return ret_wave;
+}
+
+
 //The point p is inside polygon return 1
 //The point p is on boundary return 0
 //The point p is outside polygon return -1

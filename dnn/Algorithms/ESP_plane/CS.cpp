@@ -18,14 +18,20 @@ typedef struct Q_iT Q_iT;
 
 conforming_subdivision::conforming_subdivision() {}
 conforming_subdivision::~conforming_subdivision() {}
-conforming_subdivision::conforming_subdivision(Point* _src, Point* _dst, vector<vector<Point*>> _vs) {
-	int obver_id = 2;
-	src = _src; dst = _dst;  obstacles = _vs;
-	src->setIndex(0);
+conforming_subdivision::conforming_subdivision(vector<Point*> _srcs, vector<vector<Point*>> _vs) {
+	int srcver_id = -1;
+	int obver_id = 0;
+	sources = _srcs; 
+	// dst = _dst;  
+	obstacles = _vs;	
+
+	for (auto src : sources) {
+		src->setIndex(srcver_id); srcver_id--;
+	}
 	for (int j = 0; j < obstacles.size(); j++) {
 		for (int i = 0; i < obstacles[j].size(); i++) { obstacles[j][i]->setIndex(obver_id); obver_id++;}
 	}
-	dst->setIndex(1);
+	// dst->setIndex(1);
 	Q_old = Q_i = {};
 	MSF_old = MSF_i = {};
 }
@@ -225,15 +231,13 @@ DCEL* conforming_subdivision::build_subdivision() {
 
 	int i = -2;
 
-	vector<Point*> srcNobs; // source and obstacles.
+	vector<Point*> srcNobs = sources; // source and obstacles.
 
 	for (auto ob : obstacles) {
 		for (auto pt : ob) {
 			srcNobs.push_back(pt);
 		}
 	}
-	srcNobs.push_back(src);
-
 
 	// for each point in srcNobs, construct a graph (an isolated vertex) and transform it into an i_quad. 
 	for (auto pt : srcNobs) { 
@@ -567,10 +571,15 @@ DCEL* conforming_subdivision::build_ls_subdivision(DCEL* D) { // vertex conformi
 
 // }
 
-void conforming_subdivision::propagation(DCEL* D, Point* src) { // ls_subdivision as input
+void conforming_subdivision::propagation(DCEL* D, priority_queue<pair<double, Vertex*>> pq) { // ls_subdivision as input
 	// vector<Vertex*> ret;
 
 	// for every edge e whose well-covering region includes the source points, calculate an upper bound directly.
+	auto top = pq.top();
+	pq.pop();
+	double dist = top.first; 
+	Vertex* src = top.second;
+	
 	for (auto e : D->getHedges()) {
 		if (e->WCR->inPolygon(*src)) {
 			double dt_as = sqrt(pow(e->getOrigin()->getx() - src->getx(), 2) + pow(e->getOrigin()->gety() - src->gety(), 2));
@@ -619,13 +628,13 @@ void conforming_subdivision::propagation(DCEL* D, Point* src) { // ls_subdivisio
 }
 
 void conforming_subdivision::buildSPM(DCEL* D) {
-	for (auto f : D->getFaces()) {
-		vector<> // hyperbolic functions
+//	for (auto f : D->getFaces()) {
+//		vector<> // hyperbolic functions
 		// construct arc
 		// how to compute bisector?
 
-		f->mark; // for generators in face f
-	}
+//		f->mark; // for generators in face f
+//	}
 }
 
 // bisector events
@@ -705,50 +714,33 @@ Point* compute_bisect_on_edge(Vertex *a,double dist_a, Vertex *b, double dist_b,
 	double dist_bq = (Vector(*b)-q).norm()+dist_b, dist_bp = (Vector(*b)-p).norm()+dist_b;
 	if(dist_ap < dist_bp && dist_aq < dist_bq) //Then b is occupied by a, that is b can not be concerned in a bisect on the edge e
 		return nullptr; 
-	else return new Point((p/(1/dist_bq) + q/(1/dist_ap))/(dist_ap+dist_bq)); //compute the intersection point between the bisect and the edge.
+	else {
+		Vector t1 = p / (1 / dist_bq), t2 = q / (1 / dist_ap);
+		Vector t3 =t1+t2;
+		return new Point( t3 /(dist_ap+dist_bq)); //compute the intersection point between the bisect and the edge.
+	}
 }
 
-//Make a wavefront on e by using a generator and dists
-Wavefront::Wavefront(std::vector<Vertex*> generators ,std::vector<double> dists, HEdge *edge){
-	this->edge = edge;
-	Point* p = nullptr;
-	int i;
-	for(i = 0 ; i < generators.size()-1;i++){
-		p = compute_bisect_on_edge(generators[i],dists[i], generators[i+1],dists[i+1], edge);
-		if(p != nullptr){	//There is a bisector
-			this->generators.push_back(generators[i]);
-			this->dists.push_back(dists[i]);
-			this->intervals.push_back(*p);
+priority_queue<pair<double, Vertex*>> conforming_subdivision::multisource_init(DCEL* D, vector<Point*> srcs) {
+	priority_queue<pair<double, Vertex*>> pq;
+
+	// compute direct distances between each source and the corners of its well-covering regions
+	for (auto ver : D->getVertices()) {
+		if (ver->index < 0) {
+			auto egs = D->getOutgoingHEdges(ver);
+			for (auto eg : egs) {
+				auto wcr = eg->WCR;
+				for (auto e : *(wcr->getHEdges())) {
+					auto v = e->getOrigin();
+					v->color = ver->index;
+					Vector t1 = *v, t2 = *ver;
+					pq.push(make_pair((t1-t2).norm(), v));
+				}
+			}
 		}
 	}
-	this->generators.push_back(generators[i]);
-	this->dists.push_back(dists[i]);
-	this->intervals.push_back(*edge->getTwin()->getOrigin());
+	return pq;
 }
-
-
-//Propagate wavefront to e, that is compute W(f,e) where f is an this->edge
-//e and f are incident edge in a cell.
-Wavefront Wavefront::propagate(HEdge *e){
-	Vector f_1(*this->edge->getOrigin());
-	Vector f_2(*this->edge->getTwin()->getOrigin());
-
-	Vector e_1(*e->getOrigin());
-	Vector e_2(*e->getTwin()->getOrigin());
-	Wavefront ret_wave;
-	for(int i = 0 ; i<this->generators.size();i++){
-		Vector r(this->intervals[i]);
-		double dis_p =Vector(r,e_1).norm();
-		double dis_q = Vector(r,e_2).norm();
-		ret_wave.generators.push_back(this->generators[i]);
-		ret_wave.dists.push_back(std::min(dis_p,dis_q));
-		double s = (f_1 - r).norm(), t = (f_2-r).norm();
-		Vector mid_p = (e_1/(1/s) + e_2/(1/t) )/(s+t);
-		ret_wave.intervals.push_back(mid_p);
-	}
-	return ret_wave;
-}
-
 
 void conforming_subdivision::compute_aw(HEdge* e) { // compute approximate wavefront
 	vector<HEdge*> vec;
@@ -763,7 +755,7 @@ void conforming_subdivision::compute_aw(HEdge* e) { // compute approximate wavef
 
 
 double conforming_subdivision::compute_sdist(HEdge *e) { // compute d(v,s), for source point s, exactly for an endpoint v of an edge e
-	Wavefront wave= e->wavelet;
+	Wavefront wave = e->wavelet;
 	return wave.dists[wave.dists.size()-1];
 }
 

@@ -146,7 +146,7 @@ void DCEL_IO::print_DCEL(DCEL &dcel){
 	std::cout << "|V|= "<<vertices.size() << "\t|E|= "<<hedges.size() << "\t|F|= "<<faces.size() << std::endl;
 	std::cout << "<Vertices>"<<std::endl;
 	for(auto v:vertices){
-		// std::cout <<v->getKey()<<"\t"<< v->getPoint() <<"\t"<< v->getIncidentEdge()->getKey()<<std::endl;
+		// std::cout <<v->getKey()<<"\t"<< v->getPoint() <<"\t"<< v->getIncidentHEdge()->getKey()<<std::endl;
 	}
 	for(auto f:faces){
 		std::cout <<f->getKey() << "\t" << (f->isOutMost() ? "UBD":"BD\t"+f->getOuter()->getKey()) << "\t";
@@ -199,7 +199,7 @@ void DCEL_IO::DCELtotext(FILE* readFile) {
 	}
 	for (i = 0; i < this->vertices->size(); i++)
 	{
-		sprintf(buffer, "%s\t%.3lf,%.3lf\t%s\n", (*this->vertices)[i]->getVertexKey(), (*this->vertices)[i]->getx(), (*this->vertices)[i]->gety(), (*this->vertices)[i]->getIncidentEdge()->getHedgeKey());
+		sprintf(buffer, "%s\t%.3lf,%.3lf\t%s\n", (*this->vertices)[i]->getVertexKey(), (*this->vertices)[i]->getx(), (*this->vertices)[i]->gety(), (*this->vertices)[i]->getIncidentHEdge()->getHedgeKey());
 		fputs(buffer, readFile);
 	}
 	for (i = 0; i < this->faces->size(); i++)
@@ -246,11 +246,11 @@ void DCEL_IO::DCELtotext(FILE* readFile) {
 
 void DCEL_IO::printVertexTab() {
 	std::cout << "\n" << "*********** Vertex Table ************" << "\n";
-	std::cout << "vertex" << "\tCoordinates " << "\tIncident Edge " << "\n";
+	std::cout << "vertex" << "\tCoordinates " << "\tIncident HEdge " << "\n";
 
 	for (int i = 0; i < this->vertices->size(); i++)
 	{
-		std::cout << std::setw(4) << (*this->vertices)[i]->getVertexKey() << std::setw(6) << "(" << std::setw(2) << (*this->vertices)[i]->getx() << ", " << std::setw(2) << (*this->vertices)[i]->gety() << ")" << std::setw(14) << (*this->vertices)[i]->getIncidentEdge()->getHedgeKey() << std::endl;
+		std::cout << std::setw(4) << (*this->vertices)[i]->getVertexKey() << std::setw(6) << "(" << std::setw(2) << (*this->vertices)[i]->getx() << ", " << std::setw(2) << (*this->vertices)[i]->gety() << ")" << std::setw(14) << (*this->vertices)[i]->getIncidentHEdge()->getHedgeKey() << std::endl;
 	}
 }
 void DCEL_IO::printHedgeTab() {

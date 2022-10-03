@@ -8,6 +8,7 @@
 #include <list>
 #include "./../../DataStructures/Delaunay_Linf/delaunay.h"
 #include "./../../DataStructures/DCEL/DCEL_operation.h"
+#include "./../../DataStructures/DCEL/DCEL.h"
 #include "./../../DataStructures/PointLocation/Location.h"
 #include "./../../DataStructures/DCEL/Vector.h"
 // #include "basic.h"
@@ -34,25 +35,12 @@ struct Subdivision{
 
 
 
-//Wavefront is defined on edge by a sequence of obstacle vertices with their shortest path distances from s
-class Wavefront{
-	public: 
-	std::vector<Vertex*> generators;
-	HEdge *edge; 
-	std::vector<Point> intervals;
-	std::vector<double> dists; 
-	
-	public:
-	Wavefront();
-	~Wavefront();
-	Wavefront(std::vector<Vertex*>,std::vector<double>, HEdge *);
-	Wavefront propagate(HEdge *);
-};
+
 
 class conforming_subdivision {
 	public: // ����
 		list<i_quad*> Q_pointer;
-		Point* src; Point* dst;
+		vector<Point*> sources; // Point* dst;
 		vector<vector<Point*>> obstacles;
 		vector<i_quad*> Q_old, Q_i; // set of i-quads // Q_im4
 		vector <Graph*> MSF_old, MSF_i;
@@ -62,7 +50,7 @@ class conforming_subdivision {
 	public: // �Լ�
 		conforming_subdivision();
 		~conforming_subdivision();
-		conforming_subdivision(Point*, Point*, vector<vector<Point*>>);
+		conforming_subdivision(vector<Point*>, vector<vector<Point*>>);
 
 		// for build_subdivision
 		bool contained(i_quad*, i_quad*);
@@ -74,6 +62,7 @@ class conforming_subdivision {
 		bool overlap(i_quad*, i_quad*);
 		bool about_to_merge(i_quad*); // about to merge
 		pair<vector<vector<int>>, vector<i_quad*>> equiv_classes(vector<i_quad*>);
+
 
 		// for buildSPM
 		void compute_aw(HEdge*);
@@ -88,11 +77,16 @@ class conforming_subdivision {
 
 		DCEL* build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
 		DCEL* build_ls_subdivision(DCEL*);
-		void propagation(DCEL*, Point*); // wavefront propagation phase
+		
+		priority_queue<pair<double, Vertex*>> multisource_init(DCEL*, vector<Point*>);
+		void propagation(DCEL*,  priority_queue<pair<double, Vertex*>>); // wavefront propagation phase
 		void buildSPM(DCEL*); // map computation phase. when constructing it, it uses infos obtained from propagation
+
+		// 
 	};
 
 int myPow(int x, unsigned int p);
 int my_find(int x, int* root, int count);
 int my_union(int x, int y, int* root, int* rank, int count);
 double my_log2(double x);
+
