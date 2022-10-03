@@ -658,32 +658,17 @@ void conforming_subdivision::marking(DCEL* D){ // marking rules for generators
 		
 			vector<Vertex*> W_e; // the approximate wavefronts coming from some generator v's side of e
 			//Vertex* v ; // how to define it?
-			Vertex* c = claim(v);
-			if (c == e->getOrigin() || c == e->getTwin()->getOrigin()) {
+			if(is_endpoint_claim(v,e)){
 				e->incidentFace->mark.push_back(v);
 				e->getTwin()->incidentFace->mark.push_back(v);
-				/*
-				for (auto cell : c->) {
-					cell->mark.push_back(v);
-				}
-				*/
 			}
-
+			
 			for (auto f : e->output) {
-				if (f->type) { // if f is also a transparent edge
-					if (c == f->getOrigin() || c == f->getTwin()->getOrigin()) {
-						e->incidentFace->mark.push_back(v);
-						e->getTwin()->incidentFace->mark.push_back(v);
-						f->incidentFace->mark.push_back(v);
-						f->getTwin()->incidentFace->mark.push_back(v);
-					}
-					/*
-					if () {// if v claims and endpoint of f in W(e, f) or v participates...
-						// mark v in both the cells that have e as an edge
-						e->incidentFace->mark.push_back(v);
-						e->getTwin()->incidentFace->mark.push_back(v);
-					}
-					*/
+				if (f->type && is_endpoint_claim(v,f)) { // if f is also a transparent edge
+					e->incidentFace->mark.push_back(v);
+					e->getTwin()->incidentFace->mark.push_back(v);
+					f->incidentFace->mark.push_back(v);
+					f->getTwin()->incidentFace->mark.push_back(v);
 				}
 			}
 		}
@@ -692,8 +677,8 @@ void conforming_subdivision::marking(DCEL* D){ // marking rules for generators
 
 			vector<Vertex*> W_e; // the approximate wavefronts coming from some generator v's side of e
 			//Vertex* v; // how to define it?
-			Vertex* c = claim(v);
-			if (e->on(*c)) {
+			
+			if (is_part_claim(v,e)) {
 				e->incidentFace->mark.push_back(v);
 				e->getTwin()->incidentFace->mark.push_back(v);
 				/*
@@ -792,13 +777,28 @@ void conforming_subdivision::update_covertime(HEdge *e) {
 	}
 }
 
-Vertex* conforming_subdivision::claim(HEdge*){
-	return NULL;
+bool conforming_subdivision::is_endpoint_claim(Vertex* v, HEdge* e){
+	int size_gen = e->wavelet.generators.size();
+	if(size_gen==0) return false;
+
+	if(v== e->wavelet.generators[0] || v== e->wavelet.generators[size_gen - 1]) return true;
+	else return false;
 }
 
-Vertex* conforming_subdivision::claim(Vertex*) {
-	return NULL;
+bool conforming_subdivision::is_part_claim(Vertex* v, HEdge* e){
+	for(auto gen : e->wavelet.generators){
+		if(gen == v) return true;
+	}
+	return false;
 }
+
+// Vertex* conforming_subdivision::claim(HEdge*){
+// 	return NULL;
+// }
+
+// Vertex* conforming_subdivision::claim(Vertex*) {
+// 	return NULL;
+// }
 
 	// https://stackoverflow.com/questions/1505675/power-of-an-integer-in-c
 int myPow(int x, unsigned int p)

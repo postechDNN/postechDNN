@@ -81,8 +81,10 @@ class conforming_subdivision {
 		//double compute_eg(HEdge*);
 		void update_covertime(HEdge*);
 		void marking(DCEL*); // 
-		Vertex* claim(HEdge*);
-		Vertex* claim(Vertex*);
+		//Vertex* claim(HEdge*);
+		//Vertex* claim(Vertex*);
+		bool is_endpoint_claim(Vertex*, HEdge*);
+		bool is_part_claim(Vertex*, HEdge*);
 
 		DCEL* build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
 		DCEL* build_ls_subdivision(DCEL*);
