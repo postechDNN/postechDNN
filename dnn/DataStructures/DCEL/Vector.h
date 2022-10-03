@@ -11,6 +11,9 @@ public:
 	~Vector();
 	bool operator==(Vector& );
 	Vector operator/(double );
+	Vector operator+(Vector& op){
+		return Vector(this->x+op.getx(), this->y + op.gety());
+	}
 	Vector operator- (Vector& );
 	double innerProdct(Vector& );
 	double outerProdct(Vector& );
