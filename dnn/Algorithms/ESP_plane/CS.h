@@ -31,7 +31,7 @@ struct Subdivision{
 };
 */
 
-	class conforming_subdivision {
+class conforming_subdivision {
 	public: // º¯¼ö
 		list<i_quad*> Q_pointer;
 		Point* src; Point* dst;
@@ -45,6 +45,8 @@ struct Subdivision{
 		conforming_subdivision();
 		~conforming_subdivision();
 		conforming_subdivision(Point*, Point*, vector<vector<Point*>>);
+
+		// for build_subdivision
 		bool contained(i_quad*, i_quad*);
 		i_quad* bigger_quad(i_quad*, i_quad*);
 		i_quad* bigger_quad(i_quad*);
@@ -53,13 +55,21 @@ struct Subdivision{
 		vector<i_quad*> growth(vector<i_quad*>); // growth(S)
 		bool overlap(i_quad*, i_quad*);
 		bool about_to_merge(i_quad*); // about to merge
-		DCEL* build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
 		pair<vector<vector<int>>, vector<i_quad*>> equiv_classes(vector<i_quad*>);
-		DCEL* build_ls_subdivision(DCEL*); 
-		void propagation(DCEL* D);
+
+		// for buildSPM
 		void compute_aw(HEdge*);
 		void compute_sdist(Vertex*);
-		double compute_eg(Vertex*);
+		double compute_eg(HEdge*);
+		void marking(DCEL*); // 
+		Vertex* claim(HEdge*);
+		Vertex* claim(Vertex*);
+
+		DCEL* build_subdivision(); // subdivision : set of line segments. datatype : vector<line_segment>
+		DCEL* build_ls_subdivision(DCEL*);
+		void propagation(DCEL*, Point*); // wavefront propagation phase
+		void buildSPM(DCEL*); // map computation phase. when constructing it, it uses infos obtained from propagation
+		
 	};
 
 int myPow(int x, unsigned int p);

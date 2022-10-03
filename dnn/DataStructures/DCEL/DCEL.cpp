@@ -103,6 +103,7 @@ HEdge::HEdge(Vertex* _v1, Vertex* _v2, bool _type) {
 	this->twin->origin->setIncidentEdge(this->twin);
 	//this->twin->s = *_v2;
 	//this->twin->t = *_v1;
+	covertime = DBL_MAX;
 }
 
 /*
@@ -241,6 +242,29 @@ Point* HEdge::crossing(HEdge& _e, bool closed) {
 			// return new Edge(Point(x, y), Point(x, y));
 			return new Point(x, y);
 		}
+	}
+}
+
+bool HEdge::on(Vertex& p) {
+	double s_x = this->getOrigin()->getx();
+	double s_y = this->getOrigin()->gety();
+	double t_x = this->getTwin()->getOrigin()->getx();
+	double t_y = this->getTwin()->getOrigin()->gety();
+	double p_x = p.getx();
+	double p_y = p.gety();
+	double d = t_x - s_x;
+	if (abs(d) < ERR) {
+		if (abs(p_x - t_x) <= ERR && p_y <= std::max(t_y, s_y) && p_y >= std::min(t_y, s_y)) {
+			return true;
+		}
+		else return false;
+	}
+	else {
+		double y = ((t_y - s_y) / d) * (p_x - s_x) + s_y;
+		if (abs(y - p_y) <= ERR && p_y <= std::max(t_y, s_y) && p_y >= std::min(t_y, s_y)) {
+			return true;
+		}
+		else return false;
 	}
 }
 
