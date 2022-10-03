@@ -215,9 +215,6 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             continue;
 
         int fn_key = face_nodes.size();
-        face_nodes.push_back(FaceNode(he));
-        adj_list.push_back(std::vector<int>());
-
         HEdge *lb_he = he; //whose origin is left bottom most vertex 
 
         //Traverse the chain
@@ -231,6 +228,9 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             && org->gety() < lb_v->gety()) lb_he = cur;
             cur = cur->getNext();
         }while(cur != he);
+
+        face_nodes.push_back(FaceNode(lb_he));
+        adj_list.push_back(std::vector<int>());
 
         //Determine whether it is hole boundary or outer boundary. 
         HEdge *prev_lb = lb_he->getPrev();

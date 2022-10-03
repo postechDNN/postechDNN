@@ -41,6 +41,7 @@
 		double covertime;
 		double length;
 		vector<Vertex*> a_wavefront;
+		Wavefront wavelet;
 
 	public:
 		HEdge();
