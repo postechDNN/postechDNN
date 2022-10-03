@@ -233,6 +233,7 @@ DCEL* conforming_subdivision::build_subdivision() {
 	}
 	srcNobs.push_back(src);
 
+
 	// for each point in srcNobs, construct a graph (an isolated vertex) and transform it into an i_quad. 
 	for (auto pt : srcNobs) { 
 		i_quad* Q = new i_quad(-2, 0.25 * int(floor(pt->getX()/ 0.25) - 1), 0.25 * int(floor(pt->getY() / 0.25) - 1));
@@ -430,6 +431,10 @@ DCEL* conforming_subdivision::build_subdivision() {
 		std::copy(Q_i.begin(), Q_i.end(), Q_old.begin());
 	}
 
+	vector<Vertex*> ver_vec;
+	for (auto elem : srcNobs) ver_vec.push_back(new Vertex(*elem));
+	D->generators = ver_vec;
+
 	return D;
 }
 
@@ -542,9 +547,40 @@ DCEL* conforming_subdivision::build_ls_subdivision(DCEL* D) { // vertex conformi
 	return S;
 }
 
-void conforming_subdivision::propagation(DCEL* D) { // ls_subdivision as input
+// DCEL* buildSPM(DCEL* D) {
+	/*
+	visited = false * vers.size()
+	dist = -1 * vers.size()
 
-	vector<HEdge*> he_vec;
+	pq = {(s, 0)};
+	while (pq) {
+		e = pq.top()
+		pq.pop()
+		for (auto friend : adj_list[e])
+		{
+			if (friend not visited) 
+				pq.push(friend.first, dist[e] + friend.second)
+		}
+	*/
+
+
+// }
+
+void conforming_subdivision::propagation(DCEL* D, Point* src) { // ls_subdivision as input
+	// vector<Vertex*> ret;
+
+	// for every edge e whose well-covering region includes the source points, calculate an upper bound directly.
+	for (auto e : D->getHedges()) {
+		if (e->WCR->inPolygon(*src)) {
+			double dt_as = sqrt(pow(e->getOrigin()->getx() - src->getx(), 2) + pow(e->getOrigin()->gety() - src->gety(), 2));
+			double dt_bs = sqrt(pow(e->getTwin()->getOrigin()->getx() - src->getx(), 2) + pow(e->getTwin()->getOrigin()->gety() - src->gety(), 2));
+			 // d tilda (e, s)
+			e->covertime = min(dt_as, dt_bs) + e->length;
+		}
+	}
+
+	// for the other edges, run shortest path algorithm
+	vector<HEdge*> he_vec; // half-edge vector to store transparent edges
 	
 	int te_num = 0;
 	for (auto e : D->getHedges()) { // count # of transparent edges
@@ -566,29 +602,118 @@ void conforming_subdivision::propagation(DCEL* D) { // ls_subdivision as input
 		} // e_i is the hedge index with the minimum covertime
 
 		auto e = he_vec[e_i];
-
 		
 		compute_aw(e); // compute the approximate wavefronts at e
 		compute_sdist(e->getOrigin()); compute_sdist(e->getTwin()->getOrigin()); // compute d(v, s) for each endpoint v of e
 
 		for (auto g : e->output) {
-			double t_g = compute_eg() // computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
+			double t_g = compute_eg(g); // computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
 			g->covertime = min(g->covertime, t_g + g->length);
-				
-		}
-
-		// compute approximate wavefronts at e based on the 
-		for (auto te : he_vec) {
 			
 		}
-		// minimum
-		// select
 	}
+
+	// return ret;
+}
+
+void conforming_subdivision::buildSPM(DCEL* D) {
+	for (auto f : D->getFaces()) {
+		vector<> // hyperbolic functions
+		// construct arc
+		// how to compute bisector?
+
+		f->mark; // for generators in face f
+	}
+}
+
+// bisector events
+void conforming_subdivision::marking(DCEL* D){ // marking rules for generators
+	// we assume that vertices of D = source s + obstacle vertices
+	// artificial wavefront W(e) to ouput(e)
+
+	auto LC = Location(D);
+	for (auto v : D->generators) {
+		// if a generator v lies in a cell c, then mark v in c.
+		Face* F = LC.locate(v);
+		v->mark = F->getKey(); // do we need this?
+		F->mark.push_back(v);
+	
+	
+		// let e be a transparent edge, and let W(e) be the
+		vector<HEdge*> he_vec; // half-edge vector to store transparent edges
+		vector<HEdge*> oe_vec;// half-edge vector to store opaque edges
+		for (auto e : D->getHedges()) { // count # of transparent edges
+			if (e->type) {
+				he_vec.push_back(e);
+			}
+			else {
+				oe_vec.push_back(e);
+			}
+		}
+
+		// for each transparent edge
+		for (auto e : he_vec) {
+		
+			vector<Vertex*> W_e; // the approximate wavefronts coming from some generator v's side of e
+			//Vertex* v ; // how to define it?
+			Vertex* c = claim(v);
+			if (c == e->getOrigin() || c == e->getTwin()->getOrigin()) {
+				e->incidentFace->mark.push_back(v);
+				e->getTwin()->incidentFace->mark.push_back(v);
+				/*
+				for (auto cell : c->) {
+					cell->mark.push_back(v);
+				}
+				*/
+			}
+
+			for (auto f : e->output) {
+				if (f->type) { // if f is also a transparent edge
+					if (c == f->getOrigin() || c == f->getTwin()->getOrigin()) {
+						e->incidentFace->mark.push_back(v);
+						e->getTwin()->incidentFace->mark.push_back(v);
+						f->incidentFace->mark.push_back(v);
+						f->getTwin()->incidentFace->mark.push_back(v);
+					}
+					/*
+					if () {// if v claims and endpoint of f in W(e, f) or v participates...
+						// mark v in both the cells that have e as an edge
+						e->incidentFace->mark.push_back(v);
+						e->getTwin()->incidentFace->mark.push_back(v);
+					}
+					*/
+				}
+			}
+		}
+
+		for (auto e : oe_vec) {
+
+			vector<Vertex*> W_e; // the approximate wavefronts coming from some generator v's side of e
+			//Vertex* v; // how to define it?
+			Vertex* c = claim(v);
+			if (e->on(*c)) {
+				e->incidentFace->mark.push_back(v);
+				e->getTwin()->incidentFace->mark.push_back(v);
+				/*
+				for (auto cell : c->) {
+					cell->mark.push_back(v);
+				}
+				*/
+			}
+		}
+	}
+
+	// bisector event detected during the computation of W(e, g) from W(e) for some g \in output(e)
+	//D->// obstacle vertices
+
+	// a contributing wavefront W(f) claims a point p \i`	`
+	// bisector event detected during the merging process described in Lemma 4.6
+
 }
 
 void conforming_subdivision::compute_aw(HEdge* e) { // compute approximate wavefront
 	vector<HEdge*> vec;
-
+	
 	for (auto f : e->input) {
 		if (f->covertime < e->covertime) vec.push_back(f);
 	}
@@ -601,8 +726,16 @@ void conforming_subdivision::compute_sdist(Vertex* v) { // compute d(v,s), for s
 }
 
 // computes the time s.t. the approximate wavefront from e first engulfs an endpoint of g
-double conforming_subdivision::compute_eg(Vertex*) { 
+double conforming_subdivision::compute_eg(HEdge*) { 
+	return 0;
+}
 
+Vertex* conforming_subdivision::claim(HEdge*){
+	return NULL;
+}
+
+Vertex* conforming_subdivision::claim(Vertex*) {
+	return NULL;
 }
 
 	// https://stackoverflow.com/questions/1505675/power-of-an-integer-in-c

@@ -2,6 +2,7 @@
 
 #include "./..//..//Algorithms/ESP_plane/Edge.h"
 #include "./..//..//Algorithms/ESP_plane/Point.h"
+#include "./SimplePolygon.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -10,11 +11,15 @@
 	class Vertex;
 	class HEdge;
 	class Face;
+	class Ark;
 
 	class Vertex : public Point {
-	protected:
+	public:
 		std::string key;
 		HEdge* incidentEdge; //The origin of incident edge is itself.
+		std::string mark;
+		double dist; // d(v,s), distance from s
+
 	public:
 		Vertex();
 		Vertex(double, double);
@@ -40,7 +45,8 @@
 		vector<HEdge*> input, output; // consists of the transparent edges on the boundary of u(e)
 		double covertime;
 		double length;
-		vector<Vertex*> a_wavefront;
+		vector<Vertex*> a_wavefront; // approximate wavefront
+		SimplePolygon* WCR; // well-covering region. can be represented as a simple polygon
 		Wavefront wavelet;
 
 	public:
@@ -62,6 +68,7 @@
 		void setIncidentFace(Face*);
 		Edge getEdge();
 		Point* crossing(HEdge&, bool = true);
+		bool on(Vertex& p);
 	};
 
 	class Face {
@@ -69,6 +76,8 @@
 		std::string key;
 		HEdge* outer;	//If outer is null pointer, it is outmost face in DCEL.
 		std::vector<HEdge*> inners;
+		vector<Vertex*> mark;
+
 	public:
 		Face();
 		~Face();
@@ -85,12 +94,25 @@
 		std::vector<HEdge*> getInnerHEdges();
 	};
 
+	class Ark {
+	public:
+		std::string key;
+		Vertex* origin;
+		Vertex* norigin;
+		std::vector<Vertex*> g_mark; //pair of generators
+		int a_1, a_2, a_3; //variables for hyperbolic function
+	public:
+
+	};
+
 	class DCEL {
-	protected:
+	public:
 		std::string key;
 		std::map<std::string, Face*> faces;
 		std::map<std::string, HEdge*> hedges;	//we store one hedge for each edges.
 		std::map<std::string, Vertex*> vertices;
+		std::vector<Vertex*> generators;
+
 	public:
 		DCEL();
 		~DCEL();

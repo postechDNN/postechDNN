@@ -21,7 +21,11 @@ int main() {
 
 	auto CS = conforming_subdivision(s, t, obs); 
 	DCEL* D = CS.build_subdivision(); // constructs vertex conforming subdivision
-	// DCEL* D_ls = build_ls_subdivision(D); // constructs edge conforming subdivision
+	DCEL* D_ls = CS.build_ls_subdivision(D); // constructs edge conforming subdivision
+	vector<Vertex*> ret = CS.propagation(D, s);
+	for (auto ver : ret) {
+		ver->print(); cout << ver->dist << endl;
+	}
 
 	return 0;
 }

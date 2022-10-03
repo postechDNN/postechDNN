@@ -28,6 +28,7 @@ void Point::setIndex(int _index) { index = _index; }
 int Point::getIndex() { return index; }
 
 void Point::print() { std::cout << "Point " << x << " " << y << std::endl; }
+
 void Point::setEdgeType(int type) {edge_type = type;}
 int Point::getEdgeType() {return edge_type;}
 
