@@ -518,6 +518,82 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 
 	return ret;
 }
+double Eps_Graph_3D::dist_kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
+	for (Polytope& pol : pols) {
+		assert(!pol.isIn(&p));
+	}
+	vector<int>().swap(NN_dist);
+	anchor(p);
+	Grid_Point s = grid[p.host];
+	for (int& elem : dist) { elem = INT_MAX; }
+	for (unsigned int ind1 = 0; ind1 < visited.size(); ind1++) { visited[ind1] = false; }
+
+	queue<int> q = {};
+
+	dist[s.num] = 0;
+	q.push(s.num);
+	int grid_dist = 0;
+	vector<Free_Point> FPs_temp = {};
+	vector<Free_Point> FPs = {};
+	int temp_k = k;
+	double t_d = 0.0;
+	while (k > 0 && !q.empty()) {
+
+		double p_d = 0.0;
+		// q.empty() is indeed needed twice
+		while (!q.empty() && (dist[q.front()] == grid_dist)) {
+			if (visited[q.front()] == true) {
+				q.pop();
+				continue;
+			}
+			visited[q.front()] = true;
+
+			int cur = q.front();
+			if (grid[cur].ip.x_u && visited[cur + y_num * z_num] == false) { dist[cur + y_num * z_num] = dist[cur] + 1; q.push(cur + y_num * z_num); }
+			if (grid[cur].ip.x_d && visited[cur - y_num * z_num] == false) { dist[cur - y_num * z_num] = dist[cur] + 1; q.push(cur - y_num * z_num); }
+			if (grid[cur].ip.y_u && visited[cur + z_num] == false) { dist[cur + z_num] = dist[cur] + 1; q.push(cur + z_num); }
+			if (grid[cur].ip.y_d && visited[cur - z_num] == false) { dist[cur - z_num] = dist[cur] + 1; q.push(cur - z_num); }
+			if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); }
+			if (grid[cur].ip.z_d && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); }
+
+			bool once = true;
+			for (auto FP : grid[q.front()].anchored) {
+				FPs_temp.push_back(*FP);
+			}
+			q.pop();
+		}
+
+		for (auto pt : FPs_temp) {
+			FPs.push_back(pt);
+		}
+
+		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
+		{
+			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) + pow(first.z - p.z, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2) + pow(second.z - p.z, 2);
+		});
+
+		int sz = int(FPs.size());
+		t_d += grid_dist * eps * min(k, sz);
+		for (int i = 0; i < min(k, sz); i++) {
+			Edge te = { &FPs[i], &grid[FPs[i].host]};
+			t_d += te.get_length();
+			NN_dist.push_back(grid_dist);
+		}
+		k -= min(k, sz);
+
+		vector<Free_Point>().swap(FPs_temp);
+		vector<Free_Point>().swap(FPs);
+		grid_dist += 1;
+	}
+	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
+		if ((*(*it)).x == p.x && (*(*it)).y == p.y && (*(*it)).z == p.z) {
+			t_d += (temp_k - k -1)*sqrt(pow(p.x - grid[p.host].getx(), 2) + pow(p.y - grid[p.host].gety(), 2) + pow(p.z - grid[p.host].getz(), 2));
+			grid[p.host].anchored.erase(it);
+			break;
+		}
+	}
+	return t_d;
+}
 
 vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
@@ -559,16 +635,8 @@ vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approxim
 			if (grid[cur].ip.z_u && visited[cur + 1] == false) { dist[cur + 1] = dist[cur] + 1; q.push(cur + 1); previous[cur + 1] = cur;}
 			if (grid[cur].ip.z_d && visited[cur - 1] == false) { dist[cur - 1] = dist[cur] + 1; q.push(cur - 1); previous[cur - 1] = cur;}
 
-			bool once=true;
 			for (auto FP : grid[q.front()].anchored) {
 				FPs_temp.push_back(*FP);
-				if (once) {
-					while (previous[cur] != cur) {
-						path.push_back({ &grid[cur], &grid[previous[cur]] });
-						cur = previous[cur];
-						once = false;
-					}
-				}
 			}
 			q.pop();
 		}
@@ -585,7 +653,16 @@ vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approxim
 
 		int sz = int(FPs.size());
 		for (int i = 0; i < min(k, sz); i++) {
-			path.push_back({ &FPs[i], &grid[FPs[i].host] });
+			int t = FPs[i].host;
+			Point temp = { FPs[i].x ,  FPs[i].y ,  FPs[i].z };
+			Point temp2 = { grid[t].x, grid[t].y , grid[t].z };
+			path.push_back({ temp, temp2 });
+			while (previous[t] != t) {
+				temp = { grid[t].x , grid[t].y , grid[t].z };
+				temp2 = { grid[previous[t]].x, grid[previous[t]].y , grid[previous[t]].z };
+				path.push_back({ temp, temp2 });
+				t = previous[t];
+			}
 			NN_dist.push_back(grid_dist);
 		}
 		k -= sz;

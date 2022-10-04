@@ -38,6 +38,24 @@ Edge::Edge(Free_Point* v1, Grid_Point* v2) {
 	length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
 }
 
+Edge::Edge(Point v1, Point v2) {
+	p3 = v1;
+	p4 = v2;
+	length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+}
+
+Edge::Edge(Grid_Point v1, Grid_Point v2) {
+	p3 = v1;
+	p4 = v2;
+	length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+}
+
+Edge::Edge(Free_Point v1, Grid_Point v2) {
+	p3 = v1;
+	p4 = v2;
+	length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+}
+
 bool Edge::operator==(Edge e) {
 	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
 }
@@ -83,7 +101,9 @@ bool Edge::cross(Point* p, Point* ray) {
 	else return false;
 
 }
-
+double Edge::get_length() {
+	return length;
+}
 Face::Face() {
 	face_key = new char[10];
 	points.push_back(new Point());
@@ -414,7 +434,9 @@ bool Polytope::isIn(Point* p) {
 	{
 		return false;
 	}
-	else { return true; }
+	else { 
+		return true; 
+	}
 };
 
 bool Polytope::intersect(Point p1, Point p2, int dir) {
