@@ -64,7 +64,7 @@ double PointSegDist(Point P0p, Segment S) {
 
 }
 
-// Á¡°ú triangle »çÀÌÀÇ °Å¸®. reference : 3D Distance from a Point to a Triangle
+// ì ê³¼ triangle ì‚¬ì´ì˜ ê±°ë¦¬. reference : 3D Distance from a Point to a Triangle
 double PolyDomain::FacePointDist(Tri T, Point P0) {
 	int p1 = T.getPoint(1), p2 = T.getPoint(2), p3 = T.getPoint(3);
 	Point P1 = pts[p1], P2 = pts[p2], P3 = pts[p3];
@@ -131,26 +131,20 @@ double PolyDomain::FacePointDist(Tri T, Point P0) {
 
 Point PolyDomain::incircle_center(Tri T) {
 
-	// 3Â÷¿ø¿¡¼­ µÎ Á÷¼±ÀÌ ÀÌ·ç´Â Æò¸é.
+	// 3ì°¨ì›ì—ì„œ ë‘ ì§ì„ ì´ ì´ë£¨ëŠ” í‰ë©´.
 	// general position assumption for points in 'tri' : no two points have the same x-coordinate.
 	int p1 = T.getPoint(1), p2 = T.getPoint(2), p3 = T.getPoint(3);
 	Point A = pts[p1], B = pts[p2], C = pts[p3];
 
-	// MyVec BA = {A.x - B.x, A.y - B.y, A.z - B.z}; // A - B
-	// MyVec BC = {C.x - B.x, C.y - B.y, C.z - B.z };
-
-	// ABC_sec (bisector) = ¼±ºĞ BA + ¼±ºĞ BC
+	// ABC_sec (bisector) = ì„ ë¶„ BA + ì„ ë¶„ BC
 	MyVec ABC_sec = { (A.getx() - B.getx()) + (C.getx() - B.getx()), (A.gety() - B.gety()) + (C.gety() - B.gety()),
 	(A.getz() - B.getz()) + (C.getz() - B.getz()) };
 
-	// MyVec CA = { A.x - C.x, A.y - C.y, A.z - C.z };
-	// MyVec CB = { B.x - C.x, B.y - C.y, B.z - C.z };
-
-	// BCA_sec (bisector) = ¼±ºĞ CA + ¼±ºĞ CB
+	// BCA_sec (bisector) = ì„ ë¶„ CA + ì„ ë¶„ CB
 	MyVec BCA_sec = { (A.getx() - C.getx()) + (B.getx() - C.getx()), (A.gety() - C.gety()) + (B.gety() - C.gety()),
 	(A.getz() - C.getz()) + (B.getz() - C.getz()) };
 
-	// Á÷¼± 
+	// ì§ì„  
 	double x1 = B.getx(), a1 = ABC_sec.getx(), y1 = B.gety(), b1 = ABC_sec.gety(), z1 = B.getz(), c1 = ABC_sec.getz();
 	double x2 = C.getx(), a2 = BCA_sec.getx(), y2 = C.gety(), b2 = BCA_sec.gety(), z2 = C.getz(), c2 = BCA_sec.getz();
 	double t = (x2 - x1) / (a1 - a2);
@@ -160,16 +154,11 @@ Point PolyDomain::incircle_center(Tri T) {
 
 void PolyDomain::init_neigh_sgs() {// initialize neighboring segments
 	vector<int> NFI = { 0, 3, 0, 2, 3, 2, 0, 1, 3, 1, 2, 1}; // neighboring face indices
-	// cout << neigh_face_indices.size() << endl;
 
 	for (int j = 0; j < tets.size(); j++) {
 	    Tetra& T = tets[j];
 		vector<tuple<int, int, int>> temp = {};
 		for (int i = 0; i < NFI.size(); i++) {
-			// cout << t1.get_index() << " " << t2.get_index() << endl;
-			// cout << T.getindex() << " " << T.getTri(neigh_face_indices[i]) << " " << fcs[T.getTri(neigh_face_indices[i])].get_index() << endl;
-			
-			// int ttt = T.getTri(NFI[i]);
 			temp.push_back(make_tuple(j, i / 2, fcs[T.getTri(NFI[i])].get_index()));
 			if (i % 2 == 1) {
 				bi* B = new bi{ fcs[T.getTri(NFI[i - 1])].get_index(), fcs[T.getTri(NFI[i])].get_index(), temp, j, i / 2 };
@@ -214,7 +203,7 @@ double PolyDomain::dist(int pt_num) { // when the input point is a vertex
 	vector<int> P_ifcs = P.get_ifcs();
 
 	for (int i : P.get_itets()) {
-		for (int j : tets[i].get_fcs()) { // ÀÌ·¡µµ µÇ³ª
+		for (int j : tets[i].get_fcs()) { // ì´ë˜ë„ ë˜ë‚˜
 			// the face is not incident to P
 			if (std::find(P_ifcs.begin(), P_ifcs.end(), j) == P_ifcs.end()) {
 				Tris.push_back(fcs[j]);
@@ -238,10 +227,7 @@ double PolyDomain::dist(Point P, int num, bool onSeg) {
 
 	if (onSeg) {
 		Segment* S = sgs[num];
-		// Segment S = *(PD.get_sg(num));
-
 		vector<int> S_ifcs = S->get_ifcs();
-
 		double val = DBL_MAX;
 		for (int i : S->get_itets()) {
 			if (std::find(S_ifcs.begin(), S_ifcs.end(), i) == S_ifcs.end()) {
@@ -326,26 +312,16 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 	Tetra& T = tets[i];
 	int a = T.getPoint(perm[j][0]), b = T.getPoint(perm[j][1]), c = T.getPoint(perm[j][2]), d = T.getPoint(perm[j][3]); // perm is defined in dots.h
 	Point A = pts[a]; Point B = pts[b]; Point C = pts[c]; Point D = pts[d];
-	// Segment S = *(PD.get_sg(sg_num)); // represents the segment AB
-
 	Point P = (C + D) / 2;
-
 	Plane PL1(A, B, C), PL2(A, B, D);
-
 	double e = sqrt(eps / 8) * sin(acos(PlaneAngle(PL1, PL2)) / 2);
-
 	Point H = perpen(A, B, P);
 	double dist_PH = PointsDist(P, H);
 	double dist_AB = PointsDist(A, B);
 
 	vector<Segment*> ans = {};
-
 	vector<double> Pi_s = { e / (1.0 + e) };
 	vector<int> ki_s = {};
-
-	// int s_num = 0; // for test
-	// int i1 = -1, i2p = -1, i2pp = -1;
-	// bool i1_set = false;
 
 	double rad_a = radius(a);
 	double rad_b = radius(b);
@@ -353,12 +329,6 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 	int sg_num = tets[i].getSg(j); // the index of the segment AB in the polygonal domain
 	double rad_Seg = radius_e(*(sgs[sg_num]))[1];
 
-
-	// Point M2p = 
-	// Point M2pp = 
-
-	// while (ans.empty() || !(*ans.back()).getX().empty()) { // if ans.empty() = true, then it should be iterated
-	// while (ans.empty() || (*ans.back()).sizeX() > 1) {
 	while (1) {
 		// s_num += 1; // for test
 		// cout << s_num << endl; // for test
@@ -382,49 +352,15 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 
 		vector<double> Xi = {};
 
-		// cout << endl;
-		// cout << endl;
-		// cout << endl;
-		// cout << dist_PH * (1 - Pi) << " " << rad_Seg << endl; // for test
-		// cout << endl;
-
-		// °°Àº segment À§¿¡¼­´Â ¾î¶² Á¡ÀÌµç AB±îÁöÀÇ Á÷¼± °Å¸®°¡ °°À¸¹Ç·Î
-
-		// if (dist_PH * (1 - Pi) >= rad_Seg) {i1 = s_num;}
-		// if (dist_PH * (1 - Pi) > ) {i2p = s_num;}
-		// if () {i2pp = s_num;}
-
-		// if (i1 == -1) {
-
+		// ê°™ì€ segment ìœ„ì—ì„œëŠ” ì–´ë–¤ ì ì´ë“  ABê¹Œì§€ì˜ ì§ì„  ê±°ë¦¬ê°€ ê°™ìœ¼ë¯€ë¡œ
 		if (dist_PH * (1 - Pi) >= rad_Seg) {
 			for (int i = 0; i < ki + 2; i++) {
-
-				// Point test1 = (Bi - Ai); // for test
-				// Point test2 = (Bi - Ai) * (i / (ki + 1)); // for test
-
 				Point temp_pt = Ai + ((Bi - Ai) * (i / (ki + 1.0))); // a steiner point candidate (on the segment)
-
-				// cout << PointsDist(temp_pt, A) << " " << radius(PD, a) << endl; // for test
-				// cout << PointsDist(temp_pt, B) << " " << radius(PD, b) << endl; // for test
-				// cout << endl; // for test
-
 				if (PointsDist(temp_pt, A) >= radius(a) && PointsDist(temp_pt, B) >= radius(b)) {
 					Xi.push_back(i / (ki + 1.0));
 				}
 			}
 		}
-		// else {	
-		// }
-		
-		/*Debug Start
-		if (!Xi.empty())
-		{
-			S->setX(Xi);
-		    ans.push_back(S);
-		}
-		*/
-		//Debug End
-
 		if (!Xi.empty()) {
 			S->set_itets({ i });
 			S->setX(Xi);
@@ -440,9 +376,6 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 	ans.push_back(sgs[T.getSg(j)]);
 	bi* Bi = T.get_bi(j);
 	Bi->bi_sgs = ans;
-
-	// Bi.bi_sgs = ans;
-	// for (int i = 0; i < ans.size(); i++) { T.get_bi(j).bi_sgs.push_back(ans[i]); }
 }
 
 void PolyDomain::MarkPoints_Sg(int i) {
@@ -477,9 +410,6 @@ void PolyDomain::MarkPoints_Sg(int i) {
 }
 
 void PolyDomain::MarkPoints() {
-
-	// for test
-	// int pt_num = 0;
 	for (int i = 0; i < sgs.size(); i++) {
 		MarkPoints_Sg(i);
 	}
@@ -502,14 +432,6 @@ bool sort_int(const pair<Segment*, int>& a, const pair<Segment*, int>& b) {
 	return get<1>(a) < get<1>(b);
 }
 
-/*
-bool sort_Adj(const pair<Segment*, int>& a, const pair<Segment*, int>& b) {
-	if (get<0>(a)->getind() < get<0>(b)->getind() || (get<0>(a)->getind() == get<0>(b)->getind() || get<1>(a) < get<1>(b))) {return false;}
-	else {return true;}
-	// return ;
-}
-*/
-
 vector<pair<Segment*, int>> Remove_Dup(vector<pair<Segment*, int>> ps) {
 	sort(ps.begin(), ps.end(), sort_int);
 	sort(ps.begin(), ps.end(), sort_S);
@@ -520,13 +442,6 @@ vector<pair<Segment*, int>> Remove_Dup(vector<pair<Segment*, int>> ps) {
 			it = ps.erase(it); 
 		}
 		prev_S = get<0>(*it); prev_int = get<1>(*it);
-		
-		/*
-		if (prev_S == get<0>(*it) && prev_int == get<1>(*it)) {
-			ps.erase(it); it--;
-		}
-		else {prev_S = get<0>(*it); prev_int = get<1>(*it);}
-		*/
 	}
 
 	return ps;
