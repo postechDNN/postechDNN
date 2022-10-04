@@ -168,8 +168,6 @@ void PolyDomain::init_neigh_sgs() {// initialize neighboring segments
 		}
 	}
 
-	// vector<vector<bool>> adj_M(tets.size(), vector<bool>(tets.size(), false));
-
 	for (int j = 0; j < tets.size(); j++) {
 		Tetra& Tj = tets[j]; // index j
 		vector<int> Tj_itets = Tj.get_itets();
@@ -330,16 +328,12 @@ void PolyDomain::MarkPoints_Bi(int i, int j) {
 	double rad_Seg = radius_e(*(sgs[sg_num]))[1];
 
 	while (1) {
-		// s_num += 1; // for test
-		// cout << s_num << endl; // for test
-
 		// First calculate P_{i+1}
 		double Pi = Pi_s.back();
 		double Pip1 = Pi + (1 - Pi) * e / (1.0 + e);
 		Pi_s.push_back(Pip1);
 
 		// Then calculate k_{i}
-		// int kii = int(ceil((dist_AB * Pi) / (dist_PH * (Pip1 - Pi))));
 		int ki = max(3, int(ceil((dist_AB * Pi) / (dist_PH * (Pip1 - Pi)))) / 10); // for test
 		ki_s.push_back(ki);
 
