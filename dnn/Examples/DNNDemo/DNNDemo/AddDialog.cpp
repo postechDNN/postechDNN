@@ -93,8 +93,10 @@ BOOL AddDialog::OnInitDialog()
 	else if (this->control_mode == EQUERY) {
 		this->SetWindowTextW(_T("Query Control"));
 		this->SetDlgItemTextW(IDC_STATIC_KEY, _T("KNN"));
-		//this->m_static_key.SetDlgItemTextW(_T("KNN"));
-
+	}
+	else if (this->control_mode == EVIEW) {
+		this->SetWindowTextW(_T("View Control"));
+		this->m_edit_key.EnableWindow(false);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control

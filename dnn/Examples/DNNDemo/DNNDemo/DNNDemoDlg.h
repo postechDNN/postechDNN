@@ -73,4 +73,5 @@ public:
 	CEdit m_edit_vx;
 	CEdit m_edit_vy;
 	CEdit m_edit_vz;
+	afx_msg void OnBnClickedButtonView();
 };

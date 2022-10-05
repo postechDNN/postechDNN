@@ -33,7 +33,7 @@ OGL_Contorl::OGL_Contorl(){
 	// Initialize
 	this->mode = 2;
 	this->m_mouse_drag = false;
-	
+	this->isMove = false;
 
 	this->view[0][0] = 1.1;
 	this->view[0][1] = 1.1;
@@ -172,120 +172,134 @@ void OGL_Contorl::OnPaint()
 	
 	double normTrans[3];
 	double normMul[3];
+	/*
+	if (this->isMove) {
+		if (this->mode == 3) {
+			::glPopMatrix();
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			gluLookAt(this->view[0][0], this->view[0][1], this->view[0][2],
+				this->view[1][0], this->view[1][1], this->view[1][2],
+				this->view[2][0], this->view[2][1], this->view[2][2]);
+			isMove = false;
+		}
+	}
+	*/
+	
+		if (this->mode == 2) {
+			this->DDS.object2D.getNorm(normTrans, normMul, 2);
 
-	if (this->mode == 2) {
-		this->DDS.object2D.getNorm(normTrans, normMul, 2);
+			::glPushMatrix();
+			::glColor3f(0.0f, 1.0f, 0.0f);
+			glColor3d(1.0, 0.0, 0.0);
 
-		::glPushMatrix();
-		::glColor3f(0.0f, 1.0f, 0.0f);
-		glColor3d(1.0, 0.0, 0.0);
+			if (this->DDS.object2D.getDrawFaces()) {
+				srand(time(NULL));
+				for (int i = 0; i < this->DDS.object2D.getFacesNum(); i++) {
+					if (this->DDS.object2D.getFace(i).isInner() == false) continue;
 
-		if (this->DDS.object2D.getDrawFaces()) {
-			srand(time(NULL));
-			for (int i = 0; i < this->DDS.object2D.getFacesNum(); i++) {
-				if (this->DDS.object2D.getFace(i).isInner() == false) continue;
+					::glColor3f((rand() % 100) / 100.0, (rand() % 100) / 100.0, (rand() % 100) / 100.0);
 
-				::glColor3f((rand() % 100) / 100.0, (rand() % 100) / 100.0, (rand() % 100) / 100.0);
+					glBegin(GL_POLYGON);
+					for (int j = 0; j < this->DDS.object2D.getFace(i).getSize(); j++) {
+						OGL_Point p = this->DDS.object2D.getFace(i).getPoint(j);
+						glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+					}
+					glEnd();
+				}
+			}
 
-				glBegin(GL_POLYGON);
-				for (int j = 0; j < this->DDS.object2D.getFace(i).getSize(); j++) {
-					OGL_Point p = this->DDS.object2D.getFace(i).getPoint(j);
-					glVertex2d((p.getX()- normTrans[0])/normMul[0], (p.getY()-normTrans[1])/normMul[1]);
+			if (this->DDS.object2D.getDrawEdges()) {
+				::glColor3f(1.0f, 1.0f, 1.0f);
+				glLineWidth(3.0f);
+				for (int i = 0; i < this->DDS.object2D.getEdgesNum(); i++) {
+					OGL_Point sp = this->DDS.object2D.getEdge(i).getStartP();
+					OGL_Point ep = this->DDS.object2D.getEdge(i).getEndP();
+					glBegin(GL_LINES);
+					glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
+					glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
+					glEnd();
+				}
+			}
+
+			if (this->DDS.object2D.getDrawVertices()) {
+				::glColor3f(0.0f, 1.0f, 0.0f);
+				glPointSize(3.0f);
+				glBegin(GL_POINTS);
+				for (int i = 0; i < this->DDS.object2D.getVerticsNum(); i++) {
+					OGL_Point p = this->DDS.object2D.getVertex(i).getPos();
+					glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
 				}
 				glEnd();
 			}
-		}
 
-		if (this->DDS.object2D.getDrawEdges()) {
-			::glColor3f(1.0f, 1.0f, 1.0f);
-			glLineWidth(3.0f);
-			for (int i = 0; i < this->DDS.object2D.getEdgesNum(); i++) {
-				OGL_Point sp = this->DDS.object2D.getEdge(i).getStartP();
-				OGL_Point ep = this->DDS.object2D.getEdge(i).getEndP();
-				glBegin(GL_LINES);
-				glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
-				glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
-				glEnd();
+			::glPopMatrix();
+			::glFinish();
+			if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
+
+		}
+		else {
+			this->DDS.object3D.getNorm(normTrans, normMul, 3);
+			::glPushMatrix();
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glOrtho(-ORTHO, ORTHO, -ORTHO, ORTHO, -ORTHO, ORTHO);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			gluLookAt(this->view[0][0], this->view[0][1], this->view[0][2],
+				this->view[1][0], this->view[1][1], this->view[1][2],
+				this->view[2][0], this->view[2][1], this->view[2][2]);
+
+			if (this->DDS.object3D.getDrawFaces()) {
+
+
+				for (int i = 0; i < this->DDS.object3D.getFacesNum(); i++) {
+					OGL_Face* nowF = &this->DDS.object3D.getFace(i);
+					if (nowF->isCustom) glColor3f(nowF->color[0], nowF->color[1], nowF->color[2]);
+					else glColor3d(1.0, 1.0, 1.0);
+					glBegin(GL_POLYGON);
+					for (int j = 0; j < nowF->getSize(); j++) {
+						OGL_Point p = nowF->getPoint(j);
+						glVertex3d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1], (p.getZ() - normTrans[2]) / normMul[2]);
+					}
+					glEnd();
+				}
+
 			}
-		}
-
-		if (this->DDS.object2D.getDrawVertices()) {
-			::glColor3f(0.0f, 1.0f, 0.0f);
-			glPointSize(3.0f);
-			glBegin(GL_POINTS);
-			for (int i = 0; i < this->DDS.object2D.getVerticsNum(); i++) {
-				OGL_Point p = this->DDS.object2D.getVertex(i).getPos();
-				glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+			if (this->DDS.object3D.getDrawEdges()) {
+				for (int i = 0; i < this->DDS.object3D.getEdgesNum(); i++) {
+					OGL_Edge* nowE = &this->DDS.object3D.getEdge(i);
+					glBegin(GL_LINES);
+					if (nowE->isCustom) {
+						glColor3f(nowE->color[0], nowE->color[1], nowE->color[2]);
+						glLineWidth(nowE->width = 1.0f);
+					}
+					else {
+						glColor3d(1.0, 1.0, 1.0);
+						glLineWidth(1.0f);
+					}
+					OGL_Point sp = nowE->getStartP();
+					OGL_Point ep = nowE->getEndP();
+					glVertex3d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1], (sp.getZ() - normTrans[2]) / normMul[2]);
+					glVertex3d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1], (ep.getZ() - normTrans[2]) / normMul[2]);
+					glEnd();
+				}
 			}
-			glEnd();
-		}
-
-		::glPopMatrix();
-		::glFinish();
-		if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
-		
-	}
-	else {
-		this->DDS.object3D.getNorm(normTrans, normMul, 3);
-		::glPushMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-ORTHO, ORTHO, -ORTHO, ORTHO, -ORTHO, ORTHO);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		gluLookAt(this->view[0][0], this->view[0][1], this->view[0][2],
-			this->view[1][0], this->view[1][1], this->view[1][2], 
-			this->view[2][0], this->view[2][1], this->view[2][2]);
-
-		if (this->DDS.object3D.getDrawFaces()) {
-			
-			
-			for (int i = 0; i < this->DDS.object3D.getFacesNum(); i++) {
-				OGL_Face* nowF = &this->DDS.object3D.getFace(i);
-				if (nowF->isCustom) glColor3f(nowF->color[0], nowF->color[1], nowF->color[2]);
-				else glColor3d(1.0, 1.0, 1.0);
-				glBegin(GL_POLYGON);
-				for (int j = 0; j < nowF->getSize(); j++) {
-					OGL_Point p = nowF->getPoint(j);
+			if (this->DDS.object3D.getDrawVertices()) {
+				glColor3d(0.0f, 1.0f, 1.0f);
+				glPointSize(1.0f);
+				glBegin(GL_POINTS);
+				for (int i = 0; i < this->DDS.object3D.getVerticsNum(); i++) {
+					OGL_Point p = this->DDS.object3D.getVertex(i).getPos();
 					glVertex3d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1], (p.getZ() - normTrans[2]) / normMul[2]);
 				}
 				glEnd();
 			}
-
+			::glPopMatrix();
+			::glFinish();
+			if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
 		}
-		if (this->DDS.object3D.getDrawEdges()) {
-			for (int i = 0; i < this->DDS.object3D.getEdgesNum(); i++) {
-				OGL_Edge* nowE = &this->DDS.object3D.getEdge(i);
-				glBegin(GL_LINES);
-				if (nowE->isCustom) {
-					glColor3f(nowE->color[0], nowE->color[1], nowE->color[2]);
-					glLineWidth(nowE->width = 1.0f);
-				}
-				else {
-					glColor3d(1.0, 1.0, 1.0);
-					glLineWidth(1.0f);
-				}
-				OGL_Point sp = nowE->getStartP();
-				OGL_Point ep = nowE->getEndP();
-				glVertex3d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1], (sp.getZ() - normTrans[2]) / normMul[2]);
-				glVertex3d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1], (ep.getZ() - normTrans[2]) / normMul[2]);
-				glEnd();
-			}
-		}
-		if (this->DDS.object3D.getDrawVertices()) {
-			glColor3d(0.0f, 1.0f, 1.0f);
-			glPointSize(1.0f);
-			glBegin(GL_POINTS);
-			for (int i = 0; i < this->DDS.object3D.getVerticsNum(); i++) {
-				OGL_Point p = this->DDS.object3D.getVertex(i).getPos();
-				glVertex3d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1], (p.getZ() - normTrans[2]) / normMul[2]);
-			}
-			glEnd();
-		}
-		::glPopMatrix();
-		::glFinish();
-		if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
-	}
+	
 }
 
 
@@ -372,6 +386,7 @@ void OGL_Contorl::moveFront() {
 		this->view[0][i] += move[i] * MOVING_SPEED;
 		this->view[1][i] += move[i] * MOVING_SPEED;
 	}
+	this->isMove = true;
 }
 void OGL_Contorl::moveBack() {
 	double move[3];
@@ -382,6 +397,7 @@ void OGL_Contorl::moveBack() {
 		this->view[0][i] -= move[i] * MOVING_SPEED;
 		this->view[1][i] -= move[i] * MOVING_SPEED;
 	}
+	this->isMove = true;
 }
 void OGL_Contorl::moveLeft() {
 	if (!this->isVectorUpdate) {
@@ -392,6 +408,7 @@ void OGL_Contorl::moveLeft() {
 		this->view[0][i] += this->vectors[1][i] * MOVING_SPEED;
 		this->view[1][i] += this->vectors[1][i] * MOVING_SPEED;
 	}
+	this->isMove = true;
 }
 void OGL_Contorl::moveRight() {
 	if (!this->isVectorUpdate) {
@@ -402,6 +419,7 @@ void OGL_Contorl::moveRight() {
 		this->view[0][i] += this->vectors[2][i] * MOVING_SPEED;
 		this->view[1][i] += this->vectors[2][i] * MOVING_SPEED;
 	}
+	this->isMove = true;
 }
 
 void OGL_Contorl::rotateCamera(int mx, int my) {
@@ -473,6 +491,9 @@ void OGL_Contorl::rotateCamera(int mx, int my) {
 	for (int i = 0; i < 3; i++) {
 		this->view[1][i] = vb[i] + this->view[0][i];
 	}
+
+	this->isMove = true;
+
 }
 
 void OGL_Contorl::OnLButtonDown(UINT nFlags, CPoint point)

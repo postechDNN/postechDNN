@@ -105,6 +105,7 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_NOO2, &CDNNDemoDlg::OnBnClickedCheckNoo2)
 	ON_BN_CLICKED(IDC_BUTTON_QUERY, &CDNNDemoDlg::OnBnClickedButtonQuery)
 	ON_WM_KEYDOWN()
+	ON_BN_CLICKED(IDC_BUTTON_VIEW, &CDNNDemoDlg::OnBnClickedButtonView)
 END_MESSAGE_MAP()
 
 
@@ -623,4 +624,33 @@ BOOL CDNNDemoDlg::PreTranslateMessage(MSG* pMsg)
 
 
 	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CDNNDemoDlg::OnBnClickedButtonView()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 1:
+	{
+		AddDialog dlg(EVIEW, 3);
+		if (IDOK == dlg.DoModal()) {
+			//GLfloat view[3];
+			for (int i = 0; i < 3; i++)
+				this->m_picture_opengl.view[0][i] = dlg.coordinate[i];
+
+			CString temp;
+			temp.Format(_T("%f"), dlg.coordinate[0]);
+			this->m_edit_vx.SetWindowTextW(temp);
+			temp.Format(_T("%f"), dlg.coordinate[1]);
+			this->m_edit_vy.SetWindowTextW(temp);
+			temp.Format(_T("%f"), dlg.coordinate[2]);
+			this->m_edit_vz.SetWindowTextW(temp);
+		}
+	}
+	break;
+	default:
+		break;
+	}
 }

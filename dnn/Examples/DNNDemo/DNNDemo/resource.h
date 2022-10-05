@@ -40,7 +40,6 @@
 #define IDC_BUTTON_VIEW                 1029
 #define IDC_EDIT_VX                     1030
 #define IDC_EDIT_VY                     1031
-#define IDC_EDIT4                       1032
 #define IDC_EDIT_VZ                     1032
 
 // Next default values for new objects
