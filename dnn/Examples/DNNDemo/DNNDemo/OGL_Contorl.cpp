@@ -285,6 +285,25 @@ void OGL_Contorl::OnPaint()
 					glEnd();
 				}
 			}
+			if (this->DDS.object3D.getDrawPath()) {
+				for (int i = 0; i < this->DDS.object3D.getPathNum(); i++) {
+					OGL_Edge* nowE = &this->DDS.object3D.getPath(i);
+					glBegin(GL_LINES);
+					if (nowE->isCustom) {
+						glColor3f(nowE->color[0], nowE->color[1], nowE->color[2]);
+						glLineWidth(nowE->width = 1.0f);
+					}
+					else {
+						glColor3d(1.0, 0.0, 0.0);
+						glLineWidth(1.0f);
+					}
+					OGL_Point sp = nowE->getStartP();
+					OGL_Point ep = nowE->getEndP();
+					glVertex3d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1], (sp.getZ() - normTrans[2]) / normMul[2]);
+					glVertex3d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1], (ep.getZ() - normTrans[2]) / normMul[2]);
+					glEnd();
+				}
+			}
 			if (this->DDS.object3D.getDrawVertices()) {
 				glColor3d(0.0f, 1.0f, 1.0f);
 				glPointSize(1.0f);
@@ -327,6 +346,8 @@ void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
 			this->DDS.object2D.setDrawFaces(b);
 			this->DDS.object3D.setDrawFaces(b);
 			break;
+		case 3:
+			this->DDS.object3D.setDrawPath(b);
 		default:
 			break;
 		}

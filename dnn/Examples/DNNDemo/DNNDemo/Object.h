@@ -110,22 +110,28 @@ public:
 	int getVerticsNum();
 	int getEdgesNum();
 	int getFacesNum();
+	int getPathNum();
 	OGL_Vertex& getVertex(int idx);
 	OGL_Edge& getEdge(int idx);
 	OGL_Face& getFace(int idx);
+	OGL_Edge& getPath(int idx);
 	void addVertex();
 	void addVertex(OGL_Vertex v);
 	void addEdge();
 	void addEdge(OGL_Edge e);
 	void addFace();
 	void addFace(OGL_Face f);
+	void addPath();
+	void addPath(OGL_Edge e);
 
 	void setDrawVertices(bool b);
 	void setDrawEdges(bool b);
 	void setDrawFaces(bool b);
+	void setDrawPath(bool b);
 	bool getDrawVertices();
 	bool getDrawEdges();
 	bool getDrawFaces();
+	bool getDrawPath();
 
 	void updateNorm(int dimension);
 	void getNorm(double trans[], double strat[], int dimension);
@@ -139,8 +145,10 @@ private:
 	bool drawVertices;
 	bool drawEdges;
 	bool drawFaces;
+	bool drawPath;
 	std::vector<OGL_Vertex> vertices;
 	std::vector<OGL_Edge> edges;
 	std::vector<OGL_Face> faces;
+	std::vector<OGL_Edge> path;
 };
 

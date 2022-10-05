@@ -83,6 +83,7 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_VX, m_edit_vx);
 	DDX_Control(pDX, IDC_EDIT_VY, m_edit_vy);
 	DDX_Control(pDX, IDC_EDIT_VZ, m_edit_vz);
+	DDX_Control(pDX, IDC_CHECK_PATH, m_check_path);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -106,6 +107,7 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_QUERY, &CDNNDemoDlg::OnBnClickedButtonQuery)
 	ON_WM_KEYDOWN()
 	ON_BN_CLICKED(IDC_BUTTON_VIEW, &CDNNDemoDlg::OnBnClickedButtonView)
+	ON_BN_CLICKED(IDC_CHECK_PATH, &CDNNDemoDlg::OnBnClickedCheckPath)
 END_MESSAGE_MAP()
 
 
@@ -151,6 +153,7 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	m_check_vertex.SetCheck(true);
 	m_check_edge.SetCheck(true);
 	m_check_face.SetCheck(true);
+	m_check_path.SetCheck(true);
 	m_check_f1.SetCheck(true);
 	m_check_noo1.SetCheck(true);
 
@@ -315,6 +318,7 @@ void CDNNDemoDlg::OnBnClickedCheckFace()
 }
 
 
+
 void CDNNDemoDlg::OnBnClickedButtonRender()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
@@ -333,6 +337,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_vertex.SetWindowTextW(_T("Vertex"));
 		this->m_check_edge.SetWindowTextW(_T("Edge"));
 		this->m_check_face.SetWindowTextW(_T("Face"));
+		this->m_check_path.EnableWindow(false);
 		this->m_check_f1.EnableWindow(false);
 		this->m_check_f2.EnableWindow(false);
 		this->m_check_noo1.EnableWindow(false);
@@ -348,6 +353,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_vertex.SetWindowTextW(_T("Free point"));
 		this->m_check_edge.SetWindowTextW(_T("Grid"));
 		this->m_check_face.SetWindowTextW(_T("Polytope"));
+		this->m_check_path.EnableWindow(true);
 		this->m_check_f1.EnableWindow(true);
 		this->m_check_f2.EnableWindow(true);
 		this->m_check_noo1.EnableWindow(true);
@@ -650,6 +656,23 @@ void CDNNDemoDlg::OnBnClickedButtonView()
 		}
 	}
 	break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckPath()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		//this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
+		break;
 	default:
 		break;
 	}

@@ -5,7 +5,7 @@
 
 #include "DNN_DS.h"
 
-enum OBJECT { VERTEX, EDGE, FACE };
+enum OBJECT { VERTEX, EDGE, FACE, PATH };
 
 class OGL_Contorl : public CStatic
 {
