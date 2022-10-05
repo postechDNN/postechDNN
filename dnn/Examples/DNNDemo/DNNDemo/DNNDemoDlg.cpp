@@ -164,7 +164,7 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	this->m_picture_opengl.setDrawObject(3, EDGE, m_check_edge.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
 	this->m_picture_opengl.setDrawObject(3, FACE, m_check_face.GetCheck());
-
+	this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
 	//this->EnableWindow(true);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.

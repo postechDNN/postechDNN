@@ -203,7 +203,7 @@ void DNN_DS::read3Deps(CString path)
 		object3D.addVertex(v);
 	}
 	for (auto e : e_temp) {
-		object3D.addEdge(e);
+		object3D.addPath(e);
 	}
 	for (auto f : f_temp) {
 		for (int i = 0; i < 3; i++) {

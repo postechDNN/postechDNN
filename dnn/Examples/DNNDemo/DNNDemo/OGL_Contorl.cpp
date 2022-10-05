@@ -272,11 +272,11 @@ void OGL_Contorl::OnPaint()
 					glBegin(GL_LINES);
 					if (nowE->isCustom) {
 						glColor3f(nowE->color[0], nowE->color[1], nowE->color[2]);
-						glLineWidth(nowE->width = 1.0f);
+						glLineWidth(nowE->width = 0.1f);
 					}
 					else {
 						glColor3d(1.0, 1.0, 1.0);
-						glLineWidth(1.0f);
+						glLineWidth(0.1f);
 					}
 					OGL_Point sp = nowE->getStartP();
 					OGL_Point ep = nowE->getEndP();
@@ -291,11 +291,11 @@ void OGL_Contorl::OnPaint()
 					glBegin(GL_LINES);
 					if (nowE->isCustom) {
 						glColor3f(nowE->color[0], nowE->color[1], nowE->color[2]);
-						glLineWidth(nowE->width = 1.0f);
+						glLineWidth(nowE->width = 0.1f);
 					}
 					else {
 						glColor3d(1.0, 0.0, 0.0);
-						glLineWidth(1.0f);
+						glLineWidth(0.1f);
 					}
 					OGL_Point sp = nowE->getStartP();
 					OGL_Point ep = nowE->getEndP();
