@@ -20,13 +20,13 @@ int main() {
 	int fr_num = 10000;
 	int clu_num = 100;
 	int object_num = 10;
-	int k_var[5] = { 10, 50, 100, 500, 1000 };
+	int k_var[5] = { 10, 50, 100, 500, 3000 };
 	ifstream file("error_test.txt");
 	//ofstream file_fr("fr_pt_error.txt");
 	//ofstream file_qr("qr_pt_error.txt");
 	ifstream file_fr("fr_pt_error.txt");
 	ifstream file_qr("qr_pt_error.txt");
-	ofstream error_data("error_data2.txt");
+	ofstream error_data("error_data.txt");
 	int testcase;
 	double total_time = 0.0;
 	file >> testcase;
@@ -119,19 +119,27 @@ int main() {
 			Free_Point one_point = { x, y ,z };
 			qrpts.push_back(one_point);
 		}
-		double exe_time;
-		if (i >= 25) { continue; }
-		Eps_Graph_3D grid(frpts, plts, 1);
+		double error[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+		//if (i >= 25) { continue; }
+		Eps_Graph_3D grid(frpts, plts, 0.25);
 		for (int l = 0; l < 5; l++) {
 			for (auto qr : qrpts) {
-				auto start = chrono::high_resolution_clock::now();
-				grid.kNN(qr, k_var[l]);
-				auto stop = chrono::high_resolution_clock::now();
-				auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-				exe_time = duration.count();
+				double true_dist = 0.0;
+				double approx_dist = 0.0;
+				vector<Free_Point> temp = {};
+				temp = grid.kNN(qr, k_var[l]);
+				approx_dist = grid.dist_kNN(qr, k_var[l]);
+				for (auto pts : temp) {
+					true_dist += sqrt((pts.x - qr.x) * (pts.x - qr.x) + (pts.y - qr.y) * (pts.y - qr.y) + (pts.z - qr.z) * (pts.z - qr.z));
+				}
+				error[l] += abs(true_dist-approx_dist)/true_dist*100;
 			}
 		}
+		cout << i << endl ;
+		cout << error[0] / 1000 << " " << error[1] / 1000 << " " << error[2] / 1000 << " " << error[3] / 1000 << " " << error[4] / 1000 << endl;
+		error_data << error[0] / 1000 << " " << error[1] / 1000 << " " << error[2] / 1000 << " " << error[3] / 1000 << " " << error[4] / 1000 << endl;
 	}
+	error_data.close();
 	file_fr.close();
 	file_qr.close();
 	file.close();

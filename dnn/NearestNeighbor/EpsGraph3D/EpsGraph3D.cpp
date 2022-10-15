@@ -538,7 +538,6 @@ double Eps_Graph_3D::dist_kNN(Free_Point p, int k) { // returns k approximate ne
 	int temp_k = k;
 	double t_d = 0.0;
 	while (k > 0 && !q.empty()) {
-
 		double p_d = 0.0;
 		// q.empty() is indeed needed twice
 		while (!q.empty() && (dist[q.front()] == grid_dist)) {
@@ -573,11 +572,21 @@ double Eps_Graph_3D::dist_kNN(Free_Point p, int k) { // returns k approximate ne
 		});
 
 		int sz = int(FPs.size());
-		t_d += grid_dist * eps * min(k, sz);
-		for (int i = 0; i < min(k, sz); i++) {
-			Edge te = { &FPs[i], &grid[FPs[i].host]};
-			t_d += te.get_length();
-			NN_dist.push_back(grid_dist);
+		if (grid_dist == 0) {
+			for (int i = 0; i < min(k, sz); i++) {
+				Edge te = { &FPs[i], p };
+				t_d += te.get_length();
+				NN_dist.push_back(grid_dist);
+			}
+		}
+		else {
+			t_d += grid_dist * eps * min(k, sz);
+			for (int i = 0; i < min(k, sz); i++) {
+				Edge te = { &FPs[i], &grid[FPs[i].host] };
+				Edge tf = { p, s };
+				t_d += te.get_length() + tf.get_length();
+				NN_dist.push_back(grid_dist);
+			}
 		}
 		k -= min(k, sz);
 
@@ -587,7 +596,6 @@ double Eps_Graph_3D::dist_kNN(Free_Point p, int k) { // returns k approximate ne
 	}
 	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
 		if ((*(*it)).x == p.x && (*(*it)).y == p.y && (*(*it)).z == p.z) {
-			t_d += (temp_k - k -1)*sqrt(pow(p.x - grid[p.host].getx(), 2) + pow(p.y - grid[p.host].gety(), 2) + pow(p.z - grid[p.host].getz(), 2));
 			grid[p.host].anchored.erase(it);
 			break;
 		}
