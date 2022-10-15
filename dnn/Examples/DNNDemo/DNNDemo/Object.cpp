@@ -176,6 +176,14 @@ Object::~Object() {
 	this->faces.clear();
 	this->path.clear();
 }
+
+void Object::total_clear() {
+	this->vertices.clear();
+	this->edges.clear();
+	this->faces.clear();
+	this->path.clear();
+}
+
 int Object::getVerticsNum() {
 	return this->vertices.size();
 }

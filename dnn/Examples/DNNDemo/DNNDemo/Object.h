@@ -138,6 +138,7 @@ public:
 
 	void readDCEL(CString path, int dimension);
 	void read3Deps(CString path);
+	void total_clear();
 
 private:
 	double normTrans[3];

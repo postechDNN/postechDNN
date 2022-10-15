@@ -151,6 +151,7 @@ vector<OGL_Face> DNN_DS::get_pol()
 
 void DNN_DS::read3Deps(CString path)
 {
+	object3D.total_clear();
 	std::ifstream file(path);
 	int fn, pn;
 	double eps;
@@ -187,13 +188,17 @@ void DNN_DS::read3Deps(CString path)
 	for (auto p : store_add_pol) {
 		Graph->add_pol(p);
 	}
+	//store_add_pol.clear();
 	Graph->add_freepts(store_add_fr);
+	//store_add_fr.clear();
 	for (auto del : del_pol_key) {
 		Graph->delete_pol(del);
 	}
+	//del_pol_key.clear();
 	for (auto del : del_fr_key) {
 		Graph->delete_freept(del);
 	}
+	//del_fr_key.clear();
 
 	vector<OGL_Vertex> v_temp = get_fr();
 	vector<OGL_Edge> e_temp = do_knn();
