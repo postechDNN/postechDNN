@@ -8,6 +8,8 @@ namespace EPS {
 	public:
 		Point* p1;
 		Point* p2;
+		Point p3;
+		Point p4;
 		double length;
 	public:
 		Edge();
@@ -15,6 +17,9 @@ namespace EPS {
 		Edge(Point*, Point*);
 		Edge(Grid_Point*, Grid_Point*);
 		Edge(Free_Point*, Grid_Point*);
+		Edge(Point, Point);
+		Edge(Grid_Point, Grid_Point);
+		Edge(Free_Point, Grid_Point);
 		~Edge();
 		bool operator==(Edge);
 		bool on(Point* p);

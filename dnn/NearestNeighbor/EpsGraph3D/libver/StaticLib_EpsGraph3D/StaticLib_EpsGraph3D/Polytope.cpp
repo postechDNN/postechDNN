@@ -39,6 +39,27 @@ EPS::Edge::Edge(Free_Point* v1, Grid_Point* v2) {
 	length = abs(v1->x - v2->x) + abs(v1->y - v2->y) + abs(v1->z - v2->z);
 }
 
+EPS::Edge::Edge(Point v1, Point v2) {
+	p3 = v1;
+	p4 = v2;
+	//length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+	length = abs(v1.x - v2.x) + abs(v1.y - v2.y) + abs(v1.z - v2.z);
+}
+
+EPS::Edge::Edge(Grid_Point v1, Grid_Point v2) {
+	p3 = v1;
+	p4 = v2;
+	//length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+	length = abs(v1.x - v2.x) + abs(v1.y - v2.y) + abs(v1.z - v2.z);
+}
+
+EPS::Edge::Edge(Free_Point v1, Grid_Point v2) {
+	p3 = v1;
+	p4 = v2;
+	//length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+	length = abs(v1.x - v2.x) + abs(v1.y - v2.y) + abs(v1.z - v2.z);
+}
+
 bool EPS::Edge::operator==(Edge e) {
 	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
 }

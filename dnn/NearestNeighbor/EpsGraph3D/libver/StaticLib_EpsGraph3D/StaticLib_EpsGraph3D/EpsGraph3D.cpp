@@ -585,7 +585,16 @@ std::vector<EPS::Edge> EPS::Eps_Graph_3D::path_kNN(Free_Point p, int k) { // ret
 
 		int sz = int(FPs.size());
 		for (int i = 0; i < std::min(k, sz); i++) {
-			path.push_back({ &FPs[i], &grid[FPs[i].host] });
+			int t = FPs[i].host;
+			Point temp = { FPs[i].x ,  FPs[i].y ,  FPs[i].z };
+			Point temp2 = { grid[t].x, grid[t].y , grid[t].z };
+			path.push_back({ temp, temp2 });
+			while (previous[t] != t) {
+				temp = { grid[t].x , grid[t].y , grid[t].z };
+				temp2 = { grid[previous[t]].x, grid[previous[t]].y , grid[previous[t]].z };
+				path.push_back({ temp, temp2 });
+				t = previous[t];
+			}
 			NN_dist.push_back(grid_dist);
 		}
 		k -= sz;
