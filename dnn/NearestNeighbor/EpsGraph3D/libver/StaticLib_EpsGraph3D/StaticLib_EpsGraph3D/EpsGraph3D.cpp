@@ -3,6 +3,7 @@
 #include <queue>
 #include <assert.h>
 #include <iostream>
+#include <math.h>
 
 #define X 1 // ray direction
 #define Y 2
@@ -21,16 +22,16 @@ EPS::Eps_Graph_3D::Eps_Graph_3D(std::list<Free_Point> _fr_pts, std::vector<Polyt
 	// among all points and polygons vertices, find the minimum/maximum x- and y-coordinate.
 	// this is to find a reasonably small bounding box for P \setunion O.
 	
-	for (auto pol : pols) {
-		pol.ord = ord_pol;
+	for (int i = 0; i < pols.size();i++) {
+		pols[i].ord = ord_pol;
 		ord_pol++;
-		if (pol.x_max > this->x_max) { this->x_max = pol.x_max; }
-		if (pol.y_max > this->y_max) { this->y_max = pol.y_max; }
-		if (pol.z_max > this->z_max) { this->z_max = pol.z_max; }
+		if (pols[i].x_max > this->x_max) { this->x_max = pols[i].x_max; }
+		if (pols[i].y_max > this->y_max) { this->y_max = pols[i].y_max; }
+		if (pols[i].z_max > this->z_max) { this->z_max = pols[i].z_max; }
 
-		if (pol.x_min < this->x_min) { this->x_min = pol.x_min; }
-		if (pol.y_min < this->y_min) { this->y_min = pol.y_min; }
-		if (pol.z_min < this->z_min) { this->z_min = pol.z_min; }
+		if (pols[i].x_min < this->x_min) { this->x_min = pols[i].x_min; }
+		if (pols[i].y_min < this->y_min) { this->y_min = pols[i].y_min; }
+		if (pols[i].z_min < this->z_min) { this->z_min = pols[i].z_min; }
 	}
 
 	for (auto fr_pt : fr_pts) {
@@ -487,9 +488,9 @@ std::vector<EPS::Free_Point> EPS::Eps_Graph_3D::kNN(Free_Point p, int k) { // re
 
 
 		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
-			{
-				return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) + pow(first.z - p.z, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2) + pow(second.z - p.z, 2);
-			});
+		{
+			return abs(first.x - p.x) + abs(first.y - p.y) + abs(first.z - p.z) < abs(second.x - p.x) + abs(second.y - p.y) + abs(second.z - p.z);
+		});
 
 		int sz = int(FPs.size());
 
@@ -579,7 +580,7 @@ std::vector<EPS::Edge> EPS::Eps_Graph_3D::path_kNN(Free_Point p, int k) { // ret
 
 		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
 		{
-			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) + pow(first.z - p.z, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2) + pow(second.z - p.z, 2);
+			return abs(first.x - p.x) + abs(first.y - p.y) + abs(first.z - p.z) < abs(second.x - p.x) + abs(second.y - p.y) + abs(second.z - p.z);
 		});
 
 		int sz = int(FPs.size());
