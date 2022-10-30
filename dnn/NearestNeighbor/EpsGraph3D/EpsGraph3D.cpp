@@ -2,6 +2,7 @@
 #include <queue>
 #include <assert.h>
 #include <iostream>
+#include <math.h>
 
 #define X 1 // ray direction
 #define Y 2
@@ -566,10 +567,15 @@ double Eps_Graph_3D::dist_kNN(Free_Point p, int k) { // returns k approximate ne
 			FPs.push_back(pt);
 		}
 
-		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
+		/*sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
 		{
 			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) + pow(first.z - p.z, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2) + pow(second.z - p.z, 2);
+		}); */
+		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
+		{
+			return abs(first.x - p.x) + abs(first.y - p.y) + abs(first.z - p.z) < abs(second.x - p.x) + abs(second.y - p.y) + abs(second.z - p.z);
 		});
+
 
 		int sz = int(FPs.size());
 		if (grid_dist == 0) {
@@ -654,11 +660,14 @@ vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approxim
 		}
 
 
-		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
+		/*sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
 		{
 			return pow(first.x - p.x, 2) + pow(first.y - p.y, 2) + pow(first.z - p.z, 2) < pow(second.x - p.x, 2) + pow(second.y - p.y, 2) + pow(second.z - p.z, 2);
+		}); */
+		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
+		{
+			return abs(first.x - p.x) + abs(first.y - p.y) + abs(first.z - p.z) < abs(second.x - p.x) + abs(second.y - p.y) + abs(second.z - p.z);
 		});
-
 		int sz = int(FPs.size());
 		for (int i = 0; i < min(k, sz); i++) {
 			int t = FPs[i].host;
