@@ -118,8 +118,8 @@ vector<OGL_Edge> DNN_DS::do_knn()
 	for (auto e : temp) {
 		OGL_Edge te;
 		OGL_Point a1, a2;
-		a1 = { e.p1->x, e.p1->y, e.p1->z };
-		a2 = { e.p2->x, e.p2->y, e.p2->z };
+		a1 = { e.p3.x, e.p3.y, e.p3.z };
+		a2 = { e.p4.x, e.p4.y, e.p4.z };
 		te.setStartP(a1);
 		te.setEndP(a2);
 		convert.push_back(te);

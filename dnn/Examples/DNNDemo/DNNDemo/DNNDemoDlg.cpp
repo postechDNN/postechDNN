@@ -252,6 +252,7 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 
 	int menu = m_combo_func.GetCurSel();
 	CString path;
+	CString temp;
 	m_edit_filename.GetWindowTextW(path);
 	switch (menu) {
 	case 0: // Read DCEL
@@ -259,6 +260,9 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 		break;
 	case 1: // 3D nearest neighbor
 		m_picture_opengl.read3Deps(path);
+		// Query time
+		temp.Format(_T("%d"), m_picture_opengl.DDS.get_execution_time());
+		m_edit_qr2.SetWindowTextW(temp);
 		break;
 	default:
 		break;
@@ -536,18 +540,8 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 			// k값과 좌표로 query를 수행하는 함수 호출
 
 			// Print result
-			// Query data size
-			
+			// Query data size			
 			this->m_edit_q1.SetWindowTextW(dlg.key);
-			CString temp;
-			temp.Format(_T("%d"), m_picture_opengl.DDS.get_physical_memory() + m_picture_opengl.DDS.get_virtual_memory());
-			m_edit_qr1.SetWindowTextW(temp);
-			// Query time
-			temp.Format(_T("%d"), m_picture_opengl.DDS.get_execution_time());
-			m_edit_qr2.SetWindowTextW(temp);
-			// Query accuracy
-			//temp.Format(_T("%f"), m_picture_opengl.DDS.get_accuracy());
-			//m_edit_qr3.SetWindowTextW(temp);
 		}
 	}
 		break;

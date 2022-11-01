@@ -121,18 +121,13 @@ int main() {
 		}
 		double error[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 		if (i <= 91 || i > 101) { continue; }
-		Eps_Graph_3D grid(frpts, plts, 0.25);
+		Eps_Graph_3D grid(frpts, plts, 1);
 		for (int l = 0; l < 5; l++) {
 			for (auto qr : qrpts) {
 				double true_dist = 0.0;
 				double approx_dist = 0.0;
 				vector<Free_Point> temp = {};
-				temp = grid.kNN(qr, k_var[l]);
-				approx_dist = grid.dist_kNN(qr, k_var[l]);
-				for (auto pts : temp) {
-					true_dist += abs(pts.x - qr.x) + abs(pts.y - qr.y) + abs(pts.z - qr.z);
-				}
-				error[l] += abs(true_dist-approx_dist)/true_dist*100;
+				grid.path_kNN(qr, k_var[l]);
 			}
 		}
 		cout << i << endl ;
