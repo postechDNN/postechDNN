@@ -169,6 +169,9 @@ void calValidSlope(std::vector<Point>& vertices, std::vector<Site>& sites) {
     std::vector<Point>::iterator i = vertices.begin();
     std::vector<Site>::iterator j = sites.begin();
     Edge e, maxSlope;
+    while (i->getx() < j->getPoint().getx())
+        i++;
+
     while (i != vertices.end() && j != sites.end()) {
         if (i->getx() < j->getPoint().getx()) {
             addPoint(hull, *i, false);
@@ -176,6 +179,10 @@ void calValidSlope(std::vector<Point>& vertices, std::vector<Site>& sites) {
         }
         else {
             addPoint(hull, j->getPoint(), false);
+            if (hull.size() < 2) {
+                j++;
+                continue;
+            }
             e = Edge(hull[hull.size() - 2], hull.back());
             if (e.getSlope() > 0) {
                 maxSlope = abs(e.getSlope()) < abs(j->getPosSlope().getSlope()) ? j->getPosSlope() : e;
@@ -188,10 +195,13 @@ void calValidSlope(std::vector<Point>& vertices, std::vector<Site>& sites) {
             j++;
         }
     }
-
+    
     hull.clear();
     std::vector<Point>::reverse_iterator l = vertices.rbegin();
     std::vector<Site>::reverse_iterator m = sites.rbegin();
+    while (l->getx() > m->getPoint().getx())
+        l++;
+
     while (l != vertices.rend() && m != sites.rend()) {
         if (l->getx() > m->getPoint().getx()) {
             addPoint(hull, *l, true);
@@ -199,6 +209,10 @@ void calValidSlope(std::vector<Point>& vertices, std::vector<Site>& sites) {
         }
         else {
             addPoint(hull, m->getPoint(), true);
+            if (hull.size() < 2) {
+                m++;
+                continue;
+            }
             e = Edge(hull.back(), hull[hull.size() - 2]);
             if (e.getSlope() > 0) {
                 maxSlope = abs(e.getSlope()) < abs(m->getPosSlope().getSlope()) ? m->getPosSlope() : e;
