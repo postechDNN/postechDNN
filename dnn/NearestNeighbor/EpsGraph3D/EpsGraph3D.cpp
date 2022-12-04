@@ -735,17 +735,6 @@ void Eps_Graph_3D::print_anchor() {
 	}
 }
 
-void Eps_Graph_3D::print_dist() {
-	for (int i = 0; i < x_num; i++) {
-		for (int j = 0; j < y_num; j++) {
-			for (int k = 0; k < z_num; k++) {
-				if (dist[i * y_num * z_num + j * z_num + k] == INT_MAX) { printf(" INF "); }
-				else { printf("%4.1d ", dist[i * y_num * z_num+ j * z_num + k]); }
-			}
-		}
-		printf("\n");
-	}
-}
 
 void Eps_Graph_3D::print_kNN(Free_Point p, int k ) {
 	vector<Free_Point> nbhd = kNN(p, k + 1);

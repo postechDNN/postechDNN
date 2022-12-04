@@ -70,7 +70,6 @@ public:	// functions
 	void print_free_point();
 	void print_edges();
 	void print_anchor();
-	void print_dist();
 	void print_kNN(Free_Point, int);
 	double dist_kNN(Free_Point, int);
 
