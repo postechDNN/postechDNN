@@ -9,3 +9,4 @@
 dnn/.vscode/settings.json
 dnn/NearestNeighbor/ENN/DCEL/*.ipe
 dnn/NearestNeighbor/ENN/DCEL/Makefile
+/CppProperties.json

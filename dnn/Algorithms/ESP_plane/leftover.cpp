@@ -193,7 +193,7 @@ void extend(list<Point*> rp, Elem* elem, Dir dir) {
 
 	}
 	else if (dir == DIR_LOWER) { // lower
-		if (elem->getPt(0)->getEdgeType() == 3 && elem->getPt(1)->getEdgeType() == 2) {
+		if (elem->getPt(0)->getHEdgeType() == 3 && elem->getPt(1)->getHEdgeType() == 2) {
 			elem->getPt(0);
 		}
 		else if () {
@@ -216,11 +216,11 @@ RP* traverseUnion(vector<ElemList*> X_lists, vector<ElemList*> Y_lists, int lv) 
 	int x = Q.front()->getKey(), y = Q.front()->getSV();
 	// is it a correct way to initialize a list?
 	list<Point*> plst = { new Point(x, y, lv), new Point(x + 1, y, lv), new Point(x + 1, y + 1, lv), new Point(x, y + 1, lv) };
-	Q.front()->setEdge(DIR_LEFT, true); Q.front()->setEdge(DIR_RIGHT, true); Q.front()->setEdge(DIR_LOWER, true); Q.front()->setEdge(DIR_UPPER, true);
-	auto it = plst.begin(); Q.front()->setPt(LOWER_LEFT, *it); (*it)->setEdgeType(3);
-	advance(it, 1); Q.front()->setPt(LOWER_RIGHT, *it); (*it)->setEdgeType(2);
-	advance(it, 1); Q.front()->setPt(UPPER_LEFT, *it); (*it)->setEdgeType(1);
-	advance(it, 1); Q.front()->setPt(UPPER_RIGHT, *it); (*it)->setEdgeType(0);
+	Q.front()->setHEdge(DIR_LEFT, true); Q.front()->setHEdge(DIR_RIGHT, true); Q.front()->setHEdge(DIR_LOWER, true); Q.front()->setHEdge(DIR_UPPER, true);
+	auto it = plst.begin(); Q.front()->setPt(LOWER_LEFT, *it); (*it)->setHEdgeType(3);
+	advance(it, 1); Q.front()->setPt(LOWER_RIGHT, *it); (*it)->setHEdgeType(2);
+	advance(it, 1); Q.front()->setPt(UPPER_LEFT, *it); (*it)->setHEdgeType(1);
+	advance(it, 1); Q.front()->setPt(UPPER_RIGHT, *it); (*it)->setHEdgeType(0);
 
 	while (!Q.empty()) { // contains elems only from X_lists
 		auto X_elem = Q.front(); Q.pop();
@@ -1301,7 +1301,7 @@ else { // already in ret, with iterator it preserved
 			if (first) { // first event.
 				double cur_x = get<0>(event)->getX(), cur_y = get<0>(event)->getY();
 				Point* tmp = new Point(cur_x, cur_y - sl);
-				ret->addEdge_back(new Edge(get<0>(event), tmp)); first = false;
+				ret->addHEdge_back(new HEdge(get<0>(event), tmp)); first = false;
 				cur_list.push(make_tuple(cur_y, cur_x));
 				continue;
 			}

@@ -3,17 +3,16 @@
 #include <algorithm>
 #include <vector>
 
-
 // using Point;
 
 SimplePolygon::SimplePolygon() {
-	this->edges = new std::vector<Edge*>();
+	this->edges = new std::vector<HEdge*>();
 }
 
-SimplePolygon::SimplePolygon(std::vector<Edge*>* edges) {
-	this->edges = new std::vector<Edge*>();
-	for (std::vector<Edge*>::iterator i = edges->begin(); i != edges->end(); i++) {
-        Edge* e = *i;
+SimplePolygon::SimplePolygon(std::vector<HEdge*>* edges) {
+	this->edges = new std::vector<HEdge*>();
+	for (std::vector<HEdge*>::iterator i = edges->begin(); i != edges->end(); i++) {
+        HEdge* e = *i;
 		this->edges->push_back(e);
 	}
 }
@@ -26,9 +25,11 @@ int SimplePolygon::inPolygon(Point p) {
     double epsilon = 1e-6;
     double x = p.getx(), y = p.gety();
     int count = 0;
-    for (std::vector<Edge*>::iterator i = this->edges->begin(); i != this->edges->end(); i++) {
-        Edge *he = *i;
-        Point origin = he->gets(), dest = he->gett();
+
+    for (std::vector<HEdge*>::iterator i = this->edges->begin(); i != this->edges->end(); i++) {
+        HEdge *he = *i;
+        // Point origin = he->gets(), dest = he->gett();
+		Point origin, dest;
 
         if (origin.gety() > dest.gety())   //y1 <= y2
             std::swap(origin, dest);
@@ -53,6 +54,6 @@ int SimplePolygon::inPolygon(Point p) {
     else return -1;
 }
 
-std::vector<Edge*>* SimplePolygon::getEdges() {
+std::vector<HEdge*>* SimplePolygon::getHEdges() {
 	return this->edges;
 }

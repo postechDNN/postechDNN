@@ -2,16 +2,31 @@
 
 #include "./..//..//Algorithms/ESP_plane/Edge.h"
 #include "./..//..//Algorithms/ESP_plane/Point.h"
-#include "./SimplePolygon.h"
+#include "SimplePolygon.h"
 #include <vector>
 #include <string>
 #include <map>
 
-
+	class SimplePolygon;
 	class Vertex;
 	class HEdge;
 	class Face;
 	class Ark;
+
+	//Wavefront is defined on edge by a sequence of obstacle vertices with their shortest path distances from s
+	class Wavefront {
+	public:
+		std::vector<Vertex*> generators;
+		HEdge* edge;
+		std::vector<Point> intervals;
+		std::vector<double> dists;
+
+	public:
+		Wavefront();
+		~Wavefront();
+		Wavefront(std::vector<Vertex*>, std::vector<double>, HEdge*);
+		Wavefront propagate(HEdge*);
+	};
 
 	class Vertex : public Point {
 	public:
@@ -19,6 +34,7 @@
 		HEdge* incidentEdge; //The origin of incident edge is itself.
 		std::string mark;
 		double dist; // d(v,s), distance from s
+		int color; // determines by which source it is 'marked'
 
 	public:
 		Vertex();
@@ -46,8 +62,11 @@
 		double covertime;
 		double length;
 		vector<Vertex*> a_wavefront; // approximate wavefront
-		SimplePolygon* WCR; // well-covering region. can be represented as a simple polygon
 		Wavefront wavelet;
+		SimplePolygon* WCR; // well-covering region. can be represented as a simple polygon
+		double weight;
+		Vertex* predecessor;
+
 
 	public:
 		HEdge();
@@ -77,6 +96,7 @@
 		HEdge* outer;	//If outer is null pointer, it is outmost face in DCEL.
 		std::vector<HEdge*> inners;
 		vector<Vertex*> mark;
+		vector<Arc> hyperbola;
 
 	public:
 		Face();
@@ -94,7 +114,7 @@
 		std::vector<HEdge*> getInnerHEdges();
 	};
 
-	class Ark {
+	class Arc {
 	public:
 		std::string key;
 		Vertex* origin;
@@ -135,4 +155,6 @@
 		DCEL merge(DCEL&);
 	};
 
+
 	std::pair<double, double> inline find_mid_points(double num1, double num2, double num3, double num4);
+	Point* compute_bisect_on_edge(Vertex* a, double dist_a, Vertex* b, double dist_b, HEdge* e);

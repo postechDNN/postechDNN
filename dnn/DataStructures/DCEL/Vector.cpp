@@ -54,6 +54,11 @@ Vector Vector::operator- (Vector& _v) {
 
 };
 
+
+Vector Vector::operator+ (Vector& _v) {
+	return Vector(this->x+ _v.x, this->y + _v.y);
+};
+
 Vector Vector::operator/ (double c){
 	return Vector(this->x/c, this->y/c);
 }

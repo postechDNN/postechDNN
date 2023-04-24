@@ -17,15 +17,18 @@ int main() {
 	// vector<Point*> ob1 = { new Point(6.1, 8.1), new Point(8.1, 8.1), new Point(8.1, -8.1), new Point(6.1, -8.1) };
 	// obs.push_back(ob1);
 	Point* s = new Point(0.1, 0.1);
-	Point* t = new Point(30.1, 2.1);
+	vector<Point*> sources = {s};
 
-	auto CS = conforming_subdivision(s, t, obs); 
+	auto CS = conforming_subdivision(sources, obs); 
 	DCEL* D = CS.build_subdivision(); // constructs vertex conforming subdivision
 	DCEL* D_ls = CS.build_ls_subdivision(D); // constructs edge conforming subdivision
-	vector<Vertex*> ret = CS.propagation(D, s);
+	auto pq = CS.multisource_init(D, sources);
+	CS.propagation(D,pq);
+	/*
 	for (auto ver : ret) {
 		ver->print(); cout << ver->dist << endl;
 	}
+	*/
 
 	return 0;
 }
