@@ -3,19 +3,41 @@
 #include <string>
 #include<vector>
 #include<sstream>
+#include <random>
+
+typedef struct halfplane {
+	int d; // dimension
+	std::vector<float> vals; // values to represent the halfplane. For example, (d=2) ax + by + c = 0, (d=3) ax + by + cz + d = 0.
+
+} halfplane;
 
 int main() {
 
 	std::cout << "Enter the dimension: ";
 	int d; std::cin >> d;
+	std::cout << "Number of halfplanes to generate: ";
+	int num_h; std::cin >> num_h;
 
-	for (int i = 0; i < d - 1; i++) { // d-1개의 숫자 랜덤으로 생성해서 halfplane 만들기
-		
+	float upper_bound = 10.0; // maximum value for each coordinate
+	float lower_bound = -10.0; // minimum value for each coordinate
+	
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dist(lower_bound, upper_bound); // uniform distribution
+
+	// std::vector<HP>; // halfplanes
+	std::vector<halfplane*> halfplanes; // halfplane
+
+
+	for (int j = 0; j < num_h; j++) {
+		halfplane* H = new halfplane{ d };
+		for (int i = 0; i < d + 1; i++) { // constructing halfplane by generating d+1 random numbers
+			H->vals.push_back(dist(gen));
+		}
+		halfplanes.push_back(H); 
 	}
 
-	// halfplane 위에 적절한(일단은 5로 fix) 개수의 공유하는 점 뿌리기
-
-
+	// disperse certain amount of points on the halfplane (for now, fixed as 5)
 
 	std::string myst("pts.txt");
 	std::string dir("C:\\Users\\hwikim\\Desktop\\ALLTAG\\2023\\202305\\20230509\\qhull-2020.2\\bin\\");
@@ -39,10 +61,7 @@ int main() {
 	}
 }
 
-// bounding box
-// qhull에서 포인트 가져오기
+// bounding box?
+// import points information from qhull
 
-// halfplane intersection?
-
-// qhull input 가져오기
-// for int 
+// halfplane intersection from qhull
