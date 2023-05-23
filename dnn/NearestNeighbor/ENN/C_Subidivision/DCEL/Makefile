@@ -1,10 +1,7 @@
-all: main.exe
+all: DCEL_lib.a DCEL_operation.o DCEL_IO.o DCEL.o Edge.o Point.o Vector.o
 
-main.exe : main.o DCEL_operation.o DCEL_IO.o DCEL.o Edge.o Point.o Vector.o
-	g++ -o main.exe main.o DCEL_operation.o DCEL_IO.o DCEL.o Edge.o Point.o Vector.o
-
-main.o : main.cpp DCEL.h DCEL_IO.h AVLTree.h DCEL_IO.h Point.h Edge.h
-	g++ -o main.o -c main.cpp -std=c++17
+DCEL_lib.a : DCEL_operation.o DCEL_IO.o DCEL.o Edge.o Point.o Vector.o
+	ar rscv DCEL_lib.a DCEL_operation.o DCEL_IO.o DCEL.o Edge.o Point.o Vector.o
 
 DCEL_IO.o : DCEL_IO.cpp DCEL.h 
 	g++ -o DCEL_IO.o -c DCEL_IO.cpp -std=c++17
@@ -25,4 +22,4 @@ Point.o : Point.cpp Point.h
 	g++ -o Point.o -c Point.cpp
 
 clean :
-	del *.o main.exe
+	del *.o *.a
