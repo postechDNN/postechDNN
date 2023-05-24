@@ -1,6 +1,7 @@
 #include "Edge.h"
 #include "Point.h"
 #include <algorithm>
+#include <cmath>
 #define ERR 1e-6
 
 Edge::Edge() {
@@ -33,15 +34,15 @@ bool Edge::on(Point& p) {
 	double p_x = p.getx();
 	double p_y = p.gety();
 	double d = t_x - s_x;
-	if (abs(d) < ERR) {
-		if (abs(p_x - t_x) <= ERR && p_y <= std::max(t_y, s_y) && p_y >= std::min(t_y, s_y)) {
+	if (std::abs(d) < ERR) {
+		if (std::abs(p_x - t_x) <= ERR && p_y <= std::max(t_y, s_y) && p_y >= std::min(t_y, s_y)) {
 			return true;
 		}
 		else return false;
 	}
 	else {
 		double y = ((t_y - s_y) / d) * (p_x - s_x) + s_y;
-		if (abs(y - p_y) <= ERR && p_y <= std::max(t_y, s_y) && p_y >= std::min(t_y, s_y)) {
+		if (std::abs(y - p_y) <= ERR && p_y <= std::max(t_y, s_y) && p_y >= std::min(t_y, s_y)) {
 			return true;
 		}
 		else return false;
