@@ -237,12 +237,24 @@ std::vector<HEdge*> Face::getInnerHEdges(){
 
 //CAUTION : VECTOR ACCESS AND DELETION 
 
-DCEL::DCEL() {
+DCEL::DCEL(std::string key) {
 	//this->num_faces = 0;
 	//this->num_hedges = 0;
 	//this->num_vertices = 0;
-	this->key = "dcel_"+std::to_string(_default_dcel_key++); 
+	//this->key = "dcel_"+std::to_string(_default_dcel_key++); 
+	this->key = key; 
+	Face *of = new Face();
+	of->setOuter(nullptr);
+	this->faces[of->getKey()] = of;
+}
 
+void DCEL::clear(){
+	for(auto v : this->vertices)
+		if(v.second) delete v.second;
+	for(auto he: this->hedges)
+		if(he.second) delete he.second;
+	for(auto f : this->faces)
+		if(f.second) delete f.second;
 	Face *of = new Face();
 	of->setOuter(nullptr);
 	this->faces[of->getKey()] = of;
@@ -250,11 +262,11 @@ DCEL::DCEL() {
 
 DCEL::~DCEL() {
 	for(auto v : this->vertices)
-		delete v.second;
+		if(v.second) delete v.second;
 	for(auto he: this->hedges)
-		delete he.second;
+		if(he.second) delete he.second;
 	for(auto f : this->faces)
-		delete f.second;
+		if(f.second) delete f.second;
 }
 
 std::vector<Face*> DCEL::getFaces() {
