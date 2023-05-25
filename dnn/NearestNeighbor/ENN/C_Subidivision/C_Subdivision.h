@@ -45,26 +45,25 @@ public:
 class C_Subdivision{
 protected:
     std::vector<Site> sites;
-    std::set<Box_Edge> drawn_edges;
     double scale_factor;
     double tr_x_factor;
-    double tr_y_factor; 
+    double tr_y_factor;
 
-    void init_sites(Point, std::vector<Point>);
+    //void init_sites(Point, std::vector<Point>);
     std::vector<Quad*> init_quads();
     std::vector<Component > compute_equiv_class(std::vector<Quad*>&);
     std::vector<Quad*> growth(std::vector<Quad*>&);
-    void inline draw_n_edges(int,int, int, int, int);
-    void inline erase_n_edges(int,int, int, int, int);
+    void inline draw_n_edges(int,int, int, int, int,std::set<Box_Edge>&);
+    void inline erase_n_edges(int,int, int, int, int,std::set<Box_Edge>&);
     bool inline is_intersect_quad(Quad*, Quad*);
-    void process_simple_to_complex(Quad*,int);
-    void process_complex(std::vector<Quad *>&,std::vector<Quad *>&,int);
-    void build_one_subdivision();
+    void process_simple_to_complex(Quad*,int,std::set<Box_Edge> &);
+    void process_complex(std::vector<Quad *>&,std::vector<Quad *>&,int,std::set<Box_Edge> &);
+    void draw_one_subdivision(std::set<Box_Edge>&);
+    void build_graph(std::set<Box_Edge>&, std::vector<Point>&, std::vector<std::vector<int>> &);
 
     public:
     C_Subdivision(Point, std::vector<Point>);
     ~C_Subdivision();
     //TODO
     DCEL build_d_subdivision(int);
-    void remove_duplicate_edges();
 };
