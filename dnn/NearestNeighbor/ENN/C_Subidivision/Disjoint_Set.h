@@ -21,17 +21,17 @@ public:
     ~Disjoint_Set() {}
 
     //Find a parent of x
-    T find_parent(T x) {
+    T find(T x) {
         if (x != parent[x])
-            parent[x] = find_parent(parent[x]);
+            parent[x] = find(parent[x]);
 
         return parent[x];
     }
 
     //Union two sets containing x and y.
     void set_union(T x, T y) {
-        x = find_parent(x);
-        y = find_parent(y);
+        x = find(x);
+        y = find(y);
 
         if (x != y) {
             if (rank[x] < rank[y]) {
@@ -57,7 +57,7 @@ public:
 
         for (auto [key, value] : index) {
             if (value == -1) {
-                T p = find_parent(key);
+                T p = find(key);
 
                 if (index[p] == -1) {
                     index[p] = count;
