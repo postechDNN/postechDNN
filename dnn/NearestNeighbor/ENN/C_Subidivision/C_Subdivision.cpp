@@ -18,6 +18,12 @@ Quad::~Quad(){}
 
 Box_Edge::Box_Edge(int r,int c,int ord,bool is_vertical):r(r),c(c),ord(ord),is_vertical(is_vertical){}
 Box_Edge::~Box_Edge(){}
+bool Box_Edge::operator<(const Box_Edge& op) const{
+    if(this->ord != op.ord) return this->ord < op.ord;
+    if(this->is_vertical != op.is_vertical) return this->is_vertical < op.is_vertical;
+    if(this->r != op.r) return this->r < op.r;
+    return this->c < op.c;
+}
 // Component::Component(std::vector<Quad*>& quads,bool is_simple):quads(quads), is_simple(is_simple) {}
 // Component::~Component(){}
 
@@ -89,23 +95,87 @@ bool inline C_Subdivision::is_intersect_quad(Quad* a, Quad* b){
 void inline C_Subdivision::draw_n_edges(int r,int c, int ord, int is_vertical, int n){
     int is_horizontal = 1- is_vertical;
     for(int i = 0;i<n;i++)
-        this->drawn_edges.push_back(Box_Edge(r+is_horizontal*i, c+is_vertical*i,ord,is_vertical));
+        this->drawn_edges.insert(Box_Edge(r+is_horizontal*i, c+is_vertical*i,ord,is_vertical));
 }
 
-//Construct strong conforming subdivision of points. 
-C_Subdivision::C_Subdivision(Point src, std::vector<Point> obs_pts){
-    //1. Initialize sites and the set of quads.
-    int i = 0;
-    init_sites(src, obs_pts);
+void inline C_Subdivision::erase_n_edges(int r,int c, int ord, int is_vertical, int n){
+    int is_horizontal = 1- is_vertical;
+    for(int i = 0;i<n;i++)
+        this->drawn_edges.erase(Box_Edge(r+is_horizontal*i, c+is_vertical*i,ord,is_vertical));
+}
+
+//Process the simple component of order ord which is about to be complex component at the order of ord+2.
+void C_Subdivision::process_simple_to_complex(Quad* q, int ord){
+    //the variable "ord" is the order of quad q.
+    //Draw the boundary box of q and subdivide each of its sides into four edges at the (i-2)-order grid lines.
+    draw_n_edges(q->r   , q->c  , ord,false,4);
+    draw_n_edges(q->r+4 , q->c  , ord,false,4);
+    draw_n_edges(q->r   , q->c  , ord,true,4);
+    draw_n_edges(q->r   , q->c+4, ord,true,4);
+}
+
+//Process the simple component which is about to be complex component.
+void C_Subdivision::process_complex(std::vector<Quad *>& S, std::vector<Quad *>& children_S, int ord){ 
+    //the variable "ord" is the order of quads in S
+    //1) Draw i-boxes to fill the region between the boundaries of R_1 and S.
+    //1-1) For each quad q of S, draw edges of order i on the boundary of q. 
+    for(auto q: S){
+        draw_n_edges(q->r   , q->c  ,ord,false,4);
+        draw_n_edges(q->r+4 , q->c  ,ord,false,4);
+        draw_n_edges(q->r   , q->c  ,ord,true,4);
+        draw_n_edges(q->r   , q->c+4,ord,true,4);
+    }
+    //1-2) For each quad q of S, erase edges of order i lying on the interior of quads of S.
+    for(auto q:S){
+        for(int j = 1;j<=3;j++){
+            erase_n_edges(q->r+j,q->c,ord,false,4);
+            erase_n_edges(q->r,q->c+j,ord,true,4);
+        }
+    }
+    //1-3) For each qaud q of S, break each i-box with an endpoint incident to the core of q into four edges of length 2^(i-2).
+    for(auto q:S){
+        for(int j = 1;j<=3;j++){
+            draw_n_edges(4*q->r + 4*j   , 4*q->c       ,ord-2,false,4);
+            draw_n_edges(4*q->r + 4*j   , 4*q->c+ 12   ,ord-2,false,4);
+            draw_n_edges(4*q->r         , 4*q->c+ 4*j  ,ord-2,true,4);
+            draw_n_edges(4*q->r + 12    , 4*q->c+ 4*j  ,ord-2,true,4);
+        }
+    }
+    //1-4) For each quad q of S, erase edges of order i-2 lying on R1.
+    for(auto q:S){
+        for(int j = 1;j<=3;j++){
+            erase_n_edges(4*q->r + 4*j  , 4*q->c + 4    ,ord-2,false,8);
+            erase_n_edges(4*q->r + 4    , 4*q->c+ 4*j   ,ord-2,true,8);
+        }
+    }
+
+    //2) Draw (i-2)-boxes to fill the region between the boundaries of R_1 and R_2.
+    //2-1) Fill (i-2) boxes in R1
+    for(auto q: S){
+        for(int j = 0; j<= 8;j++){
+            draw_n_edges(4*q->r+4+j, 4*q->c+4,ord-2,false,8);   
+            draw_n_edges(4*q->r+4, 4*q->c+4+j,ord-2,true,8);    
+        }
+    }
+    //2-2) Delete (i-2) boxes in R2
+    for(auto q: children_S){
+        for(int j=1;j<=3;j++){
+            erase_n_edges(q->r+j,q->c,ord-2,false,4);              
+            erase_n_edges(q->r,q->c+j,ord-2,true,4);              
+        }
+    }
+}
+
+//Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
+void C_Subdivision::build_one_subdivision(){
+    //Initialize the set of quads.
     std::vector<Quad*> Q =init_quads();
     std::vector<Component > equiv_classes = compute_equiv_class(Q);
-
-    //2. build-subdivision.
-    while (!Q.empty())
-    {
+    int i = 0;
+    //build-subdivision.
+    while (!Q.empty()){
         //Step 1. Increment order
         i+=2;
-        
         //Step 2. Compute Q(i) from Q(i-2)
         std::vector<Quad*> next_Q; //TODO: Is it okay that change the data structure from set to vector
 
@@ -119,41 +189,41 @@ C_Subdivision::C_Subdivision(Point src, std::vector<Point> obs_pts){
         //Step 3. Process simple components of equivalent relation in Q(i-2) that are about to merge with some other component.
         for(auto q:Q){
             Quad* q_bar = q->growth;
-            if(q->is_simple && !q_bar->is_simple){
-                //Draw the boundary box of q and subdivide each of its sides into four edges at the (i-2)-order grid lines.
-                draw_n_edges(q->r,q->c,i-2,false,4);
-                draw_n_edges(q->r+4,q->c,i-2,false,4);
-                draw_n_edges(q->r,q->c,i-2,true,4);
-                draw_n_edges(q->r,q->c+4,i-2,true,4);
-            }
+            if(q->is_simple && !q_bar->is_simple)
+                process_simple_to_complex(q,i-2);
         }
 
         //Step 4. Process complex components.
         for(auto S:next_equiv_classes){
-            std::vector<Quad *> children_S;
+            std::vector<Quad *> children_S; // denoted by S' in the original paper.
             for(auto q: S){
                 auto children_q = q->children;
                 children_S.insert(children_S.end(),children_q.begin(),children_q.end());
             } 
-            if(children_S.size() > 1){  // S is complex
-                //TODO: Compute R_1 and R_2.
-                //TODO: Draw (i-2)-boxes to fill the region between the boundaries of R_1 and R_2.
-                //TODO: Draw i-boxes to fill the region between the boundaries of R_1 and S.
-                //TODO: Break each cell boundary with an endpoint incident to R_1 into four edges of length 2^(i-2), to satisfy Invariant 1.
-                ;
-            }
+            if(children_S.size() > 1)  // S is complex
+                process_complex(S,children_S,i);
         }
+        //TODO: release the memory assigned to quads.
         Q = next_Q;
         equiv_classes = next_equiv_classes;
     }
-    
+}
 
+//Build strong d-conforming subdivision and the output is stored as the set of drawn edges.
+//Return the output as DCEL.
+DCEL C_Subdivision::build_d_subdivision(int d){
+    DCEL dcel;
+    //Subdivide eadh drawn edges of strong 1-conforming subdivision into d' equal-length pieces, 
+    //where d' is the ceiling of d. 
+    //TODO
+    return dcel;
 }
 
 // Scale and translate sites to make thier coordinates satisfy the following:
 // (1) distance between them is not smaller than 1.
-// (2) they do not have integer coordinate.
-void C_Subdivision::init_sites(Point src, std::vector<Point> obs_pts){
+// (2) they do not have integer coordinate. 
+C_Subdivision::C_Subdivision(Point src, std::vector<Point> obs_pts){
+    //init_sites(src, obs_pts);
     this->sites.push_back(Site(src,SRC));
     for(auto p : obs_pts){
         this->sites.push_back(Site(p,OBS));
@@ -198,12 +268,6 @@ void C_Subdivision::init_sites(Point src, std::vector<Point> obs_pts){
     }
     tr_x_factor = -min_x+min_xdist_bound/2;
     tr_y_factor = -min_y+min_ydist_bound/2;
-
-    for(auto site:this->sites){
-        double x = site.getx(), y = site.gety();
-        site.setx(x*scale_factor + tr_x_factor);
-        site.sety(y*scale_factor + tr_y_factor);
-    }
 }
 
 inline int find_index_order(double x,int ord){
@@ -218,11 +282,13 @@ std::vector<Quad*> C_Subdivision::init_quads(){
 
     //collects 0-quads containing sites
     for(auto p : this->sites){
-        double x = p.getx(), y = p.gety();
+        double x = p.getx()*this->scale_factor + this->tr_x_factor;
+        double y = p.gety()*this->scale_factor + this->tr_y_factor;
         int r = find_index_order(x,0), c= find_index_order(y,0);
         Quad* q= new Quad(r-1,c-1,0,true); 
         Q.push_back(q);
     }
     return Q;
 }
+
 C_Subdivision::~C_Subdivision(){}

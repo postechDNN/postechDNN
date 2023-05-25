@@ -3,6 +3,7 @@
 #include "DCEL/DCEL.h"
 #include "DCEL/Point.h"
 #include "Disjoint_Set.h"
+#include <set>
 
 enum Site_type{SRC, OBS};
 class Site: public Point{
@@ -24,17 +25,6 @@ public:
 
     Quad(int,int,int,bool);
     ~Quad();
-    //getter and setter
-    //void set_growth(Quad*);
-    //Quad* get_growth();
-    //void set_rc(int,int);
-    //std::pair<int,int> get_rc();
-    //int set_ord(int);
-    //int get_ord();
-    //void set_growth(Quad*);
-    //Quad* get_growth();
-    //std::vector<Quad*> get_children();
-    //void add_child(Quad*);
 };
 
 typedef std::vector<Quad*> Component;
@@ -49,12 +39,13 @@ public:
 
     Box_Edge(int,int,int,bool);
     ~Box_Edge();
+    bool operator<(const Box_Edge& op) const;
 };
 
 class C_Subdivision{
 protected:
     std::vector<Site> sites;
-    std::vector<Box_Edge> drawn_edges;
+    std::set<Box_Edge> drawn_edges;
     double scale_factor;
     double tr_x_factor;
     double tr_y_factor; 
@@ -64,9 +55,16 @@ protected:
     std::vector<Component > compute_equiv_class(std::vector<Quad*>&);
     std::vector<Quad*> growth(std::vector<Quad*>&);
     void inline draw_n_edges(int,int, int, int, int);
+    void inline erase_n_edges(int,int, int, int, int);
     bool inline is_intersect_quad(Quad*, Quad*);
+    void process_simple_to_complex(Quad*,int);
+    void process_complex(std::vector<Quad *>&,std::vector<Quad *>&,int);
+    void build_one_subdivision();
 
     public:
     C_Subdivision(Point, std::vector<Point>);
     ~C_Subdivision();
+    //TODO
+    DCEL build_d_subdivision(int);
+    void remove_duplicate_edges();
 };
