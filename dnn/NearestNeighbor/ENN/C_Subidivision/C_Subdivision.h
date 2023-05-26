@@ -43,7 +43,7 @@ public:
 };
 
 class C_Subdivision{
-protected:
+public:     //NEED TO CONVERT
     std::vector<Site> sites;
     double scale_factor;
     double tr_x_factor;

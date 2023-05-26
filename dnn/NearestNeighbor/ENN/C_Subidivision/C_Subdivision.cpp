@@ -209,6 +209,7 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
 }
 
 //Make a graph using drawn edges, where there are edges which are overlapped.
+//vertices and adjacency of the graph are filled into "vertices" and "graph" variables, respectively.
 void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Point>& vertices, std::vector<std::vector<int> >&graph){
     ;//TODO
 }
@@ -219,6 +220,11 @@ DCEL C_Subdivision::build_d_subdivision(int d){
     //1. Build strong 1-conforming subdivision
     std::set<Box_Edge> drawn_edges;
     this->draw_one_subdivision(drawn_edges);
+    
+    //TEST
+    for(auto e:drawn_edges){
+        std::cout <<"drawn_edges"<<e.ord <<' '<<e.r <<' '<<e.c <<' '<<e.is_vertical<<std::endl;
+    }
 
     //2. Make a graph using the drawn edges from 1-conforming subdivision.
     std::vector<Point> vertices;
@@ -273,13 +279,18 @@ C_Subdivision::C_Subdivision(Point src, std::vector<Point> obs_pts){
     double min_ydist_bound= min_xdist_bound;
 
     for(auto site: this->sites){
-        double x = site.getx(), y = site.gety();
-        double xdist_bound = x-std::floor(x);
-        double ydist_bound = y-std::floor(y);
-        min_xdist_bound = xdist_bound < min_xdist_bound ? xdist_bound:min_xdist_bound;
-        min_ydist_bound = ydist_bound < min_ydist_bound ? ydist_bound:min_ydist_bound;
+        double x = site.getx(), y = site.gety();   
         min_x = x < min_x ? x :min_x;
         min_y = y < min_y ? y : min_y;
+    }
+
+    for(auto site: this->sites){
+        double x = site.getx(), y = site.gety();
+        double xdist_bound = std::floor(x-min_x+1.)-(x-min_x);
+        double ydist_bound = std::floor(y-min_y+1.)-(y-min_y);
+        min_xdist_bound = xdist_bound < min_xdist_bound ? xdist_bound:min_xdist_bound;
+        min_ydist_bound = ydist_bound < min_ydist_bound ? ydist_bound:min_ydist_bound;
+
     }
     tr_x_factor = -min_x+min_xdist_bound/2;
     tr_y_factor = -min_y+min_ydist_bound/2;
