@@ -47,11 +47,12 @@ class grid_graph{
 public:
     struct grid_point{
         int x,y;
-        grid_point(int x,int y):x(x),y(y){}
+        int idx;
+        grid_point(int x,int y,int idx):x(x),y(y),idx(idx){}
     };
     struct point_container{
         int key;
-        bool next_incident;
+        mutable bool next_incident;
         mutable grid_point *ptr;
         point_container(int key = 0, bool next_incident= false, grid_point *ptr = nullptr):key(key), next_incident(next_incident), ptr(ptr){}
         bool operator<(const point_container& op) const{return this->key < op.key;}
@@ -66,11 +67,11 @@ public:
         //void insert_point_container(point_container& op) {this->list.insert(op);}
     };
     std::set<list_header> x_list,y_list;
+    std::vector<grid_point*> grid_pts;
 
     grid_graph();
     ~grid_graph();
 
-    //std::pair<int,int> lower_bound(int, int,bool);
     grid_point* add_grid_point(int,int);
     void connect(int,int,int,int);
 };

@@ -145,8 +145,6 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             quadB->growth = newQ;
 
             ret.push_back(newQ); 
-
-
             // Stop
             matched[j] = true;
             matched[i] = true;
@@ -263,7 +261,7 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     std::vector<Component > equiv_classes = compute_equiv_class(Q);
     int i = 0;
     //build-subdivision.
-    while (!Q.empty()){
+    while (Q.size()>1){
         //Step 1. Increment order
         i+=2;
         //Step 2. Compute Q(i) from Q(i-2)
@@ -299,9 +297,10 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     }
 }
 
-
 grid_graph::grid_graph(){}
-grid_graph::~grid_graph(){}
+grid_graph::~grid_graph(){
+    for(auto ptr:this->grid_pts) delete ptr;
+}
 
 //if there does not exist such point, the function insert a new grid point in x_list and y_list
 //return a pointer of a new grid point if it was inserted, otherwise return null pointer.
@@ -312,17 +311,35 @@ grid_graph::grid_point* grid_graph::add_grid_point(int x,int y){
     grid_point *new_ptr =nullptr;
 
     auto it_x = this->x_list.insert(header_x_cmp).first;
-    auto in_ret_x = it_x->list.insert(point_y_cmp);
 
-    if(in_ret_x.second == true){ //new element was inserted
-        new_ptr = new grid_point(x,y);
-        in_ret_x.first->ptr = new_ptr; 
+    auto prev_it_x = it_x->list.lower_bound(point_y_cmp);
+    auto in_ret_x = it_x->list.insert(point_y_cmp);
+    
+    if(in_ret_x.second){ //element is newly inserted
+        new_ptr = new grid_point(x,y,this->grid_pts.size());
+        this->grid_pts.push_back(new_ptr);
+        in_ret_x.first->ptr = new_ptr;
+
+        if(prev_it_x!=it_x->list.begin()){  //Maintain a connectivity between grid points.
+            prev_it_x--;
+            in_ret_x.first->next_incident = prev_it_x->next_incident;
+        }
     }
+
     auto it_y = this->y_list.insert(header_y_cmp).first;
+
+    auto prev_it_y = it_y->list.lower_bound(point_x_cmp);
     auto in_ret_y = it_y->list.insert(point_x_cmp);
+
     if(new_ptr){    //Then a new grid point was inserted in the previous.
         in_ret_y.first->ptr = new_ptr;
+        
+        if(prev_it_y!=it_y->list.begin()){  //Maintain a connectivity between grid points.
+            prev_it_y--;
+            in_ret_y.first->next_incident = prev_it_y->next_incident;
+        }
     }
+
     return new_ptr;
 
     // auto it_x = this->x_list.lower_bound(header_x_cmp);
@@ -351,18 +368,92 @@ grid_graph::grid_point* grid_graph::add_grid_point(int x,int y){
 
 }
 
-// Connect edge between two grid points (x1,y1) ~ (x2,y2) through
+// Connect edge between two grid points (x1,y1) ~ (x2,y2), assuming that the grid points are already inserted. 
 // The line through those points is either vertical or horizontal.
 // There may be serveral points on the line segment defined those points.
 // Then, we carefully connect edges between adjacent points.
 void grid_graph::connect(int x1,int y1,int x2,int y2){
-
+    if(x1 == x2){   //vertical edge.
+        int min_y = std::min(y1,y2), max_y = std::max(y1,y2);
+        list_header header_x(x1);
+        auto it_x = this->x_list.find(header_x);
+        if(it_x != this->x_list.end()){
+            point_container point_min_y(min_y,false), point_max_y(max_y,false);
+            auto it_start=it_x->list.find(point_min_y);
+            auto it_end = it_x->list.find(point_max_y);
+            for(auto it = it_start;it != it_end;it++){
+                it->next_incident = true;
+            }
+        }
+    }
+    else{           //horizontal edge.
+        int min_x = std::min(x1,x2), max_x = std::max(x1,x2);
+        list_header header_y(y1);
+        auto it_y = this->y_list.find(header_y);
+        if(it_y != this->y_list.end()){
+            point_container point_min_x(min_x,false), point_max_x(max_x,false);
+            auto it_start=it_y->list.find(point_min_x);
+            auto it_end = it_y->list.find(point_max_x);
+            for(auto it = it_start;it != it_end;it++){
+                it->next_incident = true;
+            }
+        }
+    }
 }
 
 //Make a graph using drawn edges, where there are edges which are overlapped.
 //vertices and adjacency of the graph are filled into "vertices" and "graph" variables, respectively.
 void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Point>& vertices, std::vector<std::vector<int> >&graph){
-//TODO
+    grid_graph Grid_graph;
+
+    //connect drawn edges in decreasing order. (connect edge of larger order first)
+    for(auto it=drawn_edges.end(); it != drawn_edges.begin();){
+        --it;
+        int ord = it->ord;
+        int r = it->r, c = it->c;
+        bool is_vertical= it->is_vertical;
+        int x1 = r>>ord, y1 = c>>ord;
+        int x2 = x1, y2 = y1;
+        if(is_vertical) y2 += 1>>ord;
+        else x2 += 1 >>ord;
+        
+        Grid_graph.add_grid_point(x1,y1);
+        Grid_graph.add_grid_point(x2,y2);
+        Grid_graph.connect(x1,y1,x2,y2);
+    }
+
+    //Set the information of vertices
+    for(auto ptr:Grid_graph.grid_pts)
+        vertices.push_back(Point(ptr->x,ptr->y));
+
+    //Set adjacency of the graph.
+    graph.resize(vertices.size(),std::vector<int>());
+    for(auto x_list :Grid_graph.x_list){
+        for(auto it=x_list.list.begin();it != x_list.list.end();){
+            int org_idx = it->ptr->idx;
+            bool incident = it->next_incident;
+            it++;
+            if(incident){  // There is a vertical edge.
+                int dest_idx = it->ptr->idx;
+                graph[org_idx].push_back(dest_idx);
+                graph[dest_idx].push_back(org_idx);
+            }
+        }
+    }
+    for(auto y_list :Grid_graph.y_list){
+        for(auto it=y_list.list.begin();it != y_list.list.end();){
+            int org_idx = it->ptr->idx;
+            bool incident = it->next_incident;
+            it++;
+            if(incident){  // There is a vertical edge.
+                int dest_idx = it->ptr->idx;
+                graph[org_idx].push_back(dest_idx);
+                graph[dest_idx].push_back(org_idx);
+            }
+        }
+    }
+
+    return;
 }
 
 //Build strong d-conforming subdivision and the output is stored as the set of drawn edges.
@@ -373,22 +464,26 @@ DCEL C_Subdivision::build_d_subdivision(int d){
     this->draw_one_subdivision(drawn_edges);
     
     //TEST
-    for(auto e:drawn_edges){
-        std::cout <<"drawn_edges"<<e.ord <<' '<<e.r <<' '<<e.c <<' '<<e.is_vertical<<std::endl;
-    }
+    // for(auto e:drawn_edges){
+    //     std::cout <<"drawn_edges"<<'('<<e.ord<<e.is_vertical <<"): ("<<e.r <<','<<e.c <<")("<<e.r + 1- e.is_vertical<<','<<e.c + e.is_vertical<<")"<<std::endl;
+    // }
 
     //2. Make a graph using the drawn edges from 1-conforming subdivision.
     std::vector<Point> vertices;
     std::vector<std::vector<int> > graph;
+    
     this->build_graph(drawn_edges,vertices,graph);
 
     //3. Subdivide each edge of the graph into d' equal-length pieces, 
     //where d' is the ceiling of d. 
-    //TODO
-    
-    DCEL dcel;
-    dcel.build_by_graph(vertices, graph);
-    return dcel;
+    //TEST
+    // std::cout<< vertices.size()<<std::endl;
+    // for(int i = 0;i<graph.size();i++){
+    //     std::cout << i<< vertices[i]<<": ";
+    //     for(auto u:graph[i]) std::cout <<u<<' ';
+    //     std::cout<<std::endl;
+    // }
+    return DCEL(vertices, graph);
 }
 
 // Scale and translate sites to make thier coordinates satisfy the following:
