@@ -42,6 +42,41 @@ public:
     bool operator<(const Box_Edge& op) const;
 };
 
+
+class grid_graph{
+public:
+    struct grid_point{
+        int x,y;
+        grid_point(int x,int y):x(x),y(y){}
+    };
+    struct point_container{
+        int key;
+        bool next_incident;
+        mutable grid_point *ptr;
+        point_container(int key = 0, bool next_incident= false, grid_point *ptr = nullptr):key(key), next_incident(next_incident), ptr(ptr){}
+        bool operator<(const point_container& op) const{return this->key < op.key;}
+        bool operator==(const point_container& op) const{return this->key == op.key;}
+    };
+    struct list_header{
+        int key;
+        mutable std::set<point_container> list;
+        list_header(int key=0):key(key){}
+        bool operator<(const list_header& op) const{return this->key < op.key;}
+        bool operator==(const list_header& op) const{return this->key == op.key;}
+        //void insert_point_container(point_container& op) {this->list.insert(op);}
+    };
+    std::set<list_header> x_list,y_list;
+
+    grid_graph();
+    ~grid_graph();
+
+    //std::pair<int,int> lower_bound(int, int,bool);
+    grid_point* add_grid_point(int,int);
+    void connect(int,int,int,int);
+};
+
+
+
 class C_Subdivision{
 public:     //NEED TO CONVERT
     std::vector<Site> sites;

@@ -167,10 +167,6 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         q->growth = newQ;
         ret.push_back(newQ);
     }
-
-
-
-
     //TODO
     //Caution: need to set the growth variable for each quad in S
     //Caution: need to set the children variable for each new quad in ret.
@@ -303,10 +299,70 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     }
 }
 
+
+grid_graph::grid_graph(){}
+grid_graph::~grid_graph(){}
+
+//if there does not exist such point, the function insert a new grid point in x_list and y_list
+//return a pointer of a new grid point if it was inserted, otherwise return null pointer.
+
+grid_graph::grid_point* grid_graph::add_grid_point(int x,int y){
+    list_header header_x_cmp(x), header_y_cmp(y);
+    point_container point_x_cmp(x,false), point_y_cmp(y,false);
+    grid_point *new_ptr =nullptr;
+
+    auto it_x = this->x_list.insert(header_x_cmp).first;
+    auto in_ret_x = it_x->list.insert(point_y_cmp);
+
+    if(in_ret_x.second == true){ //new element was inserted
+        new_ptr = new grid_point(x,y);
+        in_ret_x.first->ptr = new_ptr; 
+    }
+    auto it_y = this->y_list.insert(header_y_cmp).first;
+    auto in_ret_y = it_y->list.insert(point_x_cmp);
+    if(new_ptr){    //Then a new grid point was inserted in the previous.
+        in_ret_y.first->ptr = new_ptr;
+    }
+    return new_ptr;
+
+    // auto it_x = this->x_list.lower_bound(header_x_cmp);
+    // bool is_found = false;
+
+    // if(it_x != this->x_list.end() && *it_x == header_x_cmp){
+    //     //Find an element in x_list whose key is x
+    //     point_container point_cmp(y,false);
+    //     auto it_y = it_x->list.lower_bound(point_cmp);
+    //     if(it_y != it_x->list.end() && *it_y == point_cmp) 
+    //         is_found = true;    //the grid point (x,y) already exists. 
+    //     else{
+    //         grid_point *new_pt = new grid_point(x,y);
+    //         point_cmp.ptr = new_pt;
+    //         it_x->list.insert(point_cmp);
+    //     }
+    // }
+    // else{
+    //     auto it_x =(this->x_list.insert(header_x_cmp)).first;
+    //     point_container point_cmp(y,false);
+    //     grid_point *new_pt = new grid_point(x,y);
+    //     point_cmp.ptr = new_pt;
+    //     it_x->list.insert(point_cmp);
+    // }
+    // return !is_found;
+
+}
+
+// Connect edge between two grid points (x1,y1) ~ (x2,y2) through
+// The line through those points is either vertical or horizontal.
+// There may be serveral points on the line segment defined those points.
+// Then, we carefully connect edges between adjacent points.
+void grid_graph::connect(int x1,int y1,int x2,int y2){
+
+}
+
 //Make a graph using drawn edges, where there are edges which are overlapped.
 //vertices and adjacency of the graph are filled into "vertices" and "graph" variables, respectively.
 void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Point>& vertices, std::vector<std::vector<int> >&graph){
-    ;//TODO
+//TODO
 }
 
 //Build strong d-conforming subdivision and the output is stored as the set of drawn edges.
