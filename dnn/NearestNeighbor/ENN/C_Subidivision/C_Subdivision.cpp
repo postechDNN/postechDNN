@@ -76,6 +76,101 @@ std::vector<Component > C_Subdivision::compute_equiv_class(std::vector<Quad*>& Q
 //Return quads which are the growth of given equivalent class S.
 std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
     std::vector<Quad*> ret;
+
+    int size = S.size();
+    if (size == 0) return S;
+
+    // Adjacency matrix for Quads 
+    std::vector<std::vector<bool>> graph(size, std::vector<bool>(size, false));
+    int ord = S[0]->ord;
+
+    // Check every pair of Quads if they intersects
+    for(int i=0; i<size-1; i++){
+        for(int j=i+1; j<size; j++){
+               
+            Quad* quadA = S[i];
+            Quad* quadB = S[j];
+
+            int rA = quadA -> r;
+            int cA = quadA -> c;
+            int rB = quadB -> r;
+            int cB = quadB -> c; 
+            
+            //std::cout <<"Test (" << quadA->r <<", " <<quadA->c << ") and (" <<quadB->r <<", "<<quadB->c<<")" << std::endl;
+            
+
+            if ((std::abs(rA - rB) <= 4) && (std::abs(cA-cB) <=4)){
+                //std::cout <<"Graph edge between (" << quadA->r <<", " <<quadA->c << ") and (" <<quadB->r <<", "<<quadB->c<<")" << std::endl;
+                graph[i][j] = true;
+                graph[j][i] = true;
+            } 
+        }
+    }
+
+    // Compute a maximal matching in the graph computed above.
+    std::vector<bool> matched(size, false);
+    for(int i=0; i<size; i++){
+        if (matched[i]) continue;
+
+        for(int j=0; j<size; j++){
+            if (!graph[i][j]) continue;
+            if (matched[j]) continue;
+
+            // Try to match with the first neighbor hasn't been matched yet 
+            Quad* quadA = S[i];
+            Quad* quadB = S[j];
+
+            int rA = quadA -> r;
+            int cA = quadA -> c;
+            int rB = quadB -> r;
+            int cB = quadB -> c;
+
+            std::vector<int> candRA = {int(std::ceil(rA/4 -2)), int(std::floor(rA/4-1))};
+            std::vector<int> candCA = {int(std::ceil(cA/4 +1)), int(std::floor(cA/4+2))};
+            std::vector<int> candRB = {int(std::ceil(rB/4 -2)), int(std::floor(rB/4-1))};
+            std::vector<int> candCB = {int(std::ceil(cB/4 +1)), int(std::floor(cB/4+2))};
+
+            std::vector<int> candR, candC;
+            std::set_intersection(candRA.begin(), candRA.end(), candRB.begin(), candRB.end(), std::back_inserter(candR));
+            std::set_intersection(candCA.begin(), candCA.end(), candCB.begin(), candCB.end(), std::back_inserter(candC));
+
+            if (candR.empty() || candC.empty()) continue;
+
+            int newR = candR[0];
+            int newC = candC[0];
+
+            Quad *newQ = new Quad(newR, newC, ord+2, false); // Delete? 
+
+            quadA->growth = newQ;
+            quadB->growth = newQ;
+
+            ret.push_back(newQ); 
+
+
+            // Stop
+            matched[j] = true;
+            matched[i] = true;
+            break;
+        }
+    }
+
+    // For unmatched Quads, compute growth(q)
+    for(int i=0; i<size; i++){
+        if(matched[i]) continue;
+
+        // Compute a new (i+2) quad 
+        Quad* q = S[i];
+        int newR = int(std::ceil(q->r/4 -2));
+        int newC = int(std::ceil(q->c/4 +1));
+
+        Quad * newQ = new Quad(newR, newC, ord+2, false);
+        q->growth = newQ;
+        ret.push_back(newQ);
+    }
+
+
+
+
     //TODO
     //Caution: need to set the growth variable for each quad in S
     //Caution: need to set the children variable for each new quad in ret.
