@@ -674,8 +674,12 @@ DCEL DCEL::merge(DCEL &op){
 //The vetices are indiced by integers in increasing order starting from 0.
 //The graph is represented by an adjacency list ("graph")
 //The i-th vertex is located at pts[i].  
-void DCEL::build_by_graph(std::vector<Point>& pts,std::vector<std::vector<int>>& graph){
-    this->clear();
+DCEL::DCEL(std::vector<Point>& pts,std::vector<std::vector<int>>& graph,std::string key){
+	this->key = key; 
+	Face *of = new Face();
+	of->setOuter(nullptr);
+	this->faces[of->getKey()] = of;
+
     std::vector<Vertex*> ret_vertices;
     std::vector<HEdge*> ret_hedges;
 
@@ -733,6 +737,7 @@ void DCEL::build_by_graph(std::vector<Point>& pts,std::vector<std::vector<int>>&
             he->setPrev(prev);
         }
     }
+
 
     //4. build faces.
     std::vector<Face*> ret_faces = ConstructFaces(ret_hedges);

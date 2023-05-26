@@ -84,6 +84,7 @@ protected:
 	std::map<std::string, Vertex*> vertices;
 public:
 	DCEL(std::string key ="__default__");
+	DCEL(std::vector<Point>&, std::vector<std::vector<int>>&,std::string key ="__default__");
 	~DCEL();
 	std::vector<Face*> getFaces();
 	void setFaces(std::vector<Face*>);
@@ -103,7 +104,4 @@ public:
 	int inPolygon(std::vector<HEdge*>, Point);
 	DCEL merge(DCEL&);
 	void clear();
-
-	//TODO
-	void build_by_graph(std::vector<Point>&,std::vector<std::vector<int>>&);
 };
