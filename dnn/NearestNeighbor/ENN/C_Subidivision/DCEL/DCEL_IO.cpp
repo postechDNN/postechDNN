@@ -146,6 +146,7 @@ void DCEL_IO::print_DCEL(DCEL &dcel){
 	for(auto v:vertices){
 		std::cout <<v->getKey()<<"\t"<< v->getPoint() <<"\t"<< v->getIncidentEdge()->getKey()<<std::endl;
 	}
+	std::cout << "<Faces>"<<std::endl;
 	for(auto f:faces){
 		std::cout <<f->getKey() << "\t" << (f->isOutMost() ? "UBD":"BD\t"+f->getOuter()->getKey()) << "\t";
 		if(f->getInners().size() > 0) {
@@ -155,7 +156,7 @@ void DCEL_IO::print_DCEL(DCEL &dcel){
 		}
 		std::cout <<std::endl;
 	}
-
+	std::cout << "<Edges>"<<std::endl;
 	for(auto e:hedges){
 		std::cout << e->getKey() <<"\t"<<e->getOrigin()->getKey()<<"\t"<<e->getTwin()->getKey()<<'\t';
 		std::cout<< e->getIncidentFace()->getKey() <<'\t'<< e->getNext()->getKey() <<'\t'<< e->getPrev()->getKey()<<std::endl;
