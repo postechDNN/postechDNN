@@ -5,13 +5,13 @@
 #include <cmath>
 #include "Disjoint_Set.h"
 
-Site::Site(){}
-Site::Site(Point& p, Site_type t){
-    this->x = p.getx();
-    this->y = p.gety();
-    this->t = t;
-}
-Site::~Site(){}
+// Site::Site(){}
+// Site::Site(Point& p, Site_type t){
+//     this->x = p.getx();
+//     this->y = p.gety();
+//     this->t = t;
+// }
+// Site::~Site(){}
 
 Quad::Quad(int r, int c ,int ord, bool is_simple=false):r(r), c(c), ord(ord),growth(nullptr), is_simple(is_simple){}
 Quad::~Quad(){}
@@ -165,7 +165,6 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         q->growth = newQ;
         ret.push_back(newQ);
     }
-    //TODO
     //Caution: need to set the growth variable for each quad in S
     //Caution: need to set the children variable for each new quad in ret.
     //Caution: set "is_simple" variable to false in default.
@@ -403,7 +402,7 @@ void grid_graph::connect(int x1,int y1,int x2,int y2){
 
 //Make a graph using drawn edges, where there are edges which are overlapped.
 //vertices and adjacency of the graph are filled into "vertices" and "graph" variables, respectively.
-void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Point>& vertices, std::vector<std::vector<int> >&graph){
+void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Point>& vertices, std::vector<std::vector<int> >&graph, int d){
     grid_graph Grid_graph;
 
     //connect drawn edges in decreasing order. (connect edge of larger order first)
@@ -427,6 +426,7 @@ void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Poi
         vertices.push_back(Point(ptr->x,ptr->y));
 
     //Set adjacency of the graph.
+    //vertical adjacency
     graph.resize(vertices.size(),std::vector<int>());
     for(auto x_list :Grid_graph.x_list){
         for(auto it=x_list.list.begin();it != x_list.list.end();){
@@ -435,11 +435,26 @@ void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Poi
             it++;
             if(incident){  // There is a vertical edge.
                 int dest_idx = it->ptr->idx;
-                graph[org_idx].push_back(dest_idx);
-                graph[dest_idx].push_back(org_idx);
+                // graph[org_idx].push_back(dest_idx);
+                // graph[dest_idx].push_back(org_idx);
+                int prev_idx = org_idx;
+
+                //Subdivide an edge into d equal length edges.
+                for(int i = 1; i<d; i++){
+                    int inter_idx = vertices.size();
+                    double inter_y = (vertices[org_idx].gety()*i + vertices[dest_idx].gety() *(d-i))/d;
+                    vertices.push_back(Point(vertices[org_idx].getx(),inter_y));
+                    graph.push_back(std::vector<int>());
+                    graph[prev_idx].push_back(inter_idx);
+                    graph[inter_idx].push_back(prev_idx);
+                    prev_idx = inter_idx;
+                }
+                graph[prev_idx].push_back(dest_idx);
+                graph[dest_idx].push_back(prev_idx);
             }
         }
     }
+    //horizontal adjacency
     for(auto y_list :Grid_graph.y_list){
         for(auto it=y_list.list.begin();it != y_list.list.end();){
             int org_idx = it->ptr->idx;
@@ -447,8 +462,22 @@ void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Poi
             it++;
             if(incident){  // There is a vertical edge.
                 int dest_idx = it->ptr->idx;
-                graph[org_idx].push_back(dest_idx);
-                graph[dest_idx].push_back(org_idx);
+                //graph[org_idx].push_back(dest_idx);
+                //graph[dest_idx].push_back(org_idx);
+                int prev_idx = org_idx;
+
+                //Subdivide an edge into d equal length edges.
+                for(int i = 1; i<d; i++){
+                    int inter_idx = vertices.size();
+                    double inter_x = (vertices[org_idx].getx()*i + vertices[dest_idx].getx() *(d-i))/d;
+                    vertices.push_back(Point(inter_x,vertices[org_idx].gety()));
+                    graph.push_back(std::vector<int>());
+                    graph[prev_idx].push_back(inter_idx);
+                    graph[inter_idx].push_back(prev_idx);
+                    prev_idx = inter_idx;
+                }
+                graph[prev_idx].push_back(dest_idx);
+                graph[dest_idx].push_back(prev_idx);
             }
         }
     }
@@ -469,13 +498,18 @@ DCEL C_Subdivision::build_d_subdivision(int d){
     // }
 
     //2. Make a graph using the drawn edges from 1-conforming subdivision.
+    //While constructing the graph, subdivide each edge of the graph into d equal-length pieces.
     std::vector<Point> vertices;
     std::vector<std::vector<int> > graph;
-    
-    this->build_graph(drawn_edges,vertices,graph);
+    this->build_graph(drawn_edges,vertices,graph, d);     
 
-    //3. Subdivide each edge of the graph into d' equal-length pieces, 
-    //where d' is the ceiling of d. 
+    //3. perform scaling and translation vertices to restore an original vector space.
+    for(int i =0 ;i<vertices.size();i++){
+        Point& p= vertices[i];
+        p.setx((p.getx()-this->tr_x_factor)/this->scale_factor);
+        p.sety((p.gety()-this->tr_y_factor)/this->scale_factor);
+    }
+
     //TEST
     // std::cout<< vertices.size()<<std::endl;
     // for(int i = 0;i<graph.size();i++){
@@ -489,24 +523,25 @@ DCEL C_Subdivision::build_d_subdivision(int d){
 // Scale and translate sites to make thier coordinates satisfy the following:
 // (1) distance between them is not smaller than 1.
 // (2) they do not have integer coordinate. 
-C_Subdivision::C_Subdivision(Point src, std::vector<Point> obs_pts){
+C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
     //init_sites(src, obs_pts);
-    this->sites.push_back(Site(src,SRC));
-    for(auto p : obs_pts){
-        this->sites.push_back(Site(p,OBS));
-    }
+    //this->sites.push_back(Site(src,SRC));
+    // for(auto p : obs_pts){
+    //     this->sites.push_back(Site(p,OBS));
+    // }
+    this->sites = sites;
 
     // Compute the minimum x-distance (y-distance) between sites 
     double min_xdist = std::numeric_limits<double>::infinity();
     double min_ydist = min_xdist;
 
-    std::sort(this->sites.begin(), this->sites.end(),[](Site &a, Site &b){return a.getx()<b.getx();});
+    std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.getx()<b.getx();});
     for(int i = 0; i<this->sites.size()-1;i++){
         double d = this->sites[i+1].getx()-this->sites[i].getx();
         if (d < min_xdist) min_xdist = d;
     }
 
-    std::sort(this->sites.begin(), this->sites.end(),[](Site &a, Site &b){return a.gety()<b.gety();});
+    std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.gety()<b.gety();});
     for(int i = 0; i<this->sites.size()-1;i++){
         double d = this->sites[i+1].gety()-this->sites[i].gety();
         if (d < min_ydist) min_ydist = d;

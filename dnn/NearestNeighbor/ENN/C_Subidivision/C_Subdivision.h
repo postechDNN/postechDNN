@@ -5,15 +5,15 @@
 #include "Disjoint_Set.h"
 #include <set>
 
-enum Site_type{SRC, OBS};
-class Site: public Point{
-protected:
-    Site_type t;  
-public:
-    Site();
-    Site(Point&, Site_type);
-    ~Site();
-};
+// enum Site_type{SRC, OBS};
+// class Site: public Point{
+// protected:
+//     Site_type t;  
+// public:
+//     Site();
+//     Site(Point&, Site_type);
+//     ~Site();
+// };
 
 class Quad{
 public:
@@ -80,7 +80,7 @@ public:
 
 class C_Subdivision{
 public:     //NEED TO CONVERT
-    std::vector<Site> sites;
+    std::vector<Point> sites;
     double scale_factor;
     double tr_x_factor;
     double tr_y_factor;
@@ -95,11 +95,10 @@ public:     //NEED TO CONVERT
     void process_simple_to_complex(Quad*,int,std::set<Box_Edge> &);
     void process_complex(std::vector<Quad *>&,std::vector<Quad *>&,int,std::set<Box_Edge> &);
     void draw_one_subdivision(std::set<Box_Edge>&);
-    void build_graph(std::set<Box_Edge>&, std::vector<Point>&, std::vector<std::vector<int>> &);
+    void build_graph(std::set<Box_Edge>&, std::vector<Point>&, std::vector<std::vector<int>> &,int d = 1);
 
     public:
-    C_Subdivision(Point, std::vector<Point>);
+    C_Subdivision(const std::vector<Point>&);
     ~C_Subdivision();
-    //TODO
     DCEL build_d_subdivision(int);
 };
