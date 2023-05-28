@@ -144,22 +144,22 @@ void DCEL_IO::print_DCEL(DCEL &dcel){
 	std::cout << "|V|= "<<vertices.size() << "\t|E|= "<<hedges.size() << "\t|F|= "<<faces.size() << std::endl;
 	std::cout << "<Vertices>"<<std::endl;
 	for(auto v:vertices){
-		std::cout <<v->getKey()<<"\t"<< v->getPoint() <<"\t"<< v->getIncidentEdge()->getKey()<<std::endl;
+		std::cout <<v->getKey()<<"\t\t"<< v->getPoint() <<"\t\t"<< v->getIncidentEdge()->getKey()<<std::endl;
 	}
 	std::cout << "<Faces>"<<std::endl;
 	for(auto f:faces){
-		std::cout <<f->getKey() << "\t" << (f->isOutMost() ? "UBD":"BD\t"+f->getOuter()->getKey()) << "\t";
+		std::cout <<f->getKey() << "\t\t" << (f->isOutMost() ? "UBD":"BD\t"+f->getOuter()->getKey()) << "\t\t";
 		if(f->getInners().size() > 0) {
 			std::cout <<"Inners: ";
 			for(auto he:f->getInners())
-				std::cout <<he->getKey() <<"\t";
+				std::cout <<he->getKey() <<"\t\t";
 		}
 		std::cout <<std::endl;
 	}
 	std::cout << "<Edges>"<<std::endl;
 	for(auto e:hedges){
-		std::cout << e->getKey() <<"\t"<<e->getOrigin()->getKey()<<"\t"<<e->getTwin()->getKey()<<'\t';
-		std::cout<< e->getIncidentFace()->getKey() <<'\t'<< e->getNext()->getKey() <<'\t'<< e->getPrev()->getKey()<<std::endl;
+		std::cout << e->getKey() <<"\t\t"<<e->getOrigin()->getKey()<<"\t\t"<<e->getTwin()->getKey()<<"\t\t";
+		std::cout<< e->getIncidentFace()->getKey() <<"\t\t"<< e->getNext()->getKey() <<"\t\t"<< e->getPrev()->getKey()<<std::endl;
 	}
 }
 
