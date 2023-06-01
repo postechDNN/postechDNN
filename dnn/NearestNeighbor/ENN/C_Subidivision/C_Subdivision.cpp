@@ -548,7 +548,7 @@ C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
     }
     
     // scaling to make the distance between points be larger than 1
-    double min_dist = std::min(min_xdist, min_ydist);
+    double min_dist = std::max(min_xdist, min_ydist);
     scale_factor = 1.;
     if(min_dist < 1) scale_factor = 1/min_dist;
     
