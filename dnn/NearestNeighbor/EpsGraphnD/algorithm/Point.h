@@ -18,6 +18,7 @@ struct ind_pts {
 
 class Point {
 public:
+	int n;
 	std::vector<double> xs;
 	//double x, y, z;
 

@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{60368921-be58-4888-9def-05deea942bc3}</ProjectGuid>
+    <ProjectGuid>{401941B6-769B-49C1-B839-249C84F2360F}</ProjectGuid>
     <RootNamespace>EpsGraph3D</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -139,12 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="EpsGraph3D.h" />
+    <ClInclude Include="EpsGraphnD.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Polytope.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EpsGraph3D.cpp" />
+    <ClCompile Include="EpsGraphnD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />

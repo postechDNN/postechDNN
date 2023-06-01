@@ -5,7 +5,9 @@
 #define ERR 1e-6
 Point::Point(int _n) {
 	this->n = _n;
-	this->xs = std::vector(_n, 0.);
+	std::vector<int> V = { 1,2,3 };
+	this->xs = V;
+	//this->xs = std::vector(_n, 0.);
 	//this->x = 0.;
 	//this->y = 0.;
 	//this->z = 0.;

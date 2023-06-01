@@ -1,4 +1,4 @@
-#include "EpsGraph3D.h"
+#include "EpsGraphnD.h"
 #include <queue>
 #include <assert.h>
 #include <iostream>
@@ -8,7 +8,7 @@
 #define Z 3
 
 using namespace std;
-
+/*
 Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) { //O
 
 	fr_pts = _fr_pts;
@@ -688,3 +688,5 @@ vector<Edge> Eps_Graph_3D::get_path(Free_Point p, int k) {
 	vector<Edge> path = path_kNN(p, k + 1);
 	return path;
 }
+
+*/

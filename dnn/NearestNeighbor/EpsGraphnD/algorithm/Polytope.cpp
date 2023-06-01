@@ -5,6 +5,7 @@
 #define BUFFERSIZE 1000
 
 using namespace std;
+/*
 Edge::Edge() {
 	p1 = new Point;
 	p2 = new Point;
@@ -476,3 +477,5 @@ bool Polytope::intersect(Point p1, Point p2, int dir) {
 bool Polytope::operator==(Polytope _p) {
 	return this->ord == _p.ord;
 }
+
+*/
