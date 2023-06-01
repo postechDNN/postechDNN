@@ -24,8 +24,6 @@ bool Box_Edge::operator<(const Box_Edge& op) const{
     if(this->r != op.r) return this->r < op.r;
     return this->c < op.c;
 }
-// Component::Component(std::vector<Quad*>& quads,bool is_simple):quads(quads), is_simple(is_simple) {}
-// Component::~Component(){}
 
 //Compute equivalent classes from quad sets.
 std::vector<Component > C_Subdivision::compute_equiv_class(std::vector<Quad*>& Q){
@@ -340,31 +338,6 @@ grid_graph::grid_point* grid_graph::add_grid_point(int x,int y){
     }
 
     return new_ptr;
-
-    // auto it_x = this->x_list.lower_bound(header_x_cmp);
-    // bool is_found = false;
-
-    // if(it_x != this->x_list.end() && *it_x == header_x_cmp){
-    //     //Find an element in x_list whose key is x
-    //     point_container point_cmp(y,false);
-    //     auto it_y = it_x->list.lower_bound(point_cmp);
-    //     if(it_y != it_x->list.end() && *it_y == point_cmp) 
-    //         is_found = true;    //the grid point (x,y) already exists. 
-    //     else{
-    //         grid_point *new_pt = new grid_point(x,y);
-    //         point_cmp.ptr = new_pt;
-    //         it_x->list.insert(point_cmp);
-    //     }
-    // }
-    // else{
-    //     auto it_x =(this->x_list.insert(header_x_cmp)).first;
-    //     point_container point_cmp(y,false);
-    //     grid_point *new_pt = new grid_point(x,y);
-    //     point_cmp.ptr = new_pt;
-    //     it_x->list.insert(point_cmp);
-    // }
-    // return !is_found;
-
 }
 
 // Connect edge between two grid points (x1,y1) ~ (x2,y2), assuming that the grid points are already inserted. 
@@ -491,11 +464,6 @@ DCEL C_Subdivision::build_d_subdivision(int d){
     //1. Build strong 1-conforming subdivision
     std::set<Box_Edge> drawn_edges;
     this->draw_one_subdivision(drawn_edges);
-    
-    //TEST
-    // for(auto e:drawn_edges){
-    //     std::cout <<"drawn_edges"<<'('<<e.ord<<e.is_vertical <<"): ("<<e.r <<','<<e.c <<")("<<e.r + 1- e.is_vertical<<','<<e.c + e.is_vertical<<")"<<std::endl;
-    // }
 
     //2. Make a graph using the drawn edges from 1-conforming subdivision.
     //While constructing the graph, subdivide each edge of the graph into d equal-length pieces.
@@ -510,13 +478,6 @@ DCEL C_Subdivision::build_d_subdivision(int d){
         p.sety((p.gety()-this->tr_y_factor)/this->scale_factor);
     }
 
-    //TEST
-    // std::cout<< vertices.size()<<std::endl;
-    // for(int i = 0;i<graph.size();i++){
-    //     std::cout << i<< vertices[i]<<": ";
-    //     for(auto u:graph[i]) std::cout <<u<<' ';
-    //     std::cout<<std::endl;
-    // }
     return DCEL(vertices, graph);
 }
 
@@ -524,11 +485,6 @@ DCEL C_Subdivision::build_d_subdivision(int d){
 // (1) distance between them is not smaller than 1.
 // (2) they do not have integer coordinate. 
 C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
-    //init_sites(src, obs_pts);
-    //this->sites.push_back(Site(src,SRC));
-    // for(auto p : obs_pts){
-    //     this->sites.push_back(Site(p,OBS));
-    // }
     this->sites = sites;
 
     // Compute the minimum x-distance (y-distance) between sites 
