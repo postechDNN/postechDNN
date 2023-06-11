@@ -39,7 +39,7 @@ public:
 	//void sety(double);
 	//double getz(void);
 	//void setz(double);
-
+	int getsize();
 	double distance(Point);
 };
 
@@ -60,6 +60,6 @@ public:
 
 
 public:
-	Grid_Point();
+	Grid_Point(int);
 	Grid_Point(int, int, int, double, double, double, double, int, int);
 };

@@ -8,6 +8,9 @@
 #define Z 3
 
 using namespace std;
+Eps_Graph_nD::Eps_Graph_nD(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
+
+}
 /*
 Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) { //O
 

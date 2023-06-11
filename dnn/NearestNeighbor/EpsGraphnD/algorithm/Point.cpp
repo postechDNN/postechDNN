@@ -5,9 +5,9 @@
 #define ERR 1e-6
 Point::Point(int _n) {
 	this->n = _n;
-	std::vector<int> V = { 1,2,3 };
-	this->xs = V;
-	//this->xs = std::vector(_n, 0.);
+	//std::vector<int> V = { 1,2,3 };
+	//this->xs = V;
+	this->xs = std::vector<double>(_n, 0.);
 	//this->x = 0.;
 	//this->y = 0.;
 	//this->z = 0.;
@@ -33,16 +33,18 @@ bool Point::operator==(Point _p) {
 }
 
 Point Point::operator- (Point _p) {
-	std::vector(this->n,0.) v;
+	int _n = this->n;
+	std::vector<double> v;
+	v = std::vector<double>(_n, 0.);
 	for (int i=0;i<this->n;i++){
 		v[i] = this->xs[i] - _p.getx(i);
 	}
-	Point p(this->xs = v, this->n = _p.getsize());
+	Point p(this->xs = v);
 	return p;
 }
 
 double Point::getx(int _i) {
-	return this->x[_i];
+	return this->xs[_i];
 }
 
 void Point::setx(int _i, double _x) {
@@ -74,7 +76,7 @@ Free_Point::Free_Point(std::vector<double> _xs) :Point(xs) {
 
 }
 
-Grid_Point::Grid_Point() : Point() { ind = { -1, -1, -1 }; num = -1; ip = { false, false, false, false, false, false }; encl = -1; }
+Grid_Point::Grid_Point(int n) : Point(n) { ind = { -1, -1, -1 }; num = -1; ip = { false, false, false, false, false, false }; encl = -1; }
 
 //Grid_Point::Grid_Point(int _x_num, int _y_num, int _z_num, double x_min, double y_min, double z_min, double eps, int eg_y, int eg_z) {
 //	ind.x_ind = _x_num; ind.y_ind = _y_num; ind.z_ind = _z_num;

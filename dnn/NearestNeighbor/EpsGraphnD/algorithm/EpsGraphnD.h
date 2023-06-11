@@ -12,16 +12,20 @@ struct edge
 	Point p2;
 };
 
-class Eps_Graph_3D {
+class Eps_Graph_nD {
 
 private:
 
 public: // variables
+	int n;
 	double eps;
-	double x_min; double x_max;
-	double y_min; double y_max;
-	double z_min; double z_max;
-	long long int x_num, y_num, z_num;
+	std::vector<double> xs_min;
+	std::vector<double> xs_max;
+	std::vector<long long int> xs_num;
+	//double x_min; double x_max;
+	//double y_min; double y_max;
+	//double z_min; double z_max;
+	//long long int x_num, y_num, z_num;
 	int ord_pol;
 
 	Point upper_left;
@@ -37,8 +41,8 @@ public: // variables
 	vector<int> NN_dist;
 
 public:	// functions
-	Eps_Graph_3D();
-	Eps_Graph_3D(list<Free_Point>, vector<Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
+	Eps_Graph_nD();
+	Eps_Graph_nD(list<Free_Point>, vector<Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	void init_grid();
 	Grid_Point get_gridpt(indices);
 
