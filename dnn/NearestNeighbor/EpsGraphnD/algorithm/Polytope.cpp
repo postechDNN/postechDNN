@@ -5,7 +5,7 @@
 #define BUFFERSIZE 1000
 
 using namespace std;
-/*
+
 Edge::Edge() {
 	p1 = new Point;
 	p2 = new Point;
@@ -14,7 +14,7 @@ Edge::Edge() {
 
 Edge::~Edge() {
 }
-
+/*
 Edge::Edge(std::vector<Point*> vp) {
 	p1 = vp[0];
 	p2 = vp[1];

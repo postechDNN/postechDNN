@@ -8,8 +8,17 @@
 #define Z 3
 
 using namespace std;
-Eps_Graph_nD::Eps_Graph_nD(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
-
+Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
+	n = _n;
+	fr_pts = _fr_pts;
+	pols = _pols;
+	eps = _eps;
+	NN_dist = {};
+	ord_pol = 0;
+	xs_min = std::vector<double>(n, DBL_MIN);
+	xs_max = std::vector<double>(n, DBL_MAX);
+	//x_min = y_min = z_min = DBL_MAX;
+	//x_max = y_max = z_max = DBL_MIN;
 }
 /*
 Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) { //O

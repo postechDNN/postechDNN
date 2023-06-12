@@ -42,7 +42,7 @@ public: // variables
 
 public:	// functions
 	Eps_Graph_nD();
-	Eps_Graph_nD(list<Free_Point>, vector<Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
+	Eps_Graph_nD(int, list<Free_Point>, vector<Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	void init_grid();
 	Grid_Point get_gridpt(indices);
 
