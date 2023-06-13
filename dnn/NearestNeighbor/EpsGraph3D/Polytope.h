@@ -5,6 +5,8 @@ class Edge {
 public:
 	Point* p1;
 	Point* p2;
+	Point p3;
+	Point p4;
 	double length;
 public:
 	Edge();
@@ -12,10 +14,14 @@ public:
 	Edge(Point*, Point*);
 	Edge(Grid_Point*, Grid_Point*);
 	Edge(Free_Point*, Grid_Point*);
+	Edge(Point, Point);
+	Edge(Grid_Point, Grid_Point);
+	Edge(Free_Point, Grid_Point);
 	~Edge();
 	bool operator==(Edge);
 	bool on(Point* p);
 	bool cross(Point* p, Point* ray);
+	double get_length();
 };
 
 class Face {
@@ -55,4 +61,5 @@ public:
 	bool isIn(Point* p);
 	bool intersect(Point, Point, int);
 	bool operator==(Polytope);
+	std::vector<Face*> getfaces();
 };

@@ -17,25 +17,50 @@ Edge::~Edge() {
 Edge::Edge(std::vector<Point*> vp) {
 	p1 = vp[0];
 	p2 = vp[1];
-	length = sqrt((vp[0]->x - vp[1]->x) * (vp[0]->x - vp[1]->x) + (vp[0]->y - vp[1]->y) * (vp[0]->y - vp[1]->y) + (vp[0]->z - vp[1]->z) * (vp[0]->z - vp[1]->z));
+	//length = sqrt((vp[0]->x - vp[1]->x) * (vp[0]->x - vp[1]->x) + (vp[0]->y - vp[1]->y) * (vp[0]->y - vp[1]->y) + (vp[0]->z - vp[1]->z) * (vp[0]->z - vp[1]->z));
+	length = abs(vp[0]->x - vp[1]->x) + abs(vp[0]->y - vp[1]->y) + abs(vp[0]->z - vp[1]->z);
 }
 
 Edge::Edge(Point* v1, Point* v2) {
 	p1 = v1;
 	p2 = v2;
-	length = sqrt((v1->x - v2->x)* (v1->x - v2->x)+ (v1->y- v2->y)* (v1->y - v2->y)+ (v1->z - v2->z)* (v1->z - v2->z));
+	//length = sqrt((v1->x - v2->x)* (v1->x - v2->x)+ (v1->y- v2->y)* (v1->y - v2->y)+ (v1->z - v2->z)* (v1->z - v2->z));
+	length = abs(v1->x - v2->x) + abs(v1->y -v2->y) + abs(v1->z - v2->z);
 }
 
 Edge::Edge(Grid_Point* v1, Grid_Point* v2) {
 	p1 = v1;
 	p2 = v2;
-	length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
+	//length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
+	length = abs(v1->x - v2->x) + abs(v1->y - v2->y) + abs(v1->z - v2->z);
 }
 
 Edge::Edge(Free_Point* v1, Grid_Point* v2) {
 	p1 = v1;
 	p2 = v2;
-	length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
+	//length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
+	length = abs(v1->x - v2->x) + abs(v1->y - v2->y) + abs(v1->z - v2->z);
+}
+
+Edge::Edge(Point v1, Point v2) {
+	p3 = v1;
+	p4 = v2;
+	//length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+	length = abs(v1.x - v2.x) + abs(v1.y - v2.y) + abs(v1.z - v2.z);
+}
+
+Edge::Edge(Grid_Point v1, Grid_Point v2) {
+	p3 = v1;
+	p4 = v2;
+	//length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+	length = abs(v1.x - v2.x) + abs(v1.y - v2.y) + abs(v1.z - v2.z);
+}
+
+Edge::Edge(Free_Point v1, Grid_Point v2) {
+	p3 = v1;
+	p4 = v2;
+	//length = sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+	length = abs(v1.x - v2.x) + abs(v1.y - v2.y) + abs(v1.z - v2.z);
 }
 
 bool Edge::operator==(Edge e) {
@@ -83,7 +108,9 @@ bool Edge::cross(Point* p, Point* ray) {
 	else return false;
 
 }
-
+double Edge::get_length() {
+	return length;
+}
 Face::Face() {
 	face_key = new char[10];
 	points.push_back(new Point());
@@ -414,7 +441,9 @@ bool Polytope::isIn(Point* p) {
 	{
 		return false;
 	}
-	else { return true; }
+	else { 
+		return true; 
+	}
 };
 
 bool Polytope::intersect(Point p1, Point p2, int dir) {
@@ -475,4 +504,9 @@ bool Polytope::intersect(Point p1, Point p2, int dir) {
 
 bool Polytope::operator==(Polytope _p) {
 	return this->ord == _p.ord;
+}
+
+std::vector<Face*> Polytope::getfaces()
+{
+	return faces;
 }

@@ -3,6 +3,11 @@
 #include <vector>
 #include <string>
 
+#include <GL/gl.h> 
+#include <GL/glu.h>
+
+#pragma comment(lib, "opengl32.lib" )
+
 class OGL_Point {
 public:
 	OGL_Point();
@@ -25,12 +30,18 @@ private:
 class OGL_Vertex {
 public:
 	OGL_Vertex();
+	OGL_Vertex(double x, double y, double z);
 	~OGL_Vertex();
 	std::string getName();
 	OGL_Point& getPos();
 	void setName(std::string n);
 	void setPos(double x, double y);
 	void setPos(double x, double y, double z);
+
+	bool isCustom;
+	GLfloat color[3];
+	GLfloat width;
+
 private:
 	std::string name;
 	OGL_Point pos;
@@ -53,6 +64,11 @@ public:
 	void setFace(std::string f);
 	void setTwin(std::string t);
 	void setNext(std::string n);
+
+	bool isCustom;
+	GLfloat color[3];
+	GLfloat width;
+
 private:
 	std::string name;
 	std::vector<OGL_Point> endpoints;
@@ -75,6 +91,11 @@ public:
 	void setName(std::string n);
 	void setInner(bool i);
 	std::string getInnerEdge(int idx);
+
+	bool isCustom;
+	GLfloat color[3];
+	GLfloat width;
+
 private:
 	std::string name;
 	std::vector<OGL_Point> vertices;
@@ -89,26 +110,35 @@ public:
 	int getVerticsNum();
 	int getEdgesNum();
 	int getFacesNum();
+	int getPathNum();
 	OGL_Vertex& getVertex(int idx);
 	OGL_Edge& getEdge(int idx);
 	OGL_Face& getFace(int idx);
+	OGL_Edge& getPath(int idx);
 	void addVertex();
+	void addVertex(OGL_Vertex v);
 	void addEdge();
+	void addEdge(OGL_Edge e);
 	void addFace();
 	void addFace(OGL_Face f);
+	void addPath();
+	void addPath(OGL_Edge e);
 
 	void setDrawVertices(bool b);
 	void setDrawEdges(bool b);
 	void setDrawFaces(bool b);
+	void setDrawPath(bool b);
 	bool getDrawVertices();
 	bool getDrawEdges();
 	bool getDrawFaces();
+	bool getDrawPath();
 
 	void updateNorm(int dimension);
 	void getNorm(double trans[], double strat[], int dimension);
 
 	void readDCEL(CString path, int dimension);
 	void read3Deps(CString path);
+	void total_clear();
 
 private:
 	double normTrans[3];
@@ -116,8 +146,10 @@ private:
 	bool drawVertices;
 	bool drawEdges;
 	bool drawFaces;
+	bool drawPath;
 	std::vector<OGL_Vertex> vertices;
 	std::vector<OGL_Edge> edges;
 	std::vector<OGL_Face> faces;
+	std::vector<OGL_Edge> path;
 };
 

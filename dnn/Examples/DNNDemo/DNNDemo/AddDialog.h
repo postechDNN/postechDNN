@@ -3,7 +3,7 @@
 
 // AddDialog 대화 상자
 
-enum CONTROL_MODE { EADD, EDELETE, EQUERY };
+enum CONTROL_MODE { EADD, EDELETE, EQUERY, EVIEW };
 
 class AddDialog : public CDialogEx
 {
@@ -34,4 +34,5 @@ public:
 	CEdit m_edit_z;
 	afx_msg void OnBnClickedOk();
 	virtual BOOL OnInitDialog();
+	CStatic m_static_key;
 };

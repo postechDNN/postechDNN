@@ -64,4 +64,16 @@ public:
 	CButton m_button_query;
 	afx_msg void OnBnClickedButtonQuery();
 	CEdit m_edit_q1;
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	CEdit m_edit_qr1;
+	CEdit m_edit_qr2;
+	CEdit m_edit_qr3;
+	CButton m_button_view;
+	CEdit m_edit_vx;
+	CEdit m_edit_vy;
+	CEdit m_edit_vz;
+	afx_msg void OnBnClickedButtonView();
+	CButton m_check_path;
+	afx_msg void OnBnClickedCheckPath();
 };

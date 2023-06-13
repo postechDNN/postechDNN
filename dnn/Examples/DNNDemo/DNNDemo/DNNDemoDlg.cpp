@@ -76,6 +76,14 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_Q1, m_static_q1);
 	DDX_Control(pDX, IDC_BUTTON_QUERY, m_button_query);
 	DDX_Control(pDX, IDC_EDIT_Q1, m_edit_q1);
+	DDX_Control(pDX, IDC_EDIT_QR1, m_edit_qr1);
+	DDX_Control(pDX, IDC_EDIT_QR2, m_edit_qr2);
+	DDX_Control(pDX, IDC_EDIT_QR3, m_edit_qr3);
+	DDX_Control(pDX, IDC_BUTTON_VIEW, m_button_view);
+	DDX_Control(pDX, IDC_EDIT_VX, m_edit_vx);
+	DDX_Control(pDX, IDC_EDIT_VY, m_edit_vy);
+	DDX_Control(pDX, IDC_EDIT_VZ, m_edit_vz);
+	DDX_Control(pDX, IDC_CHECK_PATH, m_check_path);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -97,6 +105,9 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_NOO1, &CDNNDemoDlg::OnBnClickedCheckNoo1)
 	ON_BN_CLICKED(IDC_CHECK_NOO2, &CDNNDemoDlg::OnBnClickedCheckNoo2)
 	ON_BN_CLICKED(IDC_BUTTON_QUERY, &CDNNDemoDlg::OnBnClickedButtonQuery)
+	ON_WM_KEYDOWN()
+	ON_BN_CLICKED(IDC_BUTTON_VIEW, &CDNNDemoDlg::OnBnClickedButtonView)
+	ON_BN_CLICKED(IDC_CHECK_PATH, &CDNNDemoDlg::OnBnClickedCheckPath)
 END_MESSAGE_MAP()
 
 
@@ -142,6 +153,7 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	m_check_vertex.SetCheck(true);
 	m_check_edge.SetCheck(true);
 	m_check_face.SetCheck(true);
+	m_check_path.SetCheck(true);
 	m_check_f1.SetCheck(true);
 	m_check_noo1.SetCheck(true);
 
@@ -152,6 +164,8 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	this->m_picture_opengl.setDrawObject(3, EDGE, m_check_edge.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
 	this->m_picture_opengl.setDrawObject(3, FACE, m_check_face.GetCheck());
+	this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
+	//this->EnableWindow(true);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -238,6 +252,7 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 
 	int menu = m_combo_func.GetCurSel();
 	CString path;
+	CString temp;
 	m_edit_filename.GetWindowTextW(path);
 	switch (menu) {
 	case 0: // Read DCEL
@@ -245,6 +260,9 @@ void CDNNDemoDlg::OnBnClickedButtonOk()
 		break;
 	case 1: // 3D nearest neighbor
 		m_picture_opengl.read3Deps(path);
+		// Query time
+		temp.Format(_T("%d"), m_picture_opengl.DDS.get_execution_time());
+		m_edit_qr2.SetWindowTextW(temp);
 		break;
 	default:
 		break;
@@ -304,6 +322,7 @@ void CDNNDemoDlg::OnBnClickedCheckFace()
 }
 
 
+
 void CDNNDemoDlg::OnBnClickedButtonRender()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
@@ -322,6 +341,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_vertex.SetWindowTextW(_T("Vertex"));
 		this->m_check_edge.SetWindowTextW(_T("Edge"));
 		this->m_check_face.SetWindowTextW(_T("Face"));
+		this->m_check_path.EnableWindow(false);
 		this->m_check_f1.EnableWindow(false);
 		this->m_check_f2.EnableWindow(false);
 		this->m_check_noo1.EnableWindow(false);
@@ -337,6 +357,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_vertex.SetWindowTextW(_T("Free point"));
 		this->m_check_edge.SetWindowTextW(_T("Grid"));
 		this->m_check_face.SetWindowTextW(_T("Polytope"));
+		this->m_check_path.EnableWindow(true);
 		this->m_check_f1.EnableWindow(true);
 		this->m_check_f2.EnableWindow(true);
 		this->m_check_noo1.EnableWindow(true);
@@ -366,7 +387,10 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 					CString keyValue = dlg.key;
 					double coordinate[3];
 					for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
+					m_picture_opengl.DDS.add_fr(coordinate);
 					// keyValue와 좌표로 삽입을 수행하는 함수 호출
+					Invalidate(TRUE);
+					UpdateWindow();
 				}
 			}
 			else if (m_check_noo2.GetCheck()) { // Add by file
@@ -375,8 +399,10 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 				if (IDOK == dlg.DoModal()) {
 					CString pathName = dlg.GetPathName();
 					MessageBox(pathName);
+					m_picture_opengl.DDS.add_fr(pathName);
 					// 아래 readDCEL처럼 add by file 함수 호출
 					// m_picture_opengl.readDCEL(path);
+					Invalidate(TRUE);
 				}
 			}
 		} 
@@ -390,8 +416,10 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 				if (IDOK == dlg.DoModal()) {
 					CString pathName = dlg.GetPathName();
 					MessageBox(pathName);
+					m_picture_opengl.DDS.add_poly(pathName);
 					// 아래 readDCEL처럼 add by file 함수 호출
 					// m_picture_opengl.readDCEL(path);
+					Invalidate(TRUE);
 				}
 			}
 		} 
@@ -416,6 +444,8 @@ void CDNNDemoDlg::OnBnClickedButtonDel()
 				AddDialog dlg(EDELETE, 0);
 				if (IDOK == dlg.DoModal()) {
 					CString keyValue = dlg.key;
+					int del_key = _ttoi(keyValue);
+					m_picture_opengl.DDS.del_fr(del_key);
 					// keyValue로 삭제를 수행하는 함수 호출
 				}
 			}
@@ -428,6 +458,8 @@ void CDNNDemoDlg::OnBnClickedButtonDel()
 				AddDialog dlg(EDELETE, 0);
 				if (IDOK == dlg.DoModal()) {
 					CString keyValue = dlg.key;
+					int del_key = _ttoi(keyValue);
+					m_picture_opengl.DDS.del_poly(del_key);
 					// keyValue로 삭제를 수행하는 함수 호출
 				}
 			}
@@ -500,14 +532,140 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 	{
 		AddDialog dlg(EQUERY, 3);
 		if (IDOK == dlg.DoModal()) {
-			CString temp;
-			this->m_edit_q1.GetWindowTextW(temp);
-			int knn = _ttoi(temp);
+			
+			int knn = _ttoi(dlg.key);
 			double coordinate[3];
 			for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
+			m_picture_opengl.DDS.set_knn(coordinate, knn);
 			// k값과 좌표로 query를 수행하는 함수 호출
+
+			// Print result
+			// Query data size			
+			this->m_edit_q1.SetWindowTextW(dlg.key);
 		}
 	}
+		break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	CDialogEx::OnKeyDown(nChar, nRepCnt, nFlags);
+
+	switch (nChar) {
+	case 0x57: // 'w'
+		this->m_picture_opengl.moveFront();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	case 0x53: // 's'
+		this->m_picture_opengl.moveBack();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	case 0x41: // 'a'
+		this->m_picture_opengl.moveLeft();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	case 0x44: // 'd'
+		this->m_picture_opengl.moveRight();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	default:
+		break;
+	}
+
+}
+
+BOOL CDNNDemoDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		::SendMessage(this->GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+		return TRUE;
+	}
+
+	if (pMsg->message == WM_LBUTTONDOWN)
+	{	
+		CRect rect;
+		this->m_picture_opengl.GetWindowRect(rect);
+		if (rect.PtInRect(pMsg->pt)) {
+			::SendMessage(this->m_picture_opengl.GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+			return TRUE;
+		}
+	}
+	if (pMsg->message == WM_MOUSEMOVE)
+	{
+		CRect rect;
+		this->m_picture_opengl.GetWindowRect(rect);
+		if (rect.PtInRect(pMsg->pt)) {
+			::SendMessage(this->m_picture_opengl.GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+			return TRUE;
+		}
+	}
+	if (pMsg->message == WM_LBUTTONUP)
+	{
+		CRect rect;
+		this->m_picture_opengl.GetWindowRect(rect);
+		if (rect.PtInRect(pMsg->pt)) {
+			::SendMessage(this->m_picture_opengl.GetSafeHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+			return TRUE;
+		}
+	}
+
+
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CDNNDemoDlg::OnBnClickedButtonView()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 1:
+	{
+		AddDialog dlg(EVIEW, 3);
+		if (IDOK == dlg.DoModal()) {
+			//GLfloat view[3];
+			for (int i = 0; i < 3; i++)
+				this->m_picture_opengl.view[0][i] = dlg.coordinate[i];
+
+			CString temp;
+			temp.Format(_T("%f"), dlg.coordinate[0]);
+			this->m_edit_vx.SetWindowTextW(temp);
+			temp.Format(_T("%f"), dlg.coordinate[1]);
+			this->m_edit_vy.SetWindowTextW(temp);
+			temp.Format(_T("%f"), dlg.coordinate[2]);
+			this->m_edit_vz.SetWindowTextW(temp);
+		}
+	}
+	break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckPath()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		//this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
 		break;
 	default:
 		break;

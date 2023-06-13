@@ -3,54 +3,140 @@
 #include "Polytope.h"
 #include <list>
 #include <vector>
+#include <fstream>
+#include <random>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include "chrono"
+#include <math.h>
+
+
+using namespace std;
 
 int main() {
-	Free_Point* p1 = new Free_Point(0., 0., 20.);
-	Free_Point* p2 = new Free_Point(0, 0, -65.);
-	Free_Point* p3 = new Free_Point(0., 0., 1.5);
-	Free_Point* p4 = new Free_Point(100., 100., 100.);
-	Free_Point* p5 = new Free_Point(-100., -100., -100.);
-	Polytope* poly = new Polytope();
-	Point* v1 = new Point(99., 99., -1.);
-	Point* v2 = new Point(99., -99., -1.);
-	Point* v3 = new Point(-99., -99., -1.);
-	Point* v4 = new Point(-99., 99., -1.);
-	Point* v5 = new Point(0., 0., 1.4);
-
-	std::vector<Point*> fv = { v1,v2,v3 };
-	Face* f1 = new Face(fv);
-	fv = { v1,v3,v4 };
-	Face* f2 = new Face(fv);
-	fv = { v1,v2,v5 };
-	Face* f3 = new Face(fv);
-	fv = { v1,v4,v5 };
-	Face* f4 = new Face(fv);
-	fv = { v2,v3,v5 };
-	Face* f5 = new Face(fv);
-	fv = { v3,v4,v5 };
-	Face* f6 = new Face(fv);
-	poly->setpolytope( { f1, f2, f3, f4, f5, f6 });
-	std::list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
-	std::vector<Polytope> plts = {};
-	Eps_Graph_3D grid(frpts, plts, 10);
-	//grid.print_anchor();
-	Free_Point* q = new Free_Point(0., 0., -20.);
-
-	//grid.print_kNN(*q, 3);
-	grid.add_freepts(q);
-	grid.print_free_point();
-	grid.add_pol(*poly);
-	//grid.print_edges();
-	grid.print_kNN(*q, 3);
-	grid.delete_pol(0);
-	grid.print_free_point();
-	//grid.delete_freept(3);
-	//grid.print_free_point();
-	//grid.delete_freept(3);
-	//grid.print_free_point();
-	grid.print_anchor();
-	//grid.print_edges();
-	grid.print_kNN(*q, 3);
-
+	double max_coor = 15.0;
+	int qr_num = 1000;
+	int fr_num = 10000;
+	int clu_num = 100;
+	int object_num = 10;
+	int k_var[5] = { 10, 50, 100, 500, 3000 };
+	ifstream file("error_test.txt");
+	//ofstream file_fr("fr_pt_error.txt");
+	//ofstream file_qr("qr_pt_error.txt");
+	ifstream file_fr("fr_pt_error.txt");
+	ifstream file_qr("qr_pt_error.txt");
+	ofstream error_data("error_data3.txt");
+	int testcase;
+	double total_time = 0.0;
+	file >> testcase;
+	random_device rd; 
+	std::mt19937 gen(rd());
+	for (int i = 0; i < testcase; i++) {
+		std::list<Free_Point> frpts = {};
+		std::vector<Polytope> plts = {};
+		std::vector<Free_Point> qrpts = {};
+		for (int j = 0; j < object_num; j++) {
+			int num_face;
+			file >> num_face;
+			vector<Face*> temp_face = {};
+			for (int k = 0; k < num_face; k++) {
+				vector<Point*> temp_point = {};
+				double x, y, z;
+				for (int l = 0; l < 3; l++) {
+					file >> x >> y >> z;
+					Point* one_point = new Point(x, y, z);
+					temp_point.push_back(one_point);
+				}
+				Face* one_face = new Face(temp_point);
+				temp_face.push_back(one_face);
+			}
+			Polytope temp_pol;
+			temp_pol.setpolytope(temp_face);
+			plts.push_back(temp_pol);
+		}
+		//string temp_name; string qr_name;
+		/*switch (i) {
+		case 0: {temp_name = "fr_pt_1_1.txt"; qr_name = "qr_pt_1_1.txt"; break; }
+		case 1: {temp_name = "fr_pt_1_2.txt"; qr_name = "qr_pt_1_2.txt"; break; }
+		case 2: {temp_name = "fr_pt_1_3.txt"; qr_name = "qr_pt_1_3.txt"; break; }
+		case 3: {temp_name = "fr_pt_1_4.txt"; qr_name = "qr_pt_1_4.txt"; break; }
+		case 4: {temp_name = "fr_pt_1_5.txt"; qr_name = "qr_pt_1_5.txt"; break; }
+		case 5: {temp_name = "fr_pt_1_6.txt"; qr_name = "qr_pt_1_6.txt"; break; }
+		case 6: {temp_name = "fr_pt_1_7.txt"; qr_name = "qr_pt_1_7.txt"; break; }
+		case 7: {temp_name = "fr_pt_1_8.txt"; qr_name = "qr_pt_1_8.txt"; break; }
+		case 8: {temp_name = "fr_pt_1_9.txt"; qr_name = "qr_pt_1_9.txt"; break; }
+		case 9: {temp_name = "fr_pt_1_10.txt"; qr_name = "qr_pt_1_10.txt"; break; }
+		}*/	
+		/*
+		file_fr << 0.0 << " " << 0.0 << " " << 0.0 << endl;
+		file_fr << max_coor << " " << max_coor << " " << max_coor << endl;
+		int fr_count = 2;
+		while (fr_count < fr_num) {
+			uniform_real_distribution<> dis(0.0, 1.0);
+			double x = max_coor * dis(gen); double y = max_coor * dis(gen); double z = max_coor * dis(gen);
+			Point p = { x,y,z };
+			bool check = true;
+			for (auto pol : plts) {
+				if (pol.isIn(&p)) {
+					check = false;
+					break;
+				}
+			}
+			if (check) {
+				file_fr << x << " " << y << " " << z << endl;
+				fr_count++;
+			}
+		}
+		int qr_count = 0;
+		while (qr_count < qr_num) {
+			uniform_real_distribution<> dis(0.0, 1.0);
+			double x = max_coor*dis(gen); double y = max_coor * dis(gen); double z = max_coor * dis(gen);
+			Point p = { x,y,z };
+			bool check = true;
+			for (auto pol : plts) {
+				if (pol.isIn(&p)) {
+					check = false;
+					break;
+				}
+			}
+			if (check) { 
+				file_qr << x << " " << y << " " << z << endl;
+				qr_count++;
+			}
+		}
+		cout << i << endl; */
+		
+		for (int fr_count = 0; fr_count < fr_num; fr_count++) {
+			double x, y, z;
+			file_fr >> x >> y >> z;
+			Free_Point one_point = {x, y ,z};
+			frpts.push_back(one_point);
+		}
+		for (int qr_count = 0; qr_count < qr_num; qr_count++) {
+			double x, y, z;
+			file_qr >> x >> y >> z;
+			Free_Point one_point = { x, y ,z };
+			qrpts.push_back(one_point);
+		}
+		double error[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+		if (i <= 91 || i > 101) { continue; }
+		Eps_Graph_3D grid(frpts, plts, 1);
+		for (int l = 0; l < 5; l++) {
+			for (auto qr : qrpts) {
+				double true_dist = 0.0;
+				double approx_dist = 0.0;
+				vector<Free_Point> temp = {};
+				grid.path_kNN(qr, k_var[l]);
+			}
+		}
+		cout << i << endl ;
+		cout << error[0] / 1000 << " " << error[1] / 1000 << " " << error[2] / 1000 << " " << error[3] / 1000 << " " << error[4] / 1000 << endl;
+		error_data << error[0] / 1000 << " " << error[1] / 1000 << " " << error[2] / 1000 << " " << error[3] / 1000 << " " << error[4] / 1000 << endl;
+	}
+	error_data.close();
+	file_fr.close();
+	file_qr.close();
+	file.close();
 	return 0;
 }
