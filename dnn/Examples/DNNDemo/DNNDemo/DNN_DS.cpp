@@ -189,7 +189,10 @@ void DNN_DS::read3Deps(CString path)
 		Graph->add_pol(p);
 	}
 	//store_add_pol.clear();
-	Graph->add_freepts(store_add_fr);
+	for (auto p : store_add_fr) {
+		Graph->add_freepts(&p);
+	}
+	//Graph->add_freepts(store_add_fr);
 	//store_add_fr.clear();
 	for (auto del : del_pol_key) {
 		Graph->delete_pol(del);
