@@ -64,7 +64,7 @@ double Point::distance(Point _p) {
 }
 
 Free_Point::Free_Point(std::vector<double> _xs) :Point(xs) {
-
+	host = -1;
 }
 
 Grid_Point::Grid_Point(int n) : Point(n) {
@@ -80,9 +80,17 @@ Grid_Point::Grid_Point(int n, vector<long long int> index, vector<double> locati
 	this->n = n;
 	topmost = vector<bool>(n, false);
 	bottommost = vector<bool>(n, false);
+	ind = index;
 	for (int i = 0; i < n; i++) {
 		if (index[i] == 0) bottommost[i] = true;
 		else if (index[i] == max_ind[i]) topmost[i] == true;
 	}
+	long long int help_num = 0;
+	long long int count_num = 1;
+	for (int i = 0; i < n; i++) {
+		help_num += index[i] * count_num;
+		count_num = max_ind[i] * count_num;
+	}
+	num = help_num;
 	encl = -1;
 }

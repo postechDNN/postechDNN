@@ -13,6 +13,7 @@ using Eigen::VectorXd;
 
 simplices::simplices() {
 }
+simplices::~simplices() {};
 simplices::simplices(int n, vector<Point*> vec) {
 	d = n;
 	vertices = vec;
@@ -25,34 +26,50 @@ simplices::simplices(int n, vector<Point*> vec) {
 	}
 }
 
-bool simplices::intersect(simplices x) {
+MatrixXd simplices::getmatrix() {
+	return A;
+};
 
+bool simplices::intersect(simplices x) {
+	MatrixXd B = x.getmatrix();
+	MatrixXd T(d + 1, 2*d + 2);
+	T.block(0, 0, d, d + 1) = A;
+	T.block(0, d+1, d, d + 1) = B;
+	for (int i = 0; i < 2*d + 2; i++) {
+		if (i < d + 1) T(d, i) = 1;
+		else T(d, i) = -1;
+	}
+	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
+	MatrixXd N = Temp.kernel().cast<double>();
+	return true;
 }
 
 bool simplices::isIn(Point* p) {
-	VectorXd b(d);
+	MatrixXd T(d + 1, d + 1);
+	VectorXd b(d + 1);
 	vector<double> tmp = p->getxs();
 	for (int j = 0; j < d; j++) {
 		b(j) = tmp[j];
 	}
+	T.block(0, 0, d, d + 1) = A;
+	for (int i = 0; i < d + 1; i++) {
+		T(d, i) = 1;
+	}
+	b(d) = 1;
 	VectorXd x(d + 1);
-	x = A.colPivHouseholderQr().solve(b);
-	if (abs(x.sum() - 1) > ERR) {
-		return false;
-	}
-	else {
-		for (int j = 0; j < d + 1; j++) {
-			if (x(j) < 0) {
-				return false;
-			}
+	x = T.colPivHouseholderQr().solve(b);
+	for (int j = 0; j < d + 1; j++) {
+		if (x(j) < -ERR) {
+			return false;
 		}
-		return true;
 	}
+	return true;
 }
 
 Polytope::Polytope() {};
 
 Polytope::Polytope(FILE* input) {};
+Polytope::~Polytope() {};
 
 bool Polytope::isIn(Point* p) {
 	for (auto simp1 : this->component) {
@@ -73,8 +90,9 @@ bool Polytope::intersect(Polytope P) {
 };
 
 bool Polytope::operator==(Polytope P) {
-	if (this->ord == P.ord) {
+	if (ord == P.ord) {
 		return true;
 	}
 	else return false;
-};
+	return true;
+}; 

@@ -9,11 +9,12 @@ class simplices {
 protected:
 	int d; // dimension
 	std::vector<Point*> vertices;
-	MatrixXd A;
+	MatrixXd A; // Each column indicates coordinate of each vertex.
 public:
 	simplices();
 	simplices(int, vector<Point*>);
 	~simplices();
+	MatrixXd getmatrix();
 	bool intersect(simplices);
 	bool isIn(Point* p);
 };
@@ -38,6 +39,6 @@ public:
 	Polytope(FILE*);
 	~Polytope();
 	bool isIn(Point* p);
-	bool intersect(Polytope);
-	bool operator==(Polytope);
+	bool intersect(Polytope P);
+	bool operator==(Polytope P);
 };
