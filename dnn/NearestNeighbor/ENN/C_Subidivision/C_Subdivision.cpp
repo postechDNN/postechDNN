@@ -3,6 +3,8 @@
 #include <queue>
 #include <limits>
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include "Disjoint_Set.h"
 
 // Site::Site(){}
@@ -95,8 +97,6 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             int cB = quadB -> c; 
             
             //std::cout <<"Test (" << quadA->r <<", " <<quadA->c << ") and (" <<quadB->r <<", "<<quadB->c<<")" << std::endl;
-            
-
             if ((std::abs(rA - rB) <= 4) && (std::abs(cA-cB) <=4)){
                 //std::cout <<"Graph edge between (" << quadA->r <<", " <<quadA->c << ") and (" <<quadB->r <<", "<<quadB->c<<")" << std::endl;
                 graph[i][j] = true;
@@ -141,7 +141,11 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
 
             quadA->growth = newQ;
             quadB->growth = newQ;
-
+            
+            //For children of quad by Jaehoon
+            newQ->children.push_back(quadA);
+            newQ->children.push_back(quadB);
+            
             ret.push_back(newQ); 
             // Stop
             matched[j] = true;
@@ -160,6 +164,10 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         int newC = int(std::ceil(q->c/4 +1));
 
         Quad * newQ = new Quad(newR, newC, ord+2, false);
+        
+        //For children of quad by Jaehoon
+        newQ->children.push_back(q);
+        
         q->growth = newQ;
         ret.push_back(newQ);
     }
@@ -180,8 +188,10 @@ bool inline C_Subdivision::is_intersect_quad(Quad* a, Quad* b){
 
 void inline C_Subdivision::draw_n_edges(int r,int c, int ord, int is_vertical, int n, std::set<Box_Edge>& drawn_edges){
     int is_horizontal = 1- is_vertical;
-    for(int i = 0;i<n;i++)
+    for(int i = 0;i<n;i++){
         drawn_edges.insert(Box_Edge(r+is_horizontal*i, c+is_vertical*i,ord,is_vertical));
+        //std::cout<<"DRAW TEST: "<< ord<<' '<<is_vertical<< ' '<< (r+is_horizontal*i) <<' '<<(c+is_vertical*i)<<std::endl;
+    }
 }
 
 void inline C_Subdivision::erase_n_edges(int r,int c, int ord, int is_vertical, int n, std::set<Box_Edge>& drawn_edges){
@@ -195,9 +205,9 @@ void C_Subdivision::process_simple_to_complex(Quad* q, int ord,std::set<Box_Edge
     //the variable "ord" is the order of quad q.
     //Draw the boundary box of q and subdivide each of its sides into four edges at the (i-2)-order grid lines.
     draw_n_edges(q->r   , q->c  , ord,false,4,drawn_edges);
-    draw_n_edges(q->r+4 , q->c  , ord,false,4,drawn_edges);
+    draw_n_edges(q->r , q->c+4  , ord,false,4,drawn_edges);
     draw_n_edges(q->r   , q->c  , ord,true,4,drawn_edges);
-    draw_n_edges(q->r   , q->c+4, ord,true,4,drawn_edges);
+    draw_n_edges(q->r+4   , q->c, ord,true,4,drawn_edges);
 }
 
 //Process the simple component which is about to be complex component.
@@ -205,33 +215,37 @@ void C_Subdivision::process_complex(std::vector<Quad *>& S, std::vector<Quad *>&
     //the variable "ord" is the order of quads in S
     //1) Draw i-boxes to fill the region between the boundaries of R_1 and S.
     //1-1) For each quad q of S, draw edges of order i on the boundary of q. 
+    
+    std::set<Box_Edge> tmp_drawn_edges;
+
     for(auto q: S){
-        draw_n_edges(q->r   , q->c  ,ord,false,4,drawn_edges);
-        draw_n_edges(q->r+4 , q->c  ,ord,false,4,drawn_edges);
-        draw_n_edges(q->r   , q->c  ,ord,true,4,drawn_edges);
-        draw_n_edges(q->r   , q->c+4,ord,true,4,drawn_edges);
+        draw_n_edges(q->r   , q->c  ,ord,false,4,tmp_drawn_edges);
+        draw_n_edges(q->r , q->c+4  ,ord,false,4,tmp_drawn_edges);
+        draw_n_edges(q->r   , q->c  ,ord,true,4,tmp_drawn_edges);
+        draw_n_edges(q->r+4  , q->c,ord,true,4,tmp_drawn_edges);
     }
+
     //1-2) For each quad q of S, erase edges of order i lying on the interior of quads of S.
     for(auto q:S){
         for(int j = 1;j<=3;j++){
-            erase_n_edges(q->r+j,q->c,ord,false,4,drawn_edges);
-            erase_n_edges(q->r,q->c+j,ord,true,4,drawn_edges);
+            erase_n_edges(q->r,q->c+j,ord,false,4,tmp_drawn_edges);
+            erase_n_edges(q->r+j,q->c,ord,true,4,tmp_drawn_edges);
         }
     }
     //1-3) For each qaud q of S, break each i-box with an endpoint incident to the core of q into four edges of length 2^(i-2).
     for(auto q:S){
         for(int j = 1;j<=3;j++){
-            draw_n_edges(4*q->r + 4*j   , 4*q->c       ,ord-2,false,4,drawn_edges);
-            draw_n_edges(4*q->r + 4*j   , 4*q->c+ 12   ,ord-2,false,4,drawn_edges);
-            draw_n_edges(4*q->r         , 4*q->c+ 4*j  ,ord-2,true,4,drawn_edges);
-            draw_n_edges(4*q->r + 12    , 4*q->c+ 4*j  ,ord-2,true,4,drawn_edges);
+            draw_n_edges(4*q->r, 4*q->c + 4*j      ,ord-2,false,4,tmp_drawn_edges);
+            draw_n_edges(4*q->r+12   , 4*q->c  + 4*j  ,ord-2,false,4,tmp_drawn_edges);
+            draw_n_edges(4*q->r+4*j, 4*q->c,ord-2,true,4,tmp_drawn_edges);
+            draw_n_edges(4*q->r+4*j, 4*q->c+12 ,ord-2,true,4,tmp_drawn_edges);
         }
     }
     //1-4) For each quad q of S, erase edges of order i-2 lying on R1.
     for(auto q:S){
         for(int j = 1;j<=3;j++){
-            erase_n_edges(4*q->r + 4*j  , 4*q->c + 4    ,ord-2,false,8,drawn_edges);
-            erase_n_edges(4*q->r + 4    , 4*q->c+ 4*j   ,ord-2,true,8,drawn_edges);
+            erase_n_edges(4*q->r + 4 , 4*q->c + 4*j   ,ord-2,false,8,tmp_drawn_edges);
+            erase_n_edges(4*q->r + 4*j   , 4*q->c+ 4  ,ord-2,true,8,tmp_drawn_edges);
         }
     }
 
@@ -239,17 +253,19 @@ void C_Subdivision::process_complex(std::vector<Quad *>& S, std::vector<Quad *>&
     //2-1) Fill (i-2) boxes in R1
     for(auto q: S){
         for(int j = 0; j<= 8;j++){
-            draw_n_edges(4*q->r+4+j, 4*q->c+4,ord-2,false,8,drawn_edges);   
-            draw_n_edges(4*q->r+4, 4*q->c+4+j,ord-2,true,8,drawn_edges);    
+            draw_n_edges(4*q->r+4, 4*q->c+4+j,ord-2,false,8,tmp_drawn_edges);   
+            draw_n_edges(4*q->r+4+j, 4*q->c+4,ord-2,true,8,tmp_drawn_edges);    
         }
     }
     //2-2) Delete (i-2) boxes in R2
     for(auto q: children_S){
         for(int j=1;j<=3;j++){
-            erase_n_edges(q->r+j,q->c,ord-2,false,4,drawn_edges);              
-            erase_n_edges(q->r,q->c+j,ord-2,true,4,drawn_edges);              
+            erase_n_edges(4*q->r+6 ,4*q->c+6+j,ord-2,false,4,tmp_drawn_edges);              
+            erase_n_edges(4*q->r+6+j,4*q->c+6,ord-2,true,4,tmp_drawn_edges);              
         }
     }
+
+    drawn_edges.insert(tmp_drawn_edges.begin(),tmp_drawn_edges.end());
 }
 //Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
 void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
@@ -261,6 +277,7 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     while (Q.size()>1){
         //Step 1. Increment order
         i+=2;
+        
         //Step 2. Compute Q(i) from Q(i-2)
         std::vector<Quad*> next_Q; //TODO: Is it okay that change the data structure from set to vector
 
@@ -271,13 +288,14 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
         //Construct equivalent relation on next_Q
         std::vector<Component > next_equiv_classes = compute_equiv_class(next_Q);
 
+        //std::cout<<"TEST: "<<i<<' '<<Q.size()<<' '<<next_Q.size()<< ' '<<next_equiv_classes.size()<<std::endl;
+
         //Step 3. Process simple components of equivalent relation in Q(i-2) that are about to merge with some other component.
         for(auto q:Q){
             Quad* q_bar = q->growth;
             if(q->is_simple && !q_bar->is_simple)
                 process_simple_to_complex(q,i-2,drawn_edges);
         }
-
         //Step 4. Process complex components.
         for(auto S:next_equiv_classes){
             std::vector<Quad *> children_S; // denoted by S' in the original paper.
@@ -378,17 +396,22 @@ void grid_graph::connect(int x1,int y1,int x2,int y2){
 void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Point>& vertices, std::vector<std::vector<int> >&graph, int d){
     grid_graph Grid_graph;
 
+    //std::cout <<"TEST build graph\n";
+
     //connect drawn edges in decreasing order. (connect edge of larger order first)
     for(auto it=drawn_edges.end(); it != drawn_edges.begin();){
         --it;
         int ord = it->ord;
         int r = it->r, c = it->c;
         bool is_vertical= it->is_vertical;
-        int x1 = r>>ord, y1 = c>>ord;
+        int x1 = r<<ord, y1 = c<<ord;
         int x2 = x1, y2 = y1;
-        if(is_vertical) y2 += 1>>ord;
-        else x2 += 1 >>ord;
+        if(is_vertical) y2 += 1<<ord;
+        else x2 += 1 <<ord;
         
+        // std::cout <<"drawn edge"<<ord <<' '<<r <<' '<< c <<' '<< is_vertical << std::endl;
+        // std::cout <<"grid pt "<<x1<<' '<<y1<<' '<<x2 <<' '<<y2 << std::endl;
+
         Grid_graph.add_grid_point(x1,y1);
         Grid_graph.add_grid_point(x2,y2);
         Grid_graph.connect(x1,y1,x2,y2);
@@ -471,13 +494,37 @@ DCEL C_Subdivision::build_d_subdivision(int d){
     std::vector<std::vector<int> > graph;
     this->build_graph(drawn_edges,vertices,graph, d);     
 
+    //------------TEST----------------
+    
+    std::ofstream fout;
+    fout.open("test.txt");
+
+    fout<<vertices.size()+this->sites.size()<<std::endl;
+    for(int i = 0 ; i<vertices.size();i++){
+        fout<<vertices[i].getx()<<' '<<vertices[i].gety()<<std::endl;
+    }
+    for(int i = 0 ; i<this->sites.size();i++){
+        fout << sites[i].getx()*scale_factor+tr_x_factor<<' '<<sites[i].gety()*scale_factor+tr_y_factor<<std::endl;
+    }
+
+    int num_edges=0;
+    for(int u =0;u<vertices.size();u++)
+        num_edges += graph[u].size();
+    fout << num_edges<<std::endl;
+    for(int u = 0; u<vertices.size();u++){
+        for(auto v :graph[u]){
+            fout << u <<' '<<v <<std::endl;
+        }
+    }
+    fout.close();
+    //-------------------------------------
+
     //3. perform scaling and translation vertices to restore an original vector space.
     for(int i =0 ;i<vertices.size();i++){
         Point& p= vertices[i];
         p.setx((p.getx()-this->tr_x_factor)/this->scale_factor);
         p.sety((p.gety()-this->tr_y_factor)/this->scale_factor);
     }
-
     return DCEL(vertices, graph);
 }
 
@@ -506,7 +553,7 @@ C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
     // scaling to make the distance between points be larger than 1
     double min_dist = std::max(min_xdist, min_ydist);
     scale_factor = 1.;
-    if(min_dist < 1) scale_factor = 1/min_dist;
+    if(min_dist < 4) scale_factor = 4/min_dist;
     
     //translate each coordinate value so that they don't have integer coordinates; 
 
@@ -516,13 +563,13 @@ C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
     double min_ydist_bound= min_xdist_bound;
 
     for(auto site: this->sites){
-        double x = site.getx(), y = site.gety();   
+        double x = site.getx()*scale_factor, y = site.gety()*scale_factor;   
         min_x = x < min_x ? x :min_x;
         min_y = y < min_y ? y : min_y;
     }
 
     for(auto site: this->sites){
-        double x = site.getx(), y = site.gety();
+        double x = site.getx()*scale_factor, y = site.gety()*scale_factor;
         double xdist_bound = std::floor(x-min_x+1.)-(x-min_x);
         double ydist_bound = std::floor(y-min_y+1.)-(y-min_y);
         min_xdist_bound = xdist_bound < min_xdist_bound ? xdist_bound:min_xdist_bound;
