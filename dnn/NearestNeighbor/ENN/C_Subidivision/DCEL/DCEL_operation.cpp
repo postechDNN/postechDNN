@@ -129,12 +129,9 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
     HEdgeContainer::sweep_p = &sweep_p;
 
     for (auto hec : hedge_containers){
-        //Edge e =align_edge(hec.hedge->getEdge());                                       //REMOVE THE ALIGN EDGE PROCEDURE
         Vertex *start = hec.hedge->getOrigin(), *end = hec.hedge->getTwin()->getOrigin();
         intersectEvent ev_start(*start,hec,intersectEvent::EVENT::START); 
         intersectEvent ev_end(*end,hec,intersectEvent::EVENT::END); 
-        //intersectEvent ev_start(e.gets(),hec,intersectEvent::EVENT::START); 
-        //intersectEvent ev_end(e.gett(),hec,intersectEvent::EVENT::END); 
         pq.push(ev_start);
         pq.push(ev_end);
     }
@@ -216,20 +213,30 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             continue;
 
         int fn_key = face_nodes.size();
-
-        HEdge *lb_he = he; //whose origin is left bottom most vertex 
-
         //Traverse the chain
-        auto cur = he;
-        do{
+        visit[he]=fn_key;
+        HEdge *lb_he = he; //whose origin is the left bottom most vertex 
+        bool dup_flag = false;  //There are at least two half edges whose origin is lb_v.
+        auto cur = he->getNext();
+        while(cur != he){
             visit[cur] = fn_key;
             Vertex *org = cur->getOrigin();
             Vertex *lb_v = lb_he->getOrigin();
-            if(org->getx() < lb_v->getx()) lb_he = cur;
+            if(std::abs(org->getx() - lb_v->getx()) < tolerance && 
+            std::abs(org->gety() - lb_v->gety()) < tolerance){
+                dup_flag = true;    
+            }
+            else if(org->getx() < lb_v->getx()){
+                lb_he = cur;
+                dup_flag = false;
+            }
             else if(std::abs(org->getx() - lb_v->getx()) < tolerance 
-            && org->gety() < lb_v->gety()) lb_he = cur;
+            && org->gety() < lb_v->gety()){
+                lb_he = cur;
+                dup_flag = false;
+            }
             cur = cur->getNext();
-        }while(cur != he);
+        }
 
         face_nodes.push_back(FaceNode(lb_he));
         adj_list.push_back(std::vector<int>());
@@ -240,21 +247,22 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         double cross_vec_ab = cross_prod(vec_a, vec_b);
         //double cross_vec_ab = vec_a.getx() * vec_b.gety() -vec_a.gety() * vec_b.getx();
 
-        if(prev_lb == lb_he->getTwin() || cross_vec_ab < 0){  //Right turn = clockwise traverse = hole boundary
+        // if(prev_lb == lb_he->getTwin() || cross_vec_ab < 0){  //Right turn = clockwise traverse = hole boundary
+        //     face_nodes[fn_key].is_outer = false;
+        // }
+        if(dup_flag || cross_vec_ab < tolerance){  //Right turn = clockwise traverse = hole boundary
             face_nodes[fn_key].is_outer = false;
         }
         else if(cross_vec_ab > 0){   //Left turn = counterclockwise traverse = outer boundary
             face_nodes[fn_key].is_outer = true;
         }
-
     }
 
-    //Construct the edge relation between Face Nodes in Graph
+    //Construct the edge relation between Face Nodes in Graph 
     int key=0;
     for(auto fn : face_nodes){
-        key++;
         if(fn.is_outer == true) continue; //Process only for hole boundary
-
+        key++;
         HEdge *lb_he = fn.he; //Since face node store the information of a half-edge whose origin is the left-bottommost vertex in the boundary. 
         Vertex *lb_v = lb_he->getOrigin();
         HEdge *left_he = left_hedges[lb_v];
@@ -279,6 +287,7 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             adj_list[key].push_back(visit[left_he]);
         }
     }
+
 
     // std::cout <<"TEST "<<face_nodes.size()<<std::endl;
     // for(int i = 0 ; i<face_nodes.size();i++){
@@ -708,6 +717,7 @@ DCEL::DCEL(std::vector<Point>& pts,std::vector<std::vector<int>>& graph,std::str
         }
     }
 
+
     //3. set information(next, prev) of half edges.
     //Sort in circular order.
     auto angle_cmp = [](HEdge* a, HEdge* b){
@@ -738,9 +748,9 @@ DCEL::DCEL(std::vector<Point>& pts,std::vector<std::vector<int>>& graph,std::str
         }
     }
 
-
     //4. build faces.
     std::vector<Face*> ret_faces = ConstructFaces(ret_hedges);
+
 
     //5. label elements of DCEL and store the elements.
     int v_k=1;
