@@ -260,8 +260,8 @@ void C_Subdivision::process_complex(std::vector<Quad *>& S, std::vector<Quad *>&
     //2-2) Delete (i-2) boxes in R2
     for(auto q: children_S){
         for(int j=1;j<=3;j++){
-            erase_n_edges(4*q->r+6 ,4*q->c+6+j,ord-2,false,4,tmp_drawn_edges);              
-            erase_n_edges(4*q->r+6+j,4*q->c+6,ord-2,true,4,tmp_drawn_edges);              
+            erase_n_edges(q->r ,q->c+j,ord-2,false,4,tmp_drawn_edges);              
+            erase_n_edges(q->r+j,q->c,ord-2,true,4,tmp_drawn_edges);              
         }
     }
 
@@ -288,7 +288,7 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
         //Construct equivalent relation on next_Q
         std::vector<Component > next_equiv_classes = compute_equiv_class(next_Q);
 
-        //std::cout<<"TEST: "<<i<<' '<<Q.size()<<' '<<next_Q.size()<< ' '<<next_equiv_classes.size()<<std::endl;
+        std::cout<<"TEST: "<<i<<' '<<Q.size()<<' '<<next_Q.size()<< ' '<<next_equiv_classes.size()<<std::endl;
 
         //Step 3. Process simple components of equivalent relation in Q(i-2) that are about to merge with some other component.
         for(auto q:Q){
