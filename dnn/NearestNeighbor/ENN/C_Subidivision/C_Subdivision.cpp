@@ -123,10 +123,10 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             int rB = quadB -> r;
             int cB = quadB -> c;
 
-            std::vector<int> candRA = {int(std::ceil(rA/4 -2)), int(std::floor(rA/4-1))};
-            std::vector<int> candCA = {int(std::ceil(cA/4 -2)), int(std::floor(cA/4-1))};
-            std::vector<int> candRB = {int(std::ceil(rB/4 -2)), int(std::floor(rB/4-1))};
-            std::vector<int> candCB = {int(std::ceil(cB/4 -2)), int(std::floor(cB/4-1))};
+            std::vector<int> candRA = {int(std::ceil(rA/double(4) -2)), int(std::floor(rA/double(4)-1))};
+            std::vector<int> candCA = {int(std::ceil(cA/double(4) -2)), int(std::floor(cA/double(4)-1))};
+            std::vector<int> candRB = {int(std::ceil(rB/double(4) -2)), int(std::floor(rB/double(4)-1))};
+            std::vector<int> candCB = {int(std::ceil(cB/double(4) -2)), int(std::floor(cB/double(4)-1))};
 
             std::vector<int> candR, candC;
             std::set_intersection(candRA.begin(), candRA.end(), candRB.begin(), candRB.end(), std::back_inserter(candR));
@@ -160,8 +160,8 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
 
         // Compute a new (i+2) quad 
         Quad* q = S[i];
-        int newR = int(std::ceil(q->r/4 -2));
-        int newC = int(std::ceil(q->c/4 -2));
+        int newR = int(std::ceil((q->r)/double(4) -2));
+        int newC = int(std::ceil((q->c)/double(4) -2));
 
         Quad * newQ = new Quad(newR, newC, ord+2, false);
         
