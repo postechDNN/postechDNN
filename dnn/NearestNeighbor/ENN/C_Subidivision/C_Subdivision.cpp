@@ -288,6 +288,8 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
         //Construct equivalent relation on next_Q
         std::vector<Component > next_equiv_classes = compute_equiv_class(next_Q);
 
+        //std::cout <<"TEST: "<<"Q.size " <<Q.size()<<' '<< "next Q.size " << next_Q.size()<<std::endl; 
+
         //Step 3. Process simple components of equivalent relation in Q(i-2) that are about to merge with some other component.
         for(auto q:Q){
             Quad* q_bar = q->growth;

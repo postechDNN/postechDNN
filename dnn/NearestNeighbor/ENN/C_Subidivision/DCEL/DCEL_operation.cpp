@@ -176,18 +176,6 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         for(auto k:start_e_set)
             T.insert(hedge_containers[k]);
 
-        /*if(__DEBUG_MODE__){
-            std::cout << "<ConstructFaces> p:"<<ev_p <<std::endl;
-            std::cout << "U(p) :";
-            for(auto it:start_e_set)
-                std::cout << hedge_containers[it].hedge->getKey()<<' ';
-            std::cout <<std::endl;
-
-            std::cout << "L(p) :";
-            for(auto it:end_e_set)
-                std::cout << hedge_containers[it].hedge->getKey()<<' ';
-            std::cout <<std::endl;
-        }*/
     }
 
     std::map<HEdge*, int> visit;    //int: FaceNode key in face_nodes
@@ -256,13 +244,15 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         else if(cross_vec_ab > 0){   //Left turn = counterclockwise traverse = outer boundary
             face_nodes[fn_key].is_outer = true;
         }
+        else std::cout<<"EXCEPTION: DCEL construct face\n";
     }
 
     //Construct the edge relation between Face Nodes in Graph 
-    int key=0;
+    int key=-1;
     for(auto fn : face_nodes){
-        if(fn.is_outer == true) continue; //Process only for hole boundary
         key++;
+        if(fn.is_outer == true) continue; //Process only for hole boundary
+        
         HEdge *lb_he = fn.he; //Since face node store the information of a half-edge whose origin is the left-bottommost vertex in the boundary. 
         Vertex *lb_v = lb_he->getOrigin();
         HEdge *left_he = left_hedges[lb_v];
@@ -338,11 +328,12 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
     }
 
     //3. Set an incident face of half edges.
+    int cnt = 0;
     for(auto f:faces){
         for(auto e: f->getOutHEdges())
-            e->setIncidentFace(f);
+            e->setIncidentFace(f), cnt++;
         for(auto e: f->getInnerHEdges())
-            e->setIncidentFace(f);
+            e->setIncidentFace(f), cnt++;
     }
 
     return faces;
@@ -748,9 +739,9 @@ DCEL::DCEL(std::vector<Point>& pts,std::vector<std::vector<int>>& graph,std::str
         }
     }
 
+
     //4. build faces.
     std::vector<Face*> ret_faces = ConstructFaces(ret_hedges);
-
 
     //5. label elements of DCEL and store the elements.
     int v_k=1;
