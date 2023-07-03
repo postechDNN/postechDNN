@@ -61,7 +61,7 @@ std::vector<Face*> well_covering_region(DCEL& dcel, HEdge* he){
 }
 
 int main(){
-    std::vector<Point> pts = {Point(0.5,0.5),Point(4.5,4.5)};
+    std::vector<Point> pts = {Point(0.5,0.5),Point(4.5,4.5), Point(100,100),Point(100.5,100.5)};
     C_Subdivision csubdiv(pts);
 
     std::cout<<"scale_factor: "<<csubdiv.scale_factor<<std::endl;
