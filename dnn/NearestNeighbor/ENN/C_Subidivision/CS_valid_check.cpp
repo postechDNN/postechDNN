@@ -6,13 +6,13 @@
 #include "DCEL/Vector.h"
 
 #define tolerance 1e-6
+#define space_const_limit 1500
 
 double euc_dist_edges(Edge &a, Edge &b){
     double ret=0;
     //TODO
     return ret;
 }
-
 
 bool is_left(HEdge& he, Point& p) {
     Vertex* a = he.getOrigin();
@@ -40,9 +40,32 @@ bool check_a1(DCEL& dcel) {
 
         if (std::abs(ax - bx) > tolerance && std::abs(ay - by) > tolerance){
             ret=false;
-            }
+        }
     }
     return ret;
+}
+
+bool check_w1(DCEL& dcel){
+    for(auto he: dcel.getHedges()){
+        WC_region wc(dcel,he);
+        if(wc.regions.empty()){
+            std::cout << "well-covering region of "<<he->getKey()<<" is empty\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_w2(DCEL& dcel, int alpha){
+    int num_vertices = dcel.getVertices().size();
+    int num_hedges = dcel.getHedges().size();
+    int num_faces = dcel.getFaces().size();
+    double complexity = num_vertices + num_hedges + num_faces;
+    if(complexity/(double)alpha > space_const_limit){
+        std::cout << "Complexity of conforming subdivision(" << complexity<< ") is larger than alpha * space_const_limit("<< space_const_limit * alpha<<")\n";
+        return false;
+    }
+    return true;
 }
 
 bool check_w3(DCEL& dcel, int alpha){
@@ -59,6 +82,15 @@ bool check_w3(DCEL& dcel, int alpha){
     return true;
 }
 
+bool check_c1(std::vector<Point>& pts, DCEL& dcel){
+    //TODO
+    return true;
+}
+
+
+bool check_c2(DCEL& dcel, int alpha){
+    return check_w1(dcel) & check_w2(dcel,alpha) & check_w3(dcel,alpha);
+}
 
 bool check_c3(std::vector<Point>& pts, DCEL& dcel) {
     std::unordered_map<std::string, int> vnum;
@@ -165,7 +197,7 @@ bool check_a4(DCEL& dcel, int alpha){
         /* Case 3) Square-annulus faces */
         else{
             std::cout <<"[A4] Check Square-annulus Face" << std::endl;
-            double factor = 1/double(double(4) * alpha);
+            double factor = 1./double(double(4) * alpha);
 
             // A) Check if every edge on the outer square of an annulus has length 1/(4⌈𝛼⌉) times the side length of the outer square.
             double outersidelen = 0;
@@ -194,8 +226,8 @@ bool check_a4(DCEL& dcel, int alpha){
                 }while(cur != innerF);
 
                 if (shortest < (outersidelen * factor)){
-                return false;
-            }
+                    return false;
+                }
 
             }
         }

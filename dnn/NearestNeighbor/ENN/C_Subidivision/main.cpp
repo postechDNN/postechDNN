@@ -41,6 +41,9 @@ int main(){
         std::cout<<he->getKey()<<' ';
     }
     std::cout<<std::endl;
+    std::cout <<"W1: "<<check_w1(dcel)<<std::endl;
+    std::cout <<"W2: "<<check_w2(dcel,alpha)<<std::endl;
+    //std::cout <<"W3: "<<check_w3(dcel,alpha)<<std::endl;
     std::cout<<"A1: "<<check_a1(dcel)<<std::endl;
     std::cout<<"A4: "<<check_a4(dcel,alpha)<<std::endl;
     return 0;
