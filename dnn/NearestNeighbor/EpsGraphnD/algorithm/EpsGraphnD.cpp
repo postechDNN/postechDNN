@@ -17,9 +17,18 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	ord_pol = 0;
 	xs_min = std::vector<double>(n, DBL_MIN);
 	xs_max = std::vector<double>(n, DBL_MAX);
+	for (auto pol : pols) {
+		pol.ord = ord_pol;
+		ord_pol++;
+		for (int i;i < n;i++) {
+			if (pol.xs_max[i] > this->xs_max[i]) {this->xs_max[i] = pol.xs_max[i] }
+			if (pol.xs_min[i] < this->xs_min[i]) {this->xs_min[i] = pol.xs_min[i] }
+		}
+	}
 	//x_min = y_min = z_min = DBL_MAX;
 	//x_max = y_max = z_max = DBL_MIN;
 }
+
 /*
 Eps_Graph_3D::Eps_Graph_3D(list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) { //O
 

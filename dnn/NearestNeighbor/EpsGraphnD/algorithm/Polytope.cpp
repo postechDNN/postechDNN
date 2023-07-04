@@ -6,9 +6,9 @@
 
 using namespace std;
 
-Edge::Edge() {
-	p1 = new Point;
-	p2 = new Point;
+Edge::Edge(int n) {
+	p1 = new Point(n);
+	p2 = new Point(n);
 	length = 0;
 }
 

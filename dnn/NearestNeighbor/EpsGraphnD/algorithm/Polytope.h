@@ -7,7 +7,7 @@ public:
 	Point* p2;
 	double length;
 public:
-	Edge();
+	Edge(int n);
 	Edge(std::vector<Point*>);
 	Edge(Point*, Point*);
 	Edge(Grid_Point*, Grid_Point*);
