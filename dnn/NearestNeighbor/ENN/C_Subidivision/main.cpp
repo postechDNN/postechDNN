@@ -18,8 +18,9 @@ int main(){
     for(auto p : csubdiv.sites){
         std::cout<<p<<std::endl;
     }
+    int alpha = 1;
 
-    DCEL dcel = csubdiv.build_d_subdivision(1);
+    DCEL dcel = csubdiv.build_d_subdivision(alpha);
     //DCEL_IO::print_DCEL(dcel);
     std::string he_key = "e2_1";
 
@@ -41,5 +42,6 @@ int main(){
     }
     std::cout<<std::endl;
     std::cout<<"A1: "<<check_a1(dcel)<<std::endl;
+    std::cout<<"A4: "<<check_a4(dcel,alpha)<<std::endl;
     return 0;
 }
