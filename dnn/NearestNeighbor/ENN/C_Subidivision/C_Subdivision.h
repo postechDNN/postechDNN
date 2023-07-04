@@ -86,7 +86,7 @@ public:     //NEED TO CONVERT
     double tr_y_factor;
 
     //void init_sites(Point, std::vector<Point>);
-    std::vector<Quad*> init_quads();
+    std::vector<Quad*> init_quads(std::set<Box_Edge> &);
     std::vector<Component > compute_equiv_class(std::vector<Quad*>&);
     std::vector<Quad*> growth(std::vector<Quad*>&);
     void inline draw_n_edges(int,int, int, int, int,std::set<Box_Edge>&);

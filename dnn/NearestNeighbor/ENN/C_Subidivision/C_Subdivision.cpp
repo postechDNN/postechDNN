@@ -270,7 +270,7 @@ void C_Subdivision::process_complex(std::vector<Quad *>& S, std::vector<Quad *>&
 //Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
 void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     //Initialize the set of quads.
-    std::vector<Quad*> Q =init_quads();
+    std::vector<Quad*> Q =init_quads(drawn_edges);
     std::vector<Component > equiv_classes = compute_equiv_class(Q);
     int i = 0;
     //build-subdivision.
@@ -587,7 +587,7 @@ inline int find_index_order(double x,int ord){
 }
 
 //Compute a 0-quad whose core has a site in its upper-left 0-box.
-std::vector<Quad*> C_Subdivision::init_quads(){
+std::vector<Quad*> C_Subdivision::init_quads(std::set<Box_Edge> &drawn_edges){
     std::vector<Quad*> Q;
 
     //collects 0-quads containing sites
@@ -595,6 +595,10 @@ std::vector<Quad*> C_Subdivision::init_quads(){
         double x = p.getx()*this->scale_factor + this->tr_x_factor;
         double y = p.gety()*this->scale_factor + this->tr_y_factor;
         int r = find_index_order(x,0), c= find_index_order(y,0);
+        draw_n_edges(r,c,0,false,1,drawn_edges);
+        draw_n_edges(r,c+1,0,false,1,drawn_edges);
+        draw_n_edges(r,c,0,true,1,drawn_edges);
+        draw_n_edges(r+1,c,0,true,1,drawn_edges);
         Quad* q= new Quad(r-1,c-1,0,true); 
         Q.push_back(q);
     }
