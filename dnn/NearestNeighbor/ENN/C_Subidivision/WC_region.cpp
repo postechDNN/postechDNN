@@ -18,27 +18,27 @@ bool inline is_colinear(HEdge* a, HEdge* b){
 WC_region::WC_region(DCEL& dcel, HEdge* he){
     this->e = he;
     HEdge* twin_he = he->getTwin();
-    //Two incident faces
-    Face* f= he->getIncidentFace(), *twin_f = twin_he->getIncidentFace();
 
     std::set<Vertex*> incident_vertices;
-    //Find collinear edges with he in the incident faces.
-    for(auto bd_he:f->getOutHEdges()){
-        if(is_colinear(he,bd_he)){
-            incident_vertices.insert(bd_he->getOrigin());
-            incident_vertices.insert(bd_he->getTwin()->getOrigin());
-            //std::cout <<"Collinear"<< he->getEdge() <<' '<<bd_he->getEdge()<<std::endl;
+
+    auto cur = he;
+    do{
+        if(is_colinear(cur,he)){
+            incident_vertices.insert(he->getOrigin());
+            incident_vertices.insert(he->getTwin()->getOrigin());
         }
-    }
-    
-    for(auto bd_he:twin_f->getOutHEdges()){
-        if(is_colinear(he,bd_he)){
-            incident_vertices.insert(bd_he->getOrigin());
-            incident_vertices.insert(bd_he->getTwin()->getOrigin());
-            //std::cout <<"Collinear"<< he->getEdge() <<' '<<bd_he->getEdge()<<std::endl;
+        cur = cur->getNext();
+    }while(cur != he);
+
+    cur = twin_he;
+    do{
+        if(is_colinear(cur,twin_he)){
+            incident_vertices.insert(he->getOrigin());
+            incident_vertices.insert(he->getTwin()->getOrigin());
         }
-    }
-    
+        cur = cur->getNext();
+    }while(cur != twin_he);
+
     std::set<Face*> incident_faces;
     //MODIFY LATER incominghedges
     for(auto v:incident_vertices){
