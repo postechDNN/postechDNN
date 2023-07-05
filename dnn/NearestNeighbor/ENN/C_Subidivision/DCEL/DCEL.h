@@ -74,6 +74,10 @@ public:
 	//void setInners(std::vector<HEdge*>*);
 	std::vector<HEdge *> getOutHEdges();
 	std::vector<HEdge*> getInnerHEdges();
+	std::vector<Vertex*> getOutVertices();
+	std::vector<Vertex*> getInnerVertices(int);
+	std::vector<HEdge*> getInnerHEdges(int);
+	bool inFace(Point p, bool is_open=true);
 };
 
 class DCEL {

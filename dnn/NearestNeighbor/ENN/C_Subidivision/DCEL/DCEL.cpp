@@ -235,6 +235,49 @@ std::vector<HEdge*> Face::getInnerHEdges(){
 	return ret;
 }
 
+
+std::vector<Vertex*> Face::getOutVertices(){
+	std::vector<Vertex*> ret;
+	HEdge* cur = this->outer;
+	if(this->outer == nullptr) return ret;
+	do{
+		ret.push_back(cur->getOrigin());
+		cur = cur->getNext();
+	}while(cur != this->outer);
+	
+	return ret;
+}
+std::vector<Vertex*> Face::getInnerVertices(int idx){
+	std::vector<Vertex*> ret;
+	if(idx >= this->inners.size()){
+		std::cout <<"The index of inner component is out of range\n";
+		return ret;
+	}
+	HEdge* cur = this->inners[idx];
+		do{
+		ret.push_back(cur->getOrigin());
+		cur = cur->getNext();
+	}while(cur != this->inners[idx]);
+	
+	return ret;
+}
+
+std::vector<HEdge*> Face::getInnerHEdges(int idx){
+	std::vector<HEdge *> ret;
+	if(idx >= this->inners.size()){
+		std::cout <<"The index of inner component is out of range\n";
+		return ret;
+	}
+
+	HEdge* cur = this->inners[idx];
+	do{
+		ret.push_back(cur);
+		cur = cur->getNext();
+	}while(cur != this->inners[idx]);
+	return ret;
+}
+
+
 //CAUTION : VECTOR ACCESS AND DELETION 
 
 DCEL::DCEL(std::string key) {
