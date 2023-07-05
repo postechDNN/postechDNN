@@ -21,15 +21,28 @@ double HEdgeContainer::getKey() const{
     double s_y = s.gety(), t_y = t.gety();
 
     double x_val = sweep_p->getx(), y_val = sweep_p->gety();
+
+    if(*(this->hedge->getOrigin()) == Point(x_val,y_val))  //start event
+        x_val -= tolerance;
+    else
+        x_val += tolerance;
+
     double dx = t_x - s_x, dy = t_y - s_y;
 
     if(std::abs(dy) < tolerance) return x_val;
 
-    return (dx*y_val - dx*s_y + dy*s_x + tolerance*x_val*dx) / (dy + tolerance * dx);
+    double key_val = (dx*y_val - dx*s_y + dy*s_x - tolerance*x_val*dx) / (dy - tolerance * dx);
+    //return (dx*y_val - dx*s_y + dy*s_x + tolerance*x_val*dx) / (dy + tolerance * dx);
+
+    return key_val;
 }
 
 bool HEdgeContainer::operator<(const HEdgeContainer& op) const{
-    return this->getKey() < op.getKey();
+    double val1 = this->getKey(), val2=op.getKey();
+    // if(std::abs(val1 - val2) < tolerance){
+    //     return this->key < op.key;
+    // }
+    return val1 < val2;
 }
 
 bool HEdgeContainer::operator==(const HEdgeContainer& op) const{
@@ -41,8 +54,9 @@ intersectEvent::intersectEvent(const Point& p, HEdgeContainer& hec ,EVENT ev) : 
 bool intersectEvent::operator<(const intersectEvent op) const{
     Point p1 = this->p, p2 = op.p;
     double diff = p1.gety()- p2.gety();
-    if(diff < -tolerance) return true;
-    else if(std::abs(diff) < tolerance) return p1.getx() < p2.getx();
+
+    if(std::abs(diff)< tolerance) return p1.getx()<p2.getx();
+    else if(diff < 0) return true;
     else return false;
 }
 bool intersectEvent::operator==(intersectEvent& op){ //굳이 필요한가?
@@ -157,12 +171,22 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         }
 
         //Delete the segments in L(p) 
-        for(auto k:end_e_set)
-            T.pop(hedge_containers[k]);
+        for(auto k:end_e_set){
+            auto TNode = T.pop(hedge_containers[k]);
+            // if(TNode == nullptr){
+            //     std::cout <<"EVENT point: "<<ev_p<<std::endl;
+            //     std::cout <<"NULLPTR: "<<hedge_containers[k].hedge->getEdge()<< " value: "<<hedge_containers[k].getKey() <<" key: "<<k<<std::endl;
+            //     for(int i = 0 ;i< T.size();i++)
+            //         std::cout << i <<"-th element: "<<T.getkthNode(i)->value.hedge->getEdge()<<" value: "<< T.getkthNode(i)->value.getKey()<<" key: " <<
+            //         T.getkthNode(i)->value.key <<std::endl;
+            //         int t;
+            //         std::cin >> t; 
+            // }
+        }
 
         //Find the edge left to the vertex
         double x = ev_p.getx(), y = ev_p.gety();
-        Vertex v1(x ,y+1.), v2(x,y-1.); 
+        Vertex v1(x ,y-1.), v2(x,y+1.); 
         HEdge dum_he(&v1,&v2);
         HEdgeContainer dum_line(-1,&dum_he);
         auto leftNode = T.getLeftNode(dum_line);
@@ -173,9 +197,9 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             left_hedges[ev_v] = nullptr;
             
 
-        for(auto k:start_e_set)
+        for(auto k:start_e_set){
             T.insert(hedge_containers[k]);
-
+        }
     }
 
     std::map<HEdge*, int> visit;    //int: FaceNode key in face_nodes
@@ -267,6 +291,9 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
             Vertex *dest_v = left_he->getTwin()->getOrigin();
             Point vec_b(lb_v->getx() - dest_v->getx(), lb_v->gety() - dest_v->gety());
             double cross_vec_ab = cross_prod(vec_a,vec_b); 
+            // std::cout<<"cross_vec_ab: "<<cross_vec_ab<<std::endl;
+            // std::cout<<"vec_a: "<<vec_a<<" "<<"vec_b: "<<vec_b<<std::endl;
+            // std::cout <<"left_he: "<<left_he->getEdge()<<' '<<"lb_v: "<<lb_v->getPoint()<<std::endl; 
             if(cross_vec_ab < 0 )  //Right turn = They do not share same incident face
                 left_he = left_he->getTwin();
             //cross_vec_ab = 0, it is the horizontal edge whose expanded line passes through left-bottommost vertex. 
@@ -762,4 +789,39 @@ DCEL::DCEL(std::vector<Point>& pts,std::vector<std::vector<int>>& graph,std::str
         f->setKey("f"+std::to_string(f_k++));
     }
     this->setFaces(ret_faces);
+}
+
+bool Face::inFace(Point p, bool is_open){
+	auto out_vertices = this->getOutVertices();
+    std::vector<Point> out_pts;
+    for(auto v:out_vertices){
+        out_pts.push_back(*v);
+    }
+
+    std::reverse(out_pts.begin(),out_pts.end());
+    SimplePolygon boundary_polygon(out_pts);
+    bool contain;
+    if(out_pts.size() == 0) contain = true;
+    else{
+        int inpol = boundary_polygon.inPolygon(p);
+        if(inpol > 0) contain = true;
+        else if(inpol < 0) contain = false;
+        else contain = !is_open;
+    }
+
+    int innerSize = this->getInners().size();
+    for(int i = 0; i<innerSize;i++){
+        auto in_vertices = this->getInnerVertices(i);
+        std::vector<Point> in_pts;
+        for(auto v:in_vertices)
+            in_pts.push_back(*v);
+        SimplePolygon inner_polygon(in_pts);
+        int inpol = inner_polygon.inPolygon(p);
+        bool inner_contain;
+        if(inpol > 0) inner_contain = true;
+        else if(inpol < 0) inner_contain = false;
+        else inner_contain = is_open;
+        contain = contain & !(inner_contain);
+    }
+    return contain;
 }

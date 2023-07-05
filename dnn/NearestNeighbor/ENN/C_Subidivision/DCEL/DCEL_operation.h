@@ -13,6 +13,7 @@
 #include "DCEL.h"
 #include <algorithm>
 #include <map>
+#include "Polygon.h"
 
 #define tolerance 1e-6 //TODO: change to enum
 #define __DEBUG_MODE__ 1

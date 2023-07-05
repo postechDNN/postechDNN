@@ -295,11 +295,11 @@ template <typename T>
 AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 	if (!this->root)
 		return nullptr;
-	//else if (this->size() == 1 && this->root->value == v){
-	//	AVLTreeNode<T>* tmp = this->root;
-	//	this->root = nullptr;
-	//	return tmp;
-	//}
+	// else if (this->size() == 1 && this->root->value == v){
+	// 	AVLTreeNode<T>* tmp = this->root;
+	// 	this->root = nullptr;
+	// 	return tmp;
+	// }
 	AVLTreeNode<T>* temp = this->root;
 	while (true) {
 		if (temp->value == v) {
