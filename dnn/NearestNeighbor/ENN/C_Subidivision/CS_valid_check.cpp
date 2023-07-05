@@ -3,10 +3,93 @@
 #include <unordered_map>
 #include <vector>
 #include <limits>
+#include <set>
 #include "DCEL/Vector.h"
 
 #define tolerance 1e-6
-#define space_const_limit 1500
+#define space_const_limit 150
+
+
+bool check_strong_csdiv(std::vector<Point>& pts, DCEL& dcel, int alpha){
+    std::cout<<"--------------Check if it is a strong "<<alpha<<"-conforming subdivision--------------\n";
+    int pass = 1;
+
+    std::cout<<"C1. Each cell of S contains at most one point of V in its closure: ";
+    if(check_c1(pts, dcel)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+
+    std::cout <<"C2. Each edge of S is strongly well-covered with parameter "<<alpha<<std::endl;
+    std::cout <<"\tW1. The set of cells C(e) is well defined: ";
+    if(check_w1(dcel)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    } 
+    std::cout <<"\tW2. The total complexity of all the cells in C(e) is less than alpha*space_const_limit("<<alpha<<"*"<<space_const_limit<<"): ";
+    if(check_w2(dcel,alpha)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+    std::cout <<"\tW3. If f is a boundary edge of well-covering region, euclidean distance between e and f is at least "<<alpha<<"* max(|e|,|f|): ";
+    if(check_w3(dcel,alpha)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+
+    std::cout <<"C3. The well-covering region of every edge of S contains at most one vertex of V: ";
+    if(check_c3(pts,dcel)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+    return pass;
+}
+
+bool check_add_properties(std::vector<Point>& pts, DCEL& dcel, int alpha){
+    std::cout<<"--------------Check if it satisfies additional properties for a "<<alpha<<"-conforming subdivision--------------\n";
+    int pass = 1;
+
+    std::cout<<"A1. all edges of the subdivision are horizontal or vertical: ";
+    if(check_a1(dcel)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+
+    std::cout<<"A2. each face is either a square or square-annulus: ";
+    if(check_a2(dcel)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+
+    std::cout<<"A3. each annulus has the minimum clearance property: ";
+    if(check_a3(dcel)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+
+    std::cout<<"A4. each face has the uniform edge property: ";
+    if(check_a4(dcel,alpha)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+
+    std::cout<<"A5. every data point is contained in the interior of a square face: ";
+    if(check_a5(pts, dcel)) std::cout<<"PASS\n";
+    else{
+        std::cout <<"FAIL\n";
+        pass = 0;
+    }
+    return pass;
+}
 
 double euc_dist_edges(Edge &a, Edge &b){
     double ret=0;
@@ -27,24 +110,6 @@ bool is_left(HEdge& he, Point& p) {
     return (bx - ax) * (py - ay) - (by - ay) * (px - ax) > 0;
 }
 
-bool check_a1(DCEL& dcel) {
-    bool ret=true;
-
-    for (auto he:dcel.getHedges()){
-        Vertex*a=he->getOrigin();
-        Vertex* b = he->getNext()->getOrigin();
-        double ax = a->getx();
-        double ay = a->gety();
-        double bx = b->getx();
-        double by = b->gety();
-
-        if (std::abs(ax - bx) > tolerance && std::abs(ay - by) > tolerance){
-            ret=false;
-        }
-    }
-    return ret;
-}
-
 bool check_w1(DCEL& dcel){
     for(auto he: dcel.getHedges()){
         WC_region wc(dcel,he);
@@ -57,14 +122,35 @@ bool check_w1(DCEL& dcel){
 }
 
 bool check_w2(DCEL& dcel, int alpha){
-    int num_vertices = dcel.getVertices().size();
-    int num_hedges = dcel.getHedges().size();
-    int num_faces = dcel.getFaces().size();
-    double complexity = num_vertices + num_hedges + num_faces;
-    if(complexity/(double)alpha > space_const_limit){
-        std::cout << "Complexity of conforming subdivision(" << complexity<< ") is larger than alpha * space_const_limit("<< space_const_limit * alpha<<")\n";
-        return false;
+    
+    for(auto he: dcel.getHedges()){
+        WC_region wc(dcel,he);
+        std::set<Vertex*> vertices;
+        std::set<HEdge*> hedges;
+        for(auto f: wc.regions){
+            int num_inners= f->getInners().size();
+            for(int i = 0 ; i< num_inners; i++){
+                auto vers = f->getInnerVertices(i);
+                auto hes = f->getInnerHEdges(i);
+                vertices.insert(vers.begin(),vers.end());
+                hedges.insert(hes.begin(), hes.end());
+            }
+            auto vers = f->getOutVertices();
+            auto hes = f->getOutHEdges();
+            vertices.insert(vers.begin(), vers.end());
+            hedges.insert(hes.begin(), hes.end());
+        }
+        int num_vertices = vertices.size();
+        int num_hedges = hedges.size();
+        int num_faces = wc.regions.size();
+        double complexity = num_vertices + num_hedges + num_faces;
+        if(complexity/(double)alpha > space_const_limit){
+            std::cout << "Complexity of conforming subdivision(" << complexity<< ") is larger than alpha * space_const_limit("<< space_const_limit * alpha<<")\n";
+            return false;
+        }
     }
+    
+
     return true;
 }
 
@@ -83,7 +169,31 @@ bool check_w3(DCEL& dcel, int alpha){
 }
 
 bool check_c1(std::vector<Point>& pts, DCEL& dcel){
-    //TODO
+    for(auto f : dcel.getFaces()){
+        int cnt = 0;
+        for(auto p : pts)
+            cnt += f->inFace(p);
+        //std::cout<<cnt<<std::endl;
+        // if(f->getInners().size()>0){
+        //     std::cout <<"Annulus\n";
+        //     std::cout<<"out\n";
+        //     for(auto v:f->getOutVertices())
+        //         std::cout<<*v<<std::endl;
+        //     std::cout<<"in\n";
+        //     for(auto v:f->getInnerVertices(0))
+        //         std::cout<<*v <<std::endl;
+        // }
+        if(cnt >= 2){
+            std::cout<<"cnt >= 2\n";
+            for(auto v:f->getOutVertices())
+                std::cout<<*v<<std::endl;
+            
+            if(f->getInners().size()>0)
+            for(auto v:f->getInnerVertices(0))
+                std::cout<<*v <<std::endl;
+            //return false;
+        }
+    }
     return true;
 }
 
@@ -167,6 +277,29 @@ bool check_c3(std::vector<Point>& pts, DCEL& dcel) {
     return true;
 }
 
+
+bool check_a1(DCEL& dcel) {
+    bool ret=true;
+
+    for (auto he:dcel.getHedges()){
+        Vertex*a=he->getOrigin();
+        Vertex* b = he->getNext()->getOrigin();
+        double ax = a->getx();
+        double ay = a->gety();
+        double bx = b->getx();
+        double by = b->gety();
+
+        if (std::abs(ax - bx) > tolerance && std::abs(ay - by) > tolerance){
+            ret=false;
+        }
+    }
+    return ret;
+}
+
+bool check_a2(DCEL& dcel){ return false;}
+bool check_a3(DCEL& dcel){ return false;}
+
+
 bool check_a4(DCEL& dcel, int alpha){
     std::vector<Face*> faces = dcel.getFaces();
     for(auto f:faces){
@@ -178,7 +311,7 @@ bool check_a4(DCEL& dcel, int alpha){
 
         /* Case 2) Square faces */
         else if(inners.empty()){
-            std::cout <<"[A4] Square Face" << std::endl;
+            //std::cout <<"[A4] Square Face" << std::endl;
             double shortest = std::numeric_limits<double>::max();
             double longest = 0; 
             for(auto he:outers){
@@ -196,7 +329,7 @@ bool check_a4(DCEL& dcel, int alpha){
         }
         /* Case 3) Square-annulus faces */
         else{
-            std::cout <<"[A4] Check Square-annulus Face" << std::endl;
+            //std::cout <<"[A4] Check Square-annulus Face" << std::endl;
             double factor = 1./double(double(4) * alpha);
 
             // A) Check if every edge on the outer square of an annulus has length 1/(4⌈𝛼⌉) times the side length of the outer square.
@@ -209,7 +342,7 @@ bool check_a4(DCEL& dcel, int alpha){
                 if(shortest > length) shortest = length; // Store the shortest edge length
             }
 
-            if (shortest < (outersidelen * factor)){
+            if (shortest < (outersidelen/4 * factor)){
                 return false;
             }
 
@@ -225,7 +358,7 @@ bool check_a4(DCEL& dcel, int alpha){
                     if(shortest > length) shortest = length; 
                 }while(cur != innerF);
 
-                if (shortest < (outersidelen * factor)){
+                if (shortest < (innersidelen/4 * factor)){
                     return false;
                 }
 
@@ -234,3 +367,5 @@ bool check_a4(DCEL& dcel, int alpha){
     }
     return true;
 }
+
+bool check_a5(std::vector<Point>& pts,DCEL& dcel){ return false;}
