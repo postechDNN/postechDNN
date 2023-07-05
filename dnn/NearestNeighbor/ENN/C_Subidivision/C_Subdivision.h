@@ -100,5 +100,5 @@ public:     //NEED TO CONVERT
     public:
     C_Subdivision(const std::vector<Point>&);
     ~C_Subdivision();
-    DCEL build_d_subdivision(int);
+    DCEL build_alpha_subdivision(int);
 };

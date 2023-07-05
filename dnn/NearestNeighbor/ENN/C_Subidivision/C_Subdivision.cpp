@@ -483,7 +483,7 @@ void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Poi
 
 //Build strong d-conforming subdivision and the output is stored as the set of drawn edges.
 //Return the output as DCEL.
-DCEL C_Subdivision::build_d_subdivision(int d){
+DCEL C_Subdivision::build_alpha_subdivision(int alpha){
     //1. Build strong 1-conforming subdivision
     std::set<Box_Edge> drawn_edges;
     this->draw_one_subdivision(drawn_edges);
@@ -492,7 +492,7 @@ DCEL C_Subdivision::build_d_subdivision(int d){
     //While constructing the graph, subdivide each edge of the graph into d equal-length pieces.
     std::vector<Point> vertices;
     std::vector<std::vector<int> > graph;
-    this->build_graph(drawn_edges,vertices,graph, d);     
+    this->build_graph(drawn_edges,vertices,graph, alpha);     
 
     //------------TEST----------------
     
