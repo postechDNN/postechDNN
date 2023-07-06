@@ -535,23 +535,32 @@ C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
     this->sites = sites;
 
     // Compute the minimum x-distance (y-distance) between sites 
-    double min_xdist = std::numeric_limits<double>::infinity();
-    double min_ydist = min_xdist;
-
-    std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.getx()<b.getx();});
-    for(int i = 0; i<this->sites.size()-1;i++){
-        double d = this->sites[i+1].getx()-this->sites[i].getx();
-        if (d < min_xdist) min_xdist = d;
+    // TODO: Need to improve it to O(nlog n) algorithm
+    double min_dist = std::numeric_limits<double>::infinity();
+    for(int i = 0;i<this->sites.size();i++){
+        for(int j = i+1; j < this->sites.size();j++){
+            double dx = std::abs(this->sites[i].getx()-this->sites[j].getx());
+            double dy = std::abs(this->sites[i].gety()-this->sites[j].gety());
+            min_dist = min_dist > std::max(dx,dy) ? std::max(dx,dy) : min_dist; 
+        }
     }
 
-    std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.gety()<b.gety();});
-    for(int i = 0; i<this->sites.size()-1;i++){
-        double d = this->sites[i+1].gety()-this->sites[i].gety();
-        if (d < min_ydist) min_ydist = d;
-    }
+    // double min_xdist = std::numeric_limits<double>::infinity();
+    // double min_ydist = min_xdist;
+    // std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.getx()<b.getx();});
+    // for(int i = 0; i<this->sites.size()-1;i++){
+    //     double d = this->sites[i+1].getx()-this->sites[i].getx();
+    //     if (d < min_xdist) min_xdist = d;
+    // }
+
+    // std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.gety()<b.gety();});
+    // for(int i = 0; i<this->sites.size()-1;i++){
+    //     double d = this->sites[i+1].gety()-this->sites[i].gety();
+    //     if (d < min_ydist) min_ydist = d;
+    // }
     
     // scaling to make the distance between points be larger than 1
-    double min_dist = std::max(min_xdist, min_ydist);
+    //double min_dist = std::max(min_xdist, min_ydist);
     scale_factor = 1.;
     if(min_dist < 4) scale_factor = 4/min_dist;
     
