@@ -17,16 +17,77 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	ord_pol = 0;
 	xs_min = std::vector<double>(n, DBL_MIN);
 	xs_max = std::vector<double>(n, DBL_MAX);
+	xs_num = std::vector<int>(n, 0);
 	for (auto pol : pols) {
 		pol.ord = ord_pol;
 		ord_pol++;
-		for (int i;i < n;i++) {
+		for (int i=0;i < n;i++) {
 			if (pol.xs_max[i] > this->xs_max[i]) {this->xs_max[i] = pol.xs_max[i] }
 			if (pol.xs_min[i] < this->xs_min[i]) {this->xs_min[i] = pol.xs_min[i] }
 		}
 	}
-	//x_min = y_min = z_min = DBL_MAX;
-	//x_max = y_max = z_max = DBL_MIN;
+	for (auto fr_pt : fr_pts) {
+		for (int i=0;i < n;i++) {
+			if (fr_pt.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs_max[i] }
+			if (fr_pt.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs_min[i] }
+		}
+	}
+	init_grid();
+}
+
+void Eps_Graph_nD::init_grid() { 
+	for (int i = 0;i < n;i++) {
+		xs_num[i] = 1+ long long int(ceil((xs_max[i] - xs_min[i]) / eps));
+	}
+	upper_left = Point(xs_min);
+	long long int tot_num = 1;
+	for (int i = 0;i < n;i++) {
+		tot_num = tot_num * xs_num[i]
+	}
+
+	// initialization step for BFS
+	for (long long int i = 0; i < tot_num; i++) {
+		dist.push_back(INT_MAX);
+		visited.push_back(false);
+	}
+
+	for (long long int i = 0; i < tot_num; i++)
+	{
+		grid.push_back(Grid_Point(num2ind(i).x_ind, num2ind(i).y_ind, num2ind(i).z_ind, upper_left.x, upper_left.y, upper_left.z, eps, y_num, z_num));
+	}
+
+	// for each grid & free point, count # of crossings of the rightward ray with each polytope
+	for (Grid_Point& pt : grid) {
+		for (Polytope& pol : pols) {
+			if (pol.isIn(&pt)) {
+				pt.encl = pol.ord;
+				pol.encl_pts.push_back(&pt);
+			}
+		}
+	}
+	for (int i = 0; i < x_num; i++) {
+		for (int j = 0; j < y_num; j++) {
+			for (int k = 0; k < z_num; k++) {
+				if (grid[ind2num(i, j, k)].encl != -1) { continue; }
+
+				if (i != x_num - 1) {
+					if (grid[ind2num(i + 1, j, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j, k }, 0)) { add_edge(indices{ i, j, k }, indices{ i + 1, j, k }); }
+					}
+				}
+				if (j != y_num - 1) {
+					if (grid[ind2num(i, j + 1, k)].encl == -1) {
+						if (cmpNadd(indices{ i, j, k }, 1)) { add_edge(indices{ i, j, k }, indices{ i, j + 1, k }); }
+					}
+				}
+				if (k != z_num - 1) {
+					if (grid[ind2num(i, j, k + 1)].encl == -1) {
+						if (cmpNadd(indices{ i, j, k }, 2)) { add_edge(indices{ i, j, k }, indices{ i, j, k + 1 }); }
+					}
+				}
+			}
+		}
+	}
 }
 
 /*

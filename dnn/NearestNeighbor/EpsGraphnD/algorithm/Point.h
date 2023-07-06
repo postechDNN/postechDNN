@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 
+/*
 struct indices {
 	long long int x_ind;
 	long long int y_ind;
@@ -15,6 +16,7 @@ struct ind_pts {
 	bool z_u;
 	bool z_d;
 };
+*/
 
 class Point {
 public:
@@ -51,8 +53,8 @@ public:
 
 class Grid_Point : public Point {
 public:
-	indices ind;	// its location on the grid
-	ind_pts ip;
+	std::vector<long long int> ind;	// its location on the grid
+	std::vector<bool> ip;
 	int num;
 	int encl;
 
@@ -61,5 +63,6 @@ public:
 
 public:
 	Grid_Point(int);
-	Grid_Point(int, int, int, double, double, double, double, int, int);
+	Grid_Point(indices, Point, double, std::vector<long long int>);
+	// Grid_Point(int, int, int, double, double, double, double, int, int);
 };

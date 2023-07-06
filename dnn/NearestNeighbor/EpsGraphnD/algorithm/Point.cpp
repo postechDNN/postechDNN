@@ -78,6 +78,20 @@ Free_Point::Free_Point(std::vector<double> _xs) :Point(xs) {
 
 Grid_Point::Grid_Point(int n) : Point(n) { ind = { -1, -1, -1 }; num = -1; ip = { false, false, false, false, false, false }; encl = -1; }
 
+Grid_Pont::Grid_Point(std::vector<long long int> _ind, Point _upper_left, double _eps, std::vector<long long int> _xs_num) {
+	n = _upper_left.n;
+	ind = _ind;
+	for (int i = 0; i < n;i++) {
+		xs[i] = _upper_left.xs[i] + ind[i] * eps;
+	}
+	num = 0;
+	long long int mult = 1;
+	for (int i = 0; i < n;i++) {
+		//add num!!!!!!!!!
+	}
+	encl = -1;
+	ip = std::vector<bool>(n, false);
+}
 //Grid_Point::Grid_Point(int _x_num, int _y_num, int _z_num, double x_min, double y_min, double z_min, double eps, int eg_y, int eg_z) {
 //	ind.x_ind = _x_num; ind.y_ind = _y_num; ind.z_ind = _z_num;
 //	x = x_min + ind.x_ind * eps; y = y_min + ind.y_ind * eps; z = z_min + ind.z_ind * eps;
