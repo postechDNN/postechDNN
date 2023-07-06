@@ -1,10 +1,10 @@
 #pragma once
 #include "DCEL/Edge.h"
 #include "DCEL/DCEL.h"
+#include "DCEL/Polygon.h"
 
 double euc_dist_edges(Edge &a, Edge &b);
 bool is_left(HEdge& he, Point& p);
-
 bool check_strong_csdiv(std::vector<Point>& pts, DCEL& dcel, int alpha);
 bool check_add_properties(std::vector<Point>& pts, DCEL& dcel, int alpha);
 

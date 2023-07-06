@@ -296,8 +296,139 @@ bool check_a1(DCEL& dcel) {
     return ret;
 }
 
-bool check_a2(DCEL& dcel){ return false;}
-bool check_a3(DCEL& dcel){ return false;}
+
+bool check_a2(DCEL& dcel) {
+    std::vector<Face*> faces = dcel.getFaces();
+    for (auto f : faces) {
+        /* Skip the outmost face*/
+        if (f->isOutMost()) continue;
+
+        std::vector<HEdge*> inners = f->getInners();
+
+        if(inners.size()>1) return false;
+
+        // Get all edge of inner face
+        std::vector<HEdge*> innerEdge;
+        if (!inners.empty()) {
+            auto cur = inners[0];
+            do {
+                innerEdge.push_back(cur);
+                cur = cur->getNext();
+            } while (cur != inners[0]);
+        }
+
+        std::vector<HEdge*> squares[2] = { innerEdge , f->getOutHEdges() };
+        /* Check inner, outer square */
+        for (int i = 0; i < 2; i++) { 
+            if (squares[i].empty()) continue;
+
+            // Compute boundary of sqaure
+            double bnd[4] = { std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(),
+                std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest() }; // minx maxx miny maxy
+            for (auto edge : squares[i]) {
+                double nowX[2] = { edge->getEdge().gets().getx(), edge->getEdge().gett().getx() };
+                double nowY[2] = { edge->getEdge().gets().gety(), edge->getEdge().gett().gety() };
+                for (int j = 0; j < 2; j++) {
+                    if (bnd[0] > nowX[j]) bnd[0] = nowX[j];
+                    if (bnd[1] < nowX[j]) bnd[1] = nowX[j];
+                    if (bnd[2] > nowY[j]) bnd[2] = nowY[j];
+                    if (bnd[3] < nowY[j]) bnd[3] = nowY[j];
+                }
+            }
+
+            // Compute length of each side
+            double lengths[4] = { 0,0,0,0 }; // left, right, top, bottom
+            for (auto edge : squares[i]) {
+                double nowX[2] = { edge->getEdge().gets().getx(), edge->getEdge().gett().getx() };
+                double nowY[2] = { edge->getEdge().gets().gety(), edge->getEdge().gett().gety() };
+                // Left edge
+                if (std::abs(nowX[0] - bnd[0]) < tolerance && std::abs(nowX[1] - bnd[0]) < tolerance) {
+                    lengths[0] += std::abs(nowY[0] - nowY[1]);
+                }
+                // Right edge
+                else if (std::abs(nowX[0] - bnd[1]) < tolerance && std::abs(nowX[1] - bnd[1]) < tolerance) {
+                    lengths[1] += std::abs(nowY[0] - nowY[1]);
+                }
+                // Top edge
+                else if (std::abs(nowY[0] - bnd[3]) < tolerance && std::abs(nowY[1] - bnd[3]) < tolerance) {
+                    lengths[2] += std::abs(nowX[0] - nowX[1]);
+                }
+                // Bottom edge
+                else if (std::abs(nowY[0] - bnd[2]) < tolerance && std::abs(nowY[1] - bnd[2]) < tolerance) {
+                    lengths[3] += std::abs(nowX[0] - nowX[1]);
+                }
+                // False (Not square)
+                else return false;
+            }
+
+            // length check            
+            for (int j = 0; j < 3; j++) {
+                if (std::abs(lengths[j] - lengths[j + 1]) > tolerance) return false; 
+            }
+        }
+    }
+    return true;
+}
+
+bool check_a3(DCEL& dcel) {
+    std::vector<Face*> faces = dcel.getFaces();
+    for (auto f : faces) {
+        std::vector<HEdge*> inners = (f->getInners());
+        std::vector<HEdge*> outers = (f->getOutHEdges());
+        /* Case 1) The outmost face*/
+        if (f->isOutMost()) continue;
+        /* Case 2) Square faces */
+        else if (inners.empty()) continue;
+        /* Case 3) Square-annulus faces */
+        else {
+
+            // Get all edge of inner square
+            std::vector<HEdge*> innerEdge;
+            auto cur = inners[0];
+            do {
+                innerEdge.push_back(cur);
+                cur = cur->getNext();
+            } while (cur != inners[0]);
+
+            // Compute boundary of inner square
+            double inner[4] = { std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(),
+                std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest() }; // minx maxx miny maxy
+            for (auto edge : innerEdge) {
+                double nowX[2] = { edge->getEdge().gets().getx(), edge->getEdge().gett().getx() };
+                double nowY[2] = { edge->getEdge().gets().gety(), edge->getEdge().gett().gety() };
+                for (int i = 0; i < 2; i++) {
+                    if (inner[0] > nowX[i]) inner[0] = nowX[i];
+                    if (inner[1] < nowX[i]) inner[1] = nowX[i];
+                    if (inner[2] > nowY[i]) inner[2] = nowY[i];
+                    if (inner[3] < nowY[i]) inner[3] = nowY[i];
+                }
+            }
+
+            // Compute boundary of outer square
+            double outer[4] = { std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(),
+                std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest() }; // minx maxx miny maxy
+            for (auto edge : outers) {
+                double nowX[2] = { edge->getEdge().gets().getx(), edge->getEdge().gett().getx() };
+                double nowY[2] = { edge->getEdge().gets().gety(), edge->getEdge().gett().gety() };
+                for (int i = 0; i < 2; i++) {
+                    if (outer[0] > nowX[i]) outer[0] = nowX[i];
+                    if (outer[1] < nowX[i]) outer[1] = nowX[i];
+                    if (outer[2] > nowY[i]) outer[2] = nowY[i];
+                    if (outer[3] < nowY[i]) outer[3] = nowY[i];
+                }
+            }
+
+            // Check minimum clearance property
+            double sideLength = std::abs(outer[1] - outer[0])/4;
+
+            if (outer[0] + sideLength - tolerance > inner[0]) return false;
+            if (outer[1] - sideLength + tolerance < inner[1]) return false;
+            if (outer[2] + sideLength - tolerance > inner[2]) return false;
+            if (outer[3] - sideLength + tolerance < inner[3]) return false;
+        }
+    }
+    return true;
+}
 
 
 bool check_a4(DCEL& dcel, int alpha){
