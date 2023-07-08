@@ -22,10 +22,11 @@ double HEdgeContainer::getKey() const{
 
     double x_val = sweep_p->getx(), y_val = sweep_p->gety();
 
-    if(*(this->hedge->getOrigin()) == Point(x_val,y_val))  //start event
-        x_val -= tolerance;
-    else
-        x_val += tolerance;
+    //TODO: consider the case that cross event, end event
+    // if(*(this->hedge->getOrigin()) == Point(x_val,y_val))  //start event
+    //     x_val -= tolerance;
+    // else
+    //     x_val += tolerance;
 
     double dx = t_x - s_x, dy = t_y - s_y;
 
@@ -156,7 +157,7 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         Point ev_p = pq.top().p;
         HEdge *ev_he = pq.top().hec.hedge;
         Vertex *ev_v = *(ev_he->getOrigin()) == ev_p ? ev_he->getOrigin() : ev_he->getTwin()->getOrigin();  
-        sweep_p.setx(ev_p.getx());
+        sweep_p.setx(ev_p.getx()+tolerance);
         sweep_p.sety(ev_p.gety());
 
         while(!pq.empty() && ev_p == pq.top().p){
@@ -196,7 +197,7 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
         else
             left_hedges[ev_v] = nullptr;
             
-
+        sweep_p.setx(ev_p.getx()-tolerance);
         for(auto k:start_e_set){
             T.insert(hedge_containers[k]);
         }
@@ -422,7 +423,7 @@ DCEL DCEL::merge(DCEL &op){
         std::set<int> start_e_set, end_e_set, cross_e_set;
         //update sweep line status
         Point ev_p = pq.top().p;
-        sweep_p.setx(ev_p.getx());
+        sweep_p.setx(ev_p.getx()+tolerance);
         sweep_p.sety(ev_p.gety());
 
         while(!pq.empty() && ev_p == pq.top().p){
@@ -541,6 +542,8 @@ DCEL DCEL::merge(DCEL &op){
                 FindNewEvent(leftNode->value,hedge_containers[min_k], pq);
             if(rightNode)
                 FindNewEvent(rightNode->value,hedge_containers[max_k],pq);
+
+            sweep_p.setx(ev_p.getx()-tolerance);
 
             for(auto k : SC_union)
                 T.insert(hedge_containers[k]);
