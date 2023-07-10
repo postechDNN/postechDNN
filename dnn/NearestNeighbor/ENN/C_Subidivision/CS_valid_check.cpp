@@ -453,7 +453,7 @@ bool check_a4(DCEL& dcel, int alpha){
             }
 
             // Check if he lengths of edges on the boundary of a square cell differ by at most a factor of 4.
-            if(shortest < (longest / 4)) {
+            if(shortest < ((longest / 4) - tolerance)) {
                 return false;
             }
             
@@ -473,7 +473,7 @@ bool check_a4(DCEL& dcel, int alpha){
                 if(shortest > length) shortest = length; // Store the shortest edge length
             }
 
-            if (shortest < (outersidelen/4 * factor)){
+            if (shortest < ((outersidelen/4 * factor)-tolerance)){
                 return false;
             }
 
@@ -489,7 +489,7 @@ bool check_a4(DCEL& dcel, int alpha){
                     if(shortest > length) shortest = length; 
                 }while(cur != innerF);
 
-                if (shortest < (innersidelen/4 * factor)){
+                if (shortest < ((innersidelen/4 * factor)-tolerance)){
                     return false;
                 }
 
