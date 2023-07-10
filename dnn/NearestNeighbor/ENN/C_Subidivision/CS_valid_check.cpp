@@ -92,22 +92,50 @@ bool check_add_properties(std::vector<Point>& pts, DCEL& dcel, int alpha){
 }
 
 double euc_dist_edges(Edge &a, Edge &b){
-    double ret=0;
-    //TODO
+    if (a.crossing(b, true) != nullptr)
+        return 0.0;
+
+    double ret = 0.0;
+    double tmp = 0.0;
+
+    Point as = a.gets(), at = a.gett(), bs = b.gets(), bt = b.gett();
+
+    ret = as.distance(bs);
+
+    tmp = as.distance(bt);
+    ret = tmp < ret ? tmp : ret;
+
+    tmp = at.distance(bs);
+    ret = tmp < ret ? tmp : ret;
+
+    tmp = at.distance(bt);
+    ret = tmp < ret ? tmp : ret;
+
+    // as-at <-> bs
+    if (Vector(as, at).innerProdct(Vector(as, bs)) > 0 && Vector(at, as).innerProdct(Vector(at, bs)) > 0) {
+        tmp = abs(Vector(bs, as).outerProdct(Vector(bs, at))) / as.distance(at);
+        ret = tmp < ret ? tmp : ret;
+    }
+
+    // as-at <-> bt
+    if (Vector(as, at).innerProdct(Vector(as, bt)) > 0 && Vector(at, as).innerProdct(Vector(at, bt)) > 0) {
+        tmp = abs(Vector(bt, as).outerProdct(Vector(bt, at))) / as.distance(at);
+        ret = tmp < ret ? tmp : ret;
+    }
+
+    // bs-bt <-> as
+    if (Vector(bs, bt).innerProdct(Vector(bs, as)) > 0 && Vector(bt, bs).innerProdct(Vector(bt, as)) > 0) {
+        tmp = abs(Vector(as, bs).outerProdct(Vector(as, bt))) / bs.distance(bt);
+        ret = tmp < ret ? tmp : ret;
+    }
+
+    // bs-bt <-> at
+    if (Vector(bs, bt).innerProdct(Vector(bs, at)) > 0 && Vector(bt, bs).innerProdct(Vector(bt, at)) > 0) {
+        tmp = abs(Vector(at, bs).outerProdct(Vector(at, bt))) / bs.distance(bt);
+        ret = tmp < ret ? tmp : ret;
+    }
+
     return ret;
-}
-
-bool is_left(HEdge& he, Point& p) {
-    Vertex* a = he.getOrigin();
-    Vertex* b = he.getNext()->getOrigin();
-    double ax = a->getx();
-    double ay = a->gety();
-    double bx = b->getx();
-    double by = b->gety();
-    double px = p.getx();
-    double py = p.gety();
-
-    return (bx - ax) * (py - ay) - (by - ay) * (px - ax) > 0;
 }
 
 bool check_w1(DCEL& dcel){
@@ -204,79 +232,38 @@ bool check_c2(DCEL& dcel, int alpha){
 
 bool check_c3(std::vector<Point>& pts, DCEL& dcel) {
     std::unordered_map<std::string, int> vnum;
-    
+
     for (auto face : dcel.getFaces()) {
         if (face->isOutMost()) {
             continue;
         }
 
-        std::string key = face->getKey();
         int count = 0;
 
         for (auto p : pts) {
-            bool is_valid = true;
-
-            for (auto he : face->getOutHEdges()) {
-                if (!is_left(*he, p)) {
-                    is_valid = false;
-                    break;
-                }
-            }
-
-            if (!is_valid)
-                continue;
-
-            Face* cur = NULL;
-            for (auto he : face->getInnerHEdges()) {
-                if (cur != he->getTwin()->getIncidentFace()) {
-                    cur = he->getTwin()->getIncidentFace();
-                    //std::cout << "inner face key: " << cur->getKey() << '\n';
-                    bool flag = true;
-
-                    for (auto inner_he : cur->getOutHEdges()) {
-                        if (!is_left(*inner_he, p)) {
-                            flag = false;
-                            break;
-                        }
-                    }
-
-                    if (flag) {
-                        is_valid = false;
-                        break;
-                    }
-                }
-            }
-
-            if (is_valid) count++;
+            if (face->inFace(p, true))
+                count++;
         }
-        
-        vnum[key] = count;
-        //std::cout << key << ' ' << count << '\n';
+
+        vnum[face->getKey()] = count;
     }
 
     for (auto he : dcel.getHedges()) {
-        WC_region wc(dcel,he);
+        WC_region wc(dcel, he);
         std::vector<Face*> regions = wc.regions;
-        
+
         int sum = 0;
         for (auto f : regions) {
             sum += vnum[f->getKey()];
         }
 
         if (sum > 1) {
-            //std::cout << he->getKey() << ' ';
-            //std::cout << sum << '\n';
-            //std::cout << he->getOrigin()->getx() << ' ' << he->getOrigin()->gety();
-            //std::cout << ", " << he->getNext()->getOrigin()->getx() << ' ' << he->getNext()->getOrigin()->gety() << '\n';
-            //std::cout << he->getIncidentFace()->getKey() << '\n';
-            //std::cout << '\n';
             return false;
         }
     }
 
     return true;
 }
-
 
 bool check_a1(DCEL& dcel) {
     bool ret=true;
