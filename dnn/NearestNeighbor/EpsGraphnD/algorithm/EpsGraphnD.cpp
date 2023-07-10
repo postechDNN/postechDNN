@@ -33,6 +33,9 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 		}
 	}
 	init_grid();
+	for (Free_Point& fr_pt : fr_pts) {
+		anchor(fr_pt);
+	}
 }
 
 void Eps_Graph_nD::init_grid() { 
@@ -65,24 +68,66 @@ void Eps_Graph_nD::init_grid() {
 			}
 		}
 	}
-	for (int i = 0; i < x_num; i++) {
-		for (int j = 0; j < y_num; j++) {
-			for (int k = 0; k < z_num; k++) {
-				if (grid[ind2num(i, j, k)].encl != -1) { continue; }
+	for (int i = 0; i < tot_num; i++) {
+		if (grid[i].encl != -1) { continue; }
+		std::vector<int> inds = num2ind(i);
+		for (j = 0;j < n;j++) {
+			if (inds[j] != xs_num[j] - 1) {
+				std::vector<int> _inds(n);
+				std::copy(inds.begin(), inds.end(), _inds.begin());
+				_inds[j] += 1;
+				if (grid[ind2num(_inds)].encl == -1) {
+					if (cmpNadd(inds, j)) { add_edge(inds, _inds); }
+				}
+			}
+		}
+	}
+}
 
-				if (i != x_num - 1) {
-					if (grid[ind2num(i + 1, j, k)].encl == -1) {
-						if (cmpNadd(indices{ i, j, k }, 0)) { add_edge(indices{ i, j, k }, indices{ i + 1, j, k }); }
+void Eps_Graph_nD::anchor(Free_Point& p) { // cast anchor onto a grid point from a free point
+	//Need to Start!!!!!
+
+	if (p.host != -1) {
+		assert(0 <= p.host && p.host < grid.size());
+		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end();) {
+			if (p.x == (*(*it)).x && p.y == (*(*it)).y && p.z == (*(*it)).z) {
+				it = grid[p.host].anchored.erase(it);
+				if (it == grid[p.host].anchored.end()) break;
+			}
+			else {
+				++it;
+			}
+		}
+	}
+
+	bool flag = false;
+	int x; int y; int z;
+	x = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
+	y = int(ceil((p.y - upper_left.y) / eps - 0.5));
+	z = int(ceil((p.z - upper_left.z) / eps - 0.5));
+	if (grid[ind2num(x, y, z)].encl == -1) {
+		p.host = grid[ind2num(x, y, z)].num;
+		grid[ind2num(x, y, z)].anchored.push_back(&p);
+		return;
+	}
+
+	// find a nearest gridpoint not enclosed by any polygon
+	for (int step = 1; step < y_num + x_num + z_num; step++) {
+		for (int x_step = -step; x_step <= step; x_step++) {
+			for (int y_step = -(step - abs(x_step)); y_step <= step - abs(x_step); y_step++) {
+				int z_step = step - abs(x_step) - abs(y_step);
+				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z + z_step && z + z_step < z_num) {
+					if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
+						p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
+						grid[ind2num(x + x_step, y + y_step, z + z_step)].anchored.push_back(&p);
+						return;
 					}
 				}
-				if (j != y_num - 1) {
-					if (grid[ind2num(i, j + 1, k)].encl == -1) {
-						if (cmpNadd(indices{ i, j, k }, 1)) { add_edge(indices{ i, j, k }, indices{ i, j + 1, k }); }
-					}
-				}
-				if (k != z_num - 1) {
-					if (grid[ind2num(i, j, k + 1)].encl == -1) {
-						if (cmpNadd(indices{ i, j, k }, 2)) { add_edge(indices{ i, j, k }, indices{ i, j, k + 1 }); }
+				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z - z_step && z - z_step < z_num) {
+					if (grid[ind2num(x + x_step, y + y_step, z - z_step)].encl == -1) {
+						p.host = grid[ind2num(x + x_step, y + y_step, z - z_step)].num;
+						grid[ind2num(x + x_step, y + y_step, z - z_step)].anchored.push_back(&p);
+						return;
 					}
 				}
 			}
