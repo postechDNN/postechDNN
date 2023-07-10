@@ -1,4 +1,5 @@
 #include "Polytope.h"
+#include "optimization.h"
 #include <queue>
 #include <assert.h>
 #include <random>
@@ -41,6 +42,7 @@ bool simplices::intersect(simplices x) {
 	}
 	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
 	MatrixXd N = Temp.kernel().cast<double>();
+	int Num_dim_col=N.rows();
 	return true;
 }
 

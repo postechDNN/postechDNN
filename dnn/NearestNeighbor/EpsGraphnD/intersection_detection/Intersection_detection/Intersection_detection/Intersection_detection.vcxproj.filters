@@ -24,12 +24,114 @@
     <ClCompile Include="Polytope.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kernels_avx2.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kernels_fma.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kernels_sse2.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="linalg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="optimization.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="solvers.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="specialfunctions.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="statistics.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="alglibinternal.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="alglibmisc.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ap.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="dataanalysis.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="diffequations.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="fasttransforms.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="integration.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="interpolation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Point.h">
       <Filter>리소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="Polytope.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="alglibinternal.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="alglibmisc.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ap.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="linalg.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="optimization.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="solvers.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="kernels_avx2.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="kernels_fma.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="kernels_sse2.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="specialfunctions.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="statistics.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="dataanalysis.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="diffequations.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="fasttransforms.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="integration.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="interpolation.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
       <Filter>리소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,0 +1,18 @@
+#pragma once
+
+#include "optimization.h"
+#include "alglibinternal.h"
+#include "alglibmisc.h"
+#include "ap.h"
+#include "dataanalysis.h"
+#include "diffequations.h"
+#include "fasttransforms.h"
+#include "integration.h"
+#include "interpolation.h"
+#include "kernels_avx2.h"
+#include "kernels_fma.h"
+#include "kernels_sse2.h"
+#include "linalg.h"
+#include "solvers.h"
+#include "specialfunctions.h"
+#include "statistics.h"
