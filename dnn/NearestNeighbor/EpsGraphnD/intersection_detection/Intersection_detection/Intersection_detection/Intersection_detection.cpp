@@ -36,6 +36,6 @@ int main(int argc, char** argv)
     // Solve
     minlpoptimize(state);
     minlpresults(state, x, rep);
-    printf("%s\n", x.tostring(3).c_str()); // EXPECTED: [0,1]
+    cout << x[0] << endl;
     return 0;
 }

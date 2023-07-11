@@ -11,6 +11,7 @@
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using namespace alglib;
 
 simplices::simplices() {
 }
@@ -42,15 +43,62 @@ bool simplices::intersect(simplices x) {
 	}
 	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
 	MatrixXd N = Temp.kernel().cast<double>();
-	int Num_dim_col = N.rows();
-	int Num_col_vec = N.cols();
-	double* p = new double[Num_col_vec * Num_dim_col];
-	for (int i = 0; i < Num_col_vec * Num_dim_col; i++) {
-		p[i] = N(i / Num_col_vec, i % Num_dim_col);
+	int Row = N.rows();
+	int Col = N.cols();
+
+	real_2d_array A;
+	double* p = new double[Col * (Row + 1)];
+	for (int i = 0; i < Col * Row; i++) {
+		p[i] = N(i / Col, i % Col);
 	}
-	alglib::real_2d_array A;
-	A.setcontent(Num_col_vec, Num_dim_col, p);
-	return true;
+	for (int i = Col * Row; i < Col * (Row +1); i++) {
+		p[i] = ERR;
+	}
+	A.setcontent(Row + 1, Col, p);
+
+	double* low = new double[Row + 1] {0,};
+	low[Row] = ERR;
+	real_1d_array al;
+	al.setcontent(Row + 1, low);
+
+	double* upp = new double[Row + 1] {INFINITY, };
+	real_1d_array au;
+	au.setcontent(Row + 1, low);
+
+	double* c1 = new double[Col] {1, };
+	real_1d_array c;
+	real_1d_array s;
+	c.setcontent(Col, c1);
+	s.setcontent(Col, c1);
+
+	double* v_low = new double[Col] {-INFINITY, };
+	real_1d_array bndl;
+	bndl.setcontent(Col, v_low);
+
+	double* v_upp = new double[Col] {INFINITY, };
+	real_1d_array bndu;
+	bndu.setcontent(Col, v_upp);
+
+	// Setting
+	real_1d_array sol;
+	minlpstate state;
+	minlpreport rep;
+	minlpcreate(Row + 1, state);
+	minlpsetcost(state, c);
+	minlpsetbc(state, bndl, bndu);
+	minlpsetlc2dense(state, A, al, au, Row+1);
+	minlpsetscale(state, s);
+
+	// Solve
+	minlpoptimize(state);
+	minlpresults(state, sol, rep);
+
+	for (int i = 0; i < Col; i++) {
+		if (sol[i] != 0.0) {
+			return true;
+		}
+	}	
+	return false;
 }
 
 bool simplices::isIn(Point* p) {
