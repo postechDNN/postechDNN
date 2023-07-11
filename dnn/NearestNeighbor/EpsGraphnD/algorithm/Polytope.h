@@ -51,7 +51,7 @@ public:
 	Polytope();
 	Polytope(FILE*);
 	~Polytope();
-	void setpolytope(std::vector<Face*> input);
+	void setpolytope(std::vector<Point*> vp, std::vector<Edge> ve);
 	bool isIn(Point* p);
 	bool intersect(Point, Point, int);
 	bool operator==(Polytope);
