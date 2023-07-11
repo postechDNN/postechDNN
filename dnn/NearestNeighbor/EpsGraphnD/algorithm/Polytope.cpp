@@ -14,6 +14,160 @@ Edge::Edge(int n) {
 
 Edge::~Edge() {
 }
+
+Edge::Edge(std::vector<Point*> vp) {
+	p1 = vp[0];
+	p2 = vp[1];
+	length = vp[0]->distance(vp[1]);
+}
+
+Edge::Edge(Point* v1, Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = p1->distance(p2);
+}
+
+
+Edge::Edge(Grid_Point* v1, Grid_Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = v1->distance(v2);
+}
+
+
+Edge::Edge(Free_Point* v1, Grid_Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = v1->distance(v2);
+}
+
+
+bool Edge::operator==(Edge e) {
+	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
+}
+
+/*
+bool Edge::cross(Point* p, Point* ray) {
+	Point vec;
+	Point normal;
+
+	for (int i = 0; i < p1->getsize(); i++) {
+		vec[i] = p2->getx(i) - p1->getx(i);
+	}
+
+	normal.x = ray->y * vec.z - ray->z * vec.y; normal.y = ray->z * vec.x - ray->x * vec.z; normal.z = ray->x * vec.y - ray->y * vec.x;
+	if (normal.x * (p2->x - p->x) + normal.y * (p2->y - p->y) + normal.z * (p2->z - p->z) != 0) {
+		return false;
+	}
+	if (vec.x * ray->y - ray->x * vec.y == 0) { return false; }
+	double Value = (p->x * ray->y - p->y * ray->x - ray->y * p1->x + ray->x * p1->y) / (vec.x * ray->y - ray->x * vec.y);
+	double ray_Value = (vec.y * p1->x - vec.x * p1->y - p->x * vec.y + p->y * vec.x) / (vec.x * ray->y - ray->x * vec.y);
+	if (Value > 0 && Value < 1 && ray_Value < 0) { return true; }
+	else return false;
+
+}
+*/
+
+bool Edge::on(Point* p) {
+	double lambda = INFINITY;
+
+	for (int i = 0; i < p1->getsize(); i++) {
+		if (p->getx(i) < min(p1->getx(i), p2->getx(i)) || p->getx(i) > max(p1->getx(i), p2->getx(i)) {
+			return false; 
+		}
+	}
+
+	int count = 0;
+	int val = 0;
+
+	for (int i = 0; i < p1->getsize(); i++) {
+		if (p1->getx(i) == p2->getx(i)) {
+			count++;
+		}
+	}
+
+	if (count == p1->getsize() - 1) {
+		return true;
+	}
+
+	for (int i = 0; i < p1->getsize(); i++) {
+		if (p1->getx(i) == p2->getx(i)) {
+			for (int j = 0; j < p1->getsize(); j++) {
+				if (i == j) continue;
+				else {
+					if (i == 0) {
+						val = (p->getx(1) - p2->getx(1)) / (p1->getx(1) - p2->getx(1))
+					}
+					else {
+						val = (p->getx(0) - p2->getx(0)) / (p1->getx(0) - p2->getx(0))
+					}
+					if (val == (p->getx(j) - p2->getx(j)) / (p1->getx(j) - p2->getx(j))) {
+						continue;
+					}
+					else return false;
+				}
+				return true;
+			}
+		}
+	}
+}
+
+void Polytope::setpolytope(std::vector<Point*> vp, std::vector<Edge> ve)
+{
+	num_points = 0;
+	num_edges = 0;
+std:vector<Point*> pts_min = INFINITY;
+std:vector<Point*> pts_max = -INFINITY;
+
+	for (auto p : vp)
+	{
+		bool same = false;
+		for (auto v : vertices)
+		{
+			if (p == v)
+			{
+				same = true;
+				break;
+			}
+		}
+		if (!same)
+		{
+			vertices.push_back(p);
+			num_points++;
+		}
+	}
+std:vector<Point*> temp = vp
+Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]} };
+for (int i = 0; i < 3; i++)
+{
+	bool same = false;
+	for (auto e : edges)
+	{
+		if (e == t[i])
+		{
+			same = true;
+			break;
+		}
+	}
+	if (!same)
+	{
+		edges.push_back(t[i]);
+		min_length = min(min_length, t[i].length);
+		num_edges++;
+	}
+}
+
+
+for (Point* vertex : vertices)
+{
+	for (int i = 0; i < vertex->n; i++) {
+		pts_min[i] = min(pts_min[i], vertex->getx(i));
+		pts_max[i] = max(pts_max[i], vertex->getx(i));
+	}
+}
+}
+
+
 /*
 Edge::Edge(std::vector<Point*> vp) {
 	p1 = vp[0];
@@ -56,8 +210,8 @@ bool Edge::on(Point* p) {
 	}
 	else {
 		if (p1->y == p2->y && p1->z == p2->z) { return true; }
-		if (p1->y == p2->y) { 
-			if ((p->x - p2->x) / (p1->x - p2->x) == (p->z - p2->z) / (p1->z - p2->z)) { return true; } 
+		if (p1->y == p2->y) {
+			if ((p->x - p2->x) / (p1->x - p2->x) == (p->z - p2->z) / (p1->z - p2->z)) { return true; }
 			else return false;
 		}
 		if (p1->z == p2->z) {
@@ -207,7 +361,7 @@ bool Face::pass(Point* p1, Point* p2, int dir){
 		check_p2 = -1;
 	}
 	if (check_p1 * check_p2 < 0) {
-		possibility = true; // Check if the plane containing a face cross the line connecting two points 
+		possibility = true; // Check if the plane containing a face cross the line connecting two points
 	}
 	if (possibility)
 	{
