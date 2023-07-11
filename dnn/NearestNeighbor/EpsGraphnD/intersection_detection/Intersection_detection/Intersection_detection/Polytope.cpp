@@ -42,7 +42,14 @@ bool simplices::intersect(simplices x) {
 	}
 	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
 	MatrixXd N = Temp.kernel().cast<double>();
-	int Num_dim_col=N.rows();
+	int Num_dim_col = N.rows();
+	int Num_col_vec = N.cols();
+	double* p = new double[Num_col_vec * Num_dim_col];
+	for (int i = 0; i < Num_col_vec * Num_dim_col; i++) {
+		p[i] = N(i / Num_col_vec, i % Num_dim_col);
+	}
+	alglib::real_2d_array A;
+	A.setcontent(Num_col_vec, Num_dim_col, p);
 	return true;
 }
 

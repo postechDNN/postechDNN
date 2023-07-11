@@ -14,19 +14,28 @@ using namespace alglib;
 
 int main(int argc, char** argv)
 {
-    Eigen::MatrixXd A(3, 3);
-    A << 1, 1, 0,
-        2, 2, 0,
-        3, 3, 0;
-    
-    cout << "Here is the matrix A:\n" << A << endl;
-    Eigen::FullPivLU<Eigen::MatrixXd> lu_decomp(A);
-    MatrixXd T = lu_decomp.kernel();
-    cout << "Here is a matrix whose columns form a basis of the null-space of A:\n"
-        << T << std::endl;
-    cout << "Here is a matrix whose columns form a basis of the column-space of A:\n"
-        << lu_decomp.image(A) << std::endl; // yes, have to pass the original A
-    cout << T.rows() << endl; // yes, have to pass the original A
-    
-    alglib::real_1d_array ads; 
+    real_2d_array a = "[[2,1],[1,1]]";
+    real_1d_array al = "[-1,0.0000001]";
+    real_1d_array au = "[+inf,+inf]";
+    real_1d_array c = "[0,0]";
+    real_1d_array s = "[1,1]";
+    real_1d_array bndl = "[-inf,-inf]";
+    real_1d_array bndu = "[+inf,+inf]";
+    double asdf[] = { INFINITY, INFINITY };
+    bndu.setcontent(2, asdf);
+    real_1d_array x;
+    minlpstate state;
+    minlpreport rep;
+
+    minlpcreate(2, state);
+    minlpsetcost(state, c);
+    minlpsetbc(state, bndl, bndu);
+    minlpsetlc2dense(state, a, al, au, 2);
+    minlpsetscale(state, s);
+
+    // Solve
+    minlpoptimize(state);
+    minlpresults(state, x, rep);
+    printf("%s\n", x.tostring(3).c_str()); // EXPECTED: [0,1]
+    return 0;
 }
