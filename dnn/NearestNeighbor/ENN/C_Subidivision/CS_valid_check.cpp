@@ -7,7 +7,7 @@
 #include "DCEL/Vector.h"
 
 #define tolerance 1e-6
-#define space_const_limit 150
+#define space_const_limit 220
 
 
 bool check_strong_csdiv(std::vector<Point>& pts, DCEL& dcel, int alpha){
@@ -112,26 +112,26 @@ double euc_dist_edges(Edge &a, Edge &b){
     ret = tmp < ret ? tmp : ret;
 
     // as-at <-> bs
-    if (Vector(as, at).innerProdct(Vector(as, bs)) > 0 && Vector(at, as).innerProdct(Vector(at, bs)) > 0) {
-        tmp = abs(Vector(bs, as).outerProdct(Vector(bs, at))) / as.distance(at);
+    if (Vector(as, at).innerProduct(Vector(as, bs)) > 0 && Vector(at, as).innerProduct(Vector(at, bs)) > 0) {
+        tmp = std::abs(Vector(bs, as).crossProduct(Vector(bs, at))) / as.distance(at);
         ret = tmp < ret ? tmp : ret;
     }
 
     // as-at <-> bt
-    if (Vector(as, at).innerProdct(Vector(as, bt)) > 0 && Vector(at, as).innerProdct(Vector(at, bt)) > 0) {
-        tmp = abs(Vector(bt, as).outerProdct(Vector(bt, at))) / as.distance(at);
+    if (Vector(as, at).innerProduct(Vector(as, bt)) > 0 && Vector(at, as).innerProduct(Vector(at, bt)) > 0) {
+        tmp = std::abs(Vector(bt, as).crossProduct(Vector(bt, at))) / as.distance(at);
         ret = tmp < ret ? tmp : ret;
     }
 
     // bs-bt <-> as
-    if (Vector(bs, bt).innerProdct(Vector(bs, as)) > 0 && Vector(bt, bs).innerProdct(Vector(bt, as)) > 0) {
-        tmp = abs(Vector(as, bs).outerProdct(Vector(as, bt))) / bs.distance(bt);
+    if (Vector(bs, bt).innerProduct(Vector(bs, as)) > 0 && Vector(bt, bs).innerProduct(Vector(bt, as)) > 0) {
+        tmp = std::abs(Vector(as, bs).crossProduct(Vector(as, bt))) / bs.distance(bt);
         ret = tmp < ret ? tmp : ret;
     }
 
     // bs-bt <-> at
-    if (Vector(bs, bt).innerProdct(Vector(bs, at)) > 0 && Vector(bt, bs).innerProdct(Vector(bt, at)) > 0) {
-        tmp = abs(Vector(at, bs).outerProdct(Vector(at, bt))) / bs.distance(bt);
+    if (Vector(bs, bt).innerProduct(Vector(bs, at)) > 0 && Vector(bt, bs).innerProduct(Vector(bt, at)) > 0) {
+        tmp = std::abs(Vector(at, bs).crossProduct(Vector(at, bt))) / bs.distance(bt);
         ret = tmp < ret ? tmp : ret;
     }
 
@@ -171,9 +171,9 @@ bool check_w2(DCEL& dcel, int alpha){
         int num_vertices = vertices.size();
         int num_hedges = hedges.size();
         int num_faces = wc.regions.size();
-        double complexity = num_vertices + num_hedges + num_faces;
-        if(complexity/(double)alpha > space_const_limit){
-            std::cout << "Complexity of conforming subdivision(" << complexity<< ") is larger than alpha * space_const_limit("<< space_const_limit * alpha<<")\n";
+        int complexity = num_vertices + num_hedges + num_faces;
+        if(complexity > space_const_limit*alpha){
+            std::cout << "\nComplexity of conforming subdivision(" << complexity<< ") is larger than alpha * space_const_limit("<< space_const_limit * alpha<<")\n";
             return false;
         }
     }
@@ -190,7 +190,13 @@ bool check_w3(DCEL& dcel, int alpha){
         for(auto hf: wc.boundary){
             Edge f = hf->getEdge();
             double len_f = f.length();
-            if (euc_dist_edges(e,f) < alpha* std::max(len_e,len_f)) return false;
+            if (euc_dist_edges(e,f) < alpha* std::max(len_e,len_f)-tolerance){
+                std::cout <<"key: "<< he->getKey()<<std::endl;
+                std::cout <<e<<' '<<f<<std::endl;
+                std::cout << len_e <<' '<<len_f <<std::endl;
+                std::cout <<euc_dist_edges(e,f)<<std::endl;
+                return false;
+            }
         }
     }
     return true;
