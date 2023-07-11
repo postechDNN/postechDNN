@@ -56,14 +56,14 @@ Vector Vector::operator/ (double c){
 	return Vector(this->x/c, this->y/c);
 }
 
-double Vector::innerProdct(Vector& _v) {
+double Vector::innerProduct(const Vector& _v) {
 	return this->x * _v.x + this->y * _v.y;
 	/*
 	return ((this->getDest()-this->getOrigin()).getx()* (_v->getDest() - _v->getOrigin()).getx() + (this->getDest() - this->getOrigin()).gety()* (_v->getDest() - _v->getOrigin()).gety());
 */
 };
 
-double Vector::outerProdct(Vector& _v) {
+double Vector::crossProduct(const Vector& _v) {
 
 	return this->x * _v.y - this->y * _v.x;
 	/*

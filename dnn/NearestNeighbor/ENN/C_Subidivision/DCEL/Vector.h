@@ -13,7 +13,7 @@ public:
 	bool operator==(Vector& );
 	Vector operator/(double );
 	Vector operator- (Vector& );
-	double innerProdct(Vector& );
-	double outerProdct(Vector& );
+	double innerProduct(const Vector& );
+	double crossProduct(const Vector& );
 	double norm();
 };

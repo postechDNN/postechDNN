@@ -15,7 +15,7 @@ SimplePolygon::SimplePolygon(std::vector<Point>& v, bool colinear) {
 			if (i == v_len - 1) next = v[0]; else next = v[i + 1];
 			Vector vec_v(v[i]);
 			Vector vec_a(vec_v - prev), vec_b(next - vec_v);
-			double cosine = (vec_a.innerProdct(vec_b)) / vec_a.norm() / vec_b.norm();
+			double cosine = (vec_a.innerProduct(vec_b)) / vec_a.norm() / vec_b.norm();
 			if (1 - abs(cosine) > tolerance)
 				vertices.push_back(vec_v);
 		}

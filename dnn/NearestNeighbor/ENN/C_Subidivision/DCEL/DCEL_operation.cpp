@@ -484,7 +484,7 @@ DCEL DCEL::merge(DCEL &op){
             Vector vec_new(*new_v,*prev_v);
             Face* he_f = he->getIncidentFace();
             Face* twin_f = twin->getIncidentFace();
-            if (vec_he.innerProdct(vec_new) < 0)//Other direction
+            if (vec_he.innerProduct(vec_new) < 0)//Other direction
                 std::swap(he_f,twin_f);
             std::pair<int,int > he_edge(new_key,prev_key);
             std::pair<int,int > twin_edge(prev_key,new_key);
