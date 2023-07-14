@@ -1,10 +1,8 @@
 #include "CS_valid_check.h"
-#include "WC_region.h"
 #include <unordered_map>
 #include <vector>
 #include <limits>
 #include <set>
-#include "DCEL/Vector.h"
 
 #define tolerance 1e-6
 #define space_const_limit 220

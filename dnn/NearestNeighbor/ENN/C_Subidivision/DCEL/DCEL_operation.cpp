@@ -667,8 +667,6 @@ DCEL DCEL::merge(DCEL &op, std::string sep){
         std::cout <<"Labeling Faces Process Start..."<<std::endl;
     std::map<HEdge*, bool> visit;
 
-    std::string sep = "|";
-
     for(auto it:ret_hedges)
         visit[it] = false;
 

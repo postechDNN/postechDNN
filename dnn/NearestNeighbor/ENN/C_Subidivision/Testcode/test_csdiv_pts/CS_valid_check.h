@@ -1,7 +1,10 @@
 #pragma once
-#include "DCEL/Edge.h"
-#include "DCEL/DCEL.h"
-#include "DCEL/Polygon.h"
+
+#include "../../DCEL/Edge.h"
+#include "../../DCEL/DCEL.h"
+#include "../../DCEL/Polygon.h"
+#include "../../WC_region.h"
+#include "../../DCEL/Vector.h"
 
 double euc_dist_edges(Edge &a, Edge &b);
 bool is_left(HEdge& he, Point& p);
