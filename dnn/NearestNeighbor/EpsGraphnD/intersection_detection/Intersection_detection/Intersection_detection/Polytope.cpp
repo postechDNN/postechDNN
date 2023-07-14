@@ -35,47 +35,63 @@ MatrixXd simplices::getmatrix() {
 bool simplices::intersect(simplices x) {
 	MatrixXd B = x.getmatrix();
 	MatrixXd T(d + 1, 2*d + 2);
+	// Concatenate
 	T.block(0, 0, d, d + 1) = A;
-	T.block(0, d+1, d, d + 1) = B;
+	T.block(0, d+1, d, d + 1) = -B;
 	for (int i = 0; i < 2*d + 2; i++) {
 		if (i < d + 1) T(d, i) = 1;
 		else T(d, i) = -1;
 	}
+	// Find basis of Null space of T
 	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
 	MatrixXd N = Temp.kernel().cast<double>();
 	int Row = N.rows();
 	int Col = N.cols();
 
 	real_2d_array A;
-	double* p = new double[Col * (Row + 1)];
+	double* p = new double[Col * Row];
 	for (int i = 0; i < Col * Row; i++) {
 		p[i] = N(i / Col, i % Col);
 	}
-	for (int i = Col * Row; i < Col * (Row +1); i++) {
-		p[i] = ERR;
+
+	A.setcontent(Row, Col, p);
+	cout << A.tostring(5) << endl;
+	double* low = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		low[i] = ERR;
 	}
-	A.setcontent(Row + 1, Col, p);
-
-	double* low = new double[Row + 1] {0,};
-	low[Row] = ERR;
 	real_1d_array al;
-	al.setcontent(Row + 1, low);
+	al.setcontent(Row, low);
 
-	double* upp = new double[Row + 1] {INFINITY, };
+	double* upp = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		upp[i] = INFINITY;
+	}
 	real_1d_array au;
-	au.setcontent(Row + 1, low);
+	au.setcontent(Row, upp);
 
-	double* c1 = new double[Col] {1, };
+	double* c1 = new double[Col];
+	double* c2 = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		c1[i] = 1;
+		c2[i] = 1;
+	}
 	real_1d_array c;
 	real_1d_array s;
-	c.setcontent(Col, c1);
+	c.setcontent(Col, c2);
 	s.setcontent(Col, c1);
 
-	double* v_low = new double[Col] {-INFINITY, };
+	double* v_low = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_low[i] = -INFINITY;
+	}
 	real_1d_array bndl;
 	bndl.setcontent(Col, v_low);
 
-	double* v_upp = new double[Col] {INFINITY, };
+	double* v_upp = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_upp[i] = INFINITY;
+	}
 	real_1d_array bndu;
 	bndu.setcontent(Col, v_upp);
 
@@ -83,18 +99,17 @@ bool simplices::intersect(simplices x) {
 	real_1d_array sol;
 	minlpstate state;
 	minlpreport rep;
-	minlpcreate(Row + 1, state);
+	minlpcreate(Col, state);
 	minlpsetcost(state, c);
 	minlpsetbc(state, bndl, bndu);
-	minlpsetlc2dense(state, A, al, au, Row+1);
+	minlpsetlc2dense(state, A, al, au, Row);
 	minlpsetscale(state, s);
 
 	// Solve
 	minlpoptimize(state);
 	minlpresults(state, sol, rep);
-
 	for (int i = 0; i < Col; i++) {
-		if (sol[i] != 0.0) {
+		if (sol(i) > ERR) {
 			return true;
 		}
 	}	

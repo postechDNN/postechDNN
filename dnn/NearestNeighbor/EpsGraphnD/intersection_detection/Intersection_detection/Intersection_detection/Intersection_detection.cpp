@@ -4,6 +4,7 @@
 #include<vector>
 #include "Point.h"
 #include "optimization.h"
+#include "Polytope.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -14,28 +15,28 @@ using namespace alglib;
 
 int main(int argc, char** argv)
 {
-    real_2d_array a = "[[2,1],[1,1]]";
-    real_1d_array al = "[-1,0.0000001]";
-    real_1d_array au = "[+inf,+inf]";
-    real_1d_array c = "[0,0]";
-    real_1d_array s = "[1,1]";
-    real_1d_array bndl = "[-inf,-inf]";
-    real_1d_array bndu = "[+inf,+inf]";
-    double asdf[] = { INFINITY, INFINITY };
-    bndu.setcontent(2, asdf);
-    real_1d_array x;
-    minlpstate state;
-    minlpreport rep;
+    vector<double> p1 = { 3,0,0 };
+    vector<double> p2 = { 0,3,0 };
+    vector<double> p3 = { 0,0,3 };
+    vector<double> p4 = { 0,0,0 };
+    Point* t1 = new Point(p1);
+    Point* t2 = new Point(p2);
+    Point* t3 = new Point(p3);
+    Point* t4 = new Point(p4);
+    vector<Point*> pol1 = { t1, t2, t3, t4 };
+    simplices S1(3, pol1);
 
-    minlpcreate(2, state);
-    minlpsetcost(state, c);
-    minlpsetbc(state, bndl, bndu);
-    minlpsetlc2dense(state, a, al, au, 2);
-    minlpsetscale(state, s);
+    vector<double> ap1 = { 1,1,1 };
+    vector<double> ap2 = { 6,0,0 };
+    vector<double> ap3 = { 0,6,0 };
+    vector<double>  ap4 = { 0,0,6 };
 
-    // Solve
-    minlpoptimize(state);
-    minlpresults(state, x, rep);
-    cout << x[0] << endl;
-    return 0;
+    Point* k1 = new Point(ap1);
+    Point* k2 = new Point(ap2);
+    Point* k3 = new Point(ap3);
+    Point* k4 = new Point(ap4);
+    vector<Point*> pol2 = { k1, k2, k3, k4 };
+    simplices S2(3, pol2);
+    
+    cout << S1.intersect(S2) << endl;
 }
