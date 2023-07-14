@@ -494,29 +494,28 @@ DCEL C_Subdivision::build_alpha_subdivision(int alpha){
     std::vector<std::vector<int> > graph;
     this->build_graph(drawn_edges,vertices,graph, alpha);     
 
-    //------------TEST----------------
-    
-    std::ofstream fout;
-    fout.open("test.txt");
+    //------------TEST---------------- print the graph to text file
+    // std::ofstream fout;
+    // fout.open("test.txt");
 
-    fout<<vertices.size()+this->sites.size()<<std::endl;
-    for(int i = 0 ; i<vertices.size();i++){
-        fout<<vertices[i].getx()<<' '<<vertices[i].gety()<<std::endl;
-    }
-    for(int i = 0 ; i<this->sites.size();i++){
-        fout << sites[i].getx()*scale_factor+tr_x_factor<<' '<<sites[i].gety()*scale_factor+tr_y_factor<<std::endl;
-    }
+    // fout<<vertices.size()+this->sites.size()<<std::endl;
+    // for(int i = 0 ; i<vertices.size();i++){
+    //     fout<<vertices[i].getx()<<' '<<vertices[i].gety()<<std::endl;
+    // }
+    // for(int i = 0 ; i<this->sites.size();i++){
+    //     fout << sites[i].getx()*scale_factor+tr_x_factor<<' '<<sites[i].gety()*scale_factor+tr_y_factor<<std::endl;
+    // }
 
-    int num_edges=0;
-    for(int u =0;u<vertices.size();u++)
-        num_edges += graph[u].size();
-    fout << num_edges<<std::endl;
-    for(int u = 0; u<vertices.size();u++){
-        for(auto v :graph[u]){
-            fout << u <<' '<<v <<std::endl;
-        }
-    }
-    fout.close();
+    // int num_edges=0;
+    // for(int u =0;u<vertices.size();u++)
+    //     num_edges += graph[u].size();
+    // fout << num_edges<<std::endl;
+    // for(int u = 0; u<vertices.size();u++){
+    //     for(auto v :graph[u]){
+    //         fout << u <<' '<<v <<std::endl;
+    //     }
+    // }
+    // fout.close();
     //-------------------------------------
 
     //3. perform scaling and translation vertices to restore an original vector space.

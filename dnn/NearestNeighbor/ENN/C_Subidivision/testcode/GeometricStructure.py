@@ -3,7 +3,7 @@ import numpy as np
 import random
 import copy
 
-img = np.zeros((2000,2000,3),np.uint8) + 255
+img = np.zeros((1200,2000,3),np.uint8) + 255
 
 def clear_drawboard(width=1024, height=1024):
     global img
@@ -44,7 +44,7 @@ class Point:
         return self.x ** 2 + self.y ** 2
     
     def draw(self,color=(0,0,0)):
-        cv.line(img, self.get_tuple(),self.get_tuple(), color,5)
+        cv.line(img, self.get_tuple(),self.get_tuple(), color,3)
         cv.imshow('image',img)
 
 class Circle:

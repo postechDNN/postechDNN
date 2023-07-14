@@ -5,7 +5,7 @@ f = open("test.txt","r")
 line = f.readline()
 n_ver = int(line)
 pts = []
-scale_factor = 10; trans_factor = 400
+scale_factor =10; trans_factor = 800
 for i in range(n_ver):
     line = f.readline()
     x, y = map(float, line.split())
@@ -22,5 +22,5 @@ for i in range(n_edges):
     u, v = map(int, line.split())
     Line(pts[u],pts[v]).draw()
 
-    
+cv.imwrite('test.png', img)
 f.close();

@@ -5,16 +5,6 @@
 #include "Disjoint_Set.h"
 #include <set>
 
-// enum Site_type{SRC, OBS};
-// class Site: public Point{
-// protected:
-//     Site_type t;  
-// public:
-//     Site();
-//     Site(Point&, Site_type);
-//     ~Site();
-// };
-
 class Quad{
 public:
     int r,c;  // indices of left-upper corner (e.g. coordinates of left-upper corner is (r*(2^i), c*(2^i)) )

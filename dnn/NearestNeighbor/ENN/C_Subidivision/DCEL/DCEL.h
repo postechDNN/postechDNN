@@ -106,6 +106,6 @@ public:
 	std::vector<HEdge*> getOutgoingHEdges(Vertex*);
 	std::vector<HEdge*> getIncomingHEdges(Vertex*);
 	int inPolygon(std::vector<HEdge*>, Point);
-	DCEL merge(DCEL&);
+	DCEL merge(DCEL&, std::string sep="_");
 	void clear();
 };

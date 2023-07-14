@@ -367,7 +367,7 @@ std::vector<Face*> ConstructFaces(std::vector<HEdge*> &hedges){
     return faces;
 }
 
-DCEL DCEL::merge(DCEL &op){
+DCEL DCEL::merge(DCEL &op, std::string sep){
     //Constructing HEdge Container 
     int num_edges_1=0, num_edges_2=0;
     std::vector<HEdgeContainer> hedge_containers;

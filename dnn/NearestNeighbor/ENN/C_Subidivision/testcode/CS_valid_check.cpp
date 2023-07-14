@@ -492,4 +492,32 @@ bool check_a4(DCEL& dcel, int alpha){
     return true;
 }
 
-bool check_a5(std::vector<Point>& pts,DCEL& dcel){ return false;}
+bool check_a5(std::vector<Point>& pts, DCEL& dcel) {
+    for(auto p : pts) {
+        // int count = 0;
+        for(auto f : dcel.getFaces()) {
+            std::vector<Vertex*> vers = f->getOutVertices();
+            
+            int count = f->inFace(p,true);  //Check the point is in the interior of the face f.
+
+            // if(count > 0 && vers[0]->getx() == vers[1]->getx() && vers[1]->gety() == vers[2]->gety()) {
+            //     if(p.getx() != vers[0]->getx() && p.getx() != vers[2]->getx() && p.gety() != vers[0]->gety() && p.gety() != vers[1]->gety()) {
+            //         continue;
+            //     } else {
+            //         count--;
+            //     }
+            // } else if (count > 0 && vers[0]->gety() == vers[1]->gety() && vers[1]->getx() == vers[2]->getx()) {
+            //     if(p.getx() != vers[0]->getx() && p.getx() != vers[1]->getx() && p.gety() != vers[0]->gety() && p.gety() != vers[2]->gety()) {
+            //         continue;
+            //     } else {
+            //         count--;
+            //     }
+            // }
+
+            if (count > 0 && f->getInners().size() > 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}

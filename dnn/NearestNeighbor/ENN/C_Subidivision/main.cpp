@@ -48,12 +48,21 @@ bool test_csdiv_pts(std::string fname){
 int main(){
     std::string folder_name = "./testcase/csdiv_pts/";
     std::vector<std::string> fnames= {"t1.txt","t2.txt","t3.txt","t4.txt","t5.txt"};
+    std::vector<bool> passes(fnames.size());
+    int i = 0;
     for(auto fname :fnames){
         if(test_csdiv_pts(folder_name+fname))
-            std::cout << "pass all tests\n";
+            passes[i] = true;
         else
-            std::cout<< "fail some test\n";
+            passes[i] = false;
+        i++;
     }
-
+    i= 0;
+    for(auto fname: fnames){
+        std::cout <<"file name("<<fname<<"): ";
+        if(passes[i]) std::cout <<"PASS\n";
+        else std::cout <<"FAIL\n";  
+        i++;
+    }
     return 0;
 }
