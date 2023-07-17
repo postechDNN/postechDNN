@@ -63,6 +63,6 @@ public:
 
 public:
 	Grid_Point(int);
-	Grid_Point(indices, Point, double, std::vector<long long int>);
+	Grid_Point(std::vector<long long int>, Point, double, std::vector<long long int>);
 	// Grid_Point(int, int, int, double, double, double, double, int, int);
 };

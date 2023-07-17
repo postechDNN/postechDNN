@@ -17,19 +17,19 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	ord_pol = 0;
 	xs_min = std::vector<double>(n, DBL_MIN);
 	xs_max = std::vector<double>(n, DBL_MAX);
-	xs_num = std::vector<int>(n, 0);
+	xs_num = std::vector<long long int>(n, 0);
 	for (auto pol : pols) {
 		pol.ord = ord_pol;
 		ord_pol++;
-		for (int i=0;i < n;i++) {
-			if (pol.xs_max[i] > this->xs_max[i]) {this->xs_max[i] = pol.xs_max[i] }
-			if (pol.xs_min[i] < this->xs_min[i]) {this->xs_min[i] = pol.xs_min[i] }
+		for (int i = 0;i < n;i++) {
+			if (pol.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = pol.xs_max[i]; }
+			if (pol.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = pol.xs_min[i]; }
 		}
 	}
 	for (auto fr_pt : fr_pts) {
-		for (int i=0;i < n;i++) {
-			if (fr_pt.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs_max[i] }
-			if (fr_pt.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs_min[i] }
+		for (int i = 0;i < n;i++) {
+			if (fr_pt.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs_max[i]; }
+			if (fr_pt.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs_min[i]; }
 		}
 	}
 	init_grid();
@@ -38,12 +38,12 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	}
 }
 
-void Eps_Graph_nD::init_grid() { 
+void Eps_Graph_nD::init_grid() {
 	for (int i = 0;i < n;i++) {
-		xs_num[i] = 1+ long long int(ceil((xs_max[i] - xs_min[i]) / eps));
+		xs_num[i] = 1 + long long int(ceil((xs_max[i] - xs_min[i]) / eps));
 	}
 	upper_left = Point(xs_min);
-	long long int tot_num = 1;
+	tot_num = 1;
 	for (int i = 0;i < n;i++) {
 		tot_num = tot_num * xs_num[i]
 	}
@@ -56,6 +56,7 @@ void Eps_Graph_nD::init_grid() {
 
 	for (long long int i = 0; i < tot_num; i++)
 	{
+		grid.push_back(Grid_Point(num2ind(i), upper_left, eps, xs_num))
 		grid.push_back(Grid_Point(num2ind(i).x_ind, num2ind(i).y_ind, num2ind(i).z_ind, upper_left.x, upper_left.y, upper_left.z, eps, y_num, z_num));
 	}
 
@@ -86,53 +87,65 @@ void Eps_Graph_nD::init_grid() {
 
 void Eps_Graph_nD::anchor(Free_Point& p) { // cast anchor onto a grid point from a free point
 	//Need to Start!!!!!
-
 	if (p.host != -1) {
 		assert(0 <= p.host && p.host < grid.size());
 		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end();) {
-			if (p.x == (*(*it)).x && p.y == (*(*it)).y && p.z == (*(*it)).z) {
-				it = grid[p.host].anchored.erase(it);
+			if (p.xs == (*(*it)).xs) {
+				if = grid[p.host].anchored.erase(it);
 				if (it == grid[p.host].anchored.end()) break;
 			}
 			else {
-				++it;
+				+it;
 			}
 		}
 	}
 
 	bool flag = false;
-	int x; int y; int z;
-	x = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
-	y = int(ceil((p.y - upper_left.y) / eps - 0.5));
-	z = int(ceil((p.z - upper_left.z) / eps - 0.5));
-	if (grid[ind2num(x, y, z)].encl == -1) {
-		p.host = grid[ind2num(x, y, z)].num;
-		grid[ind2num(x, y, z)].anchored.push_back(&p);
+	vector<int> xs;
+	for (int i;i < n;i++) {
+		xs[i] = int(ceil((p.xs[i] - upper_left.xs[i]) / eps - 0.5));
+	}
+	if grid[ind2num(xs)].encl == -1){
+		p.host = grid[ind2num(xs)].num;
+		grid[ind2num(xs)].anchored.push_back(&p);
 		return;
 	}
 
-	// find a nearest gridpoint not enclosed by any polygon
-	for (int step = 1; step < y_num + x_num + z_num; step++) {
-		for (int x_step = -step; x_step <= step; x_step++) {
-			for (int y_step = -(step - abs(x_step)); y_step <= step - abs(x_step); y_step++) {
-				int z_step = step - abs(x_step) - abs(y_step);
-				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z + z_step && z + z_step < z_num) {
-					if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
-						p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
-						grid[ind2num(x + x_step, y + y_step, z + z_step)].anchored.push_back(&p);
-						return;
-					}
-				}
-				if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z - z_step && z - z_step < z_num) {
-					if (grid[ind2num(x + x_step, y + y_step, z - z_step)].encl == -1) {
-						p.host = grid[ind2num(x + x_step, y + y_step, z - z_step)].num;
-						grid[ind2num(x + x_step, y + y_step, z - z_step)].anchored.push_back(&p);
-						return;
-					}
-				}
-			}
-		}
+	for (int step = 1;step < tot_num;step++) { //From Here
+		return;
 	}
+	//int x; int y; int z;
+	//x = int(ceil((p.x - upper_left.x) / eps - 0.5)); // points on the midline anchors leftward 
+	//y = int(ceil((p.y - upper_left.y) / eps - 0.5));
+	//z = int(ceil((p.z - upper_left.z) / eps - 0.5));
+	//if (grid[ind2num(x, y, z)].encl == -1) {
+	//	p.host = grid[ind2num(x, y, z)].num;
+	//	grid[ind2num(x, y, z)].anchored.push_back(&p);
+	//	return;
+	//}
+
+	//// find a nearest gridpoint not enclosed by any polygon
+	//for (int step = 1; step < y_num + x_num + z_num; step++) {
+	//	for (int x_step = -step; x_step <= step; x_step++) {
+	//		for (int y_step = -(step - abs(x_step)); y_step <= step - abs(x_step); y_step++) {
+	//			int z_step = step - abs(x_step) - abs(y_step);
+	//			if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z + z_step && z + z_step < z_num) {
+	//				if (grid[ind2num(x + x_step, y + y_step, z + z_step)].encl == -1) {
+	//					p.host = grid[ind2num(x + x_step, y + y_step, z + z_step)].num;
+	//					grid[ind2num(x + x_step, y + y_step, z + z_step)].anchored.push_back(&p);
+	//					return;
+	//				}
+	//			}
+	//			if (0 <= x + x_step && x + x_step < x_num && 0 <= y + y_step && y + y_step < y_num && 0 <= z - z_step && z - z_step < z_num) {
+	//				if (grid[ind2num(x + x_step, y + y_step, z - z_step)].encl == -1) {
+	//					p.host = grid[ind2num(x + x_step, y + y_step, z - z_step)].num;
+	//					grid[ind2num(x + x_step, y + y_step, z - z_step)].anchored.push_back(&p);
+	//					return;
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 /*
