@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Point.h"
 #include "polytope.h"
 #include <tuple>
 #include <list>

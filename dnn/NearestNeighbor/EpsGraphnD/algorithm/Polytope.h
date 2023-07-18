@@ -44,6 +44,7 @@ protected:
 	double min_length;
 public:
 	double x_min, x_max, y_min, y_max, z_min, z_max;
+	std::vector<double> xs_max, xs_min;
 	std::vector<Point*> encl_pts;
 	int ord;
 

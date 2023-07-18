@@ -45,7 +45,7 @@ void Eps_Graph_nD::init_grid() {
 	upper_left = Point(xs_min);
 	tot_num = 1;
 	for (int i = 0;i < n;i++) {
-		tot_num = tot_num * xs_num[i]
+		tot_num = tot_num * xs_num[i];
 	}
 
 	// initialization step for BFS
@@ -56,8 +56,8 @@ void Eps_Graph_nD::init_grid() {
 
 	for (long long int i = 0; i < tot_num; i++)
 	{
-		grid.push_back(Grid_Point(num2ind(i), upper_left, eps, xs_num))
-		grid.push_back(Grid_Point(num2ind(i).x_ind, num2ind(i).y_ind, num2ind(i).z_ind, upper_left.x, upper_left.y, upper_left.z, eps, y_num, z_num));
+		grid.push_back(Grid_Point(num2ind(i), upper_left, eps, xs_num));
+		// grid.push_back(Grid_Point(num2ind(i).x_ind, num2ind(i).y_ind, num2ind(i).z_ind, upper_left.x, upper_left.y, upper_left.z, eps, y_num, z_num));
 	}
 
 	// for each grid & free point, count # of crossings of the rightward ray with each polytope
@@ -71,10 +71,10 @@ void Eps_Graph_nD::init_grid() {
 	}
 	for (int i = 0; i < tot_num; i++) {
 		if (grid[i].encl != -1) { continue; }
-		std::vector<int> inds = num2ind(i);
-		for (j = 0;j < n;j++) {
+		std::vector<long long int> inds = num2ind(i);
+		for (int j = 0;j < n;j++) {
 			if (inds[j] != xs_num[j] - 1) {
-				std::vector<int> _inds(n);
+				std::vector<long long int> _inds(n);
 				std::copy(inds.begin(), inds.end(), _inds.begin());
 				_inds[j] += 1;
 				if (grid[ind2num(_inds)].encl == -1) {
@@ -86,26 +86,25 @@ void Eps_Graph_nD::init_grid() {
 }
 
 void Eps_Graph_nD::anchor(Free_Point& p) { // cast anchor onto a grid point from a free point
-	//Need to Start!!!!!
 	if (p.host != -1) {
 		assert(0 <= p.host && p.host < grid.size());
 		for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end();) {
 			if (p.xs == (*(*it)).xs) {
-				if = grid[p.host].anchored.erase(it);
+				it = grid[p.host].anchored.erase(it);
 				if (it == grid[p.host].anchored.end()) break;
 			}
 			else {
-				+it;
+				++it;
 			}
 		}
 	}
 
 	bool flag = false;
-	vector<int> xs;
-	for (int i;i < n;i++) {
+	vector<long long int> xs;
+	for (int i=0;i < n;i++) {
 		xs[i] = int(ceil((p.xs[i] - upper_left.xs[i]) / eps - 0.5));
 	}
-	if grid[ind2num(xs)].encl == -1){
+	if (grid[ind2num(xs)].encl == -1){
 		p.host = grid[ind2num(xs)].num;
 		grid[ind2num(xs)].anchored.push_back(&p);
 		return;

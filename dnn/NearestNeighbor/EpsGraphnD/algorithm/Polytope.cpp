@@ -68,52 +68,51 @@ bool Edge::cross(Point* p, Point* ray) {
 }
 */
 
-bool Edge::on(Point* p) {
-	double lambda = INFINITY;
+//bool Edge::on(Point* p) {
+//	double lambda = INFINITY;
+//
+//	for (int i = 0; i < p1->getsize(); i++) {
+//		if (p->getx(i) < min(p1->getx(i), p2->getx(i)) || p->getx(i) > max(p1->getx(i), p2->getx(i)) {
+//			return false; 
+//		}
+//	}
+//
+//	int count = 0;
+//	int val = 0;
+//
+//	for (int i = 0; i < p1->getsize(); i++) {
+//		if (p1->getx(i) == p2->getx(i)) {
+//			count++;
+//		}
+//	}
+//
+//	if (count == p1->getsize() - 1) {
+//		return true;
+//	}
+//
+//	for (int i = 0; i < p1->getsize(); i++) {
+//		if (p1->getx(i) == p2->getx(i)) {
+//			for (int j = 0; j < p1->getsize(); j++) {
+//				if (i == j) continue;
+//				else {
+//					if (i == 0) {
+//						val = (p->getx(1) - p2->getx(1)) / (p1->getx(1) - p2->getx(1))
+//					}
+//					else {
+//						val = (p->getx(0) - p2->getx(0)) / (p1->getx(0) - p2->getx(0))
+//					}
+//					if (val == (p->getx(j) - p2->getx(j)) / (p1->getx(j) - p2->getx(j))) {
+//						continue;
+//					}
+//					else return false;
+//				}
+//				return true;
+//			}
+//		}
+//	}
+//}
 
-	for (int i = 0; i < p1->getsize(); i++) {
-		if (p->getx(i) < min(p1->getx(i), p2->getx(i)) || p->getx(i) > max(p1->getx(i), p2->getx(i)) {
-			return false; 
-		}
-	}
-
-	int count = 0;
-	int val = 0;
-
-	for (int i = 0; i < p1->getsize(); i++) {
-		if (p1->getx(i) == p2->getx(i)) {
-			count++;
-		}
-	}
-
-	if (count == p1->getsize() - 1) {
-		return true;
-	}
-
-	for (int i = 0; i < p1->getsize(); i++) {
-		if (p1->getx(i) == p2->getx(i)) {
-			for (int j = 0; j < p1->getsize(); j++) {
-				if (i == j) continue;
-				else {
-					if (i == 0) {
-						val = (p->getx(1) - p2->getx(1)) / (p1->getx(1) - p2->getx(1))
-					}
-					else {
-						val = (p->getx(0) - p2->getx(0)) / (p1->getx(0) - p2->getx(0))
-					}
-					if (val == (p->getx(j) - p2->getx(j)) / (p1->getx(j) - p2->getx(j))) {
-						continue;
-					}
-					else return false;
-				}
-				return true;
-			}
-		}
-	}
-}
-
-void Polytope::setpolytope(std::vector<Point*> vp, std::vector<Edge> ve)
-{
+void Polytope::setpolytope(std::vector<Point*> vp, std::vector<Edge> ve){
 	num_points = 0;
 	num_edges = 0;
 std:vector<Point*> pts_min = INFINITY;

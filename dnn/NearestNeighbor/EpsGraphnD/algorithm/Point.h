@@ -25,7 +25,7 @@ public:
 	//double x, y, z;
 
 public:
-
+	Point();
 	Point(int);
 	//Point(double, double, double);
 	Point(std::vector<double>);
@@ -49,6 +49,8 @@ class Free_Point : public Point {
 public:
 	Free_Point(std::vector<double>);
 	int host = -1;
+	std::vector<double> xs_min;
+	std::vector<double> xs_max;
 };
 
 class Grid_Point : public Point {
