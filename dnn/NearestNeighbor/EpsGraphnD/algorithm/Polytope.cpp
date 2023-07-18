@@ -112,11 +112,10 @@ bool Edge::cross(Point* p, Point* ray) {
 //	}
 //}
 
-void Polytope::setpolytope(std::vector<Point*> vp, std::vector<Edge> ve){
-	num_points = 0;
-	num_edges = 0;
-std:vector<Point*> pts_min = INFINITY;
-std:vector<Point*> pts_max = -INFINITY;
+void Polytope::setpolytope(std::vector<Point*> vp, std::vector<Edge> ve)
+{
+	this->num_points = 0;
+	this->num_edges = 0;
 
 	for (auto p : vp)
 	{
@@ -135,35 +134,42 @@ std:vector<Point*> pts_max = -INFINITY;
 			num_points++;
 		}
 	}
-std:vector<Point*> temp = vp
-Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]} };
-for (int i = 0; i < 3; i++)
-{
-	bool same = false;
-	for (auto e : edges)
+std::vector<Point*> temp = vp;
+	Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]} };
+	for (int i = 0; i < 3; i++)
 	{
-		if (e == t[i])
+		bool same = false;
+		for (auto e : edges)
 		{
-			same = true;
-			break;
+			if (e == t[i])
+			{
+				same = true;
+				break;
+			}
+		}
+		if (!same)
+		{
+			edges.push_back(t[i]);
+			min_length = min(min_length, t[i].length);
+			num_edges++;
 		}
 	}
-	if (!same)
+
+	for (Point* vertex : vertices)
 	{
-		edges.push_back(t[i]);
-		min_length = min(min_length, t[i].length);
-		num_edges++;
+		for (int i = 0; i < vertex->n; i++) {
+			xs_min[i] = INFINITY;
+			xs_max[i] = -INFINITY;
+		}
 	}
-}
 
-
-for (Point* vertex : vertices)
-{
-	for (int i = 0; i < vertex->n; i++) {
-		pts_min[i] = min(pts_min[i], vertex->getx(i));
-		pts_max[i] = max(pts_max[i], vertex->getx(i));
+	for (Point* vertex : vertices)
+	{
+		for (int i = 0; i < vertex->n; i++) {
+			xs_min[i] = min(xs_min[i], vertex->getx(i));
+			xs_max[i] = max(xs_max[i], vertex->getx(i));
+		}
 	}
-}
 }
 
 

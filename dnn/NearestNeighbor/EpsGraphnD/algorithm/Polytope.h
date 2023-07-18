@@ -34,26 +34,26 @@ public:
 };
 
 class Polytope {
-protected:
-	std::vector<Face*> faces;
-	std::vector <Edge> edges;
-	std::vector<Point*> vertices;
-	int num_faces;
-	int num_points;
-	int num_edges;
-	double min_length;
-public:
-	double x_min, x_max, y_min, y_max, z_min, z_max;
-	std::vector<double> xs_max, xs_min;
-	std::vector<Point*> encl_pts;
-	int ord;
+	protected:
+		std::vector<Face*> faces;
+		std::vector <Edge> edges;
+		std::vector<Point*> vertices;
+		int num_faces;
+		int num_points;
+		int num_edges;
+		double min_length;
+	public:
+		double x_min, x_max, y_min, y_max, z_min, z_max;
+		std::vector <double> xs_max, xs_min;
+		std::vector<Point*> encl_pts;
+		int ord;
 
-public:
-	Polytope();
-	Polytope(FILE*);
-	~Polytope();
-	void setpolytope(std::vector<Point*> vp, std::vector<Edge> ve);
-	bool isIn(Point* p);
-	bool intersect(Point, Point, int);
-	bool operator==(Polytope);
+	public:
+		Polytope();
+		Polytope(FILE*);
+		~Polytope();
+		void setpolytope(std::vector<Point*> vp, std::vector<Edge> ve);
+		bool isIn(Point* p);
+		bool intersect(Point, Point, int);
+		bool operator==(Polytope);
 };
