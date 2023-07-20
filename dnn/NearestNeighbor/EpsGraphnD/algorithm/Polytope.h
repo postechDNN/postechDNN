@@ -1,5 +1,6 @@
 #pragma once
 #include "Point.h"
+#include<Eigen/Dense>
 
 using namespace std;
 using Eigen::MatrixXd;
