@@ -13,6 +13,48 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using namespace alglib;
 
+// Edge Function
+Edge::Edge(int n) {
+	p1 = new Point(n);
+	p2 = new Point(n);
+	length = 0;
+}
+
+Edge::~Edge() {
+}
+
+Edge::Edge(std::vector<Point*> vp) {
+	p1 = vp[0];
+	p2 = vp[1];
+	length = vp[0]->distance(vp[1]);
+}
+
+Edge::Edge(Point* v1, Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = p1->distance(p2);
+}
+
+
+Edge::Edge(Grid_Point* v1, Grid_Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = v1->distance(v2);
+}
+
+
+Edge::Edge(Free_Point* v1, Grid_Point* v2) {
+	p1 = v1;
+	p2 = v2;
+	length = v1->distance(v2);
+}
+
+
+bool Edge::operator==(Edge e) {
+	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
+}
+
+//Simplices Function
 simplices::simplices() {
 }
 simplices::~simplices() {};

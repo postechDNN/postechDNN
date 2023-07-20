@@ -42,6 +42,9 @@
     <ClCompile Include="ap.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="EpsGraphnD.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Point.h">
@@ -69,6 +72,9 @@
       <Filter>리소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EpsGraphnD.h">
       <Filter>리소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
