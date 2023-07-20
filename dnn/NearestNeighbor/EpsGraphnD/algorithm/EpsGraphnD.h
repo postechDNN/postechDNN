@@ -77,7 +77,6 @@ public:	// functions
 	// indices* eff_region(Polytope); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
 
 	vector<Free_Point> kNN(Free_Point, int); // kNN point query
-	vector<Edge> path_kNN(Free_Point p, int k);
 
 	void print_grid();
 	void print_encl();
@@ -91,6 +90,5 @@ public:	// functions
 	list<Free_Point> get_free_points();
 	vector<Polytope> get_Polytope();
 	vector<Grid_Point> get_grid();
-	vector<Edge> get_path(Free_Point, int);
 
 };
