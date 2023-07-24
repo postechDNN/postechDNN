@@ -56,7 +56,8 @@ public:
 class Grid_Point : public Point {
 public:
 	std::vector<long long int> ind;	// its location on the grid
-	std::vector<bool> ip;
+	std::vector<bool> ip_u;
+	std::vector<bool> ip_d;
 	int num;
 	int encl;
 
