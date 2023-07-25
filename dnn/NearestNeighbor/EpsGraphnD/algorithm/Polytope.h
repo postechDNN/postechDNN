@@ -16,6 +16,7 @@ public:
 	~simplices();
 	MatrixXd getmatrix();
 	bool intersect(simplices);
+	bool intersect(Point* p, Point* q);
 	bool isIn(Point* p);
 };
 
@@ -39,5 +40,6 @@ public:
 	~Polytope();
 	bool isIn(Point* p);
 	bool intersect(Polytope P);
+	bool intersect(Point* p, Point* q);
 	bool operator==(Polytope P);
 };

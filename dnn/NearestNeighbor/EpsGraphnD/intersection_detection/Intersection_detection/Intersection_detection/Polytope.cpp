@@ -97,7 +97,6 @@ bool simplices::intersect(simplices x) {
 	}
 
 	A.setcontent(Row, Col, p);
-	cout << A.tostring(5) << endl;
 	double* low = new double[Row];
 	for (int i = 0; i < Row; i++) {
 		low[i] = ERR;
@@ -150,10 +149,9 @@ bool simplices::intersect(simplices x) {
 	// Solve
 	minlpoptimize(state);
 	minlpresults(state, sol, rep);
-	for (int i = 0; i < Col; i++) {
-		if (sol(i) > ERR) {
-			return true;
-		}
+	cout << rep.terminationtype << endl;
+	if (0 < rep.terminationtype && rep.terminationtype < 5) {
+		return true;
 	}	
 	return false;
 }
