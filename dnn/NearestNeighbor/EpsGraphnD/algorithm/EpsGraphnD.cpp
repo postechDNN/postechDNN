@@ -742,6 +742,7 @@ vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approxim
 
 	return path;
 }
+*/
 
 void Eps_Graph_3D::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
@@ -753,17 +754,28 @@ void Eps_Graph_3D::print_grid() {
 void Eps_Graph_3D::print_encl() {
 	for (Polytope& pol : pols) {
 		for (auto pt : pol.encl_pts) {
-			cout << pt->x << ' ' << pt->y << ' ' << pt->z << ' ' << endl;
+			for (int i = 0; i < pt->n; i++) {
+				cout << pt->getx(i) << ' ';
+			}
+			cout << endl;
 		}
 	}
 }
 
 void Eps_Graph_3D::print_free_point() {
 	for (Free_Point& fr : fr_pts) {
-			cout << fr.x << ' ' << fr.y << ' ' << fr.z << ' ' << endl;
+
+		for (int i = 0; i < this->n; i++) {
+			cout << fr.getx(i) << ' ';
+		}
+		
+		cout << endl;
+
 	}
 }
 
+
+/*
 void Eps_Graph_3D::print_edges() {
 	for (auto gp : grid) {
 		if (gp.ip.z_u == true && gp.ind.x_ind == 10 && gp.ind.y_ind == 10) {
@@ -771,16 +783,31 @@ void Eps_Graph_3D::print_edges() {
 		}
 	}
 }
+*/
 
 void Eps_Graph_3D::print_anchor() {
 	for (auto gp : grid) {
 		for (vector<Free_Point*>::iterator it = gp.anchored.begin(); it != gp.anchored.end(); ++it) {
-			cout << gp.ind.x_ind << ' ' << gp.ind.y_ind << ' ' << gp.ind.z_ind << '|' << (*(*it)).x << ' ' << (*(*it)).y << ' ' << (*(*it)).z << endl;
+			for (int i = 0; i < this->n; i++) {
+				cout << gp.ind[i] << ' ';
+			}
+
+			cout << '|';
+
+			for (int j = 0; i < this->; j++) {
+				cout << (*(*it)).getx(j) << ' ';
+			}
+
+			cout << endl;
 		}
 	}
 }
 
-void Eps_Graph_3D::print_dist() {
+
+/*
+void Eps_Graph_nD::print_dist() {
+	int idx = 0;
+
 	for (int i = 0; i < x_num; i++) {
 		for (int j = 0; j < y_num; j++) {
 			for (int k = 0; k < z_num; k++) {
@@ -791,41 +818,56 @@ void Eps_Graph_3D::print_dist() {
 		printf("\n");
 	}
 }
+*/
 
-void Eps_Graph_3D::print_kNN(Free_Point p, int k ) {
+
+void Eps_Graph_nD::print_kNN(Free_Point p, int k ) {
 	vector<Free_Point> nbhd = kNN(p, k + 1);
 	for (auto nb : nbhd) {
-		if (nb.x == p.x && nb.y == p.y && nb.z == p.z) continue;
-		cout << nb.x << ' ' << nb.y << ' ' << nb.z << endl;
+		bool cond = (nb.getx(0) == p.getx(0) && nb.getx(1) == p.getx(1));
+		for (int i = 2; i < this->n; i++) {
+			cond = cond && (nb.getx(i) == p.getx(i));
+		}
+		if (cond) continue;
+		for (int j = 0; j < this->n; j++) {
+			cout << nb.getx(j) << ' ';
+		}
+		cout << endl;
 	}
 }
 
 
-Eps_Graph_3D::Eps_Graph_3D() { y_num = x_num = z_num = 0; x_min = x_max = y_min = y_max = z_min = z_max = eps = 0; }
-
-list<Free_Point> Eps_Graph_3D::get_free_points()
-{
-	return fr_pts;
+Eps_Graph_nD::Eps_Graph_nD() {  
+	for (int i = 0; i < this->n; i++) {
+		xs_num[i] = 0;
+		xs_max[i] = 0;
+		xs_min[i] = 0;
+	}
+	eps = 0; 
 }
 
-Free_Point Eps_Graph_3D::get_free_point(int index) {
+list<Free_Point> Eps_Graph_nD::get_free_points()
+{
+	return this->fr_pts;
+}
+
+Free_Point Eps_Graph_nD::get_free_point(int index) {
 	list<Free_Point>::iterator iter = fr_pts.begin();
 	std::advance(iter, index);
 	return *iter;
 }
 
-vector<Polytope> Eps_Graph_3D::get_Polytope() {
+vector<Polytope> Eps_Graph_nD::get_Polytope() {
 	return pols;
 }
 
-vector<Grid_Point> Eps_Graph_3D::get_grid() {
+vector<Grid_Point> Eps_Graph_nD::get_grid() {
 	return grid;
 }
 
 
-vector<Edge> Eps_Graph_3D::get_path(Free_Point p, int k) {
+vector<Edge> Eps_Graph_nD::get_path(Free_Point p, int k) {
 	vector<Edge> path = path_kNN(p, k + 1);
 	return path;
 }
 
-*/
