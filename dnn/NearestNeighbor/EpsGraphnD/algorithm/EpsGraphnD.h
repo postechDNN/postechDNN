@@ -20,9 +20,9 @@ private:
 public: // variables
 	int n;
 	double eps;
-	std::vector<double> xs_min;
-	std::vector<double> xs_max;
-	std::vector<long long int> xs_num;
+	vector<double> xs_min;
+	vector<double> xs_max;
+	vector<long long int> xs_num;
 	long long int tot_num;
 	//double x_min; double x_max;
 	//double y_min; double y_max;
@@ -47,27 +47,28 @@ public:	// functions
 	Eps_Graph_nD(int, list<Free_Point>, vector<Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	void init_grid();
 	// Grid_Point get_gridpt(indices);
-	Grid_Point get_gridpt(std::vector<long long int>);
+	Grid_Point get_gridpt(vector<long long int>);
 
 	// long long int ind2num(indices);
-	long long int ind2num(std::vector<long long int>);
-	long long int ind2num(long long int, long long int, long long int);
+	long long int ind2num(vector<long long int>);
+	// long long int ind2num(long long int, long long int, long long int);
 	// indices num2ind(long long int);
-	std::vector<long long int> num2ind(long long int);
+	vector<long long int> num2ind(long long int);
 
 	// void add_edge(indices, indices); // add grid edges
-	void add_edge(std::vector<long long int>, std::vector<long long int>);
-	void delete_edge(std::vector<long long int>, std::vector<long long int>);
+	void add_edge(vector<long long int>, vector<long long int>);
+	void delete_edge(vector<long long int>, vector<long long int>);
 	// void delete_edge(indices, indices);
 	//bool cmpNadd(indices, int);
-	bool cmpNadd(std::vector<long long int>, int);
-	bool cmpNadd_SinPol(std::vector<long long int>, int, int);
+	bool cmpNadd(vector<long long int>, int);
+	bool cmpNadd_SinPol(vector<long long int>, int, int);
 	// bool cmpNadd_SinPol(indices, int, int);
 
 	void add_freepts(Free_Point*);
 	void add_freepts(vector<Free_Point> p_vec);
 	void delete_freept(int);
 
+	bool get_step_comb(vector<int>, int, int, int, vector<long long int>);
 	void anchor(Free_Point&);	// 중간에 있으면 왼쪽, 위로 가도록
 	void query_anchor(Grid_Point&);
 
@@ -77,7 +78,6 @@ public:	// functions
 	// indices* eff_region(Polytope); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
 
 	vector<Free_Point> kNN(Free_Point, int); // kNN point query
-	vector<Edge> path_kNN(Free_Point p, int k);
 
 	void print_grid();
 	void print_encl();
@@ -91,6 +91,5 @@ public:	// functions
 	list<Free_Point> get_free_points();
 	vector<Polytope> get_Polytope();
 	vector<Grid_Point> get_grid();
-	vector<Edge> get_path(Free_Point, int);
 
 };

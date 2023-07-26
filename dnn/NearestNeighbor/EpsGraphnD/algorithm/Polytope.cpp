@@ -1,640 +1,266 @@
 #include "Polytope.h"
+#include "optimization.h"
 #include <queue>
 #include <assert.h>
 #include <random>
+#include<Eigen/Dense>
+
 #define BUFFERSIZE 1000
+#define ERR 1e-6
 
 using namespace std;
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+using namespace alglib;
 
-Edge::Edge(int n) {
-	p1 = new Point(n);
-	p2 = new Point(n);
-	length = 0;
+//Simplices Function
+simplices::simplices() {
 }
-
-Edge::~Edge() {
-}
-
-Edge::Edge(std::vector<Point*> vp) {
-	p1 = vp[0];
-	p2 = vp[1];
-	length = vp[0]->distance(vp[1]);
-}
-
-Edge::Edge(Point* v1, Point* v2) {
-	p1 = v1;
-	p2 = v2;
-	length = p1->distance(p2);
-}
-
-
-Edge::Edge(Grid_Point* v1, Grid_Point* v2) {
-	p1 = v1;
-	p2 = v2;
-	length = v1->distance(v2);
-}
-
-
-Edge::Edge(Free_Point* v1, Grid_Point* v2) {
-	p1 = v1;
-	p2 = v2;
-	length = v1->distance(v2);
-}
-
-
-bool Edge::operator==(Edge e) {
-	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
-}
-
-/*
-bool Edge::cross(Point* p, Point* ray) {
-	Point vec;
-	Point normal;
-
-	for (int i = 0; i < p1->getsize(); i++) {
-		vec[i] = p2->getx(i) - p1->getx(i);
-	}
-
-	normal.x = ray->y * vec.z - ray->z * vec.y; normal.y = ray->z * vec.x - ray->x * vec.z; normal.z = ray->x * vec.y - ray->y * vec.x;
-	if (normal.x * (p2->x - p->x) + normal.y * (p2->y - p->y) + normal.z * (p2->z - p->z) != 0) {
-		return false;
-	}
-	if (vec.x * ray->y - ray->x * vec.y == 0) { return false; }
-	double Value = (p->x * ray->y - p->y * ray->x - ray->y * p1->x + ray->x * p1->y) / (vec.x * ray->y - ray->x * vec.y);
-	double ray_Value = (vec.y * p1->x - vec.x * p1->y - p->x * vec.y + p->y * vec.x) / (vec.x * ray->y - ray->x * vec.y);
-	if (Value > 0 && Value < 1 && ray_Value < 0) { return true; }
-	else return false;
-
-}
-*/
-
-//bool Edge::on(Point* p) {
-//	double lambda = INFINITY;
-//
-//	for (int i = 0; i < p1->getsize(); i++) {
-//		if (p->getx(i) < min(p1->getx(i), p2->getx(i)) || p->getx(i) > max(p1->getx(i), p2->getx(i)) {
-//			return false; 
-//		}
-//	}
-//
-//	int count = 0;
-//	int val = 0;
-//
-//	for (int i = 0; i < p1->getsize(); i++) {
-//		if (p1->getx(i) == p2->getx(i)) {
-//			count++;
-//		}
-//	}
-//
-//	if (count == p1->getsize() - 1) {
-//		return true;
-//	}
-//
-//	for (int i = 0; i < p1->getsize(); i++) {
-//		if (p1->getx(i) == p2->getx(i)) {
-//			for (int j = 0; j < p1->getsize(); j++) {
-//				if (i == j) continue;
-//				else {
-//					if (i == 0) {
-//						val = (p->getx(1) - p2->getx(1)) / (p1->getx(1) - p2->getx(1))
-//					}
-//					else {
-//						val = (p->getx(0) - p2->getx(0)) / (p1->getx(0) - p2->getx(0))
-//					}
-//					if (val == (p->getx(j) - p2->getx(j)) / (p1->getx(j) - p2->getx(j))) {
-//						continue;
-//					}
-//					else return false;
-//				}
-//				return true;
-//			}
-//		}
-//	}
-//}
-
-void Polytope::setpolytope(std::vector<Point*> vp, std::vector<Edge> ve)
-{
-	this->num_points = 0;
-	this->num_edges = 0;
-
-	for (auto p : vp)
-	{
-		bool same = false;
-		for (auto v : vertices)
-		{
-			if (p == v)
-			{
-				same = true;
-				break;
-			}
-		}
-		if (!same)
-		{
-			vertices.push_back(p);
-			num_points++;
-		}
-	}
-std::vector<Point*> temp = vp;
-	Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]} };
-	for (int i = 0; i < 3; i++)
-	{
-		bool same = false;
-		for (auto e : edges)
-		{
-			if (e == t[i])
-			{
-				same = true;
-				break;
-			}
-		}
-		if (!same)
-		{
-			edges.push_back(t[i]);
-			min_length = min(min_length, t[i].length);
-			num_edges++;
-		}
-	}
-
-	for (Point* vertex : vertices)
-	{
-		for (int i = 0; i < vertex->n; i++) {
-			xs_min[i] = INFINITY;
-			xs_max[i] = -INFINITY;
-		}
-	}
-
-	for (Point* vertex : vertices)
-	{
-		for (int i = 0; i < vertex->n; i++) {
-			xs_min[i] = min(xs_min[i], vertex->getx(i));
-			xs_max[i] = max(xs_max[i], vertex->getx(i));
+simplices::~simplices() {};
+simplices::simplices(int n, vector<Point*> vec) {
+	d = n;
+	vertices = vec;
+	A.resize(d, d + 1);
+	for (int i = 0; i < d + 1; i++) {
+		vector<double> tmp = vec[i]->getxs();
+		for (int j = 0; j < d; j++) {
+			A(j, i) = tmp[j];
 		}
 	}
 }
 
+MatrixXd simplices::getmatrix() {
+	return A;
+};
 
-/*
-Edge::Edge(std::vector<Point*> vp) {
-	p1 = vp[0];
-	p2 = vp[1];
-	length = sqrt((vp[0]->x - vp[1]->x) * (vp[0]->x - vp[1]->x) + (vp[0]->y - vp[1]->y) * (vp[0]->y - vp[1]->y) + (vp[0]->z - vp[1]->z) * (vp[0]->z - vp[1]->z));
-}
-
-Edge::Edge(Point* v1, Point* v2) {
-	p1 = v1;
-	p2 = v2;
-	length = sqrt((v1->x - v2->x)* (v1->x - v2->x)+ (v1->y- v2->y)* (v1->y - v2->y)+ (v1->z - v2->z)* (v1->z - v2->z));
-}
-
-Edge::Edge(Grid_Point* v1, Grid_Point* v2) {
-	p1 = v1;
-	p2 = v2;
-	length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
-}
-
-Edge::Edge(Free_Point* v1, Grid_Point* v2) {
-	p1 = v1;
-	p2 = v2;
-	length = sqrt((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
-}
-
-bool Edge::operator==(Edge e) {
-	return (this->p1 == e.p1 && this->p2 == e.p2) || (this->p2 == e.p1 && this->p1 == e.p2);
-}
-
-bool Edge::on(Point* p) {
-	double lambda = INFINITY;
-	if (p->x < min(p1->x, p2->x) || p->x > max(p1->x, p2->x)) { return false; }
-	if (p->y < min(p1->y, p2->y) || p->y > max(p1->y, p2->y)) { return false; }
-	if (p->z < min(p1->z, p2->z) || p->z > max(p1->z, p2->z)) { return false; }
-	if (p1->x == p2->x)
-	{
-		if (p1->y == p2->y || p1->z == p2->z) { return true; }
-		if ((p->y - p2->y) / (p1->y - p2->y) == (p->z - p2->z) / (p1->z - p2->z)) { return true; }
-		else return false;
+bool simplices::intersect(simplices x) {
+	MatrixXd B = x.getmatrix();
+	MatrixXd T(d + 1, 2 * d + 2);
+	// Concatenate
+	T.block(0, 0, d, d + 1) = A;
+	T.block(0, d + 1, d, d + 1) = -B;
+	for (int i = 0; i < 2 * d + 2; i++) {
+		if (i < d + 1) T(d, i) = 1;
+		else T(d, i) = -1;
 	}
-	else {
-		if (p1->y == p2->y && p1->z == p2->z) { return true; }
-		if (p1->y == p2->y) {
-			if ((p->x - p2->x) / (p1->x - p2->x) == (p->z - p2->z) / (p1->z - p2->z)) { return true; }
-			else return false;
-		}
-		if (p1->z == p2->z) {
-			if ((p->y - p2->y) / (p1->y - p2->y) == (p->x - p2->x) / (p1->x - p2->x)) { return true; }
-			else return false;
-		}
-		if ((p->y - p2->y) / (p1->y - p2->y) == (p->x - p2->x) / (p1->x - p2->x) && (p->y - p2->y) / (p1->y - p2->y) == (p->z - p2->z) / (p1->z - p2->z)) { return true; }
-		else return false;
+
+	// Find basis of Null space of T
+	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
+	MatrixXd N = Temp.kernel().cast<double>();
+	int Row = N.rows();
+	int Col = N.cols();
+
+	// Convert eigen structure to alglib data structure
+	real_2d_array A;
+	double* p = new double[Col * Row];
+	for (int i = 0; i < Col * Row; i++) {
+		p[i] = N(i / Col, i % Col);
 	}
-}
 
-bool Edge::cross(Point* p, Point* ray) {
-	Point vec;
-	Point normal;
-	vec.x = p2->x - p1->x; vec.y = p2->y - p1->y; vec.z = p2->z - p1->z;
-	normal.x = ray->y * vec.z - ray->z * vec.y; normal.y = ray->z * vec.x - ray->x * vec.z; normal.z = ray->x * vec.y - ray->y * vec.x;
-	if (normal.x * (p2->x - p->x) + normal.y * (p2->y - p->y) + normal.z * (p2->z - p->z) != 0) {
-		return false;
+	A.setcontent(Row, Col, p);
+	cout << A.tostring(5) << endl;
+	double* low = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		low[i] = ERR;
 	}
-	if (vec.x * ray->y - ray->x * vec.y == 0) { return false; }
-	double Value = (p->x * ray->y - p->y * ray->x - ray->y * p1->x + ray->x * p1->y) / (vec.x * ray->y - ray->x * vec.y);
-	double ray_Value = (vec.y * p1->x - vec.x * p1->y - p->x * vec.y + p->y * vec.x ) / (vec.x * ray->y - ray->x * vec.y);
-	if (Value >0 && Value <1 && ray_Value < 0) { return true; }
-	else return false;
+	real_1d_array al;
+	al.setcontent(Row, low);
 
+	double* upp = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		upp[i] = INFINITY;
+	}
+	real_1d_array au;
+	au.setcontent(Row, upp);
+
+	double* c1 = new double[Col];
+	double* c2 = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		c1[i] = 1;
+		c2[i] = 1;
+	}
+	real_1d_array c;
+	real_1d_array s;
+	c.setcontent(Col, c2);
+	s.setcontent(Col, c1);
+
+	double* v_low = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_low[i] = -INFINITY;
+	}
+	real_1d_array bndl;
+	bndl.setcontent(Col, v_low);
+
+	double* v_upp = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_upp[i] = INFINITY;
+	}
+	real_1d_array bndu;
+	bndu.setcontent(Col, v_upp);
+
+	// Problem Setting
+	real_1d_array sol;
+	minlpstate state;
+	minlpreport rep;
+	minlpcreate(Col, state);
+	minlpsetcost(state, c);
+	minlpsetbc(state, bndl, bndu);
+	minlpsetlc2dense(state, A, al, au, Row);
+	minlpsetscale(state, s);
+
+	// Solve
+	minlpoptimize(state);
+	minlpresults(state, sol, rep);
+	if (0 < rep.terminationtype && rep.terminationtype < 5) {
+		return true;
+	}
+	return false;
 }
 
-Face::Face() {
-	face_key = new char[10];
-	points.push_back(new Point());
-	points.push_back(new Point());
-	points.push_back(new Point());
+bool simplices::intersect(Point* p, Point* q) {
+	MatrixXd T(d + 1, d + 3);
+	// Concatenate
+	T.block(0, 0, d, d + 1) = A;
+	vector<double> tmp1 = p->getxs();
+	vector<double> tmp2 = q->getxs();
+	for (int i = 0; i < d; i++) {
+		T(i, d + 1) = -tmp1[i];
+		T(i, d + 2) = -tmp2[i];
+	}
+	for (int i = 0; i < d + 3; i++) {
+		if (i < d + 1) T(d, i) = 1;
+		else T(d, i) = -1;
+	}
+
+	// Find basis of Null space of T
+	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
+	MatrixXd N = Temp.kernel().cast<double>();
+	int Row = N.rows();
+	int Col = N.cols();
+
+	// Convert eigen structure to alglib data structure
+	real_2d_array A;
+	double* p = new double[Col * Row];
+	for (int i = 0; i < Col * Row; i++) {
+		p[i] = N(i / Col, i % Col);
+	}
+
+	A.setcontent(Row, Col, p);
+	cout << A.tostring(5) << endl;
+	double* low = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		low[i] = ERR;
+	}
+	real_1d_array al;
+	al.setcontent(Row, low);
+
+	double* upp = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		upp[i] = INFINITY;
+	}
+	real_1d_array au;
+	au.setcontent(Row, upp);
+
+	double* c1 = new double[Col];
+	double* c2 = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		c1[i] = 1;
+		c2[i] = 1;
+	}
+	real_1d_array c;
+	real_1d_array s;
+	c.setcontent(Col, c2);
+	s.setcontent(Col, c1);
+
+	double* v_low = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_low[i] = -INFINITY;
+	}
+	real_1d_array bndl;
+	bndl.setcontent(Col, v_low);
+
+	double* v_upp = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_upp[i] = INFINITY;
+	}
+	real_1d_array bndu;
+	bndu.setcontent(Col, v_upp);
+
+	// Problem Setting
+	real_1d_array sol;
+	minlpstate state;
+	minlpreport rep;
+	minlpcreate(Col, state);
+	minlpsetcost(state, c);
+	minlpsetbc(state, bndl, bndu);
+	minlpsetlc2dense(state, A, al, au, Row);
+	minlpsetscale(state, s);
+
+	// Solve
+	minlpoptimize(state);
+	minlpresults(state, sol, rep);
+	if (0 < rep.terminationtype && rep.terminationtype < 5) {
+		return true;
+	}	
+	return false;
 }
 
-Face::Face(std::vector<Point*> vp) {
-	face_key = new char[10];
-	points.push_back(vp[0]);
-	points.push_back(vp[1]);
-	points.push_back(vp[2]);
-}
-
-Face::~Face() {
-}
-
-std::vector<Point*> Face::getpoints()
-{
-	return points;
-}
-
-bool Face::on(Point* p, int mode) {
-	double normal[3];
-	if (mode == 0) {
-		normal[0] = (points[0]->gety() - points[1]->gety()) * (points[2]->getz() - points[1]->getz())
-			- (points[0]->getz() - points[1]->getz()) * (points[2]->gety() - points[1]->gety());
-		normal[1] = -(points[0]->getx() - points[1]->getx()) * (points[2]->getz() - points[1]->getz())
-			+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
-		normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
-			- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
-		if (normal[0] * p->getx() + normal[1] * p->gety() + normal[2] * p->getz() !=
-			normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
+bool simplices::isIn(Point* p) {
+	MatrixXd T(d + 1, d + 1);
+	VectorXd b(d + 1);
+	vector<double> tmp = p->getxs();
+	for (int j = 0; j < d; j++) {
+		b(j) = tmp[j];
+	}
+	T.block(0, 0, d, d + 1) = A;
+	for (int i = 0; i < d + 1; i++) {
+		T(d, i) = 1;
+	}
+	b(d) = 1;
+	VectorXd x(d + 1);
+	x = T.colPivHouseholderQr().solve(b);
+	for (int j = 0; j < d + 1; j++) {
+		if (x(j) < -ERR) {
 			return false;
 		}
 	}
-	Point vec_to_vec[3];
-	Point vec_to_p[3];
-	Point out1[3];
-	Point out2[3];
-	double out_prod[3];
-	for (int i = 0; i < 3; i++)
-	{
-		vec_to_vec[i].setx(points[(i + 1) % 3]->getx() - points[i]->getx());
-		vec_to_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
-		vec_to_vec[i].setz(points[(i + 1) % 3]->getz() - points[i]->getz());
-		vec_to_p[i].setx(-points[i]->getx() + p->getx());
-		vec_to_p[i].sety(-points[i]->gety() + p->gety());
-		vec_to_p[i].setz(-points[i]->getz() + p->getz());
+	return true;
+}
+
+// Polytope Function
+Polytope::Polytope() {};
+Polytope::Polytope(FILE* input) {};
+Polytope::~Polytope() {};
+
+bool Polytope::isIn(Point* p) {
+	for (auto simp1 : this->component) {
+		bool in = simp1.isIn(p);
+		if (in) { return true; }
 	}
-	for (int i = 0; i < 3; i++)
-	{
-		out1[i].x = -( vec_to_p[i].y* vec_to_vec[i].z - vec_to_p[i].z * vec_to_vec[i].y);
-		out1[i].y = vec_to_p[i].x * vec_to_vec[i].z - vec_to_p[i].z * vec_to_vec[i].x;
-		out1[i].z = -(vec_to_p[i].x * vec_to_vec[i].y - vec_to_p[i].y * vec_to_vec[i].x);
-		out2[i].x =-( vec_to_vec[i].y * vec_to_vec[(i + 2) % 3].z - vec_to_vec[i].z * vec_to_vec[(i + 2) % 3].y);
-		out2[i].y = vec_to_vec[i].x * vec_to_vec[(i + 2) % 3].z - vec_to_vec[i].z * vec_to_vec[(i + 2) % 3].x;
-		out2[i].z =-( vec_to_vec[i].x * vec_to_vec[(i + 2) % 3].y - vec_to_vec[i].y * vec_to_vec[(i + 2) % 3].x);
+	return false;
+};
+
+bool Polytope::intersect(Polytope P) {
+	for (auto simp1 : this->component) {
+		for (auto simp2 : P.component) {
+			bool intersect = simp1.intersect(simp2);
+			if (intersect) { return true; }
+		}
 	}
-	if (out1[0].x * out2[0].x + out1[0].y * out2[0].y + out1[0].z * out2[0].z > 0 &&
-		out1[1].x * out2[1].x + out1[1].y * out2[1].y + out1[1].z * out2[1].z > 0 &&
-		out1[2].x * out2[2].x + out1[2].y * out2[2].y + out1[2].z * out2[2].z > 0 )
-	{
+	return false;
+};
+
+bool Polytope::intersect(Point* p, Point* q) {
+	for (auto simp1 : this->component) {
+		bool intersect = simp1.intersect(p, q);
+		if (intersect) { return true; }
+	}
+	return false;
+};
+
+bool Polytope::operator==(Polytope P) {
+	if (ord == P.ord) {
 		return true;
 	}
 	else return false;
-}
-
-bool Face::cross(Point* p, Point* ray) {
-	// Determine if the face is below from p along z-axis.
-	bool belowness = false;
-	double normal[3];
-	normal[0] = (points[0]->gety()- points[1]->gety())* (points[2]->getz() - points[1]->getz())
-		- (points[0]->getz() - points[1]->getz()) * (points[2]->gety() - points[1]->gety());
-	normal[1] = -(points[0]->getx() - points[1]->getx()) * (points[2]->getz() - points[1]->getz())
-		+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
-	normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
-		- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
-	double constant = normal[0] * points[0]->x + normal[1] * points[0]->y + normal[2] * points[0]->z;
-	double p_value = normal[0] * p->x + normal[1] * p->y + normal[2] * p->z;
-	double ray_value = normal[0] * ray->x + normal[1] * ray->y + normal[2] * ray->z;
-	if (normal[0] * ray->x + normal[1] * ray->y + normal[2] * ray->z == 0) { return false; }
-	if ((constant - p_value) / ray_value > 0) {
-		Point* In = new Point;
-		In->x = p->x + (constant - p_value) / ray_value * ray->x;
-		In->y = p->y + (constant - p_value) / ray_value * ray->y;
-		In->z = p->z + (constant - p_value) / ray_value * ray->z;
-		return this->on(In, 1);
-	}
-	else return false;
-}
-
-bool Face::pass(Point* p1, Point* p2, int dir){
-	signed int check_p1 = 1;
-	signed int check_p2 = 1;
-	bool possibility = false;
-	double normal[3];
-	double cons;
-	Point proj_vec[3];
-	Point p_to_vec[3];
-	double out_prod[3];
-	normal[0] = (points[0]->gety() - points[1]->gety()) * (points[2]->getz() - points[1]->getz())
-		- (points[0]->getz() - points[1]->getz()) * (points[2]->gety() - points[1]->gety());
-	normal[1] = -(points[0]->getx() - points[1]->getx()) * (points[2]->getz() - points[1]->getz())
-		+ (points[0]->getz() - points[1]->getz()) * (points[2]->getx() - points[1]->getx());
-	normal[2] = (points[0]->getx() - points[1]->getx()) * (points[2]->gety() - points[1]->gety())
-		- (points[0]->gety() - points[1]->gety()) * (points[2]->getx() - points[1]->getx());
-	if (normal[2] < 0)
-	{
-		normal[0] = -normal[0];
-		normal[1] = -normal[1];
-		normal[2] = -normal[2];
-	}
-	if (normal[0] * p1->getx() + normal[1] * p1->gety() + normal[2] * p1->getz() >=
-		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
-		check_p1 = -1;
-	}
-	if (normal[0] * p2->getx() + normal[1] * p2->gety() + normal[2] * p2->getz() >=
-		normal[0] * points[0]->getx() + normal[1] * points[0]->gety() + normal[2] * points[0]->getz()) {
-		check_p2 = -1;
-	}
-	if (check_p1 * check_p2 < 0) {
-		possibility = true; // Check if the plane containing a face cross the line connecting two points
-	}
-	if (possibility)
-	{
-		switch (dir) // Check if the face cross the line connecting two points
-		{
-		case 1:
-			for (int i = 0; i < 3; i++)
-			{
-				proj_vec[i].setx(0);
-				proj_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
-				proj_vec[i].setz(points[(i + 1) % 3]->getz() - points[i]->getz());
-				p_to_vec[i].setx(0);
-				p_to_vec[i].sety(points[i]->gety() - p1->gety());
-				p_to_vec[i].setz(points[i]->getz() - p1->getz());
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				out_prod[i] = proj_vec[i].getz() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getz();
-			}
-			if (out_prod[0] * out_prod[1] >= 0 && out_prod[1] * out_prod[2] >= 0)
-			{
-				return true;
-			}
-			break;
-		case 2:
-			for (int i = 0; i < 3; i++)
-			{
-				proj_vec[i].setx(points[(i + 1) % 3]->getx() - points[i]->getx());
-				proj_vec[i].sety(0);
-				proj_vec[i].setz(points[(i + 1) % 3]->getz() - points[i]->getz());
-				p_to_vec[i].setx(points[i]->getx() - p1->getx());
-				p_to_vec[i].sety(0);
-				p_to_vec[i].setz(points[i]->getz() - p1->getz());
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				out_prod[i] = proj_vec[i].getx() * p_to_vec[i].getz() - proj_vec[i].getz() * p_to_vec[i].getx();
-			}
-			if (out_prod[0] * out_prod[1] >= 0 && out_prod[1] * out_prod[2] >= 0)
-			{
-				return true;
-			}
-			break;
-		case 3:
-			for (int i = 0; i < 3; i++)
-			{
-				proj_vec[i].setx(points[(i + 1) % 3]->getx() - points[i]->getx());
-				proj_vec[i].sety(points[(i + 1) % 3]->gety() - points[i]->gety());
-				proj_vec[i].setz(0);
-				p_to_vec[i].setx(points[i]->getx() - p1->getx());
-				p_to_vec[i].sety(points[i]->gety() - p1->gety());
-				p_to_vec[i].setz(0);
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				out_prod[i] = proj_vec[i].getx() * p_to_vec[i].gety() - proj_vec[i].gety() * p_to_vec[i].getx();
-			}
-			if (out_prod[0] * out_prod[1] >= 0 && out_prod[1] * out_prod[2] >= 0)
-			{
-				return true;
-			}
-			break;
-		}
-	}
-	return false;
-}
-
-Polytope::Polytope() {
-	num_faces = 0;
-	num_points = 0;
-	num_edges = 0;
-	encl_pts = {};
-	x_min = INFINITY;
-	y_min = INFINITY;
-	z_min = INFINITY;
-	x_max = -INFINITY;
-	y_max = -INFINITY;
-z_max = -INFINITY;
-}
-
-Polytope::Polytope(FILE* f) {
-	char* buffer = new char[BUFFERSIZE];
-	fgets(buffer, BUFFERSIZE, f);
-	//to be implemented
-}
-
-Polytope::~Polytope() {
-}
-
-void Polytope::setpolytope(std::vector<Face*> input)
-{
-	num_faces = 0;
-	num_points = 0;
-	num_edges = 0;
-	encl_pts = {};
-	min_length = INFINITY;
-	x_min = INFINITY;
-	y_min = INFINITY;
-	z_min = INFINITY;
-	x_max = -INFINITY;
-	y_max = -INFINITY;
-	z_max = -INFINITY;
-	for (auto F : input)
-	{
-		faces.push_back(F);
-		num_faces++;
-	std:vector<Point*> temp = F->getpoints();
-		for (auto p : temp)
-		{
-			bool same = false;
-			for (auto v : vertices)
-			{
-				if (p == v)
-				{
-					same = true;
-					break;
-				}
-			}
-			if (!same)
-			{
-				vertices.push_back(p);
-				num_points++;
-			}
-		}
-		Edge t[3] = { {temp[0], temp[1]}, { temp[1], temp[2]},{ temp[2], temp[0]} };
-		for (int i = 0; i < 3; i++)
-		{
-			bool same = false;
-			for (auto e : edges)
-			{
-				if (e == t[i])
-				{
-					same = true;
-					break;
-				}
-			}
-			if (!same)
-			{
-				edges.push_back(t[i]);
-				min_length = min(min_length, t[i].length);
-				num_edges++;
-			}
-		}
-	}
-	for (Point* vertex : vertices)
-	{
-		x_min = min(x_min, vertex->getx());
-		y_min = min(y_min, vertex->gety());
-		z_min = min(z_min, vertex->getz());
-		x_max = max(x_max, vertex->getx());
-		y_max = max(y_max, vertex->gety());
-		z_max = max(z_max, vertex->getz());
-	}
-}
-
-// Polytope
-bool Polytope::isIn(Point* p) {
-	int num_below = 0;
-	bool check = true;
-	Point* ray = new Point;
-	random_device rng;
-	uniform_int_distribution<int> dist1(0, 100);
-	while (check)
-	{
-		bool v_check = false;
-		bool e_check = false;
-		ray->setx(static_cast<float>(dist1(rng))/100); ray->sety(static_cast<float>(dist1(rng)) / 100); ray->setz(static_cast<float>(dist1(rng)) / 100);
-		if (ray->x == 0 || ray->y == 0 || ray->z == 0)
-		{
-			continue;
-		}
-		for (auto v : vertices)
-		{
-			if (p == v) {
-				return false;
-			}
-			if ((p->x - v->x) / ray->x == (p->y - v->y) / ray->y && (p->y - v->y) / ray->y == (p->z - v->z) / ray->z) {
-				v_check = true;
-			}
-		}
-		if (v_check) { continue; }
-		for (auto e : edges)
-		{
-			if (e.on(p))	{
-				return false;
-			}
-			if (e.cross(p, ray)) {
-				e_check = true;
-			}
-		}
-		if (e_check) { continue; }
-		break;
-	}
-	for (auto f: faces)
-	{
-		if (f->on(p, 0)) {
-			return false;
-		}
-		if (f->cross(p, ray)) {
-			num_below++;
-		}
-	}
-
-	if (num_below % 2 == 0)
-	{
-		return false;
-	}
-	else { return true; }
 };
-
-bool Polytope::intersect(Point p1, Point p2, int dir) {
-	for (int i = 0; i < num_faces; i++)
-	{
-		Point temp = p1;
-		Point temp2 = p2;
-		double eps = min_length / 10;
-		int count = 0;
-		switch (dir) // Check if the face cross the line connecting two points
-		{
-		case 1:
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.sety(p1.y - eps); temp2.sety(p2.y - eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) {count++;}
-			temp.sety(p1.y + eps); temp2.sety(p2.y + eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.sety(p1.y); temp2.sety(p2.y);
-			temp.setz(p1.z - eps); temp2.setz(p2.z - eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.setz(p1.z + eps); temp2.setz(p2.z + eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			if (count == 5) { return true; }
-			else { return false; }
-			break;
-		case 2:
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.setx(p1.x - eps); temp2.setx(p2.x - eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.setx(p1.x + eps); temp2.setx(p2.x + eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.setx(p1.x); temp2.setx(p2.x);
-			temp.setz(p1.z - eps); temp2.setz(p2.z - eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.setz(p1.z + eps); temp2.setz(p2.z + eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			if (count == 5) { return true; }
-			else { return false; }
-			break;
-		case 3:
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.sety(p1.y - eps); temp2.sety(p2.y - eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.sety(p1.y + eps); temp2.sety(p2.y + eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.sety(p1.y); temp2.sety(p2.y);
-			temp.setz(p1.x - eps); temp2.setz(p2.x - eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			temp.setz(p1.x + eps); temp2.setz(p2.x + eps);
-			if (this->faces[i]->pass(&temp, &temp2, dir)) { count++; }
-			if (count == 5) { return true; }
-			else { return false; }
-			break;
-		}
-	}
-	return false;
-}
-
-bool Polytope::operator==(Polytope _p) {
-	return this->ord == _p.ord;
-}
-
-*/

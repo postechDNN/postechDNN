@@ -75,10 +75,10 @@ double Point::distance(Point _p) {
 }
 
 Free_Point::Free_Point(std::vector<double> _xs) :Point(xs) {
-
+	xs = _xs;
 }
 
-Grid_Point::Grid_Point(int n) : Point(n) { ind = { -1, -1, -1 }; num = -1; ip = { false, false, false, false, false, false }; encl = -1; }
+Grid_Point::Grid_Point(int n) : Point(n) { ind = std::vector<long long int>(n,-1); num = -1; ip_u = std::vector<bool>(n,false); ip_d = std::vector<bool>(n, false); encl = -1; }
 
 Grid_Point::Grid_Point(std::vector<long long int> _ind, Point _upper_left, double _eps, std::vector<long long int> _xs)
 {
@@ -93,7 +93,8 @@ Grid_Point::Grid_Point(std::vector<long long int> _ind, Point _upper_left, doubl
 		//add num!!!!!!!!!
 	}
 	encl = -1;
-	ip = std::vector<bool>(n, false);
+	ip_u = std::vector<bool>(n, false);
+	ip_d = std::vector<bool>(n, false);
 }
 
 //Grid_Point::Grid_Point(int _x_num, int _y_num, int _z_num, double x_min, double y_min, double z_min, double eps, int eg_y, int eg_z) {

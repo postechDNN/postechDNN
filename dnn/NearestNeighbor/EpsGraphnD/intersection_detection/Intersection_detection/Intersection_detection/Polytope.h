@@ -7,6 +7,21 @@
 using namespace std;
 using Eigen::MatrixXd;
 
+class Edge {
+public:
+	Point* p1;
+	Point* p2;
+	double length;
+public:
+	Edge(int n);
+	Edge(std::vector<Point*>);
+	Edge(Point*, Point*);
+	Edge(Grid_Point*, Grid_Point*);
+	Edge(Free_Point*, Grid_Point*);
+	~Edge();
+	bool operator==(Edge);
+};
+
 class simplices {
 protected:
 	int d; // dimension
@@ -31,8 +46,7 @@ protected:
 	int d; // dimension
 	double min_length;
 public:
-	double* min;
-	double* max;
+	std::vector <double> xs_max, xs_min;
 	vector<Point*> encl_pts;
 	int ord;
 

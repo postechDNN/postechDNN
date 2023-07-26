@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     vector<Point*> pol1 = { t1, t2, t3, t4 };
     simplices S1(3, pol1);
 
-    vector<double> ap1 = { 1,1,1 };
+    vector<double> ap1 = { -1,-1,-1 };
     vector<double> ap2 = { 6,0,0 };
     vector<double> ap3 = { 0,6,0 };
     vector<double>  ap4 = { 0,0,6 };
