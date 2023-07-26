@@ -540,8 +540,8 @@ vector<Free_Point> Eps_Graph_3D::kNN(Free_Point p, int k) { // returns k approxi
 
 	return ret;
 }
-
-vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
+*/
+vector<Edge> Eps_Graph_nD::path_kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
 	for (Polytope& pol : pols) {
 		assert(!pol.isIn(&p));
@@ -625,8 +625,7 @@ vector<Edge> Eps_Graph_3D::path_kNN(Free_Point p, int k) { // returns k approxim
 
 	return path;
 }
-*/
-
+/*
 void Eps_Graph_3D::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
 		cout << grid[i].ind.x_ind << grid[i].ind.y_ind << grid[i].ind.z_ind << ' ' << '|' << grid[i].ip.x_u << ' ' << '|' << grid[i].ip.y_u << grid[i].ip.z_u << ' ' << '|';
