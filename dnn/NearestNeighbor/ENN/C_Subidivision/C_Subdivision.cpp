@@ -527,6 +527,106 @@ DCEL C_Subdivision::build_alpha_subdivision(int alpha){
     return DCEL(vertices, graph);
 }
 
+
+
+
+bool compare_by_x(Point a, Point b) {
+    return a.getx() > b.getx();
+}
+
+bool compare_by_y(Point a, Point b) {
+    return a.gety() > b.gety();
+}
+
+double get_dist(Point a, Point b) {
+    double dx = std::abs(a.getx()-b.getx());
+    double dy = std::abs(a.gety()-b.gety());
+    double min = std::max(dx, dy); 
+    return dx + dy;
+}
+
+double compare_mid(std::vector<Point> mid_y, double min_left_right) {
+    int min_mid = min_left_right;
+
+    for(int i = 0; i < mid_y.size(); i++) {
+        for(int j = i + 1; j < mid_y.size(); j++) {
+            if(get_dist(mid_y[i], mid_y[j]) < min_mid) {
+                min_mid = get_dist(mid_y[i], mid_y[j]);
+            }
+        }
+    }
+
+    return min_mid;
+}
+
+double closest_dist(std::vector<Point> sites_x, std::vector<Point> sites_y){
+    if(sites_x.size() == 1){
+
+        return std::numeric_limits<double>::infinity();
+
+    } else if(sites_x.size() == 2){
+
+        return get_dist(sites_x[0], sites_x[1]);
+
+    } else if(sites_x.size() <= 3){
+
+        double dist1 = get_dist(sites_x[0], sites_x[1]);
+        double dist2 = get_dist(sites_x[0], sites_x[2]);
+        double dist3 = get_dist(sites_x[2], sites_x[1]);
+
+        return std::min(dist1, std::min(dist2, dist3));
+    }
+
+    int mid_idx_x = sites_x.size() / 2;
+
+    std::vector<Point> left_y;
+    std::vector<Point> right_y;
+    
+    for (int i = 0; i < sites_y.size(); i++) {
+    
+        if(sites_y[i].getx() < sites_x[mid_idx_x].getx()) {
+            left_y.push_back(sites_y[i]);
+        } else {
+            right_y.push_back(sites_y[i]);
+        }
+    }
+
+
+    std::vector<Point> left_x;  
+    for (int i = 0; i < mid_idx_x; i++) {
+        left_x.push_back(sites_x[i]);
+    }
+    std::vector<Point> right_x;  
+    for (int i = mid_idx_x; i < sites_x.size(); i++) {
+        right_x.push_back(sites_x[i]);
+    }
+
+    double min_left_right = std::numeric_limits<double>::infinity();
+
+
+    if(left_x.size() == 1) {
+        min_left_right = closest_dist(right_x, right_y);
+    } else if(right_x.size() == 1) {
+        min_left_right = closest_dist(left_x, left_y);
+    } else {
+        min_left_right = std::min(closest_dist(left_x, left_y), closest_dist(right_x, right_y));
+    }
+
+    std::vector<Point> mid_y;
+
+    for(int i = 0; i < sites_x.size(); i++) {
+        if (std::abs(sites_y[i].getx() - sites_x[mid_idx_x].getx() ) < min_left_right) {
+            mid_y.push_back(sites_y[i]);
+        }
+    }
+
+    double min_mid = compare_mid(mid_y, min_left_right);
+
+
+    double min = std::min(min_mid, min_left_right);
+    return min;
+}
+
 // Scale and translate sites to make thier coordinates satisfy the following:
 // (1) distance between them is not smaller than 1.
 // (2) they do not have integer coordinate. 
@@ -535,14 +635,24 @@ C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
 
     // Compute the minimum x-distance (y-distance) between sites 
     // TODO: Need to improve it to O(nlog n) algorithm
-    double min_dist = std::numeric_limits<double>::infinity();
-    for(int i = 0;i<this->sites.size();i++){
-        for(int j = i+1; j < this->sites.size();j++){
-            double dx = std::abs(this->sites[i].getx()-this->sites[j].getx());
-            double dy = std::abs(this->sites[i].gety()-this->sites[j].gety());
-            min_dist = min_dist > std::max(dx,dy) ? std::max(dx,dy) : min_dist; 
-        }
-    }
+    // double min_dist = std::numeric_limits<double>::infinity();
+    // for(int i = 0;i<this->sites.size();i++){
+    //     for(int j = i+1; j < this->sites.size();j++){
+    //         double dx = std::abs(this->sites[i].getx()-this->sites[j].getx());
+    //         double dy = std::abs(this->sites[i].gety()-this->sites[j].gety());
+    //         min_dist = min_dist > std::max(dx,dy) ? std::max(dx,dy) : min_dist; 
+    //     }
+    // }
+
+
+    std::vector<Point> sites_x(this->sites.begin(), this->sites.end());
+    std::vector<Point> sites_y(this->sites.begin(), this->sites.end());
+
+    sort(sites_x.begin(), sites_x.end(), compare_by_x);
+    sort(sites_y.begin(), sites_y.end(), compare_by_y);
+
+    double min_dist = closest_dist(sites_x, sites_y);
+
 
     // double min_xdist = std::numeric_limits<double>::infinity();
     // double min_ydist = min_xdist;
