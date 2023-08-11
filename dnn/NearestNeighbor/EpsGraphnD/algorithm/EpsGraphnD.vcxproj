@@ -35,7 +35,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\data_generation\data_generation.h" />
     <ClInclude Include="alglibinternal.h" />
     <ClInclude Include="alglibmisc.h" />
     <ClInclude Include="ap.h" />
@@ -155,12 +156,12 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\data_generation\data_generation.cpp" />
     <ClCompile Include="alglibinternal.cpp" />
     <ClCompile Include="alglibmisc.cpp" />
     <ClCompile Include="ap.cpp" />
     <ClCompile Include="EpsGraphnD.cpp" />
     <ClCompile Include="linalg.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="optimization.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />

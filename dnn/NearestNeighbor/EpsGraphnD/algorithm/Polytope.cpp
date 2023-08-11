@@ -140,12 +140,12 @@ bool simplices::intersect(Point* p, Point* q) {
 
 	// Convert eigen structure to alglib data structure
 	real_2d_array A;
-	double* p = new double[Col * Row];
+	double* a = new double[Col * Row];
 	for (int i = 0; i < Col * Row; i++) {
-		p[i] = N(i / Col, i % Col);
+		a[i] = N(i / Col, i % Col);
 	}
 
-	A.setcontent(Row, Col, p);
+	A.setcontent(Row, Col, a);
 	cout << A.tostring(5) << endl;
 	double* low = new double[Row];
 	for (int i = 0; i < Row; i++) {
