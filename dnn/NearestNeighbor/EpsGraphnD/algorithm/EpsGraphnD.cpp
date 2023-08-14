@@ -651,11 +651,18 @@ vector<Edge> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approximate n
 	return path;
 }
 
-/*
-void Eps_Graph_3D::print_grid() {
+
+void Eps_Graph_nD::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
-		cout << grid[i].ind.x_ind << grid[i].ind.y_ind << grid[i].ind.z_ind << ' ' << '|' << grid[i].ip.x_u << ' ' << '|' << grid[i].ip.y_u << grid[i].ip.z_u << ' ' << '|';
-		if (num2ind(i).z_ind == z_num - 1) { cout << endl; }
+		for (int j = 0; j < grid[i].getsize(); j++) {
+			cout << grid[i].ind[j];
+		}
+		cout << ' ' << '|';
+		for (int j = 0; j < grid[i].getsize(); j++) {
+			cout << grid[i].ip_u << ' ';
+		}
+		cout << '|';
+		if (num2ind(i).ind[grid[i].getsize() - 1] == n - 1) { cout << endl; }
 	}
 }
 
@@ -683,15 +690,30 @@ void Eps_Graph_3D::print_free_point() {
 }
 
 
-/*
-void Eps_Graph_3D::print_edges() {
+
+
+void Eps_Graph_nD::print_edges() {
 	for (auto gp : grid) {
-		if (gp.ip.z_u == true && gp.ind.x_ind == 10 && gp.ind.y_ind == 10) {
-			cout << gp.getx() << ' ' << gp.gety() << ' ' << gp.getz() << '|' << gp.getx() << ' ' << gp.gety() << ' ' << gp.getz() + eps << endl;
+		bool criteria = gp.ip_u[gp.getsize()];
+		for (vector<long long int>::iterator it = gp.ind.begin(); it != gp.ind.end(); ++it) {
+			criteria = criteria && (gp.ind[i] == 10)
+		}
+		if (criteria) {
+			for (int i = 0; i < gp.getsize(); i++) {
+				cout << gp.getx(i) << ' ';
+			}
+
+			cout << '|';
+
+			for (int i = 0; i < gp.getsize() - 1; i++) {
+				cout << gp.getx(i) << ' '
+			}
+
+			cout << gp.getx(gp.getsize() - 1) + eps << endl;
 		}
 	}
 }
-*/
+
 
 void Eps_Graph_3D::print_anchor() {
 	for (auto gp : grid) {
