@@ -80,13 +80,13 @@ public:	// functions
 	vector<Free_Point> kNN(Free_Point, int); // kNN point query
 	vector<edge> path_kNN(Free_Point, int); // kNN point query
 
-	void print_grid();
+	//void print_grid();
 	void print_encl();
 	void print_free_point();
-	void print_edges();
+	//void print_edges();
 	void print_anchor();
-	void print_dist();
-	void print_kNN(Free_Point, int);
+	//void print_dist();
+	//void print_kNN(Free_Point, int);
 
 	Free_Point get_free_point(int);
 	list<Free_Point> get_free_points();
