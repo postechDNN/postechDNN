@@ -91,6 +91,8 @@ Grid_Point::Grid_Point(std::vector<long long int> _ind, Point _upper_left, doubl
 	long long int mult = 1;
 	for (int i = 0; i < n;i++) {
 		//add num!!!!!!!!!
+		num += mult * _ind[n - 1 - i];
+		mult *= _xs[n - 1 - i];
 	}
 	encl = -1;
 	ip_u = std::vector<bool>(n, false);
