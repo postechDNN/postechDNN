@@ -108,7 +108,30 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
 
     /* Plane Sweep for O(nlogn) */
     // Sort S with r-value
-    struct comp
+
+    std::vector<Quad*> & S_sorted = S; // Use S_sorted.assign(S.begin(), S.end()) if deepcopy is needed;
+    // CAUTION: The original vector S is modified!
+
+    auto comp_r = [](Quad* lhs, Quad* rhs) { 
+        if (lhs->c == rhs->c && lhs->r == rhs->r) return std::addressof(*lhs) < std::addressof(*rhs); 
+        else if (lhs->r == rhs->r) return lhs->c < rhs->c; 
+        else return (lhs -> r) < (rhs -> r); 
+    };
+
+    std::sort(S_sorted.begin(), S_sorted.end(), comp_r);
+
+    // std::cout << std::endl<<"Sorted" << std::endl ;
+    // for(int i=0; i<S_sorted.size(); i++){
+    //     //std::cout<<"TEST: (r)" << S_sorted[i]->r ;
+    //     std::cout<<"TEST: (r)" << S_sorted[i]->r << " (c)" << S_sorted[i]->c << " ";
+    // }
+    // std::cout << std::endl << "Original" << std::endl ;
+    // for(int i=0; i<S_sorted.size(); i++){
+    //     std::cout<<"TEST: " << S[i]->r << " ";
+    // }
+
+    // Make a Status Tree
+    struct comp_c
     {
         bool operator()(Quad* lhs, Quad *rhs) const
         {
@@ -125,77 +148,79 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             return lhs->c < rhs->c;
         }
     };
-
-    std::vector<Quad*> & S_sorted = S; // Use S_sorted.assign(S.begin(), S.end()) if deepcopy is needed;
-    // CAUTION: The original vector S is modified! 
-    //std::sort(S_sorted.begin(), S_sorted.end(), [](Quad* lhs, Quad* rhs){ if (lhs->c == rhs->c && lhs->r == rhs->r) return std::addressof(*lhs) < std::addressof(*rhs); elif (lhs->r == rhs->r) return lhs->c < rhs->c; else return (lhs -> r) < (rhs -> r); });
-    //std::sort(S_sorted.begin(), S_sorted.end(), comp);
-
-    // std::cout << std::endl<<"Sorted" << std::endl ;
-    // for(int i=0; i<S_sorted.size(); i++){
-    //     //std::cout<<"TEST: (r)" << S_sorted[i]->r ;
-    //     std::cout<<"TEST: (r)" << S_sorted[i]->r << " (c)" << S_sorted[i]->c << " ";
-    // }
-    // std::cout << std::endl << "Original" << std::endl ;
-    // for(int i=0; i<S_sorted.size(); i++){
-    //     std::cout<<"TEST: " << S[i]->r << " ";
-    // }
-
-    // Make a Status Tree
     
-    std::multiset<Quad*, comp> tree;
+    std::multiset<Quad*, comp_c> tree;
 
-    // // Handel events (Moving the sweepline rightwards)
-    // for(int i=0; i<S_sorted.size(); i++){
+    // Handel events (Moving the sweepline rightwards)
+    for(int i=0; i<S_sorted.size(); i++){
         
-    //     std::cout << "IDX i: " <<  i << std::endl;
-    //     Quad* quadNew = S_sorted[i];
-    //     auto sweepline = quadNew-> r; // r-coordinate of the sweepline
+        //std::cout << "IDX i: " <<  i << std::endl;
+        Quad* quadNew = S_sorted[i];
+        auto sweepline = quadNew-> r; // r-coordinate of the sweepline
 
-    //     // Remove Quads which are note intersected by the sweepline
-    //     while(!tree.empty() && ((*tree.begin())->c < sweepline)) {
-    //         std::cout << "ERASE" << std::endl;
-    //         tree.erase(tree.begin());
-
+        // Remove Quads which are note intersected by the sweepline
+        while(!tree.empty() && ((*tree.begin())->r < sweepline)) {
+            tree.extract(tree.begin());
             
-    //     }
+        }
+
+        
+        // Insert a new Quad 
+        std::cout << "INSERT" << std::endl;
+        bool cnt = tree.count(quadNew);
+        if (cnt < 0) std::cout << "DUPLICATES!!!!!!!!!!" << std::endl;
+        else tree.insert(quadNew);
+
+        std::cout << std::endl;
+        for (auto titr : tree){
+            std::cout << titr -> r <<" " << titr -> c << " " << std::addressof(*titr) << std::endl;
+        }
+
 
         // Find a starting position to look at 
-        // std::cout << "FIND POS" << std::endl;
-        // auto pos = tree.lower_bound(quadNew);
-        // auto left = pos;
-        // auto right = pos;
+        auto pos = tree.lower_bound(quadNew);
+        auto left = pos;
+        auto right = pos;
 
-        // // First, check leftside of pos 
-        // std::cout << "CHECK LEFT" << std::endl;
-        // while(is_intersect_quad(quadNew, *left)){
-        //     int idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *left) - S_sorted.begin(); 
-        //     // graph[idx][i] = true;
-        //     // graph[i][idx] = true;
-        //     if (left == tree.begin()) break;
-        //     else left--;
-        // }
+        // First, check leftside of pos 
+        while(is_intersect_quad(quadNew, *left)){
 
-        // // Then, check rightside of pos
-        // // std::cout << "CHECK RIGHT" << std::endl;
-        // // while(is_intersect_quad(quadNew, *right)){
-        // //     int idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *right) - S_sorted.begin(); 
-        // //     graph[idx][i] = true;
-        // //     graph[i][idx] = true;
-        // //     if (std::next(right) == tree.end()) break;
-        // //     else right ++;
-        // // }
+            auto idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *left, comp_r) - S_sorted.begin(); 
+            std::cout <<"i: " << i << ", idx: "<< idx << std::endl;
+            // graph[idx][i] = true;
+            // graph[i][idx] = true;
+
+            if (idx == i) ;
+            else if (graph[idx][i] && graph[i][idx]) std::cout << "TRUE!! \n";
+            else{
+                std::cout<< "FALSE!! " << std::endl;
+                std::cout<< "quadNew: " << quadNew->r << quadNew -> c << std::endl;
+                std::cout << "*left: " << (*left) -> r << (*left) -> c << std::endl;
+            }
+
+            if (left == tree.begin()) break;
+            else left = prev(left);
+        }
+
+        // Then, check rightside of pos
+        while(is_intersect_quad(quadNew, *right)){
+            int idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *right, comp_r) - S_sorted.begin(); 
+            // graph[idx][i] = true;
+            // graph[i][idx] = true;
+
+            if (idx == i) ;
+            else if (graph[idx][i] && graph[i][idx]) std::cout << "TRUE!! \n";
+            else std::cout<< "FALSE!! " << std::endl;
+
+            if (std::next(right) == tree.end()) break;
+            else right = next(right);
+        }
 
 
-        // // Insert a new Quad 
-        // std::cout << "INSERT" << std::endl;
-        // bool cnt = tree.count(quadNew);
-        // if (cnt != 0) std::cout << "DUPLICATES!!!!!!!!!!" << std::endl;
-        // else tree.insert(quadNew);
 
 
 
-    //}
+    }
 
 
 
