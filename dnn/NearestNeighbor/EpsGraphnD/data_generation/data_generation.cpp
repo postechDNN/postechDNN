@@ -2,27 +2,33 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include<vector>
-#include<sstream>
+#include <vector>
+#include <sstream>
 #include <random>
+#include <tuple>
 
 std::random_device rd;
 std::mt19937 gen(rd());
 
-/*
 int main() {
 	// std::string config("config.ini");
 
+	// ------------------------------------------------------------------------------------------------------------------------
+	// dimension d
 	std::cout << "Enter the dimension: ";
 	int d; std::cin >> d;
 
-	// for now, only 1 halfplane
-	std::cout << "Number of halfplanes to generate: ";
-	int num_h; std::cin >> num_h;
+	// ------------------------------------------------------------------------------------------------------------------------
+	// generate a bounding box
 
 	// defines a bounding box around the origin
 	std::cout << "Maximum value for each coordinate: ";
 	double u_bound; std::cin >> u_bound;
+
+	// rectangular bounding box
+	std::vector<std::pair<double, double>> bbx;
+
+	for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
 	// double upper_bound = 10.0; // maximum value for each coordinate
 	// double lower_bound = -upper_bound; // minimum value for each coordinate
 
@@ -31,18 +37,38 @@ int main() {
 
 	std::uniform_real_distribution<double> dist(-u_bound, u_bound); // uniform distribution
 
+	// ------------------------------------------------------------------------------------------------------------------------
+	// generate halfplanes
+
+	// for now, only 1 halfplane
+	std::cout << "Number of halfplanes to generate: ";
+	int num_h; std::cin >> num_h;
+
+	std::cout << "1. Random, 2: Centered"<< std::endl;
+	std::cout << "Method for halfplane generation: ";
+	int gen_method; std::cin >> gen_method;
+
 	// std::vector<HP>; // halfplanes
 	std::vector<halfplane*> halfplanes; // halfplane
 
 	for (int j = 0; j < num_h; j++) {
-		halfplane* H = new halfplane{ d };
+		
+		switch (gen_method) {
+			case 1:
+				halfplanes.push_back(hp_random(d));
+				break;
 
-		// constructing halfplane by generating d+1 random numbers
-		// ax + by + c = 0 if 2d, ax + by + cz + d = 0 if 3d, and so on.
-		for (int i = 0; i < d + 1; i++) { 
-			H->vals.push_back(round(dist(gen)));
+			case 2:
+				std::cout << "Enter the point: " << std::endl;
+				Point* pt = new Point;
+				for (int i = 0; i < d; i++) {
+					double val; std::cin >> val;
+					pt->setx(i, val);
+				}
+
+				halfplanes.push_back(hp_thru_p(pt));
+				break;
 		}
-		halfplanes.push_back(H);
 	}
 
 	// for debug
@@ -54,9 +80,16 @@ int main() {
 		std::cout << std::endl;
 	}
 
-	// disperse certain amount of points on the halfplane
+	// ------------------------------------------------------------------------------------------------------------------------
+	// disperse certain amount of points on the halfplanes
+
 	// con_pts stands for convex points
 	int con_pts; std::cin >> con_pts;
+
+	for (int i = 0; i < halfplanes.size(); i++) {
+		
+	}
+
 
 	// user-defined
 	std::string myst("pts.txt");
@@ -85,10 +118,24 @@ int main() {
 
 	// 형식에 맞춰서 output해야 하므로.
 }
-*/
 
 // ------------------------------------------------------------------------------------------------------------------------
 // halfplane 생성 함수들
+// dim: dimension
+halfplane* hp_random(int dim) {
+	halfplane* H = new halfplane{ dim };
+
+	std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+	// constructing halfplane by generating d+1 random numbers
+	// ax + by + c = 0 if 2d, ax + by + cz + d = 0 if 3d, and so on.
+	for (int i = 0; i < dim + 1; i++) {
+		H->vals.push_back(round(dist(gen)));
+	}
+
+	return H;
+
+}
 
 // center(주관적 원점)을 지나는 halfplane 하나를 만들어내기
 // 어차피 비례하므로, 여기서는 수를 bound할 필요는 없음.
@@ -112,11 +159,13 @@ halfplane* hp_thru_p(Point* center) {
 }
 
 // slice the bounding box with parallel hyperplanes
-//  x축 그러니까 첫번째 coordinate 기준으로 자르기.
+// bounding box는 main함수에서 제시되어 있음
+//  x축 (첫번째 coordinate) 기준으로 자르기.
 // 이렇게 만들어진 예시: 항아리 모양
 // 리턴값은 center들의 vector
-void x_slice() {
-
+// num_cuts: 나누는 cut의 개수. subpart의 개수는 따라서 num_cuts + 1이 됨.
+std::vector<halfplane*> x_slice(int num_cuts) {
+	return {};
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -225,9 +274,29 @@ std::vector<Point*> pts_on_sphere(int num_pts, Point* center, double radius, DIS
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
+// 점집합 분리 함수들
+// bounding box의 정보는 필요 없음
+// halfplane 하나 가지고, 3개의 subset으로 나눔
+std::vector<std::vector<int>> separate_pts(halfplane* hp, std::vector<Point*> pts) {
+
+	std::vector<std::vector<int>> ret;
+
+	for (int i = 0; i < pts.size(); i++) {
+		double val = hp_result(hp, pts[i]);
+
+		if (abs(val) < EPS_DG) ret[0].push_back(i);
+		else if (val > 0) ret[1].push_back(i);
+		else ret[2].push_back(i);
+	}
+
+	return ret;
+}
+
+// ------------------------------------------------------------------------------------------------------------------------
 // 기타 기본 함수들
 
-// halfplane 기준으로 점이 어느 곳에 위치하는지 테스트하는 함수 (양수, 0 - halfplane 위, 음수)
+// halfplane 기준으로 점이 어느 곳에 위치하는지 테스트하는 함수 
+// 리턴값은 양수, 0, 음수 중 하나. halfplane 위에 있을 경우 0을 반환
 double hp_result(halfplane* hp, Point* p) {
 	// halfplane과 point가 각각 가리키는 차원이 다른 경우 강제로 오류 발생시키기
 	if (p->n != hp->d) exit(1);
@@ -240,3 +309,8 @@ double hp_result(halfplane* hp, Point* p) {
 
 	return ret;
 }
+
+// 
+struct graph_input {
+	// std::vector<s>
+};
