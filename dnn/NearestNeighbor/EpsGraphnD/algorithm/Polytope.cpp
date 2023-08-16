@@ -3,7 +3,6 @@
 #include <queue>
 #include <assert.h>
 #include <random>
-#include<Eigen/Dense>
 
 #define BUFFERSIZE 1000
 #define ERR 1e-6
