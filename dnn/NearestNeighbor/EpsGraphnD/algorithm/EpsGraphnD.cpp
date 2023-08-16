@@ -84,6 +84,7 @@ void Eps_Graph_nD::init_grid() {
 		}
 	}
 }
+
 bool Eps_Graph_nD::get_step_comb(vector<int> arr, int index, int sum, int step, vector<long long int> xs, Free_Point& p) {
 	if (index == arr.size() - 1) {
 		arr[index] = step - sum;
