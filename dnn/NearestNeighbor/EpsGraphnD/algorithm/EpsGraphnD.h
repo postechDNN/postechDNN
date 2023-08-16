@@ -68,7 +68,7 @@ public:	// functions
 	void add_freepts(vector<Free_Point> p_vec);
 	void delete_freept(int);
 
-	bool get_step_comb(vector<int>, int, int, int, vector<long long int>);
+	bool get_step_comb(vector<int>, int, int, int, vector<long long int>, Free_Point&);
 	void anchor(Free_Point&);	// 중간에 있으면 왼쪽, 위로 가도록
 	void query_anchor(Grid_Point&);
 
@@ -77,20 +77,20 @@ public:	// functions
 	std::vector<long long int>* eff_region(Polytope);
 	// indices* eff_region(Polytope); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
 
-	vector<Free_Point> kNN(Free_Point, int); // kNN point query
+	//vector<Free_Point> kNN(Free_Point, int); // kNN point query
 	vector<edge> kNN(Free_Point, int); // kNN point query
 
-	void print_grid();
+	//void print_grid();
 	void print_encl();
 	void print_free_point();
-	void print_edges();
+	//void print_edges();
 	void print_anchor();
-	void print_dist();
-	void print_kNN(Free_Point, int);
+	//void print_dist();
+	//void print_kNN(Free_Point, int);
 
 	Free_Point get_free_point(int);
 	list<Free_Point> get_free_points();
 	vector<Polytope> get_Polytope();
 	vector<Grid_Point> get_grid();
-
+	//vector<edge> get_path(Free_Point, int);
 };
