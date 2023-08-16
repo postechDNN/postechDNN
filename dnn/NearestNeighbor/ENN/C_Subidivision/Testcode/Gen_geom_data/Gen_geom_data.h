@@ -2,10 +2,12 @@
 
 #include "../../DCEL/Point.h"
 #include "../../DCEL/Polygon.h"
+#include <random>
 
 class Gen_geom_data{
     double min_x, max_x;
     double min_y, max_y;
+    std::mt19937 gen;
 public:
     Gen_geom_data(Point left_bottom, Point right_top);
     //Generate n random points in a bounding box which follow some distribution
