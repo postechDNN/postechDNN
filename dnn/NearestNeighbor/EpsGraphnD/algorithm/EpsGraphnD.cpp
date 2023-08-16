@@ -3,9 +3,6 @@
 #include <assert.h>
 #include <iostream>
 
-#define X 1 // ray direction
-#define Y 2
-#define Z 3
 
 using namespace std;
 Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
@@ -249,7 +246,9 @@ bool Eps_Graph_nD::cmpNadd(vector<long long int> ind, int direc) {  //O
 		}
 
 		// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
-		if (pol.intersect(Point{ A}, Point{ B})) { return false; }
+		Point _A = Point(A.xs);
+		Point _B = Point(B.xs);
+		if (pol.intersect(&_A, &_B)) { return false; }
 
 	}
 
@@ -417,7 +416,9 @@ bool Eps_Graph_nD::cmpNadd_SinPol(vector<long long int> ind, int direc, int ord)
 		return false;
 	}
 
-	if (pol.intersect(Point{ A}, Point{ B})) { return false; }
+	Point _A = Point(A.xs);
+	Point _B = Point(B.xs);
+	if (pol.intersect(&_A, &_B)) { return false; }
 	return true;
 }
 
@@ -579,8 +580,8 @@ void Eps_Graph_nD::delete_pol(int ord) { // delete a polygon from O, specified b
 }
 
 
-Eps_Graph_nD::Eps_Graph_nD(int n) { xs_num = vector<long long int>(n, 0); eps = 0; xs_min = vector<double>(n, 0), xs_max = vector<double>(n, 0) }
-}
+Eps_Graph_nD::Eps_Graph_nD(int n) { xs_num = vector<long long int>(n, 0); eps = 0; xs_min = vector<double>(n, 0), xs_max = vector<double>(n, 0); }
+
 
 list<Free_Point> Eps_Graph_nD::get_free_points()
 {
@@ -608,7 +609,8 @@ vector<edge> Eps_Graph_nD::get_path(Free_Point p, int k) {
 }
 
 vector<edge> Eps_Graph_nD::path_kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
-
+	vector<edge> path = {};
+	return path;
 	//for (Polytope& pol : pols) {
 	//	assert(!pol.isIn(&p));
 	//}
@@ -946,36 +948,36 @@ void Eps_Graph_nD::print_dist() {
 //}
 
 
-Eps_Graph_nD::Eps_Graph_nD() {
-	for (int i = 0; i < this->n; i++) {
-		xs_num[i] = 0;
-		xs_max[i] = 0;
-		xs_min[i] = 0;
-	}
-	eps = 0;
-}
+//Eps_Graph_nD::Eps_Graph_nD() {
+//	for (int i = 0; i < this->n; i++) {
+//		xs_num[i] = 0;
+//		xs_max[i] = 0;
+//		xs_min[i] = 0;
+//	}
+//	eps = 0;
+//}
+//
+//list<Free_Point> Eps_Graph_nD::get_free_points()
+//{
+//	return this->fr_pts;
+//}
+//
+//Free_Point Eps_Graph_nD::get_free_point(int index) {
+//	list<Free_Point>::iterator iter = fr_pts.begin();
+//	std::advance(iter, index);
+//	return *iter;
+//}
+//
+//vector<Polytope> Eps_Graph_nD::get_Polytope() {
+//	return pols;
+//}
+//
+//vector<Grid_Point> Eps_Graph_nD::get_grid() {
+//	return grid;
+//}
 
-list<Free_Point> Eps_Graph_nD::get_free_points()
-{
-	return this->fr_pts;
-}
 
-Free_Point Eps_Graph_nD::get_free_point(int index) {
-	list<Free_Point>::iterator iter = fr_pts.begin();
-	std::advance(iter, index);
-	return *iter;
-}
-
-vector<Polytope> Eps_Graph_nD::get_Polytope() {
-	return pols;
-}
-
-vector<Grid_Point> Eps_Graph_nD::get_grid() {
-	return grid;
-}
-
-
-v/*ector<edge> Eps_Graph_nD::get_path(Free_Point p, int k) {
+/*vector<edge> Eps_Graph_nD::get_path(Free_Point p, int k) {
 	vector<edge> path = kNN(p, k + 1);
 	return path;
 }*/
