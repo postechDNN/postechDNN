@@ -51,24 +51,30 @@ int main() {
 	// std::vector<HP>; // halfplanes
 	std::vector<halfplane*> halfplanes; // halfplane
 
-	for (int j = 0; j < num_h; j++) {
-		
-		switch (gen_method) {
-			case 1:
+	switch (gen_method) {
+		// generate halfplanes at random
+		case 1:
+			for (int j = 0; j < num_h; j++) {
 				halfplanes.push_back(hp_random(d));
 				break;
+			}
 
-			case 2:
-				std::cout << "Enter the point: " << std::endl;
+		// generate halfplanes, each centered at a point
+		case 2:
+			for (int j = 0; j < num_h; j++) {
+				std::cout << "Dimension: " << d << std::endl;
+				std::cout << "- Enter Point\#" << j << "Info -" << std::endl;
+
 				Point* pt = new Point;
 				for (int i = 0; i < d; i++) {
+					std::cout << "Enter " << i << "-th value: ";
 					double val; std::cin >> val;
 					pt->setx(i, val);
 				}
-
 				halfplanes.push_back(hp_thru_p(pt));
-				break;
-		}
+				std::cout << "Halfplane \#" << j << " generated" << std::endl;
+			}
+			break;
 	}
 
 	// for debug
@@ -277,6 +283,7 @@ std::vector<Point*> pts_on_sphere(int num_pts, Point* center, double radius, DIS
 // 점집합 분리 함수들
 // bounding box의 정보는 필요 없음
 // halfplane 하나 가지고, 3개의 subset으로 나눔
+// 0, 양수, 음수
 std::vector<std::vector<int>> separate_pts(halfplane* hp, std::vector<Point*> pts) {
 
 	std::vector<std::vector<int>> ret;

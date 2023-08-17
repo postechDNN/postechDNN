@@ -18,6 +18,7 @@ enum DIST_FLAG {
 
 // ------------------------------------------------------------------------------------------------------------------------
 // halfplane 생성 함수들
+halfplane* hp_random(int dim);
 halfplane* hp_thru_p(Point* center);
 std::vector<halfplane*> x_slice(int num_cuts = 1);
 
