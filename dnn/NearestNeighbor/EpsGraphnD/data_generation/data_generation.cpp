@@ -131,12 +131,12 @@ std::vector<Point*> brute_force(Point* center, double bound, int num, halfplane*
 
 		// generate a random point
 
-		if (b) {
+		/*if (b) {
 			if (hp_result > 0) ret.push_back(p);
 		}
 		else {
 			if (hp_result < 0) ret.push_back(p);
-		}
+		}*/
 	}
 
 	return ret;
