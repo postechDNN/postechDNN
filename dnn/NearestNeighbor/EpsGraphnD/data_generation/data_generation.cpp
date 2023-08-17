@@ -140,6 +140,7 @@ int main() {
 			print_pt(pos_pts[j], j);
 		}
 
+		std::cout << std::endl;
 		std::cout << "Number of points on the negative side: ";
 		int neg_num; std::cin >> neg_num;
 		auto neg_pts = gen_pts(u_bound, H, false, neg_num);
@@ -162,34 +163,111 @@ int main() {
 	// std::ifstream fin(dir + myst);
 	int count = 0;
 
-	/*
-	for (int i = 0; i < num_parts; i++) {
-		
-		auto pos_pts = pos_parts[i];
-		auto neg_pts = neg_parts[i];
+	pos_parts.insert(pos_parts.end(), neg_parts.begin(), neg_parts.end());
+	//for (int i = 0; i < num_parts; i++) {
+	//	
+	//	auto pos_pts = pos_parts[i];
+	//	auto neg_pts = neg_parts[i];
+	for (int i = 0; i < pos_parts.size(); i++) {
+		auto pts = pos_parts[i];
 
 		std::string res = "results";
 		if (count < 10) {
-
-			std::string res( + std::to_string(i) + ".txt");
-
+			res += "00";
 		}
 		else if (count < 100) {
-
+			res += "0";
 		}
-		std::ofstream fout(dir + res);
-		std::string res("results" + std::to_string(i) + ".txt");
+		res += std::to_string(count) + ".txt";
+
 		std::ofstream fout(dir + res);
 
 		// first line contains the dimension
 		fout << d << std::endl;
 		// second line contains the number of input points
-		fout << num_parts;
+		fout << pts.size() << std::endl;
 		// remaining lines contain point coordinates
-		fout << "POINT_"
-		fout << 
+		for (auto pt : pts) {
+			for (int j = 0; j < d-1; j++) {
+				fout << pt->getx(j) << " ";
+			}
+			fout << pt->getx(d-1) << std::endl;
+		}
+		count++;
+
+		fout.close();
 	}
-	*/
+
+	// std::string res; // connectivity graph
+}
+
+Polytope* qhull2polytope() {
+	Polytope* ret;
+
+	std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\");
+
+	std::cout << "Enter the number of polytopes: ";
+	int num_topes; std::cin >> num_topes;
+
+	std::string index;
+	std::vector<string> filenames;
+	for (int i = 0; i < num_topes; i++) {
+		std::cout << "Enter the input file index: ";
+		std::cin >> index; filenames.push_back(index);
+	}
+
+	for (auto index : filenames) {
+		std::ifstream fin(dir + "results" + index);
+		// std::ifstream fin(dir + "results" + to_string(index));
+		// std::string res; cin >> res;
+
+		int dim; int num_pts;
+		fin >> dim >> num_pts;
+
+		std::vector<Point*> pts;
+		std::vector<double> vec(num_pts, 0.0);
+		double val;
+
+		for (int i = 0; i < num_pts; i++) {
+			Point* pt = new Point;
+			for (int j = 0; j < dim; j++) {
+				fin >> val;  pt->setx(j, val);
+			}
+			pts.push_back(pt);
+		}
+
+		fin.close();
+
+		Polytope* tope = new Polytope();
+		tope->set_vertices(pts);
+
+		std::vector<simplices*> sims;
+
+		// std::ifstream fin2(dir + "CH" + to_string(index));
+		std::ifstream fin2(dir + "CH" + index);
+		std::string s;
+		for (int i = 0; i < 13; i++) {
+			getline(fin2, s);
+		}
+
+		/*
+		int num_facets; fin >> num_facets;
+		for (int i = 0; i < num_facets; i++) {
+			for (int j = 0; j < dim; j++) {
+				fin >>
+
+
+				simplices
+			}
+		}
+		fin2.close();
+		tope->set_simplices(sims);
+
+		ret.push_back(tope);
+		*/
+	}
+
+	return ret;
 }
 
 // ------------------------------------------------------------------------------------------------------------------------

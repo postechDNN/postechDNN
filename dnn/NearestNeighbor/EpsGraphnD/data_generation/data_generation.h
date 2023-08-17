@@ -3,6 +3,7 @@
 // #include "stdafx.h"
 
 #include "../algorithm/Point.h"
+#include "../Polytope.h"
 
 // 2#include "data_generation_print.h"
 

@@ -42,4 +42,6 @@ public:
 	bool intersect(Polytope P);
 	bool intersect(Point* p, Point* q);
 	bool operator==(Polytope P);
+	void set_vertices(std::vector<Point*>);
+	void set_simplices(std::vector<simplices>&);
 };
