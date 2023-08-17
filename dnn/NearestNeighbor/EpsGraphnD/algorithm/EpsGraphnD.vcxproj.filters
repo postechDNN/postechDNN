@@ -48,6 +48,9 @@
     <ClInclude Include="..\data_generation\data_generation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="data_generation_print.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EpsGraphnD.cpp">
@@ -78,6 +81,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="..\data_generation\data_generation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="data_generation_print.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
