@@ -3,7 +3,7 @@ import numpy as np
 import random
 import copy
 
-img = np.zeros((1200,2000,3),np.uint8) + 255
+img = np.zeros((1000,1000,3),np.uint8) + 255
 
 def clear_drawboard(width=1024, height=1024):
     global img

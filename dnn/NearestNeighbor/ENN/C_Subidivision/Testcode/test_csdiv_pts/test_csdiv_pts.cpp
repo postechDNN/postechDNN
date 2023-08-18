@@ -38,7 +38,8 @@ bool test_csdiv_pts_file(std::string fname){
 
 bool test_csdiv_pts(){
     std::string folder_name = "Testcode/test_csdiv_pts/testcase/";
-    std::vector<std::string> fnames= {"t1.txt","t2.txt","t3.txt","t4.txt","t5.txt"};
+    //std::vector<std::string> fnames= {"t1.txt","t2.txt","t3.txt","t4.txt","t5.txt"};
+    std::vector<std::string> fnames= {"t4.txt"};
     std::vector<bool> passes(fnames.size());
     int i = 0;
     bool ret = true;

@@ -85,7 +85,9 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
     int ord = S[0]->ord;
 
     // Check every pair of Quads if they intersects
-    for(int i=0; i<size-1; i++){
+    for(int i=0; i<size; i++){
+        
+        //std::cout << "quad " << i+1 << " r: "<< S[i]->r << " c: " <<S[i]->c << std::endl;
         for(int j=i+1; j<size; j++){
                
             Quad* quadA = S[i];
@@ -102,6 +104,123 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
                 graph[i][j] = true;
                 graph[j][i] = true;
             } 
+        }
+    }
+
+    /* Debug */
+    // std::cout << "Input S:" << std::endl;
+    // for (auto iq : S){
+    //     std::cout << iq->r <<", "<<iq ->c << std::endl;
+    // }
+    // std::cout <<"Graph: \n" ;
+    // for(int i=0; i<size; i++){
+        
+    //     //std::cout << "quad " << i+1 << " r: "<< S[i]->r << " c: " <<S[i]->c << std::endl;
+    //     for(int j=0; j<size; j++){
+    //         std::cout << graph[i][j] <<" ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+
+    /* Plane Sweep for O(nlogn) */
+    //Sort S with r-value
+
+    std::vector<Quad*> & S_sorted = S; // Use S_sorted.assign(S.begin(), S.end()) if deepcopy is needed;
+    // CAUTION: The original vector S is modified!
+
+    auto comp_r = [](Quad* lhs, Quad* rhs) { 
+        if (lhs->c == rhs->c && lhs->r == rhs->r) return std::addressof(*lhs) < std::addressof(*rhs); 
+        else if (lhs->r == rhs->r) return lhs->c < rhs->c; 
+        else return (lhs -> r) < (rhs -> r); 
+    };
+
+    std::sort(S_sorted.begin(), S_sorted.end(), comp_r);
+
+
+    // Make a Status Tree
+    struct comp_c
+    {
+        bool operator()(Quad* lhs, Quad *rhs) const
+        {
+            if (lhs->c == rhs->c) {
+                if (lhs->r == rhs->r) {
+                    // CAUTION 
+                    return false;
+                    std::cout <<"ADDRESSOF ";
+                    return std::addressof(*lhs) < std::addressof(*rhs);
+                }
+                else return lhs->r < rhs->r;
+            }
+    
+            return lhs->c < rhs->c;
+        }
+    };
+    
+    std::multiset<Quad*, comp_c> tree;
+
+    // Handel events (Moving the sweepline rightwards)
+    for(int i=0; i<S_sorted.size(); i++){
+        
+        //std::cout << "IDX i: " <<  i << std::endl;
+        Quad* quadNew = S_sorted[i];
+        auto sweepline = quadNew-> r; // r-coordinate of the sweepline
+
+        // Remove Quads which are note intersected by the sweepline
+        while(!tree.empty() && ((*tree.begin())->r < sweepline)) {
+            tree.extract(tree.begin());
+            
+        }
+
+        
+        // Insert a new Quad 
+        bool cnt = tree.count(quadNew);
+        if (cnt < 0) std::cout << "DUPLICATES!!!!!!!!!!" << std::endl;
+        else tree.insert(quadNew);
+
+
+        // Find a starting position to look at 
+        auto pos = tree.lower_bound(quadNew);
+        auto left = pos;
+        auto right = pos;
+
+        // First, check leftside of pos 
+        while(is_intersect_quad(quadNew, *left)){
+
+            auto idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *left, comp_r) - S_sorted.begin(); 
+
+            if (idx == i) ;
+            else if (graph[idx][i] && graph[i][idx]) std::cout<< "True!! " << std::endl;
+            else{
+                std::cout<< "FALSE!! " << std::endl;
+
+                // std::cout << "Current tree"<< std::endl;
+                // for (auto titr : tree){
+                //     std::cout << titr -> r <<" " << titr -> c << " " << std::addressof(*titr) << std::endl;
+                // }
+                std::cout<< "quadNew: " << quadNew->r<<", " << quadNew -> c << std::endl;
+                std::cout << "*left: " << (*left) -> r <<", "<< (*left) -> c << std::endl;
+            }
+            
+            graph[idx][i] = true;
+            graph[i][idx] = true;
+
+
+            if (left == tree.begin()) break;
+            else left = prev(left);
+        }
+
+        // Then, check rightside of pos
+        while(is_intersect_quad(quadNew, *right)){
+            int idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *right, comp_r) - S_sorted.begin(); 
+            graph[idx][i] = true;
+            graph[i][idx] = true;
+
+            if (idx == i) ;
+            else if (graph[idx][i] && graph[i][idx]) ;
+            else std::cout<< "FALSE!! " << std::endl;
+
+            if (std::next(right) == tree.end()) break;
+            else right = next(right);
         }
     }
 
@@ -171,6 +290,25 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         q->growth = newQ;
         ret.push_back(newQ);
     }
+
+    /* Debug */
+    std::cout <<"\nBefore Erase:" << ret.size() << " -> \n";
+    for(auto iq: ret){
+        std::cout <<iq->r <<", "<< iq->c <<", "<< iq->ord<<", "<<std:: endl;
+    }
+    
+
+    ret.erase(std::unique(ret.begin(), ret.end(), [](Quad* a, Quad*b){return ((a->r == b->r) && (a->c == b->c));}), ret.end());
+
+    std::cout << "After Erase:" <<ret.size() << std::endl;
+     for(auto iq: ret){
+        std::cout <<iq->r <<", "<< iq->c <<", "<< iq->ord<<", "<<std:: endl;
+    }
+    
+
+
+
+
     //Caution: need to set the growth variable for each quad in S
     //Caution: need to set the children variable for each new quad in ret.
     //Caution: set "is_simple" variable to false in default.
@@ -495,27 +633,28 @@ DCEL C_Subdivision::build_alpha_subdivision(int alpha){
     this->build_graph(drawn_edges,vertices,graph, alpha);     
 
     //------------TEST---------------- print the graph to text file
-    // std::ofstream fout;
-    // fout.open("test.txt");
+    std::ofstream fout;
+    fout.open("test.txt");
 
-    // fout<<vertices.size()+this->sites.size()<<std::endl;
-    // for(int i = 0 ; i<vertices.size();i++){
-    //     fout<<vertices[i].getx()<<' '<<vertices[i].gety()<<std::endl;
-    // }
-    // for(int i = 0 ; i<this->sites.size();i++){
-    //     fout << sites[i].getx()*scale_factor+tr_x_factor<<' '<<sites[i].gety()*scale_factor+tr_y_factor<<std::endl;
-    // }
+    fout<<vertices.size()+this->sites.size()<<std::endl;
+    for(int i = 0 ; i<vertices.size();i++){
+        fout<<(vertices[i].getx()-this->tr_x_factor)/this->scale_factor<<' '<<
+        (vertices[i].gety()-this->tr_y_factor)/this->scale_factor<<std::endl;
+    }
+    for(int i = 0 ; i<this->sites.size();i++){
+        fout << sites[i].getx()<<' '<<sites[i].gety()<<std::endl;
+    }
 
-    // int num_edges=0;
-    // for(int u =0;u<vertices.size();u++)
-    //     num_edges += graph[u].size();
-    // fout << num_edges<<std::endl;
-    // for(int u = 0; u<vertices.size();u++){
-    //     for(auto v :graph[u]){
-    //         fout << u <<' '<<v <<std::endl;
-    //     }
-    // }
-    // fout.close();
+    int num_edges=0;
+    for(int u =0;u<vertices.size();u++)
+        num_edges += graph[u].size();
+    fout << num_edges<<std::endl;
+    for(int u = 0; u<vertices.size();u++){
+        for(auto v :graph[u]){
+            fout << u <<' '<<v <<std::endl;
+        }
+    }
+    fout.close();
     //-------------------------------------
 
     //3. perform scaling and translation vertices to restore an original vector space.

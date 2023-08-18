@@ -5,7 +5,7 @@ f = open("test.txt","r")
 line = f.readline()
 n_ver = int(line)
 pts = []
-scale_factor =10; trans_factor = 800
+scale_factor =20; trans_factor = 400
 for i in range(n_ver):
     line = f.readline()
     x, y = map(float, line.split())

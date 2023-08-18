@@ -2,13 +2,13 @@ TARGET = *.o *.exe
 
 all: subdirs main.exe 
 
-SUBDIRS = DCEL Testcode
+SUBDIRS = DCEL Testcode Testcode/test_csdiv_pts Testcode/test_csdiv_pts 
 .PHONY: subdirs $(SUBDIRS)
 subdirs: $(SUBDIRS)
 $(SUBDIRS): 
 	$(MAKE) -C $@
 
-main.exe : main.o C_Subdivision.o WC_region.o Testcode/test_csdiv_pts/test_csdiv_pts.h
+main.exe : main.o C_Subdivision.o WC_region.o Testcode/test_csdiv_pts/test_csdiv_pts.h Testcode/test_csdiv_pts/CS_valid_check.cpp
 	g++ -o main.exe main.o C_Subdivision.o WC_region.o ./DCEL/DCEL_lib.a ./Testcode/test_lib.a
 
 main.o : main.cpp C_Subdivision.h DCEL/DCEL.h DCEL/point.h
@@ -23,6 +23,6 @@ WC_region.o : WC_region.cpp DCEL/DCEL.h
 CLEANSUBDIRS = $(addprefix clean-,$(SUBDIRS))
 .PHONY: clean $(CLEANSUBDIRS)
 clean: $(CLEANSUBDIRS)
-	del $(TARGET)
+	rm $(TARGET)
 $(CLEANSUBDIRS): clean-%:
 	$(MAKE) -C $* clean
