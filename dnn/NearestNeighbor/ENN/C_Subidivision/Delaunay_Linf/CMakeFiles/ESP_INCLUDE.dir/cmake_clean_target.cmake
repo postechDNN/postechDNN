@@ -1,0 +1,3 @@
+file(REMOVE_RECURSE
+  "libESP_INCLUDE.a"
+)
