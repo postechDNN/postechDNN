@@ -14,7 +14,8 @@ public:
     std::vector<Point> gen_points_uniform(int n);
     std::vector<Point> gen_points_gaussian(int n, Point mean, double dev_x, double dev_y);
 
-    //Generate n random simple polygons in a bounding box
-    std::vector<SimplePolygon> gen_simple_polygons(int n, int m);
+    //Generate n random simple polygons in a bounding box, where total number of vertices is m
+    std::vector<SimplePolygon> gen_polygons_uniform(int n, int m);
+    std::vector<SimplePolygon> gen_polygons_gaussian(int n, int m);
     ~Gen_geom_data();
 };
