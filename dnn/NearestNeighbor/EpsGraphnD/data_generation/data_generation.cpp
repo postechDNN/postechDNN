@@ -11,195 +11,300 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 
-int main() {
-	std::cout.precision(3);
-	std::cout << std::fixed;
-	// std::string config("config.ini");
-
-	// ------------------------------------------------------------------------------------------------------------------------
-	// dimension d
-	std::cout << "Enter the dimension: ";
-	int d; std::cin >> d;
-
-	// ------------------------------------------------------------------------------------------------------------------------
-	// generate a bounding box
-
-	// defines a bounding box around the origin
-	std::cout << std::endl;
-	std::cout << "Maximum value for each coordinate: ";
-	double u_bound; std::cin >> u_bound;
-
-	// rectangular bounding box
-	std::vector<std::pair<double, double>> bbx;
-
-	for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
-	// double upper_bound = 10.0; // maximum value for each coordinate
-	// double lower_bound = -upper_bound; // minimum value for each coordinate
-
-	std::cout << std::endl;
-	std::cout << "Number of convex subparts: ";
-	int num_parts; std::cin >> num_parts;
-
-	std::uniform_real_distribution<double> uni_dist(-u_bound, u_bound); // uniform distribution
-
-	// ------------------------------------------------------------------------------------------------------------------------
-	// generate halfplanes
-
-	// for now, only 1 halfplane
-	// std::cout << "Number of halfplanes to generate: ";
-	// int num_h; 
-	// std::cin >> num_h;
-
-	std::cout << std::endl;
-	int num_h = num_parts - 1;
-
-	std::cout << "Method for halfplane generation (0. Random, 1. Centered)" << std::endl;
-	std::cout << "Select: ";
-	int gen_method; std::cin >> gen_method;
-
-	// std::vector<HP>; // halfplanes
-	std::vector<halfplane*> halfplanes; // halfplane
-
-	switch (gen_method) {
-		// generate halfplanes at random
-		case 0:
-			for (int j = 0; j < num_h; j++) {
-				auto H = gen_hp_random(d, j);
-				halfplanes.push_back(H);
-				print_halfplane(H, j);
-			}
-			break;
-
-		// generate halfplanes, each centered at a point
-		case 1:
-			for (int j = 0; j < num_h; j++) {
-				std::cout << "Dimension: " << d << std::endl;
-				std::cout << "- Enter Point\#" << j << "Info -" << std::endl;
-
-				Point* pt = new Point;
-				for (int i = 0; i < d; i++) {
-					std::cout << "Enter " << i << "-th value: ";
-					double val; std::cin >> val;
-					pt->setx(i, val);
-				}
-				auto H = gen_hp_thru_p(pt);
-				halfplanes.push_back(H);
-				print_halfplane(H, j);
-				std::cout << "Halfplane \#" << j << " generated" << std::endl;
-			}
-			break;
-	}
-
-	// ------------------------------------------------------------------------------------------------------------------------
-	// disperse certain amount of points on the halfplanes
-
-	// con_pts stands for convex points
-	std::cout << std::endl;
-	std::cout << "Disperse points onto halfplanes (0. general, 1. each)" << std::endl;
-	std::cout << "Select: ";
-	int num_method; std::cin >> num_method;
-	switch (num_method) {
-	case 0:
-		std::cout << "Number of points: ";
-		int dis_pts; std::cin >> dis_pts;
-		for (int i = 0; i < num_h; i++) {
-			auto H = halfplanes[i];
-			generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
-			for (int j = 0; j < H->on_points.size(); j++) {
-				print_pt(H->on_points[j], j);
-			}
-		}
-		break;
-	case 1:
-		for (int i = 0; i < num_h; i++) {
-			auto H = halfplanes[i];
-
-			std::cout << "Number of points for halfplane \#";
-			int dis_pts; std::cin >> dis_pts;
-			generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
-			for (int j = 0; j < H->on_points.size(); j++) {
-				print_pt(H->on_points[j], j);
-			}
-		}
-		break;
-	}
-
-	std::vector<std::vector<Point*>> pos_parts;
-	std::vector<std::vector<Point*>> neg_parts;
-
-	// point sets on both sides, union them with the dispersed ones
-	std::cout << std::endl;
-	for (int i = 0; i < num_h; i++) {
-		auto H = halfplanes[i];
-
-		std::cout << "Number of points on the positive side: ";
-		int pos_num; std::cin >> pos_num;
-		auto pos_pts = gen_pts(u_bound, H, true, pos_num);
-		pos_pts.insert(pos_pts.end(), H->on_points.begin(), H->on_points.end());
-		for (int j = 0; j < pos_pts.size(); j++) {
-			print_pt(pos_pts[j], j);
-		}
-
-		std::cout << std::endl;
-		std::cout << "Number of points on the negative side: ";
-		int neg_num; std::cin >> neg_num;
-		auto neg_pts = gen_pts(u_bound, H, false, neg_num);
-		neg_pts.insert(neg_pts.end(), H->on_points.begin(), H->on_points.end());
-		for (int j = 0; j < neg_pts.size(); j++) {
-			print_pt(neg_pts[j], j);
-		}
-
-		pos_parts.push_back(pos_pts);
-		neg_parts.push_back(neg_pts);
-	}
-
-	// user-defined start
-	std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\");
-	// std::string dir("C:\\Users\\hwikim\\Desktop\\ALLTAG\\2023\\202307\\20230719\\qhull-2020.2\\bin\\");
-	// std::string dir("C:\\Users\\HWI\\Desktop\\ALLTAG\\2023\\202307\\20230703\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation");
-	// user-defined end
-
-	// std::string myst("pts.txt");
-	// std::ifstream fin(dir + myst);
-	int count = 0;
-
-	pos_parts.insert(pos_parts.end(), neg_parts.begin(), neg_parts.end());
-	//for (int i = 0; i < num_parts; i++) {
-	//	
-	//	auto pos_pts = pos_parts[i];
-	//	auto neg_pts = neg_parts[i];
-	for (int i = 0; i < pos_parts.size(); i++) {
-		auto pts = pos_parts[i];
-
-		std::string res = "results";
-		if (count < 10) {
-			res += "00";
-		}
-		else if (count < 100) {
-			res += "0";
-		}
-		res += std::to_string(count) + ".txt";
-
-		std::ofstream fout(dir + res);
-
-		// first line contains the dimension
-		fout << d << std::endl;
-		// second line contains the number of input points
-		fout << pts.size() << std::endl;
-		// remaining lines contain point coordinates
-		for (auto pt : pts) {
-			for (int j = 0; j < d-1; j++) {
-				fout << pt->getx(j) << " ";
-			}
-			fout << pt->getx(d-1) << std::endl;
-		}
-		count++;
-
-		fout.close();
-	}
-
-	// std::string res; // connectivity graph
-}
+//int main() {
+//	std::cout.precision(3);
+//	std::cout << std::fixed;
+//	// std::string config("config.ini");
+//
+//	// ------------------------------------------------------------------------------------------------------------------------
+//	// dimension d
+//	std::cout << "Enter the dimension: ";
+//	int d; std::cin >> d;
+//
+//	// ------------------------------------------------------------------------------------------------------------------------
+//	// generate a bounding box
+//
+//	// defines a bounding box (cube) around the origin
+//	std::cout << std::endl;
+//	std::cout << "Maximum value for each coordinate: ";
+//	double u_bound; std::cin >> u_bound;
+//
+//	// rectangular bounding box
+//	std::vector<std::pair<double, double>> bbx;
+//
+//	for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
+//	// double upper_bound = 10.0; // maximum value for each coordinate
+//	// double lower_bound = -upper_bound; // minimum value for each coordinate
+//
+//	// determines if the halfplanes are generated along the axes (grid)
+//	std::cout << std::endl;
+//	std::cout << "Halfplane constraint (0: Griddy, 1: Arbitrary)" << std::endl;
+//	std::cout << "Select: ";
+//	int halfplane_constraint; std::cin >> halfplane_constraint;
+//
+//	std::cout << std::endl;
+//	std::cout << "Number of 'maximum' convex subparts: ";
+//	int num_parts; std::cin >> num_parts;
+//
+//	switch (halfplane_constraint) {
+//	case 0: {
+//		// for each axis
+//
+//		std::cout << std::endl;
+//		vector<int> num_subspaces_over_axes;
+//		for (int i = 0; i < d; i++) {
+//			std::cout << "Number of subspaces along the " << i + 1 << "-th axis: ";
+//			int num_subspace;  std::cin >> num_subspace;
+//			num_subspaces_over_axes.push_back(num_subspace);
+//		}
+//		// generate grid (cells)
+//		// set neighbors inside generate_grid( )
+//		auto cells = generate_grid(bbx, num_subspaces_over_axes); // 
+//		activate_cells(cells, num_parts);
+//
+//		// 각 hp에 흩뿌리고 나서
+//		// 임의의 active한 pair 사이에서 발생하는 건가? 그럼 각 cell에 대해서 neighbor 다 뒤져서 restricted_halfplane을 가져와야 하나?
+//		
+//		std::cout << "Number of points to disperse on each halfplane: ";
+//		int dis_pts; std::cin >> dis_pts;
+//		disperse_pts_between_active_cells(bbx, num_subspaces_over_axes, cells, dis_pts);
+//
+//		for (int i = 0; i+1 < cells.size(); i++) {
+//			if (cells[i]->active) {
+//				for (auto nb : cells[i]->neighbors) {
+//					if (nb.first->active &&
+//						cells[i]->total_index < nb.first->total_index) {
+//						for (int j = 0; j < nb.second->on_points.size(); j++) {
+//							print_pt(nb.second->on_points[j], j);
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		std::cout << "Number of points to locate inside each cell: ";
+//		std::cin >> dis_pts;
+//		for (int i = 0; i < cells.size(); i++) {
+//			generate_points_on_bb(cells[i], dis_pts);
+//			for (int j = 0; j < cells[i]->in_points.size(); j++) print_pt(cells[i]->in_points[j], j);
+//		}
+//
+//		std::string dir("C:\\Users\\hwikim\\Desktop\\qhull\\bin\\");
+//		// std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\");
+//		// std::string dir("C:\\Users\\hwikim\\Desktop\\ALLTAG\\2023\\202307\\20230719\\qhull-2020.2\\bin\\");
+//		// std::string dir("C:\\Users\\HWI\\Desktop\\ALLTAG\\2023\\202307\\20230703\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation");
+//		// user-defined directory end
+//
+//		// std::string myst("pts.txt");
+//		// std::ifstream fin(dir + myst);
+//		int count = 0;
+//
+//		for (int i = 0; i < cells.size(); i++) {
+//			if (!cells[i]->active) continue;
+//
+//			vector<Point*> pts = cells[i]->in_points;
+//			for (auto nb : cells[i]->neighbors) {
+//				if (!nb.first->active) continue;
+//
+//				pts.insert(pts.end(), nb.second->on_points.begin(), nb.second->on_points.end());
+//			}
+//
+//			std::string res = "results.out";
+//			if (count < 10) {
+//				res += "00";
+//			}
+//			else if (count < 100) {
+//				res += "0";
+//			}
+//			res += std::to_string(count) + ".txt";
+//
+//			std::ofstream fout(dir + res);
+//
+//			// first line contains the dimension
+//			fout << d << std::endl;
+//			// second line contains the number of input points
+//			fout << pts.size() << std::endl;
+//			// remaining lines contain point coordinates
+//			for (auto pt : pts) {
+//				for (int j = 0; j < d - 1; j++) {
+//					fout << pt->getx(j) << " ";
+//				}
+//				fout << pt->getx(d - 1) << std::endl;
+//			}
+//			count++;
+//
+//			fout.close();
+//			if (count == 8) return 0;
+//		}
+//		return 0;
+//	}
+//
+//
+//	case 1: {
+//		std::uniform_real_distribution<double> uni_dist(-u_bound, u_bound); // uniform distribution
+//		break;
+//		}
+//	}
+//
+//	// ------------------------------------------------------------------------------------------------------------------------
+//	// generate halfplanes
+//
+//	// for now, only 1 halfplane
+//	// std::cout << "Number of halfplanes to generate: ";
+//	// int num_h; 
+//	// std::cin >> num_h;
+//
+//	std::cout << std::endl;
+//	int num_h = num_parts - 1;
+//
+//	std::cout << "Method for halfplane generation (0. Random, 1. Centered)" << std::endl;
+//	std::cout << "Select: ";
+//	int gen_method; std::cin >> gen_method;
+//
+//	// std::vector<HP>; // halfplanes
+//	std::vector<halfplane*> halfplanes; // halfplane
+//
+//	switch (gen_method) {
+//		// generate halfplanes at random
+//		case 0:
+//			for (int j = 0; j < num_h; j++) {
+//				auto H = gen_hp_random(d, j);
+//				halfplanes.push_back(H);
+//				print_halfplane(H, j);
+//				std::cout << "Halfplane \#" << j << " generated" << std::endl;
+//			}
+//			break;
+//
+//		// generate halfplanes, each centered at a point
+//		case 1:
+//			for (int j = 0; j < num_h; j++) {
+//				std::cout << "Dimension: " << d << std::endl;
+//				std::cout << "- Enter Point\#" << j << "Info -" << std::endl;
+//
+//				Point* pt = new Point;
+//				for (int i = 0; i < d; i++) {
+//					std::cout << "Enter " << i << "-th value: ";
+//					double val; std::cin >> val;
+//					pt->setx(i, val);
+//				}
+//				auto H = gen_hp_thru_p(pt);
+//				halfplanes.push_back(H);
+//				print_halfplane(H, j);
+//				std::cout << "Halfplane \#" << j << " generated" << std::endl;
+//			}
+//			break;
+//	}
+//
+//	// ------------------------------------------------------------------------------------------------------------------------
+//	// disperse certain amount of points on the halfplanes
+//
+//	// con_pts stands for convex points
+//	std::cout << std::endl;
+//	std::cout << "Disperse points onto halfplanes (0. General, 1. Each)" << std::endl;
+//	std::cout << "Select: ";
+//	int num_method; std::cin >> num_method;
+//	switch (num_method) {
+//	case 0:
+//		std::cout << "Number of points: ";
+//		int dis_pts; std::cin >> dis_pts;
+//		for (int i = 0; i < num_h; i++) {
+//			auto H = halfplanes[i];
+//			generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
+//			for (int j = 0; j < H->on_points.size(); j++) {
+//				print_pt(H->on_points[j], j);
+//			}
+//		}
+//		break;
+//	case 1:
+//		for (int i = 0; i < num_h; i++) {
+//			auto H = halfplanes[i];
+//
+//			std::cout << "Number of points for halfplane \#";
+//			int dis_pts; std::cin >> dis_pts;
+//			generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
+//			for (int j = 0; j < H->on_points.size(); j++) {
+//				print_pt(H->on_points[j], j);
+//			}
+//		}
+//		break;
+//	}
+//
+//	std::vector<std::vector<Point*>> pos_parts;
+//	std::vector<std::vector<Point*>> neg_parts;
+//
+//	// point sets on both sides, union them with the dispersed ones
+//	std::cout << std::endl;
+//	for (int i = 0; i < num_h; i++) {
+//		auto H = halfplanes[i];
+//
+//		std::cout << "Number of points on the positive side: ";
+//		int pos_num; std::cin >> pos_num;
+//		auto pos_pts = gen_pts(u_bound, H, true, pos_num);
+//		pos_pts.insert(pos_pts.end(), H->on_points.begin(), H->on_points.end());
+//		for (int j = 0; j < pos_pts.size(); j++) {
+//			print_pt(pos_pts[j], j);
+//		}
+//
+//		std::cout << std::endl;
+//		std::cout << "Number of points on the negative side: ";
+//		int neg_num; std::cin >> neg_num;
+//		auto neg_pts = gen_pts(u_bound, H, false, neg_num);
+//		neg_pts.insert(neg_pts.end(), H->on_points.begin(), H->on_points.end());
+//		for (int j = 0; j < neg_pts.size(); j++) {
+//			print_pt(neg_pts[j], j);
+//		}
+//
+//		pos_parts.push_back(pos_pts);
+//		neg_parts.push_back(neg_pts);
+//	}
+//
+//	// user-defined directory start
+//	std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\"); 
+//	// std::string dir("C:\\Users\\hwikim\\Desktop\\ALLTAG\\2023\\202307\\20230719\\qhull-2020.2\\bin\\");
+//	// std::string dir("C:\\Users\\HWI\\Desktop\\ALLTAG\\2023\\202307\\20230703\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation");
+//	// user-defined directory end
+//
+//	// std::string myst("pts.txt");
+//	// std::ifstream fin(dir + myst);
+//	int count = 0;
+//
+//	pos_parts.insert(pos_parts.end(), neg_parts.begin(), neg_parts.end());
+//	//for (int i = 0; i < num_parts; i++) {
+//	//	
+//	//	auto pos_pts = pos_parts[i];
+//	//	auto neg_pts = neg_parts[i];
+//	for (int i = 0; i < pos_parts.size(); i++) {
+//		auto pts = pos_parts[i];
+//
+//		std::string res = "results.out";
+//		if (count < 10) {
+//			res += "00";
+//		}
+//		else if (count < 100) {
+//			res += "0";
+//		}
+//		res += std::to_string(count) + ".txt";
+//
+//		std::ofstream fout(dir + res);
+//
+//		// first line contains the dimension
+//		fout << d << std::endl;
+//		// second line contains the number of input points
+//		fout << pts.size() << std::endl;
+//		// remaining lines contain point coordinates
+//		for (auto pt : pts) {
+//			for (int j = 0; j < d-1; j++) {
+//				fout << pt->getx(j) << " ";
+//			}
+//			fout << pt->getx(d-1) << std::endl;
+//		}
+//		count++;
+//
+//		fout.close();
+//	}
+//
+//	// std::string res; // connectivity graph
+//}
 
 Polytope* qhull2polytope() {
 	Polytope* ret;
@@ -267,7 +372,7 @@ Polytope* qhull2polytope() {
 		*/
 	}
 
-	return ret;
+	return NULL;
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -337,8 +442,42 @@ std::vector<halfplane*> x_slice(int u_bnd, int dim, int num_cuts) {
 	return ret;
 }
 
+std::vector<halfplane*> axis_slice(int u_bnd, int dim, int my_dim, int num_cuts) {
+	return {};
+}
+
 // ------------------------------------------------------------------------------------------------------------------------
 // 점집합 생성 함수들
+
+
+// void generate_points_on_bb(std::vector<std::pair<double, double>> bbx, int dis_pts, int max_iter) {
+void generate_points_on_bb(cell* c, int dis_pts, int max_iter) {
+	int dim = c->index.size();
+	double real_max = DBL_MIN;
+	for (const auto val : c->bbx) {
+		double temp = max(abs(val.first), abs(val.second));
+		if (temp > real_max) real_max = temp;
+	}
+
+	std::uniform_real_distribution<double> uni_dist(-real_max, real_max); // uniform distribution
+	int iter = 0;
+	while (iter < max_iter && dis_pts > c->in_points.size()) {
+		iter++;
+
+		Point* pt = new Point(dim);
+		for (int i = 0; i < dim; i++) {
+			pt->setx(i, uni_dist(gen));
+		}
+
+		// strict inequality 필요
+		for (int i = 0; i < dim; i++) {
+			double x = pt->getx(i);	
+			if (x <= c->bbx[i].first || x >= c->bbx[i].second) continue;
+		}
+		
+		c->in_points.push_back(pt);
+	}
+}
 
 std::vector<Point*> gen_pts(int u_bound, halfplane* H, bool positive, int num, int max_iter) {
 	int dim = H->vals.size() - 1;
@@ -464,7 +603,7 @@ std::vector<Point*> pts_on_sphere(int num_pts, Point* center, double radius, DIS
 	return ret;
 }
 
-// halfplane 위에 점 생성
+// halfplane 위에 점 생성. bounding box도 아닌데 왜 bb?
 void generate_points_on_bb(std::vector<std::pair<double, double>> bbx, halfplane* H, int dim, int con_pts, int max_iter) {
 	auto& ret = H->on_points;
 	// std::vector<Point*> ret;
@@ -502,8 +641,58 @@ void generate_points_on_bb(std::vector<std::pair<double, double>> bbx, halfplane
 			num++;
 		}
 	}
+}
 
-	// return ret;
+// for grid
+void generate_points_on_restricted_hp(std::vector<std::pair<double, double>> bbx, halfplane* H, vector<int> grid_size, vector<int> index, int con_pts, int max_iter) {
+	// 대응되는 point set이 비어있지 않다면(이미 한번 불렸다면) 바로 종료
+	if (!H->on_points.empty()) return;
+	
+	int dim = index.size();
+	
+	// compute restriction
+	// vector<pair<double, double>> restriction;
+	for (int i = 0; i < index.size(); i++) {
+		if (index[i] == -1) {
+			H->restriction[i] = make_pair(H->vals[dim] - EPS_DG, H->vals[dim] + EPS_DG);
+			//for (int j = 0; j < dim; j++) {
+			//	if (abs(H->vals[j]) > EPS_DG) 
+			//	H->restriction[i] = make_pair(-H->vals[dim] - EPS_DG, -H->vals[dim] + EPS_DG);
+			//}
+		}
+		else {
+			H->restriction[i] = make_pair(bbx[i].first + (bbx[i].second - bbx[i].first) * index[i] / grid_size[i], 
+				bbx[i].first + (bbx[i].second - bbx[i].first) * (index[i] + 1) / grid_size[i]);
+		}
+	}
+	
+	auto& ret = H->on_points;
+
+	int u_bound = bbx[0].second;
+	int num = 0; int iter = 0;
+
+	while (num < con_pts && iter < max_iter) {
+		iter++;
+
+		// 앞 d-1개의 값을 랜덤하게 고름
+		// u_bound / 5 와 같은 식으로, 범위를 조금 줄이기?
+		// 위의 점을 잡은 다음 평면 위에서 움직여서 점 찍기?
+		std::uniform_real_distribution<double> uni_dist(-u_bound, u_bound); // uniform distribution
+		std::vector<double> vec;
+
+		for (int i = 0; i < dim +1; i++) {
+			if (index[i] == -1) vec.push_back(H->vals[dim]);
+			else vec.push_back(uni_dist(gen));
+		}
+
+		for (int j = 0; j < H->restriction.size(); j++) { //  auto pr : restriction) {
+			if (H->restriction[j].first > vec[j] || H->restriction[j].second < vec[j]) continue;
+		}
+		Point* pt = new Point(vec);
+
+		ret.push_back(pt);
+		num++;
+	}
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -588,5 +777,132 @@ void scale_pt(int u_bound, Point* pt) {
 	if (max_coord > u_bound) {
 		auto vec = pt->getxs();
 		for (auto val : vec) val *= u_bound / (2 * max_coord);
+	}
+}
+
+// ------------------------------------------------------------------------------------------------------------------------
+// grid 관련 함수
+vector<cell*> generate_grid(std::vector<std::pair<double, double>> bbx, vector<int> num_subspaces_over_axes) {
+	int dim = num_subspaces_over_axes.size();
+	vector<cell*> cells;
+	int total_num_cells = 1;
+	for (auto num : num_subspaces_over_axes) total_num_cells *= num;
+
+	vector<int> denominators = compute_denominators(num_subspaces_over_axes);
+
+	// generate all cells
+	for (int i = 0; i < total_num_cells; i++) {
+		auto c = new cell(i);
+		c->index = num2index(num_subspaces_over_axes, denominators, i);
+		for (int j = 0; j < c->index.size(); j++) { //  auto val : bbx) {
+			c->bbx.push_back(make_pair(bbx[j].first + (bbx[j].second - bbx[j].first) * c->index[j] / num_subspaces_over_axes[j],
+				bbx[j].first + (bbx[j].second - bbx[j].first) * (c->index[j] + 1) / num_subspaces_over_axes[j]));
+		}
+		cells.push_back(c);
+	}
+
+	// set neighbor infos (at most 2d)
+	for (int i = 0; i < total_num_cells; i++) {
+		auto c = cells[i];
+		auto index = cells[i]->index;
+		for (int j = 0; j < dim; j++) {
+			auto index_copy1 = index; index_copy1[j]++;
+			auto index_copy2 = index; index_copy2[j]--;
+			vector<vector<int>> index_copies = { index_copy1, index_copy2 };
+			
+			for (auto index_copy : index_copies) {
+				int new_num = index2num(num_subspaces_over_axes, denominators, index_copy);
+				if (new_num != -1 && i < new_num) {
+					auto H = new halfplane(dim);
+					for (int j = 0; j < dim; j++) {
+						// 부등호가 있으므로 한쪽 방으로만 cell 만들어짐
+						if (c->index[j] != cells[new_num]->index[j]) {
+							// 해당하는 halfplane을 만듬
+							H->vals[j] = 1.0;
+							H->vals[dim] = -(bbx[j].first + (bbx[j].second - bbx[j].first) * max(c->index[j], cells[new_num]->index[j]) / num_subspaces_over_axes[j]);
+							break;
+						}
+					}
+					c->neighbors.push_back(make_pair(cells[new_num], H));
+					cells[new_num]->neighbors.push_back(make_pair(c, H));
+				}
+			}
+		}
+	}
+
+	return cells;
+}
+
+vector<int> compute_denominators(vector<int> num_subspaces_over_axes) {
+	// of dim d-1
+	vector<int> denominators;
+	int denominator = 1;
+	for (int i = num_subspaces_over_axes.size() - 1; i > 0; i--) {
+		denominator *= num_subspaces_over_axes[i];
+		denominators.push_back(denominator);
+	}
+	reverse(denominators.begin(), denominators.end());
+
+	return denominators;
+}
+
+vector<int> num2index(vector<int> num_subspaces_over_axes, vector<int> denominators, int num) {
+	vector<int> index;
+
+	// copy i to compute index
+	for (int j = 0; j < denominators.size(); j++) {
+		if (j == denominators.size() - 1) {
+			index.push_back(num / denominators[j]);
+			index.push_back(num % denominators[j]);
+		}
+		else {
+			index.push_back(num / denominators[j]);
+			num %= denominators[j];
+		}
+	}
+
+	return index;
+}
+
+int index2num(vector<int> num_subspaces_over_axes, vector<int> multipliers, vector<int> index) {
+	int dim = num_subspaces_over_axes.size();
+
+	// index 벗어난 경우는 -1 리턴
+	for (int i = 0; i < index.size(); i++) {
+		if (index[i] < 0 || index[i] >= num_subspaces_over_axes[i]) return -1;
+	}
+
+	int num = 0;
+	for (int i = 0; i < dim - 1; i++) {
+		num += index[i] * multipliers[i];
+	}
+	num += index[dim - 1];
+
+	return num;
+}
+
+void activate_cells(vector<cell*> cells, int num_parts) {
+	for (int i = 0; i < num_parts; i++) cells[i]->active = true;
+}
+
+void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bbx, vector<int> num_subspaces_over_axes, vector<cell*> cells, int num) {
+	int dim = num_subspaces_over_axes.size();
+
+	for (int i = 0; i < cells.size(); i++) {
+		auto& c = cells[i];
+		for (auto& nb : c->neighbors) {
+			// c->index 대신에 nb->index 넣어도 결과는 같음
+			// 두 번 불릴 텐데, 그 중에 한 번만 실행될 것이라 문제는 없음
+			if (c->active && nb.first->active) {
+
+				auto copy_index = c->index;
+				for (int j = 0; j < copy_index.size(); j++) {
+					if (c->index[j] != nb.first->index[j]) copy_index[j] = -1;
+				}
+
+				if (find(copy_index.begin(), copy_index.end(), -1) == copy_index.end()) continue;
+				generate_points_on_restricted_hp(bbx, nb.second, num_subspaces_over_axes, copy_index, num);
+			}
+		}
 	}
 }
