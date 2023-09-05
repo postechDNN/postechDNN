@@ -147,6 +147,7 @@
     <ClInclude Include="alglibinternal.h" />
     <ClInclude Include="alglibmisc.h" />
     <ClInclude Include="ap.h" />
+    <ClInclude Include="data_generation_print.h" />
     <ClInclude Include="EpsGraphnD.h" />
     <ClInclude Include="linalg.h" />
     <ClInclude Include="optimization.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="alglibinternal.cpp" />
     <ClCompile Include="alglibmisc.cpp" />
     <ClCompile Include="ap.cpp" />
+    <ClCompile Include="data_generation_print.cpp" />
     <ClCompile Include="EpsGraphnD.cpp" />
     <ClCompile Include="linalg.cpp" />
     <ClCompile Include="optimization.cpp" />

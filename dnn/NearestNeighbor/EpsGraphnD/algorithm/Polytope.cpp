@@ -264,3 +264,13 @@ bool Polytope::operator==(Polytope P) {
 	}
 	else return false;
 };
+
+void Polytope::set_vertices(std::vector<Point*> _vertices) {
+	this->num_points = _vertices.size();
+	this->vertices = _vertices;
+}
+
+void Polytope::set_simplices(std::vector<simplices>& _simplices) {
+	this->num_simplices = _simplices.size();
+	this->component = _simplices;
+}
