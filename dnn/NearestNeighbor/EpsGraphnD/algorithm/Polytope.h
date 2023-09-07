@@ -5,17 +5,17 @@
 using namespace std;
 using Eigen::MatrixXd;
 
-class simplices {
+class simplex {
 protected:
 	int d; // dimension
 	std::vector<Point*> vertices;
 	MatrixXd A; // Each column indicates coordinate of each vertex.
 public:
-	simplices();
-	simplices(int, vector<Point*>);
-	~simplices();
+	simplex();
+	simplex(int, vector<Point*>);
+	~simplex();
 	MatrixXd getmatrix();
-	bool intersect(simplices);
+	bool intersect(simplex);
 	bool intersect(Point* p, Point* q);
 	bool isIn(Point* p);
 };
@@ -23,7 +23,7 @@ public:
 class Polytope {
 protected:
 	//std::vector<Face*> faces;
-	vector<simplices> component;
+	vector<simplex> simplices;
 	std::vector<Point*> vertices;
 	int num_simplices;
 	int num_points;
@@ -43,5 +43,5 @@ public:
 	bool intersect(Point* p, Point* q);
 	bool operator==(Polytope P);
 	void set_vertices(std::vector<Point*>);
-	void set_simplices(std::vector<simplices>&);
+	void set_simplices(std::vector<simplex>&);
 };

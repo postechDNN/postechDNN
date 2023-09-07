@@ -83,6 +83,10 @@ enum DIST_FLAG {
 };
 
 // ------------------------------------------------------------------------------------------------------------------------
+// 기타 함수들
+bool isNumeric(std::string const& str);
+
+// ------------------------------------------------------------------------------------------------------------------------
 // halfplane 생성 함수들
 halfplane* gen_hp_random(int dim, int index);
 halfplane* gen_hp_thru_p(Point* center);
@@ -142,3 +146,5 @@ int index2num(vector<int> num_subspaces_over_axes, vector<int> multipliers, vect
 void activate_cells(vector<cell*> cells, int num_parts);
 
 void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bbx, vector<int> num_subspaces_over_axes, vector<cell*> cells, int num);
+
+Polytope* qhull2polytope();
