@@ -147,4 +147,4 @@ void activate_cells(vector<cell*> cells, int num_parts);
 
 void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bbx, vector<int> num_subspaces_over_axes, vector<cell*> cells, int num);
 
-Polytope* qhull2polytope();
+vector<Polytope*> dels2polytopes(int num_topes);

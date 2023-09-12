@@ -10,7 +10,7 @@
 
 std::random_device rd;
 std::mt19937 gen(rd());
-/*
+
 int main() {
 	std::cout.precision(3);
 	std::cout << std::fixed;
@@ -64,12 +64,12 @@ int main() {
 
 		// 각 hp에 흩뿌리고 나서
 		// 임의의 active한 pair 사이에서 발생하는 건가? 그럼 각 cell에 대해서 neighbor 다 뒤져서 restricted_halfplane을 가져와야 하나?
-		
+
 		std::cout << "Number of points to disperse on each halfplane: ";
 		int dis_pts; std::cin >> dis_pts;
 		disperse_pts_between_active_cells(bbx, num_subspaces_over_axes, cells, dis_pts);
 
-		for (int i = 0; i+1 < cells.size(); i++) {
+		for (int i = 0; i + 1 < cells.size(); i++) {
 			if (cells[i]->active) {
 				for (auto nb : cells[i]->neighbors) {
 					if (nb.first->active &&
@@ -89,14 +89,9 @@ int main() {
 			for (int j = 0; j < cells[i]->in_points.size(); j++) print_pt(cells[i]->in_points[j], j);
 		}
 
-		std::string dir("C:\\Users\\hwikim\\Desktop\\qhull\\bin\\");
-		// std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\");
-		// std::string dir("C:\\Users\\hwikim\\Desktop\\ALLTAG\\2023\\202307\\20230719\\qhull-2020.2\\bin\\");
-		// std::string dir("C:\\Users\\HWI\\Desktop\\ALLTAG\\2023\\202307\\20230703\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation");
+		std::string dir("C:\\qhull\\bin\\");
 		// user-defined directory end
 
-		// std::string myst("pts.txt");
-		// std::ifstream fin(dir + myst);
 		int count = 0;
 
 		for (int i = 0; i < cells.size(); i++) {
@@ -109,7 +104,7 @@ int main() {
 				pts.insert(pts.end(), nb.second->on_points.begin(), nb.second->on_points.end());
 			}
 
-			std::string res = "results.out";
+			std::string res = "result";
 			if (count < 10) {
 				res += "00";
 			}
@@ -135,210 +130,61 @@ int main() {
 
 			fout.close();
 		}
-		return 0;
+
+
 	}
 
 
-	//case 1: {
-	//	std::uniform_real_distribution<double> uni_dist(-u_bound, u_bound); // uniform distribution
-	//	break;
-	//	}
-	//}
-
-	//// ------------------------------------------------------------------------------------------------------------------------
-	//// generate halfplanes
-
-	//// for now, only 1 halfplane
-	//// std::cout << "Number of halfplanes to generate: ";
-	//// int num_h; 
-	//// std::cin >> num_h;
-
-	//std::cout << std::endl;
-	//int num_h = num_parts - 1;
-
-	//std::cout << "Method for halfplane generation (0. Random, 1. Centered)" << std::endl;
-	//std::cout << "Select: ";
-	//int gen_method; std::cin >> gen_method;
-
-	//// std::vector<HP>; // halfplanes
-	//std::vector<halfplane*> halfplanes; // halfplane
-
-	//switch (gen_method) {
-	//	// generate halfplanes at random
-	//	case 0:
-	//		for (int j = 0; j < num_h; j++) {
-	//			auto H = gen_hp_random(d, j);
-	//			halfplanes.push_back(H);
-	//			print_halfplane(H, j);
-	//			std::cout << "Halfplane \#" << j << " generated" << std::endl;
-	//		}
-	//		break;
-
-	//	// generate halfplanes, each centered at a point
-	//	case 1:
-	//		for (int j = 0; j < num_h; j++) {
-	//			std::cout << "Dimension: " << d << std::endl;
-	//			std::cout << "- Enter Point\#" << j << "Info -" << std::endl;
-
-	//			Point* pt = new Point;
-	//			for (int i = 0; i < d; i++) {
-	//				std::cout << "Enter " << i << "-th value: ";
-	//				double val; std::cin >> val;
-	//				pt->setx(i, val);
-	//			}
-	//			auto H = gen_hp_thru_p(pt);
-	//			halfplanes.push_back(H);
-	//			print_halfplane(H, j);
-	//			std::cout << "Halfplane \#" << j << " generated" << std::endl;
-	//		}
-	//		break;
-	//}
-
-	//// ------------------------------------------------------------------------------------------------------------------------
-	//// disperse certain amount of points on the halfplanes
-
-	//// con_pts stands for convex points
-	//std::cout << std::endl;
-	//std::cout << "Disperse points onto halfplanes (0. General, 1. Each)" << std::endl;
-	//std::cout << "Select: ";
-	//int num_method; std::cin >> num_method;
-	//switch (num_method) {
-	//case 0:
-	//	std::cout << "Number of points: ";
-	//	int dis_pts; std::cin >> dis_pts;
-	//	for (int i = 0; i < num_h; i++) {
-	//		auto H = halfplanes[i];
-	//		generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
-	//		for (int j = 0; j < H->on_points.size(); j++) {
-	//			print_pt(H->on_points[j], j);
-	//		}
-	//	}
-	//	break;
-	//case 1:
-	//	for (int i = 0; i < num_h; i++) {
-	//		auto H = halfplanes[i];
-
-	//		std::cout << "Number of points for halfplane \#";
-	//		int dis_pts; std::cin >> dis_pts;
-	//		generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
-	//		for (int j = 0; j < H->on_points.size(); j++) {
-	//			print_pt(H->on_points[j], j);
-	//		}
-	//	}
-	//	break;
-	//}
-
-	//std::vector<std::vector<Point*>> pos_parts;
-	//std::vector<std::vector<Point*>> neg_parts;
-
-	//// point sets on both sides, union them with the dispersed ones
-	//std::cout << std::endl;
-	//for (int i = 0; i < num_h; i++) {
-	//	auto H = halfplanes[i];
-
-	//	std::cout << "Number of points on the positive side: ";
-	//	int pos_num; std::cin >> pos_num;
-	//	auto pos_pts = gen_pts(u_bound, H, true, pos_num);
-	//	pos_pts.insert(pos_pts.end(), H->on_points.begin(), H->on_points.end());
-	//	for (int j = 0; j < pos_pts.size(); j++) {
-	//		print_pt(pos_pts[j], j);
-	//	}
-
-	//	std::cout << std::endl;
-	//	std::cout << "Number of points on the negative side: ";
-	//	int neg_num; std::cin >> neg_num;
-	//	auto neg_pts = gen_pts(u_bound, H, false, neg_num);
-	//	neg_pts.insert(neg_pts.end(), H->on_points.begin(), H->on_points.end());
-	//	for (int j = 0; j < neg_pts.size(); j++) {
-	//		print_pt(neg_pts[j], j);
-	//	}
-
-	//	pos_parts.push_back(pos_pts);
-	//	neg_parts.push_back(neg_pts);
-	//}
-
-	//// user-defined directory start
-	//std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\"); 
-	//// std::string dir("C:\\Users\\hwikim\\Desktop\\ALLTAG\\2023\\202307\\20230719\\qhull-2020.2\\bin\\");
-	//// std::string dir("C:\\Users\\HWI\\Desktop\\ALLTAG\\2023\\202307\\20230703\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation");
-	//// user-defined directory end
-
-	//// std::string myst("pts.txt");
-	//// std::ifstream fin(dir + myst);
-	//int count = 0;
-
-	//pos_parts.insert(pos_parts.end(), neg_parts.begin(), neg_parts.end());
-	////for (int i = 0; i < num_parts; i++) {
-	////	
-	////	auto pos_pts = pos_parts[i];
-	////	auto neg_pts = neg_parts[i];
-	//for (int i = 0; i < pos_parts.size(); i++) {
-	//	auto pts = pos_parts[i];
-
-	//	std::string res = "results.out";
-	//	if (count < 10) {
-	//		res += "00";
-	//	}
-	//	else if (count < 100) {
-	//		res += "0";
-	//	}
-	//	res += std::to_string(count) + ".txt";
-
-	//	std::ofstream fout(dir + res);
-
-	//	// first line contains the dimension
-	//	fout << d << std::endl;
-	//	// second line contains the number of input points
-	//	fout << pts.size() << std::endl;
-	//	// remaining lines contain point coordinates
-	//	for (auto pt : pts) {
-	//		for (int j = 0; j < d-1; j++) {
-	//			fout << pt->getx(j) << " ";
-	//		}
-	//		fout << pt->getx(d-1) << std::endl;
-	//	}
-	//	count++;
-
-	//	fout.close();
-	//}
-
-	// std::string res; // connectivity graph
 	}
+	dels2polytopes(num_parts);
+	return 0;
 }
-*/
 
+/*
 int main() {
 	qhull2polytope();
 }
+*/
 
-
-Polytope* qhull2polytope() {
-	Polytope* ret;
+vector<Polytope*> dels2polytopes(int num_topes) {
+	vector<Polytope*> ret;
 
 	std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\");
 
-	std::cout << "Enter the number of polytopes: ";
-	int num_topes; std::cin >> num_topes;
+	std::cout << "Enter 'A': ";
+	int dummy; std::cin >> dummy;
 
 	std::string index;
 	std::vector<string> filenames;
-	for (int i = 0; i < num_topes; i++) {
+	for (int count = 0; count < num_topes; count++) {
+		/*
 		std::cout << "Enter the input file index: ";
 		std::cin >> index; filenames.push_back(index);
+		*/
+
+		std::string res = "";
+		if (count < 10) {
+			res += "00";
+		}
+		else if (count < 100) {
+			res += "0";
+		}
+		res += std::to_string(count);//  + ".txt";
+		filenames.push_back(res);
 	}
 
 	for (auto index : filenames) {
 		std::ifstream fin;
 		
-		string str = "C:\\qhull\\bin\\results" + index + ".txt";
-		// string str = dir + "results" + index + ".txt";
+		string str = "C:\\qhull\\bin\\result" + index + ".txt";
 		fin.open(str);
-		// std::ifstream fin(dir + "results" + index);
-		// std::ifstream fin(dir + "results" + to_string(index));
-		// std::string res; cin >> res;
 
-		int dim; int num_pts;
-		fin >> dim >> num_pts;
+
+		string s;
+		getline(fin, s);
+		int dim = stoi(s);
+		getline(fin, s);
+		int num_pts = stoi(s);
 
 		std::vector<Point*> pts;
 		std::vector<double> vec(num_pts, 0.0);
@@ -358,50 +204,32 @@ Polytope* qhull2polytope() {
 		Polytope* tope = new Polytope();
 		tope->set_vertices(pts);
 
-		std::vector<simplex*> sims;
+		std::vector<simplex> sims;
 
 		// std::ifstream fin2(dir + "CH" + to_string(index));
-		string str2 = "C:\\qhull\\bin\\CH" + index + ".txt";
+		string str2 = "C:\\qhull\\bin\\DEL" + index + ".txt";
 		std::ifstream fin2;
 		
 		fin.open(str2);
-		std::string s;
 
-		while (true) {
-			if (isNumeric(s)) continue;
-
+		getline(fin, s);
+		int size = stoi(s);
+		for (int index = 0; index < size; index++) {
+			fin >> dummy;
 			vector<Point*> vec;
-			for (int i = 0; i < stoi(s); i++) {
-				for ()
-				vec.push_back(pts[i])
-				sims.push_back(new simplex(dim, ));
+			for (int index2 = 0; index2 < dim + 1; index2++) {
+				fin >> s; 
+				vec.push_back(pts[stoi(s)]);
 			}
-			continue;
-			getline(fin2, s);
+			auto sim = new simplex(dim, vec);
+			sims.push_back(*sim);
 		}
 
-		for (int i = 0; i < 13; i++) {
-			
-		}
-
-		/*
-		int num_facets; fin >> num_facets;
-		for (int i = 0; i < num_facets; i++) {
-			for (int j = 0; j < dim; j++) {
-				fin >>
-
-
-				simplex
-			}
-		}
-		fin2.close();
-		tope->set_simplex(sims);
-
+		tope->set_simplices(sims);
 		ret.push_back(tope);
-		*/
 	}
 
-	return NULL;
+	return ret;
 }
 
 bool isNumeric(std::string const& str)
@@ -945,3 +773,172 @@ void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bb
 		}
 	}
 }
+
+/*
+
+
+	//case 1: {
+	//	std::uniform_real_distribution<double> uni_dist(-u_bound, u_bound); // uniform distribution
+	//	break;
+	//	}
+	//}
+
+	//// ------------------------------------------------------------------------------------------------------------------------
+	//// generate halfplanes
+
+	//// for now, only 1 halfplane
+	//// std::cout << "Number of halfplanes to generate: ";
+	//// int num_h;
+	//// std::cin >> num_h;
+
+	//std::cout << std::endl;
+	//int num_h = num_parts - 1;
+
+	//std::cout << "Method for halfplane generation (0. Random, 1. Centered)" << std::endl;
+	//std::cout << "Select: ";
+	//int gen_method; std::cin >> gen_method;
+
+	//// std::vector<HP>; // halfplanes
+	//std::vector<halfplane*> halfplanes; // halfplane
+
+	//switch (gen_method) {
+	//	// generate halfplanes at random
+	//	case 0:
+	//		for (int j = 0; j < num_h; j++) {
+	//			auto H = gen_hp_random(d, j);
+	//			halfplanes.push_back(H);
+	//			print_halfplane(H, j);
+	//			std::cout << "Halfplane \#" << j << " generated" << std::endl;
+	//		}
+	//		break;
+
+	//	// generate halfplanes, each centered at a point
+	//	case 1:
+	//		for (int j = 0; j < num_h; j++) {
+	//			std::cout << "Dimension: " << d << std::endl;
+	//			std::cout << "- Enter Point\#" << j << "Info -" << std::endl;
+
+	//			Point* pt = new Point;
+	//			for (int i = 0; i < d; i++) {
+	//				std::cout << "Enter " << i << "-th value: ";
+	//				double val; std::cin >> val;
+	//				pt->setx(i, val);
+	//			}
+	//			auto H = gen_hp_thru_p(pt);
+	//			halfplanes.push_back(H);
+	//			print_halfplane(H, j);
+	//			std::cout << "Halfplane \#" << j << " generated" << std::endl;
+	//		}
+	//		break;
+	//}
+
+	//// ------------------------------------------------------------------------------------------------------------------------
+	//// disperse certain amount of points on the halfplanes
+
+	//// con_pts stands for convex points
+	//std::cout << std::endl;
+	//std::cout << "Disperse points onto halfplanes (0. General, 1. Each)" << std::endl;
+	//std::cout << "Select: ";
+	//int num_method; std::cin >> num_method;
+	//switch (num_method) {
+	//case 0:
+	//	std::cout << "Number of points: ";
+	//	int dis_pts; std::cin >> dis_pts;
+	//	for (int i = 0; i < num_h; i++) {
+	//		auto H = halfplanes[i];
+	//		generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
+	//		for (int j = 0; j < H->on_points.size(); j++) {
+	//			print_pt(H->on_points[j], j);
+	//		}
+	//	}
+	//	break;
+	//case 1:
+	//	for (int i = 0; i < num_h; i++) {
+	//		auto H = halfplanes[i];
+
+	//		std::cout << "Number of points for halfplane \#";
+	//		int dis_pts; std::cin >> dis_pts;
+	//		generate_points_on_bb(bbx, halfplanes[i], d, dis_pts);
+	//		for (int j = 0; j < H->on_points.size(); j++) {
+	//			print_pt(H->on_points[j], j);
+	//		}
+	//	}
+	//	break;
+	//}
+
+	//std::vector<std::vector<Point*>> pos_parts;
+	//std::vector<std::vector<Point*>> neg_parts;
+
+	//// point sets on both sides, union them with the dispersed ones
+	//std::cout << std::endl;
+	//for (int i = 0; i < num_h; i++) {
+	//	auto H = halfplanes[i];
+
+	//	std::cout << "Number of points on the positive side: ";
+	//	int pos_num; std::cin >> pos_num;
+	//	auto pos_pts = gen_pts(u_bound, H, true, pos_num);
+	//	pos_pts.insert(pos_pts.end(), H->on_points.begin(), H->on_points.end());
+	//	for (int j = 0; j < pos_pts.size(); j++) {
+	//		print_pt(pos_pts[j], j);
+	//	}
+
+	//	std::cout << std::endl;
+	//	std::cout << "Number of points on the negative side: ";
+	//	int neg_num; std::cin >> neg_num;
+	//	auto neg_pts = gen_pts(u_bound, H, false, neg_num);
+	//	neg_pts.insert(neg_pts.end(), H->on_points.begin(), H->on_points.end());
+	//	for (int j = 0; j < neg_pts.size(); j++) {
+	//		print_pt(neg_pts[j], j);
+	//	}
+
+	//	pos_parts.push_back(pos_pts);
+	//	neg_parts.push_back(neg_pts);
+	//}
+
+	//// user-defined directory start
+	//std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\");
+	//// std::string dir("C:\\Users\\hwikim\\Desktop\\ALLTAG\\2023\\202307\\20230719\\qhull-2020.2\\bin\\");
+	//// std::string dir("C:\\Users\\HWI\\Desktop\\ALLTAG\\2023\\202307\\20230703\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation");
+	//// user-defined directory end
+
+	//// std::string myst("pts.txt");
+	//// std::ifstream fin(dir + myst);
+	//int count = 0;
+
+	//pos_parts.insert(pos_parts.end(), neg_parts.begin(), neg_parts.end());
+	////for (int i = 0; i < num_parts; i++) {
+	////
+	////	auto pos_pts = pos_parts[i];
+	////	auto neg_pts = neg_parts[i];
+	//for (int i = 0; i < pos_parts.size(); i++) {
+	//	auto pts = pos_parts[i];
+
+	//	std::string res = "results.out";
+	//	if (count < 10) {
+	//		res += "00";
+	//	}
+	//	else if (count < 100) {
+	//		res += "0";
+	//	}
+	//	res += std::to_string(count) + ".txt";
+
+	//	std::ofstream fout(dir + res);
+
+	//	// first line contains the dimension
+	//	fout << d << std::endl;
+	//	// second line contains the number of input points
+	//	fout << pts.size() << std::endl;
+	//	// remaining lines contain point coordinates
+	//	for (auto pt : pts) {
+	//		for (int j = 0; j < d-1; j++) {
+	//			fout << pt->getx(j) << " ";
+	//		}
+	//		fout << pt->getx(d-1) << std::endl;
+	//	}
+	//	count++;
+
+	//	fout.close();
+	//}
+
+	// std::string res; // connectivity graph
+*/
