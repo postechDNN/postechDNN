@@ -2,6 +2,7 @@
 
 #include "../../DCEL/Point.h"
 #include "../../DCEL/Polygon.h"
+#include "../../DCEL/Graph.h"
 #include <random>
 
 class Gen_geom_data{
@@ -10,12 +11,16 @@ class Gen_geom_data{
     std::mt19937 gen;
 public:
     Gen_geom_data(Point left_bottom, Point right_top);
+    
     //Generate n random points in a bounding box which follow some distribution
     std::vector<Point> gen_points_uniform(int n);
     std::vector<Point> gen_points_gaussian(int n, Point mean, double dev_x, double dev_y);
 
     //Generate n random simple polygons in a bounding box, where total number of vertices is m
-    std::vector<SimplePolygon> gen_polygons_uniform(int n, int m);
-    std::vector<SimplePolygon> gen_polygons_gaussian(int n, int m);
+    SimplePolygon gen_simple_polygon(int n);
+
+    //Generate a planar graph on which the number of vertices is n and the number of edges is m. 
+    Graph<double> gen_planar_graph(int n, int m); 
+    
     ~Gen_geom_data();
 };
