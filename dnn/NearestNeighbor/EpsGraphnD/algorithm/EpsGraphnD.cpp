@@ -3,48 +3,6 @@
 #include <assert.h>
 #include <iostream>
 
-int main() {
-	Free_Point* p1 = new Free_Point({ 0., 0., 20. });
-	Free_Point* p2 = new Free_Point({ 0, 0, -65. });
-	Free_Point* p3 = new Free_Point({ 0., 0., 1.5 });
-	Free_Point* p4 = new Free_Point({ 100., 100., 100. });
-	Free_Point* p5 = new Free_Point({ -100., -100., -100. });
-
-	Polytope* poly = new Polytope();
-	Point* v1 = new Point({ 99., 99., -1. });
-	Point* v2 = new Point({ 99., -99., -1. });
-	Point* v3 = new Point({ -99., -99., -1. });
-	//Point* v4 = new Point({ -99., 99., -1. });
-	Point* v5 = new Point({ 0., 0., 1.4 });
-
-	vector<Point*> fv = { v1,v2,v3,v5 };
-	simplices sim = simplices(3, fv);
-	std::list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
-	std::vector<Polytope> plts = {};
-	Eps_Graph_nD grid(frpts, plts, 10);
-	//grid.print_anchor();
-	Free_Point* q = new Free_Point(0., 0., -20.);
-
-	//grid.print_kNN(*q, 3);
-	grid.add_freepts(q);
-	grid.print_free_point();
-	grid.add_pol(*poly);
-	//grid.print_edges();
-	grid.print_kNN(*q, 3);
-	grid.delete_pol(0);
-	grid.print_free_point();
-	//grid.delete_freept(3);
-	//grid.print_free_point();
-	//grid.delete_freept(3);
-	//grid.print_free_point();
-	grid.print_anchor();
-	//grid.print_edges();
-	grid.print_kNN(*q, 3);
-	*/
-		return 0;
-	cout << "Hello" << endl;
-	return 0;
-}
 using namespace std;
 Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
 	n = _n;

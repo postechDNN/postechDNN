@@ -149,7 +149,10 @@ int main() {
 vector<Polytope*> dels2polytopes(int num_topes) {
 	vector<Polytope*> ret;
 
-	std::string dir("C:\\Users\\HWI\\Desktop\\qhull\\bin\\");
+	// std::cout << "Enter 'A': ";
+	// int dummy; std::cin >> dummy;
+
+	std::string dir("C:\\qhull\\bin\\");
 
 	std::cout << "Enter 'A': ";
 	int dummy; std::cin >> dummy;
@@ -547,7 +550,7 @@ void generate_points_on_restricted_hp(std::vector<std::pair<double, double>> bbx
 		std::uniform_real_distribution<double> uni_dist(-u_bound, u_bound); // uniform distribution
 		std::vector<double> vec;
 
-		for (int i = 0; i < dim +1; i++) {
+		for (int i = 0; i < dim; i++) {
 			if (index[i] == -1) vec.push_back(H->vals[dim]);
 			else vec.push_back(uni_dist(gen));
 		}
