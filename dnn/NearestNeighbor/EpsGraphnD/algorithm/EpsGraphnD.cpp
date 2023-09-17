@@ -11,8 +11,8 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	eps = _eps;
 	NN_dist = {};
 	ord_pol = 0;
-	xs_min = std::vector<double>(n, DBL_MIN);
-	xs_max = std::vector<double>(n, DBL_MAX);
+	xs_min = std::vector<double>(n, DBL_MAX);
+	xs_max = std::vector<double>(n, DBL_MIN);
 	xs_num = std::vector<long long int>(n, 0);
 	for (auto pol : pols) {
 		pol.ord = ord_pol;
@@ -24,8 +24,8 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	}
 	for (auto fr_pt : fr_pts) {
 		for (int i = 0;i < n;i++) {
-			if (fr_pt.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs_max[i]; }
-			if (fr_pt.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs_min[i]; }
+			if (fr_pt.xs[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs[i]; }
+			if (fr_pt.xs[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs[i]; }
 		}
 	}
 	init_grid();
@@ -142,7 +142,7 @@ void Eps_Graph_nD::anchor(Free_Point& p) { // cast anchor onto a grid point from
 	}
 
 	bool flag = false;
-	vector<long long int> xs;
+	vector<long long int> xs(this->n,0);
 	for (int i = 0;i < this->n;i++) {
 		xs[i] = int(ceil((p.xs[i] - this->upper_left.xs[i]) / eps - 0.5));
 	}

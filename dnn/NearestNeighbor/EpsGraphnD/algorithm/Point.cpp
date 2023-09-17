@@ -84,6 +84,7 @@ Grid_Point::Grid_Point(std::vector<long long int> _ind, Point _upper_left, doubl
 {
 	n = _upper_left.n;
 	ind = _ind;
+	xs = std::vector<double>(n, 0);
 	for (int i = 0; i < n;i++) {
 		xs[i] = _upper_left.xs[i] + ind[i] * _eps;
 	}

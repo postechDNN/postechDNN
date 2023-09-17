@@ -7,10 +7,14 @@
 #include <random>
 #include <tuple>
 #include <string>
+#include "../algorithm/EpsGraphnD.h"
+#include "../algorithm/Polytope.h"
+#include "../algorithm/Point.h"
 
 std::random_device rd;
 std::mt19937 gen(rd());
 
+/*
 int main() {
 	std::cout.precision(3);
 	std::cout << std::fixed;
@@ -136,9 +140,41 @@ int main() {
 
 
 	}
-	dels2polytopes(num_parts);
+	//vector<Polytope*> plts = dels2polytopes(num_parts);
+
+	Free_Point* p1 = new Free_Point({ 0., 0., 20. });
+
+	Free_Point* p2 = new Free_Point({ 0, 0, -65. });
+	Free_Point* p3 = new Free_Point({ 0., 0., 1.5 });
+	Free_Point* p4 = new Free_Point({ 100., 100., 100. });
+	Free_Point* p5 = new Free_Point({ -100., -100., -100. });
+	list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
+	vector<Polytope> plts;
+	//Eps_Graph_nD g(3);
+	Eps_Graph_nD grid(3, frpts, plts, 10.0);
+
+	Free_Point* q = new Free_Point({ 0., 0., -20. });
+
 	return 0;
 }
+*/
+int main() {
+	Free_Point* p1 = new Free_Point({ 0., 0., 20. });
+
+	Free_Point* p2 = new Free_Point({ 0, 0, -65. });
+	Free_Point* p3 = new Free_Point({ 0., 0., 1.5 });
+	Free_Point* p4 = new Free_Point({ 100., 100., 100. });
+	Free_Point* p5 = new Free_Point({ -100., -100., -100. });
+	list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
+	vector<Polytope> plts;
+	//Eps_Graph_nD g(3);
+	Eps_Graph_nD grid(3, frpts, plts, 10.0);
+
+	Free_Point* q = new Free_Point({ 0., 0., -20. });
+
+	return 0;
+}
+
 
 /*
 int main() {
