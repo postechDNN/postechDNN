@@ -2,6 +2,9 @@
 #include <queue>
 #include <assert.h>
 #include <iostream>
+#include <vector>
+
+using namespace std;
 
 int main() {
 	Free_Point* p1 = new Free_Point({ 0., 0., 20. });
@@ -26,11 +29,11 @@ int main() {
 	Free_Point* q = new Free_Point(0., 0., -20.);
 
 	//grid.print_kNN(*q, 3);
-	grid.add_freepts(q);
+	//grid.add_freepts(q);
 	grid.print_free_point();
 	grid.add_pol(*poly);
 	//grid.print_edges();
-	grid.print_kNN(*q, 3);
+	//grid.print_kNN(*q, 3);
 	grid.delete_pol(0);
 	grid.print_free_point();
 	//grid.delete_freept(3);
@@ -39,8 +42,7 @@ int main() {
 	//grid.print_free_point();
 	grid.print_anchor();
 	//grid.print_edges();
-	grid.print_kNN(*q, 3);
-	*/
+	//grid.print_kNN(*q, 3);
 		return 0;
 	cout << "Hello" << endl;
 	return 0;
@@ -819,3 +821,43 @@ void Eps_Graph_nD::print_dist() {
 	vector<edge> path = kNN(p, k + 1);
 	return path;
 }*/
+
+
+vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry){
+	vector<Point> vp_vertex;
+	vector<pair<Point, double>> *nb_list;
+	vector<bool> free;
+	Point temp_qry(qry.getxs());
+	free.push_back(true);
+	vp_vertex.push_back(temp_qry);
+
+	for (auto f_p : fr_pts) {
+		Point temp(f_p.getxs());
+		free.push_back(true);
+		vp_vertex.push_back(temp);
+	}
+	for (auto pol : pols) {
+		vector<Point*> temp = pol.get_vertices();
+		for (auto temp_temp : temp) {
+			free.push_back(false);
+			vp_vertex.push_back(*temp_temp);
+		}
+	}
+	nb_list = new vector<pair<Point, double>>(vp_vertex.size());
+	for (int i = 0; i++; i < vp_vertex.size()) {
+		for (int j = i+1; j++; j < vp_vertex.size()) {
+			bool intersect = false;
+			for (auto pol : pols) {
+				if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+					intersect = true;
+					break;
+				}
+			}
+			if (!intersect) {
+				nb_list[i].push_back(make_pair(vp_vertex[j], vp_vertex[i].distance(vp_vertex[j])));
+				nb_list[j].push_back(make_pair(vp_vertex[i], vp_vertex[i].distance(vp_vertex[j])));
+			}
+		}
+	}
+	return nb_list;
+}

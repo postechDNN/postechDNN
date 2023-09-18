@@ -4,6 +4,7 @@
 #include "polytope.h"
 #include <tuple>
 #include <list>
+#include <vector>
 
 using namespace std;
 
@@ -93,5 +94,7 @@ public:	// functions
 	vector<Polytope> get_Polytope();
 	vector<Grid_Point> get_grid();
 	vector<edge> get_path(Free_Point, int);
+
+	vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
 
 };
