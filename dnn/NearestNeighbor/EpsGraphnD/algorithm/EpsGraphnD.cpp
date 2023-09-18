@@ -826,20 +826,19 @@ void Eps_Graph_nD::print_dist() {
 vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry){
 	vector<Point> vp_vertex;
 	vector<pair<Point, double>> *nb_list;
-	vector<bool> free;
 	Point temp_qry(qry.getxs());
-	free.push_back(true);
+	qry.is_Free_Point = true;
 	vp_vertex.push_back(temp_qry);
 
 	for (auto f_p : fr_pts) {
 		Point temp(f_p.getxs());
-		free.push_back(true);
+		f_p.is_Free_Point = true;
 		vp_vertex.push_back(temp);
 	}
 	for (auto pol : pols) {
 		vector<Point*> temp = pol.get_vertices();
 		for (auto temp_temp : temp) {
-			free.push_back(false);
+			temp_temp->is_Free_Point = false;
 			vp_vertex.push_back(*temp_temp);
 		}
 	}
