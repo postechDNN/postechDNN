@@ -74,8 +74,19 @@ std::vector<Component > C_Subdivision::compute_equiv_class(std::vector<Quad*>& Q
 }
 
 //Return quads which are the growth of given equivalent class S.
+// CAUTION: S can be sorted during growth()
 std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
     std::vector<Quad*> ret;
+
+    struct ret_comp {
+        bool operator()(Quad* lhs, Quad* rhs) const
+        {
+            if (lhs->r == rhs->r) return lhs->c < rhs->c; 
+            else return (lhs -> r) < (rhs -> r); 
+        }
+    };
+
+    std::set<Quad*, ret_comp> retSet;
 
     int size = S.size();
     if (size == 0) return S;
@@ -84,7 +95,8 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
     std::vector<std::vector<bool>> graph(size, std::vector<bool>(size, false));
     int ord = S[0]->ord;
 
-    // Check every pair of Quads if they intersects
+    // Fill graph: Check every pair of Quads if they intersects
+    /*
     for(int i=0; i<size; i++){
         
         //std::cout << "quad " << i+1 << " r: "<< S[i]->r << " c: " <<S[i]->c << std::endl;
@@ -106,6 +118,7 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             } 
         }
     }
+    */
 
     /* Debug */
     // std::cout << "Input S:" << std::endl;
@@ -145,8 +158,8 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             if (lhs->c == rhs->c) {
                 if (lhs->r == rhs->r) {
                     // CAUTION 
-                    return false;
-                    std::cout <<"ADDRESSOF ";
+                    //return false;
+                    //std::cout <<"ADDRESSOF ";
                     return std::addressof(*lhs) < std::addressof(*rhs);
                 }
                 else return lhs->r < rhs->r;
@@ -174,7 +187,7 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         
         // Insert a new Quad 
         bool cnt = tree.count(quadNew);
-        if (cnt < 0) std::cout << "DUPLICATES!!!!!!!!!!" << std::endl;
+        if (cnt > 0) std::cout << "DUPLICATES!!!!!!!!!!" << std::endl;
         else tree.insert(quadNew);
 
 
@@ -188,6 +201,7 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
 
             auto idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *left, comp_r) - S_sorted.begin(); 
 
+            /* Check graph
             if (idx == i) ;
             else if (graph[idx][i] && graph[i][idx]) std::cout<< "True!! " << std::endl;
             else{
@@ -200,9 +214,13 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
                 std::cout<< "quadNew: " << quadNew->r<<", " << quadNew -> c << std::endl;
                 std::cout << "*left: " << (*left) -> r <<", "<< (*left) -> c << std::endl;
             }
-            
-            graph[idx][i] = true;
-            graph[i][idx] = true;
+            */
+
+
+            if (idx != i){
+                graph[idx][i] = true;
+                graph[i][idx] = true;
+            } 
 
 
             if (left == tree.begin()) break;
@@ -212,12 +230,20 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         // Then, check rightside of pos
         while(is_intersect_quad(quadNew, *right)){
             int idx = std::lower_bound(S_sorted.begin(), S_sorted.end(), *right, comp_r) - S_sorted.begin(); 
-            graph[idx][i] = true;
-            graph[i][idx] = true;
+            // graph[idx][i] = true;
+            // graph[i][idx] = true;
 
+            /* Check graph
             if (idx == i) ;
             else if (graph[idx][i] && graph[i][idx]) ;
             else std::cout<< "FALSE!! " << std::endl;
+            */
+
+            if (idx != i){
+                graph[idx][i] = true;
+                graph[i][idx] = true;
+            } 
+
 
             if (std::next(right) == tree.end()) break;
             else right = next(right);
@@ -258,6 +284,19 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
 
             Quad *newQ = new Quad(newR, newC, ord+2, false); // Delete? 
 
+            // Check if newQ already exists
+            std::set<Quad*, ret_comp>::iterator iter = retSet.find(newQ);
+
+            
+            if (iter == retSet.end()) {
+                retSet.insert(newQ); 
+            }
+            else{
+                newQ = *iter;
+            }
+            
+
+            
             quadA->growth = newQ;
             quadB->growth = newQ;
             
@@ -265,7 +304,10 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             newQ->children.push_back(quadA);
             newQ->children.push_back(quadB);
             
-            ret.push_back(newQ); 
+            
+            ret.push_back(newQ);
+            //retSet.insert(newQ);
+            
             // Stop
             matched[j] = true;
             matched[i] = true;
@@ -283,27 +325,42 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         int newC = int(std::ceil((q->c)/double(4) -2));
 
         Quad * newQ = new Quad(newR, newC, ord+2, false);
+
+        // Check if newQ already exists
+        std::set<Quad*, ret_comp>::iterator iter = retSet.find(newQ);
+
+        
+        if (iter == retSet.end()) {
+            retSet.insert(newQ); 
+        }
+        else{
+            newQ = *iter;
+        }
         
         //For children of quad by Jaehoon
         newQ->children.push_back(q);
         
         q->growth = newQ;
         ret.push_back(newQ);
+        retSet.insert(newQ); 
     }
 
     /* Debug */
-    std::cout <<"\nBefore Erase:" << ret.size() << " -> \n";
+    /*
+    std::cout <<"\n[DEBUG ret]:" << ret.size() << " -> \n";
     for(auto iq: ret){
         std::cout <<iq->r <<", "<< iq->c <<", "<< iq->ord<<", "<<std:: endl;
     }
-    
 
-    ret.erase(std::unique(ret.begin(), ret.end(), [](Quad* a, Quad*b){return ((a->r == b->r) && (a->c == b->c));}), ret.end());
-
-    std::cout << "After Erase:" <<ret.size() << std::endl;
-     for(auto iq: ret){
+    std::cout <<"\n[DEBUG retSet]:" << retSet.size() << " -> \n";
+    for(auto iq: retSet){
         std::cout <<iq->r <<", "<< iq->c <<", "<< iq->ord<<", "<<std:: endl;
     }
+    */
+    
+    std::copy(retSet.begin(), retSet.end(), ret.begin());
+
+    
     
 
 
