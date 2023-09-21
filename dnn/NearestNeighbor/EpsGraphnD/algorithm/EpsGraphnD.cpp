@@ -460,7 +460,8 @@ vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approxi
 	anchor(p);
 	Grid_Point s = grid[p.host];
 	for (int& elem : dist) { elem = INT_MAX; }
-	for (unsigned int ind1 = 0; ind1 < visited.size(); ind1++) { visited[ind1] = false; }
+	//for (long long int i = 0; i < visited.size(); i++) { visited[i] = false; }
+	//for (bool elem : visited) { elem = false; }
 
 	queue<int> q = {};
 
@@ -485,7 +486,7 @@ vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approxi
 			for (int i = 0;i < n;i++) {
 				if (grid[cur].ip_u[n - 1 - i] && visited[cur + mult] == false) { dist[cur + mult] = dist[cur] + 1; q.push(cur + mult); }
 				if (grid[cur].ip_d[n - 1 - i] && visited[cur - mult] == false) { dist[cur - mult] = dist[cur] + 1; q.push(cur - mult); }
-				mult *= xs_num[n - i - i];
+				mult *= xs_num[n - i - 1];
 			}
 
 			for (auto FP : grid[q.front()].anchored) {
@@ -640,6 +641,31 @@ void Eps_Graph_nD::print_grid() {
 		}
 		cout << '|';
 		if (num2ind(i)[grid[i].getsize() - 1] == this->xs_num[n - 1] - 1) { cout << endl; }
+	}
+}
+
+void Eps_Graph_nD::print_free_point() {
+	for (Free_Point& fr : fr_pts) {
+
+		for (int i = 0; i < n; i++) {
+			cout << fr.getx(i) << ' ';
+		}
+
+		cout << endl;
+
+	}
+}
+
+void Eps_Graph_nD::print_kNN(Free_Point p, int k) {
+	cout << "-------------------Print KNN-------------------" << endl;
+	vector<Free_Point> nbhd = kNN(p, k + 1);
+	for (auto nb : nbhd) {
+		bool cond = (nb.getxs() == p.getxs());
+		if (cond) continue;
+		for (int j = 0; j < this->n; j++) {
+			cout << nb.getx(j) << ' ';
+		}
+		cout << endl;
 	}
 }
 /*
