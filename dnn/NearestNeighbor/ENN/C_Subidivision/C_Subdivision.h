@@ -81,7 +81,7 @@ public:     //NEED TO CONVERT
     std::vector<Quad*> growth(std::vector<Quad*>&);
     void inline draw_n_edges(int,int, int, int, int,std::set<Box_Edge>&);
     void inline erase_n_edges(int,int, int, int, int,std::set<Box_Edge>&);
-    bool inline is_intersect_quad(Quad*, Quad*);
+    static bool inline is_intersect_quad(Quad*, Quad*);
     void process_simple_to_complex(Quad*,int,std::set<Box_Edge> &);
     void process_complex(std::vector<Quad *>&,std::vector<Quad *>&,int,std::set<Box_Edge> &);
     void draw_one_subdivision(std::set<Box_Edge>&);

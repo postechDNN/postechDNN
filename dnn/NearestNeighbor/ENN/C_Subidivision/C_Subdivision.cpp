@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include "Disjoint_Set.h"
+#include "Plane_sweep.h"
 
 // Site::Site(){}
 // Site::Site(Point& p, Site_type t){
@@ -34,6 +35,8 @@ std::vector<Component > C_Subdivision::compute_equiv_class(std::vector<Quad*>& Q
     std::vector<std::vector<int> > adj_list(Q.size());
 
     //Compute intersection_relations between quads of next_Q 
+    
+    /* O(n^2) Implementation
     for(int i = 0; i<Q.size();i++){
         for(int j = i+1;j<Q.size();j++){
             Quad* q_i = Q[i], *q_j = Q[j];
@@ -44,6 +47,11 @@ std::vector<Component > C_Subdivision::compute_equiv_class(std::vector<Quad*>& Q
             }
         }
     }
+    */
+
+   // O(nlogn) Implementation
+   adj_list = compute_adj_list(Q); 
+
     //Compute their transitive closure of the intersection graph using BFS.
     std::vector<bool> visited(Q.size(),false);
     for(int i = 0 ; i<Q.size();i++){
@@ -179,7 +187,7 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         auto sweepline = quadNew-> r; // r-coordinate of the sweepline
 
         // Remove Quads which are note intersected by the sweepline
-        while(!tree.empty() && ((*tree.begin())->r < sweepline)) {
+        while(!tree.empty() && ((*tree.begin())->r +4 < sweepline)) {
             tree.extract(tree.begin());
             
         }
@@ -187,8 +195,8 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
         
         // Insert a new Quad 
         bool cnt = tree.count(quadNew);
-        if (cnt > 0) std::cout << "DUPLICATES!!!!!!!!!!" << std::endl;
-        else tree.insert(quadNew);
+        //if (cnt > 0) std::cout << "DUPLICATES!!!!!!!!!!" << std::endl;
+        tree.insert(quadNew);
 
 
         // Find a starting position to look at 
