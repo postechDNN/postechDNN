@@ -296,9 +296,7 @@ bool check_a2(DCEL& dcel) {
 
         std::vector<HEdge*> inners = f->getInners();
 
-        if(inners.size()>1) {
-            std::cout <<"1111111111111"<<std::endl;
-            return false;}
+        if(inners.size()>1) return false;
 
         // Get all edge of inner face
         std::vector<HEdge*> innerEdge;
@@ -351,30 +349,7 @@ bool check_a2(DCEL& dcel) {
                     lengths[3] += std::abs(nowX[0] - nowX[1]);
                 }
                 // False (Not square)
-                else{
-                    std::cout <<"\nDEBUG: i = "<< i << std::endl;
-                    for (auto idxl : lengths) std::cout << idxl <<", ";
-                    std::cout <<"\n";
-
-                    std::cout<<"bnd: "; 
-                    for(auto idxb: bnd) std::cout <<idxb << ", ";
-                    std::cout<<"\n";
-
-                    std::cout<<"edge: ";
-                    std::cout<<"nowX: ";
-                    for(auto idxn: nowX) std::cout << idxn<<", ";
-                    std::cout<<"nowY: ";
-                    for(auto idxn: nowY) std::cout << idxn << ", ";
-                    std::cout<<"\n Total edges:  \n";
-
-                    for (auto Tedge : squares[i]) {
-                        double TnowX[2] = { Tedge->getEdge().gets().getx(), Tedge->getEdge().gett().getx() };
-                        double TnowY[2] = { Tedge->getEdge().gets().gety(), Tedge->getEdge().gett().gety() };
-                        std::cout << "("<< TnowX[0] << ", " << TnowY[0] <<") -> (" <<TnowX[1] <<", " <<TnowY[1] <<") \n";
-                        
-                    }
-                    return false;}
-
+                else return false;
             }
 
             // length check            
