@@ -44,6 +44,8 @@ std::vector<Point> Gen_geom_data::gen_points_gaussian(int n, Point mean, double 
 
     return ret;
 }
-SimplePolygon Gen_geom_data::gen_simple_polygon(int n){}
+SimplePolygon Gen_geom_data::gen_simple_polygon(int n){
+    return 0;
+}
 
 Gen_geom_data::~Gen_geom_data(){}
