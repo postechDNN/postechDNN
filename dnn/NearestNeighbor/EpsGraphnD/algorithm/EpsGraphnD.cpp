@@ -1,6 +1,5 @@
 #include "EpsGraphnD.h"
 #include <queue>
-#include <assert.h>
 #include <iostream>
 
 using namespace std;
@@ -15,12 +14,16 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	xs_max = std::vector<double>(n, DBL_MIN);
 	xs_num = std::vector<long long int>(n, 0);
 	for (auto pol : pols) {
+		pol.set_maxmin();
 		pol.ord = ord_pol;
 		ord_pol++;
+		cout << "dimension of polytope: " << pol.xs_max.size() << endl;
 		for (int i = 0;i < n;i++) {
+			
 			if (pol.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = pol.xs_max[i]; }
 			if (pol.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = pol.xs_min[i]; }
 		}
+
 	}
 	for (auto fr_pt : fr_pts) {
 		for (int i = 0;i < n;i++) {
