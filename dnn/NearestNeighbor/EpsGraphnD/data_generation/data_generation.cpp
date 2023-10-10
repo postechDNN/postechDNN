@@ -10,6 +10,7 @@
 #include "../algorithm/EpsGraphnD.h"
 #include "../algorithm/Polytope.h"
 #include "../algorithm/Point.h"
+#include <typeinfo>
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -159,6 +160,138 @@ int main() {
 }
 */
 int main() {
+	std::cout.precision(3);
+	std::cout << std::fixed;
+	// std::string config("config.ini");
+
+	// ------------------------------------------------------------------------------------------------------------------------
+	// dimension d
+	std::cout << "Enter the dimension: ";
+	int d; std::cin >> d;
+
+	// ------------------------------------------------------------------------------------------------------------------------
+	// generate a bounding box
+
+	// defines a bounding box (cube) around the origin
+	std::cout << std::endl;
+	std::cout << "Maximum value for each coordinate: ";
+	double u_bound; std::cin >> u_bound;
+
+	// rectangular bounding box
+	std::vector<std::pair<double, double>> bbx;
+
+	for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
+	// double upper_bound = 10.0; // maximum value for each coordinate
+	// double lower_bound = -upper_bound; // minimum value for each coordinate
+
+	// determines if the halfplanes are generated along the axes (grid)
+	std::cout << std::endl;
+	std::cout << "Halfplane constraint (0: Griddy, 1: Arbitrary)" << std::endl;
+	std::cout << "Select: ";
+	int halfplane_constraint; std::cin >> halfplane_constraint;
+
+	std::cout << std::endl;
+	std::cout << "Number of 'maximum' convex subparts: ";
+	int num_parts; std::cin >> num_parts;
+
+	switch (halfplane_constraint) {
+	case 0: {
+		// for each axis
+
+		std::cout << std::endl;
+		vector<int> num_subspaces_over_axes;
+		for (int i = 0; i < d; i++) {
+			std::cout << "Number of subspaces along the " << i + 1 << "-th axis: ";
+			int num_subspace;  std::cin >> num_subspace;
+			num_subspaces_over_axes.push_back(num_subspace);
+		}
+		// generate grid (cells)
+		// set neighbors inside generate_grid( )
+		auto cells = generate_grid(bbx, num_subspaces_over_axes); // 
+		activate_cells(cells, num_parts);
+
+		// 각 hp에 흩뿌리고 나서
+		// 임의의 active한 pair 사이에서 발생하는 건가? 그럼 각 cell에 대해서 neighbor 다 뒤져서 restricted_halfplane을 가져와야 하나?
+
+		std::cout << "Number of points to disperse on each halfplane: ";
+		int dis_pts; std::cin >> dis_pts;
+		disperse_pts_between_active_cells(bbx, num_subspaces_over_axes, cells, dis_pts);
+
+		for (int i = 0; i + 1 < cells.size(); i++) {
+			if (cells[i]->active) {
+				for (auto nb : cells[i]->neighbors) {
+					if (nb.first->active &&
+						cells[i]->total_index < nb.first->total_index) {
+						for (int j = 0; j < nb.second->on_points.size(); j++) {
+							print_pt(nb.second->on_points[j], j);
+						}
+					}
+				}
+			}
+		}
+
+		std::cout << "Number of points to locate inside each cell: ";
+		std::cin >> dis_pts;
+		for (int i = 0; i < cells.size(); i++) {
+			generate_points_on_bb(cells[i], dis_pts);
+			for (int j = 0; j < cells[i]->in_points.size(); j++) print_pt(cells[i]->in_points[j], j);
+		}
+
+		std::string dir("C:\\qhull\\bin\\");
+		// user-defined directory end
+
+		int count = 0;
+
+		for (int i = 0; i < cells.size(); i++) {
+			if (!cells[i]->active) continue;
+
+			vector<Point*> pts = cells[i]->in_points;
+			for (auto nb : cells[i]->neighbors) {
+				if (!nb.first->active) continue;
+
+				pts.insert(pts.end(), nb.second->on_points.begin(), nb.second->on_points.end());
+			}
+
+			std::string res = "result";
+			if (count < 10) {
+				res += "00";
+			}
+			else if (count < 100) {
+				res += "0";
+			}
+			res += std::to_string(count) + ".txt";
+
+			std::ofstream fout(dir + res);
+
+			// first line contains the dimension
+			fout << d << std::endl;
+			// second line contains the number of input points
+			fout << pts.size() << std::endl;
+			// remaining lines contain point coordinates
+			for (auto pt : pts) {
+				for (int j = 0; j < d - 1; j++) {
+					fout << pt->getx(j) << " ";
+				}
+				fout << pt->getx(d - 1) << std::endl;
+			}
+			count++;
+
+			fout.close();
+		}
+
+
+	}
+
+
+	}
+
+	vector<Polytope*> plts_p = dels2polytopes(num_parts);
+	vector<Polytope> plts;
+
+	for (vector<Polytope*>::iterator it = plts_p.begin(); it != plts_p.end(); it++) {
+		plts.push_back(**it);
+	}
+	
 	Free_Point* p1 = new Free_Point({ 0., 20. });
 
 	Free_Point* p2 = new Free_Point({ 0, -65. });
@@ -166,15 +299,19 @@ int main() {
 	Free_Point* p4 = new Free_Point({ 100., 100. });
 	Free_Point* p5 = new Free_Point({ -100., -100. });
 	list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
-	vector<Polytope> plts;
 	//Eps_Graph_nD g(3);
-	Eps_Graph_nD grid(2, frpts, plts, 10.0);
+	cout << "Number of Polytopes: " << plts.size() << endl;
 
+	Eps_Graph_nD grid(2, frpts, plts, 10.0);
+	
 	Free_Point* q = new Free_Point({ 0., -20. });
 	grid.add_freepts(q);
 	grid.print_free_point();
-	grid.print_kNN(*q, 3);
+	
+	grid.print_kNN(*q, 2);
 	return 0;
+	
+	
 }
 
 

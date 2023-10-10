@@ -303,3 +303,29 @@ void Polytope::set_simplices(std::vector<simplex>& _simplices) {
 	this->simplices = _simplices;
 }
 
+void Polytope::set_maxmin()
+{
+	this->d = this->vertices[0]->getsize();
+	cout << "d: " << this->d << endl;
+	for (int i = 0; i < this->d; i++) {
+		this->xs_max.push_back(DBL_MIN);
+		this->xs_min.push_back(DBL_MAX);
+	}
+	for (int i = 0; i < this->d; i++) {
+		for(int j=0;j<this->d;j++){
+			this->xs_max[i] = (this->xs_max[i] > this->vertices[j]->getx(i)) ? this->xs_max[i] : this->vertices[j]->getx(i);
+			this->xs_min[i] = (this->xs_min[i] < this->vertices[j]->getx(i)) ? this->xs_min[i] : this->vertices[j]->getx(i);
+		}
+	}
+	
+	cout << "xs_max: ";
+	for (int i = 0; i < this->d; i++) {
+		cout << this->xs_max[i] << " ";
+	}
+
+	cout << endl << "xs_min: ";
+	for (int i = 0; i < this->d; i++) {
+		cout << this->xs_min[i] << " ";
+	}
+	
+}
