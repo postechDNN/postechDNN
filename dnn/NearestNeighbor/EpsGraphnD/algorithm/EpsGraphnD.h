@@ -4,6 +4,8 @@
 #include "polytope.h"
 #include <tuple>
 #include <list>
+#include <algorithm>
+#include <queue>
 
 using namespace std;
 
@@ -79,6 +81,8 @@ public:	// functions
 
 	vector<Free_Point> kNN(Free_Point, int); // kNN point query
 	vector<edge> path_kNN(Free_Point, int); // kNN point query
+	//pair<vector<Point>, vector<double>> Dijkstra(int, vector<Point>, vector<vector<double>>);
+	vector<pair<Point, double>> Dijkstra(Free_Point);
 
 	void print_grid();
 	void print_encl();
@@ -93,5 +97,7 @@ public:	// functions
 	vector<Polytope> get_Polytope();
 	vector<Grid_Point> get_grid();
 	vector<edge> get_path(Free_Point, int);
-
+	//vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
+	//vector<vector<pair<double, int>>> Visibility_polygon(Free_Point);
+	vector<vector<pair<double, int>>> Visibility_polygon(Free_Point);
 };

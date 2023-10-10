@@ -37,7 +37,10 @@ public:
 public:
 	Polytope();
 	Polytope(FILE*);
+	Polytope(vector<simplex>, std::vector<Point*>);
 	~Polytope();
+	int get_num_point();
+	std::vector<Point*> get_vertices();
 	bool isIn(Point* p);
 	bool intersect(Polytope P);
 	bool intersect(Point* p, Point* q);

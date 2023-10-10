@@ -231,6 +231,34 @@ bool simplex::isIn(Point* p) {
 Polytope::Polytope() {};
 Polytope::Polytope(FILE* input) {};
 Polytope::~Polytope() {};
+Polytope::Polytope(vector<simplex> cmp, std::vector<Point*> vt) {
+	simplices = cmp;
+	vertices = vt;
+	num_simplices = cmp.size();
+	num_points = vt.size();
+	d = vt[0]->getsize();
+	for (int i = 0; i++; i < d) {
+		xs_min.push_back(INFINITY);
+		xs_max.push_back(-INFINITY);
+	}
+	for (auto vertex : this->vertices) {
+		for (int i = 0; i++; i < d) {
+			if (xs_min[i] > vertex->getxs()[i]) {
+				xs_min[i] = vertex->getxs()[i];
+			}
+			if (xs_max[i] < vertex->getxs()[i]) {
+				xs_max[i] = vertex->getxs()[i];
+			}
+		}
+	}
+}
+int Polytope::get_num_point() {
+	return num_points;
+};
+
+std::vector<Point*> Polytope::get_vertices() {
+	return vertices;
+};
 
 bool Polytope::isIn(Point* p) {
 	for (auto simp1 : this->simplices) {
@@ -274,3 +302,4 @@ void Polytope::set_simplices(std::vector<simplex>& _simplices) {
 	this->num_simplices = _simplices.size();
 	this->simplices = _simplices;
 }
+
