@@ -758,8 +758,8 @@ vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 		}
 	}
 	nb_list = new vector<pair<Point, double>>(vp_vertex.size());
-	for (int i = 0; i < vp_vertex.size(); i++) {
-		for (int j = i + 1; j < vp_vertex.size(); j++) {
+	for (int i = 0; i++; i < vp_vertex.size()) {
+		for (int j = i + 1; j++; j < vp_vertex.size()) {
 			bool intersect = false;
 			for (auto pol : pols) {
 				if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
