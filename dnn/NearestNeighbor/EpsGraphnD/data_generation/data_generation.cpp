@@ -160,6 +160,7 @@ int main() {
 }
 */
 int main() {
+	/*
 	std::cout.precision(3);
 	std::cout << std::fixed;
 	// std::string config("config.ini");
@@ -291,7 +292,8 @@ int main() {
 	for (vector<Polytope*>::iterator it = plts_p.begin(); it != plts_p.end(); it++) {
 		plts.push_back(**it);
 	}
-	
+	*/
+	vector<Polytope> plts;
 	Free_Point* p1 = new Free_Point({ 0., 20. });
 
 	Free_Point* p2 = new Free_Point({ 0, -65. });
@@ -300,7 +302,7 @@ int main() {
 	Free_Point* p5 = new Free_Point({ -100., -100. });
 	list<Free_Point> frpts = { *p1,*p2,*p3,*p4,*p5 };
 	//Eps_Graph_nD g(3);
-	cout << "Number of Polytopes: " << plts.size() << endl;
+	//cout << "Number of Polytopes: " << plts.size() << endl;
 
 	Eps_Graph_nD grid(2, frpts, plts, 10.0);
 	
@@ -309,6 +311,8 @@ int main() {
 	grid.print_free_point();
 	
 	grid.print_kNN(*q, 2);
+	grid.Dijkstra(*q);
+
 	return 0;
 	
 	

@@ -99,5 +99,6 @@ public:	// functions
 	vector<edge> get_path(Free_Point, int);
 	//vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
 	//vector<vector<pair<double, int>>> Visibility_polygon(Free_Point);
-	vector<vector<pair<double, int>>> Visibility_polygon(Free_Point);
+	vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
+	vector<vector<pair<double, int>>> Visibility_polygon2(Free_Point);
 };

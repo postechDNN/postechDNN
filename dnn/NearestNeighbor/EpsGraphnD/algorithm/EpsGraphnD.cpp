@@ -713,22 +713,41 @@ void Eps_Graph_nD::print_kNN(Free_Point p, int k) {
 //	return nb_list;
 //}
 
-vector<vector<pair<double, int>>> Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
-	vector<vector<pair<double, int>>> nb_list;
+vector<vector<pair<double, int>>> Eps_Graph_nD::Visibility_polygon2(Free_Point qry) {
+	vector<Point> vp_vertex;
+	Point temp_qry(qry.getxs());
+	qry.is_Free_Point = true;
+	vp_vertex.push_back(temp_qry);
+	vector<vector<pair<double, int>>> nb_list(vp_vertex.size());
+	//vector<vector<pair<double, int>>>* nb_list = new vector<vector<pair<double, int>>> (vp_vertex.size());
+	for (int i = 0; i++; i < vp_vertex.size()) {
+		for (int j = i + 1; j++; j < vp_vertex.size()) {
+			bool intersect = false;
+			for (auto pol : pols) {
+				if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+					intersect = true;
+					break;
+				}
+			}
+			if (!intersect) {
+				nb_list[i].push_back(make_pair(vp_vertex[i].distance(vp_vertex[j]),j));
+				nb_list[j].push_back(make_pair(vp_vertex[i].distance(vp_vertex[j]),i));
+			}
+		}
+	}
 	return nb_list;
 }
 
-
-vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry) {
+vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 	vector<Point> vp_vertex;
-	//vector<pair<Point, double>>* nb_list;
+	vector<pair<Point, double>>* nb_list;
 	Point temp_qry(qry.getxs());
 	qry.is_Free_Point = true;
 	vp_vertex.push_back(temp_qry);
 
 	for (auto f_p : fr_pts) {
 		Point temp(f_p.getxs());
-		f_p.is_Free_Point = true;
+		temp.is_Free_Point = true;
 		vp_vertex.push_back(temp);
 	}
 	for (auto pol : pols) {
@@ -738,7 +757,46 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry) {
 			vp_vertex.push_back(*temp_temp);
 		}
 	}
-	vector<vector<pair<double, int>>> nb_list = Visibility_polygon(qry);
+	nb_list = new vector<pair<Point, double>>(vp_vertex.size());
+	for (int i = 0; i < vp_vertex.size(); i++) {
+		for (int j = i + 1; j < vp_vertex.size(); j++) {
+			bool intersect = false;
+			for (auto pol : pols) {
+				if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+					intersect = true;
+					break;
+				}
+			}
+			if (!intersect) {
+				nb_list[i].push_back(make_pair(vp_vertex[j], vp_vertex[i].distance(vp_vertex[j])));
+				nb_list[j].push_back(make_pair(vp_vertex[i], vp_vertex[i].distance(vp_vertex[j])));
+			}
+		}
+	}
+	return nb_list;
+}
+
+vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry) {
+	vector<Point> vp_vertex;
+	//vector<pair<Point, double>>* nb_list;
+	Point temp_qry(qry.getxs());
+	temp_qry.is_Free_Point = true;
+	vp_vertex.push_back(temp_qry);
+
+	for (auto f_p : fr_pts) {
+		Point temp(f_p.getxs());
+		temp.is_Free_Point = true;
+		vp_vertex.push_back(temp);
+	}
+	for (auto pol : pols) {
+		vector<Point*> temp = pol.get_vertices();
+		for (auto temp_temp : temp) {
+			temp_temp->is_Free_Point = false;
+			vp_vertex.push_back(*temp_temp);
+		}
+	}
+	//vector<vector<pair<double, int>>> nb_list = Visibility_polygon2(qry);
+	vector<pair<Point, double>>* nb_list2 = Visibility_polygon(qry);
 	vector<double> dist(vp_vertex.size(), 0);
 	vector<bool> visited(vp_vertex.size(), false);
 	priority_queue<pair<double, int>> pq;
@@ -748,9 +806,26 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry) {
 		if (visited[q1.second]) continue;
 		visited[q1.second] = true;
 		dist[q1.second] = q1.first;
-		for (auto q : nb_list[q1.second]) {
-			if (visited[q.second] == true) continue;
-			pq.push({ q.second, q.first + q1.first });
+		vector<pair<Point, double>>* nb_list2 = Visibility_polygon(qry);
+		if (vp_vertex[q1.second].is_Free_Point) {
+			bool cond = (qry.getxs() == vp_vertex[q1.second].getxs());
+			if (!cond) {
+				for (int j = 0; j < this->n; j++) {
+					cout << vp_vertex[q1.second].getx(j) << ' ';
+				}
+				cout << endl;
+			}
+		}
+		for (int j=0;j < nb_list2->size();j++) {
+			pair<Point, double> q = nb_list2->at(j);
+			for (int i=0;i < vp_vertex.size();i++) {
+				if (q.first.getxs() == vp_vertex[i].getxs()) {
+					if (visited[i] == false) {
+						pq.push({ q.second + q1.first, i });
+					}
+					break;
+				}
+			}
 		}
 	}
 	vector<pair<Point, double>> output;
