@@ -1,6 +1,4 @@
 #include "Gen_geom_data.h"
-#include <queue>
-#include <tuple>
 
 Gen_geom_data::Gen_geom_data(Point left_bottom, Point right_top) {
     this->min_x = left_bottom.getx();
@@ -48,21 +46,14 @@ std::vector<Point> Gen_geom_data::gen_points_gaussian(int n, Point mean, double 
 }
 
 
-SimplePolygon Gen_geom_data::gen_simple_polygon(int n) {
-    std::vector<Point> pts = { Point(1,1),Point(2,2),Point(3,3) };
-    SimplePolygon a(pts);
-    return a;
-}
-
-
 // Function to generate random angle steps
-std::vector<double> randomAngleSteps(int n) {
-    std::vector<double> angles; //anglesÀÇ µ¥ÀÌÅÍ ±¸Á¶ Á¤ÀÇ
-    std::default_random_engine generator; //default_random_engine ¶óÀÌºê·¯¸®¸¦ ÀÌ¿ëÇØ¼­ generator°¡ randomÇÑ pt¸¦ »ý¼º
-    std::uniform_real_distribution<double> distribution(-1, 1);//Ç¥ÁØ ¶óÀÌºê·¯¸® »ç¿ë
+std::vector<double> Gen_geom_data::randomAngleSteps(int n) {
+    std::vector<double> angles; //anglesï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    std::default_random_engine generator; //default_random_engine ï¿½ï¿½ï¿½Ìºê·¯ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½Ø¼ï¿½ generatorï¿½ï¿½ randomï¿½ï¿½ ptï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    std::uniform_real_distribution<double> distribution(-1, 1);//Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºê·¯ï¿½ï¿½ ï¿½ï¿½ï¿½
 
-    double lower = (2.0 * M_PI / n) - 1;
-    double upper = (2.0 * M_PI / n) + 1;
+    double lower = (2.0 * this->const_pi() / n) - 1;
+    double upper = (2.0 * this->const_pi() / n) + 1;
     double cumsum = 0;
 
     for (int i = 0; i < n; ++i) {
@@ -72,7 +63,7 @@ std::vector<double> randomAngleSteps(int n) {
     }
 
     // Normalize the steps so that point 0 and point n+1 are the same
-    cumsum /= (2.0 * M_PI);
+    cumsum /= (2.0 * this->const_pi());
     for (int i = 0; i < n; ++i) {
         angles[i] /= cumsum;
     }
@@ -80,39 +71,37 @@ std::vector<double> randomAngleSteps(int n) {
     return angles;
 }
 
-
 // Function to clip a value within a specified range
-double clip(double value, double lower, double upper) {
+double Gen_geom_data::clip(double value, double lower, double upper) {
     return std::min(upper, std::max(value, lower));
 }
 
+// Function to generate a polygon, centerï¿½ï¿½ (0,0)ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, avgRadiusï¿½ï¿½ 10ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+SimplePolygon Gen_geom_data::gen_simple_polygon(int n) {
 
-// Function to generate a polygon, center¸¦ (0,0)À¸·Î ÁöÁ¤, avgRadiusµµ 10À¸·Î »ý°¢
-std::vector<std::pair<double, double>> gen_simple_polygon(int n) {
-
-    std::vector<double> angleSteps = randomAngleSteps(n);
+    std::vector<double> angleSteps = this->randomAngleSteps(n);
 
     // Generate the points
-    std::vector<std::pair<double, double>> points;//pointsÀÇ µ¥ÀÌÅÍ ±¸Á¶ Á¤ÀÇ
+    std::vector<Point> pts;
+    std::vector<std::pair<double, double>> points;//pointsï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     std::default_random_engine generator;
     std::normal_distribution<double> normalDistribution(30);
-    std::uniform_real_distribution<double> uniformDistribution(0.0, 2 * M_PI);
+    std::uniform_real_distribution<double> uniformDistribution(0.0, 2 * this->const_pi());
 
     double angle = uniformDistribution(generator);
 
     for (int i = 0; i < n; ++i) {
-        double radius = clip(uniformDistribution(generator), 0, 2 * 30);
+        double radius = this->clip(uniformDistribution(generator), 0, 2 * 30);
         double x = radius * std::cos(angle);
         double y = radius * std::sin(angle);
-        points.push_back(std::make_pair(x, y));
+        pts.push_back(Point(x,y));
+        //points.push_back(std::make_pair(x, y));
         angle += angleSteps[i];
     }
 
-    return points;
-}
-
-SimplePolygon Gen_geom_data::gen_simple_polygon(int n){
-    return 0;
+    //return points;
+    std::reverse(pts.begin(),pts.end());
+    return SimplePolygon(pts);
 }
 
 Graph<Point> Gen_geom_data::gen_planar_graph(int n){
@@ -163,5 +152,7 @@ Graph<Point> Gen_geom_data::gen_planar_graph(int n){
     return graph;
 } 
 
-
+ std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int num_polys){
+    ;
+ }
 Gen_geom_data::~Gen_geom_data(){}
