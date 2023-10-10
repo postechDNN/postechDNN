@@ -20,7 +20,7 @@ public:
     SimplePolygon gen_simple_polygon(int n);
 
     //Generate a planar graph on which the number of vertices is n and the number of edges is m. 
-    Graph<double> gen_planar_graph(int n, int m); 
+    Graph<Point> gen_planar_graph(int n); 
     
     ~Gen_geom_data();
 };

@@ -1,4 +1,6 @@
 #include "Gen_geom_data.h"
+#include <queue>
+#include <tuple>
 
 Gen_geom_data::Gen_geom_data(Point left_bottom, Point right_top) {
     this->min_x = left_bottom.getx();
@@ -45,5 +47,54 @@ std::vector<Point> Gen_geom_data::gen_points_gaussian(int n, Point mean, double 
     return ret;
 }
 SimplePolygon Gen_geom_data::gen_simple_polygon(int n){}
+
+Graph<Point> Gen_geom_data::gen_planar_graph(int n){
+    std::vector<Point> vertices = this->gen_points_uniform(n);
+    Graph<Point> graph;
+    //std::vector<std::vector<int>> matrix;
+    //matrix.resize(n,std::vector<int>(n,0));
+
+    std::priority_queue<std::pair<int,int>> node_degrees;
+    for(int i = 0;i<n;i++){
+        node_degrees.push(std::pair<int,int>(0,i));
+        graph.insert_vertex(vertices[i]);
+    }
+
+    std::vector<std::pair<int,int>> edges;
+    std::uniform_int_distribution<int> dis(0,n-1);
+    std::uniform_int_distribution<int> dis2(1,3*n-6);
+    int m = dis2(this->gen);
+
+    while (m>0){
+        int deg,u;
+        std::tie(deg, u) = node_degrees.top();
+        int v= u; 
+        while(u == v)
+            v= dis(this->gen);
+        Edge e(vertices[u],vertices[v]);
+
+        bool intersect = false;
+        for(int i = 0; i< edges.size();i++){
+            int u_t,v_t;
+            std::tie(u_t,v_t) = edges[i];
+            Edge e_t(vertices[u_t],vertices[v_t]);
+            if(e.crossing(e_t,false)){
+                intersect = true;
+                break;
+            }
+        }
+        if(!intersect){
+            //matrix[u][v] = matrix[v][u] = 1;
+            edges.push_back(std::pair<int,int>(u,v)); 
+            graph.insert_edge(u,v);
+        }
+        m--;
+        node_degrees.pop();
+        node_degrees.push(std::pair<int,int>(deg-1,u));
+    }
+
+    return graph;
+} 
+
 
 Gen_geom_data::~Gen_geom_data(){}
