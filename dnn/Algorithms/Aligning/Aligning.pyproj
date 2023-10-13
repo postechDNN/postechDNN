@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>Aligning</Name>
     <RootNamespace>Aligning</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
