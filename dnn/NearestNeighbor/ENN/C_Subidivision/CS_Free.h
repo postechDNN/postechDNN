@@ -14,6 +14,6 @@ protected:
     std::unordered_map<std::string, HEdge_Type> edge_types;           //HEdge key, HEdge type
     DCEL subdiv;
 public:
-    CS_Free(Point src, std::vector<SimplePolygon>& obstacles);
+    CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn);
     ~CS_Free();
 };
