@@ -1,9 +1,19 @@
 #include "CS_Free.h"
 
+struct PLQ {
+    HEdge* top;
+    HEdge* bottom;
+    HEdge* right;
+    HEdge* left;
+};
+
 DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key = "__default__");
 
-constexpr double TOLERANCE_CS_FREE = 1e-6;
+void point_location_queries(std::vector<Vertex*> *s_vertices, DCEL *obstacles, std::vector<PLQ> &results);
 
+constexpr double TOLERANCE_CS_FREE = 1e-6;
+Point upperRayIntersection(Point origin, Edge edge);
+Point lowerRayIntersection(Point origin, Edge edge);
 bool isEdgeVertical(const HEdge* const edge);
 bool isEdgeHorizontal(const HEdge* const edge);
 
@@ -22,8 +32,13 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
     //3. Construct DCEL for obstacles and label vertices and half edges of the DCEL.
     DCEL D_obs = constructObsDCEL(obstacles);
     
+    DCEL S_overlay;
+
     if (nlogn) {
         // 4. Make S'(S_overay) using point location
+        std::vector<Vertex*> s_vertices = S.getVertex();
+        std::vector<PLQ> point_location_query(s_vertices, PLQ);
+        void point_location_queries(&s_vertices, &D_obs, point_location_query);
 
         // 5. Store vertices type and half edge types by using labels of S_overlay.
 
@@ -34,7 +49,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
 
     else {
         //4. Merge the conforming subdivision and the DCEL for obstacles into S_overlay.
-        DCEL S_overlay = S.merge(D_obs);
+        S_overlay = S.merge(D_obs);
 
         //5. Store vertices type and half edge types by using labels of S_overlay. 
         {
@@ -121,11 +136,25 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
     //7. Partition each cell containing an obstacle vertex v by extending edges vertically up and down from v.
     // HOW: interesting cell일 것이고, 새로운 vertex, half edge 추가, graph로 만들어서 이를 다시 DCEL로.
     {
-        std::vector<Point>
-            std::vector<Face*> results;
+        std::vector<Face*> added_faces;
         std::vector<Face*> faces = S_overlay.getFaces();
+        std::vector<double> deltas;
+        // Compute delta
         for (auto f : faces) {
-            results.push_back(f);
+            std::vector<HEdge*> edges = f->getInnerHEdges();
+            double delta = DBL_MAX;
+            for (auto he : edges) {
+                if (this->vertices_types[he->getOrigin()->getKey()] == TRP&&
+                    this->vertices_types[he->getNext()->getOrigin()->getKey()] == TRP) {
+                    double temp = he->getOrigin()->getPoint().distance(he->getNext()->getOrigin()->getPoint());
+                    if (delta > temp) delta = temp;
+                }
+            }
+            deltas.push_back(delta);
+        }
+        
+        for (size_t i = 0; i < faces.size(); i++) {
+            auto f = faces[i];
             std::vector<Vertex*> vertices = f->getInnerVertices();
             for (auto v : vertices) {
                 if (this->vertices_types[v->getKey()] == OBS) {
@@ -178,20 +207,48 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     // Original cell update
 
 
-                    // obstacle vertex 기준 Upper face 만들기 
-                    Face* upperFace;
+                    // Obstacle vertex 기준 Upper face 만들기 
+                    Face* uf = new Face();
 
-                    // obstacle vertex 기준 Lower face 만들기
-                    Face* lowerFace;
+                    // Obstacle vertex 기준 Lower face 만들기
+                    Face* lf = new Face();
 
-                    results.push_back(upperFace);
-                    results.push_back(lowerFace);
                     // Cell 하나에 obstacle vertex 하나만 있므로 break
+                    
                     break;
                 }
             }
         }
-        this->subdiv.setFaces(results);
+
+        for (auto af : added_faces) {
+            faces.push_back(af);
+        }
+
+        // Construct graph for result DCEL
+        std::vector<Point> G_V;
+        std::unordered_map<std::string, int> G_V_map; // vertex key, index of G_V
+        std::vector<std::vector<int>> G_E;
+        std::vector<int> temp_list;
+        for (auto f : faces) {
+            std::vector<HEdge*> hedges = f->getInnerHEdges();
+            for (auto he : hedges) {
+                Vertex u = he->getOrigin();
+                Vertex v = he->getNext()->getOrigin();
+                if (G_V_map.find(u.getKey()) == m.end()) {
+                    G_V_map[u.getKey()] = G_V.size();
+                    G_V.push_back(u.getPoint());
+                    G_E.push_back(temp_list);
+                }
+                if (G_V_map.find(v.getKey()) == m.end()) {
+                    G_V_map[v.getKey()] = G_V.size();
+                    G_V.push_back(v.getPoint());
+                    G_E.push_back(temp_list);
+                }
+                G_E[G_V_map[u.getKey()]].push_back(G_V_map[v.getKey()]);
+            }
+        }
+
+        this->subdiv = DCEL(G_V,G_E);
     }
 }
 
@@ -222,10 +279,26 @@ DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key) {
     return ret;
 }
 
+Point upperRayIntersection(Point origin, Edge edge) {
+    Point result;
+
+    return result;
+}
+
+Point lowerRayIntersection(Point origin, Edge edge) {
+    Point result;
+
+    return result;
+}
+
 bool isEdgeVertical(const HEdge* const edge) {
     return (std::abs(edge->getEdge().gets().gety() - edge->getEdge().gett().gety()) < TOLERANCE_CS_FREE);
 }
 
 bool isEdgeHorizontal(const HEdge* const edge) {
     return (std::abs(edge->getEdge().gets().getx() - edge->getEdge().gett().getx()) < TOLERANCE_CS_FREE);
+}
+
+void point_location_queries(std::vector<Vertex*>* s_vertices, DCEL* obstacles, std::vector<PLQ>& results) {
+
 }
