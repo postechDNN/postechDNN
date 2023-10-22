@@ -71,7 +71,7 @@ public:
 	HEdge* getOuter();
 	std::vector<HEdge*> getInners();
 	void addInner(HEdge*);
-	//void setInners(std::vector<HEdge*>*);
+	void setInners(std::vector<HEdge*>*);
 	std::vector<HEdge *> getOutHEdges();
 	std::vector<HEdge*> getInnerHEdges();
 	std::vector<Vertex*> getOutVertices();
