@@ -15,6 +15,8 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 
+bool PRINT_POINT_FLAG = false;
+
 /*
 int main() {
 	std::cout.precision(3);
@@ -160,23 +162,89 @@ int main() {
 }
 */
 int main() {
-	/*
 	std::cout.precision(3);
 	std::cout << std::fixed;
+	std::string config("C:\\Users\\HWI\\Desktop\\StarLab_1017\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\config.ini");
+	// std::string config("./config.ini");
 	// std::string config("config.ini");
 
+	ifstream readFile;
+	readFile.open(config);
+
+	int d;
+	double u_bound;
+	int halfplane_constraint;
+	int num_parts;
+	// int dis_pts;
+	int num_subspace;
+	int dis_pts;
+	int dis_pts_cell;
+	
+	// 파일 입출력
+	if (readFile.is_open()) {
+		// string dum1, dum2, str;
+		// readFile >> dum1 >> dum2 >> s;
+		
+		string dum, str;
+		// dimension
+		readFile >> dum >> str;
+		d = stoi(str);
+
+		readFile >> dum >> str;
+		u_bound = stod(str);
+
+		readFile >> dum >> str;
+		halfplane_constraint = stoi(str);
+
+		readFile >> dum >> str;
+		num_parts = stoi(str);
+
+		readFile >> dum >> str;
+		num_subspace = stoi(str);
+
+		readFile >> dum >> str;
+		dis_pts = stoi(str);
+
+		readFile >> dum >> str;
+		dis_pts_cell = stoi(str);
+	}
+	// 
+	else {
+		std::cout << "Enter the dimension: ";
+		std::cin >> d;
+
+		// defines a bounding box (cube) around the origin
+		std::cout << std::endl;
+		std::cout << "Maximum value for each coordinate: ";
+		std::cin >> u_bound;
+
+		// determines if the halfplanes are generated along the axes (grid)
+		std::cout << std::endl;
+		std::cout << "Halfplane constraint (0: Griddy, 1: Arbitrary)" << std::endl;
+		std::cout << "Select: ";
+		std::cin >> halfplane_constraint;
+
+		std::cout << std::endl;
+		std::cout << "Number of 'maximum' convex subparts: ";
+		std::cin >> num_parts;
+
+		// std::cout << "Number of subspaces along the " << i + 1 << "-th axis: ";
+		std::cout << std::endl;
+		std::cout << "Number of subspaces along each axis: ";
+		std::cin >> num_subspace;
+
+		std::cout << "Number of points to disperse on each halfplane: ";
+		std::cin >> dis_pts;
+
+		std::cout << "Number of points to locate inside each cell: ";
+		std::cin >> dis_pts_cell;
+	}
+	
 	// ------------------------------------------------------------------------------------------------------------------------
 	// dimension d
-	std::cout << "Enter the dimension: ";
-	int d; std::cin >> d;
 
 	// ------------------------------------------------------------------------------------------------------------------------
 	// generate a bounding box
-
-	// defines a bounding box (cube) around the origin
-	std::cout << std::endl;
-	std::cout << "Maximum value for each coordinate: ";
-	double u_bound; std::cin >> u_bound;
 
 	// rectangular bounding box
 	std::vector<std::pair<double, double>> bbx;
@@ -185,16 +253,6 @@ int main() {
 	// double upper_bound = 10.0; // maximum value for each coordinate
 	// double lower_bound = -upper_bound; // minimum value for each coordinate
 
-	// determines if the halfplanes are generated along the axes (grid)
-	std::cout << std::endl;
-	std::cout << "Halfplane constraint (0: Griddy, 1: Arbitrary)" << std::endl;
-	std::cout << "Select: ";
-	int halfplane_constraint; std::cin >> halfplane_constraint;
-
-	std::cout << std::endl;
-	std::cout << "Number of 'maximum' convex subparts: ";
-	int num_parts; std::cin >> num_parts;
-
 	switch (halfplane_constraint) {
 	case 0: {
 		// for each axis
@@ -202,8 +260,6 @@ int main() {
 		std::cout << std::endl;
 		vector<int> num_subspaces_over_axes;
 		for (int i = 0; i < d; i++) {
-			std::cout << "Number of subspaces along the " << i + 1 << "-th axis: ";
-			int num_subspace;  std::cin >> num_subspace;
 			num_subspaces_over_axes.push_back(num_subspace);
 		}
 		// generate grid (cells)
@@ -213,9 +269,6 @@ int main() {
 
 		// 각 hp에 흩뿌리고 나서
 		// 임의의 active한 pair 사이에서 발생하는 건가? 그럼 각 cell에 대해서 neighbor 다 뒤져서 restricted_halfplane을 가져와야 하나?
-
-		std::cout << "Number of points to disperse on each halfplane: ";
-		int dis_pts; std::cin >> dis_pts;
 		disperse_pts_between_active_cells(bbx, num_subspaces_over_axes, cells, dis_pts);
 
 		for (int i = 0; i + 1 < cells.size(); i++) {
@@ -224,21 +277,21 @@ int main() {
 					if (nb.first->active &&
 						cells[i]->total_index < nb.first->total_index) {
 						for (int j = 0; j < nb.second->on_points.size(); j++) {
-							print_pt(nb.second->on_points[j], j);
+							if (PRINT_POINT_FLAG) print_pt(nb.second->on_points[j], j);
 						}
 					}
 				}
 			}
 		}
 
-		std::cout << "Number of points to locate inside each cell: ";
-		std::cin >> dis_pts;
 		for (int i = 0; i < cells.size(); i++) {
-			generate_points_on_bb(cells[i], dis_pts);
-			for (int j = 0; j < cells[i]->in_points.size(); j++) print_pt(cells[i]->in_points[j], j);
+			generate_points_on_bb(cells[i], dis_pts_cell);
+			for (int j = 0; j < cells[i]->in_points.size(); j++) {
+				if (PRINT_POINT_FLAG) print_pt(cells[i]->in_points[j], j);
+			}
 		}
 
-		std::string dir("C:\\qhull\\bin\\");
+		std::string dir("C:\\qhull\\bin\\A\\");
 		// user-defined directory end
 
 		int count = 0;
@@ -279,20 +332,23 @@ int main() {
 
 			fout.close();
 		}
-
-
+	}
 	}
 
+	/*
+	std::cout << "enter any word: ";
+	string strrr;
+	std::cin >> strrr;
+	*/
+	// vector<Polytope*> plts_p = dels2polytopes(num_parts);
 
-	}
-
-	vector<Polytope*> plts_p = dels2polytopes(num_parts);
+	/*
 	vector<Polytope> plts;
 
 	for (vector<Polytope*>::iterator it = plts_p.begin(); it != plts_p.end(); it++) {
 		plts.push_back(**it);
 	}
-	*/
+
 	vector<Polytope> plts;
 	Free_Point* p1 = new Free_Point({ 0., 20. });
 
@@ -312,6 +368,7 @@ int main() {
 	
 	grid.print_kNN(*q, 2);
 	grid.Dijkstra(*q);
+	*/
 
 	return 0;
 	
@@ -328,17 +385,37 @@ int main() {
 vector<Polytope*> dels2polytopes(int num_topes) {
 	vector<Polytope*> ret;
 
-	// std::cout << "Enter 'A': ";
-	// int dummy; std::cin >> dummy;
-
-	std::string dir("C:\\qhull\\bin\\");
+	// std::string dir("C:\\qhull\\bin\\AAA");
 
 	std::cout << "Enter 'A': ";
 	int dummy; std::cin >> dummy;
 
+	/*
+	// std::cout << "Enter 'A': ";
+	// int dummy; std::cin >> dummy;
+	string s = "새 폴더";
+
+	// 있으면 넘기기
+
+	while() {
+	}
+
+	std::string dir;
+	if (iter_num == 0) {
+		dir = "C:\\qhull\\bin\\AAA" + s;
+	}
+	else {
+		dir = "C:\\qhull\\bin\\AAA" + s +  " (" + iter_num + ")";
+	}
+
+	std::cout << "Enter 'A': ";
+	int dummy; std::cin >> dummy;
+	*/
+
 	std::string index;
 	std::vector<string> filenames;
-	for (int count = 0; count < num_topes; count++) {
+	 for (int count = 0; count < num_topes; count++) {
+	 
 		/*
 		std::cout << "Enter the input file index: ";
 		std::cin >> index; filenames.push_back(index);
@@ -358,9 +435,9 @@ vector<Polytope*> dels2polytopes(int num_topes) {
 	for (auto index : filenames) {
 		std::ifstream fin;
 		
-		string str = "C:\\qhull\\bin\\result" + index + ".txt";
+		// AAA에서
+		string str = "C:\\qhull\\bin\\AAA" + index + ".txt";
 		fin.open(str);
-
 
 		string s;
 		getline(fin, s);
@@ -389,7 +466,7 @@ vector<Polytope*> dels2polytopes(int num_topes) {
 		std::vector<simplex> sims;
 
 		// std::ifstream fin2(dir + "CH" + to_string(index));
-		string str2 = "C:\\qhull\\bin\\DEL" + index + ".txt";
+		string str2 = "C:\\qhull\\bin\\AAAA" + index + ".txt";
 		std::ifstream fin2;
 		
 		fin.open(str2);
