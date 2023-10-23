@@ -162,15 +162,21 @@ int main() {
 }
 */
 int main() {
-	//int test_dim = 4;
-	//int num_points = 200000;
-	//double bbx_val = 10.0;
-	//std::vector<std::pair<double, double>> bbx0;
-	//for (int i = 0; i < test_dim; i++) {
-	//	bbx0.push_back(make_pair(-bbx_val, bbx_val));
-	//}
+	// vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, int dim, int num_points, int TYPE)
+	int test_dim = 4;
+	int num_points = 200000;
+	double bbx_val = 10.0;
+	std::vector<std::pair<double, double>> bbx0;
+	for (int i = 0; i < test_dim; i++) {
+		bbx0.push_back(make_pair(-bbx_val, bbx_val));
+	}
 
-	//vector<Point*> input_sites = generate_point_sites(bbx0, test_dim, num_points, 0);
+	vector<Point*> input_sites = generate_point_sites(bbx0, test_dim, num_points, 0);
+	//input_sites = 
+
+
+
+
 
 	std::cout.precision(3);
 	std::cout << std::fixed;
