@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\136297485147260925\include\dirent.h" />
     <ClInclude Include="..\data_generation\data_generation.h" />
     <ClInclude Include="alglibinternal.h" />
     <ClInclude Include="alglibmisc.h" />
