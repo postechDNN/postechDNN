@@ -58,7 +58,7 @@ bool simplex::intersect(simplex x) {
 	}
 
 	A.setcontent(Row, Col, p);
-	cout << A.tostring(5) << endl;
+	//cout << A.tostring(5) << endl;
 	double* low = new double[Row];
 	for (int i = 0; i < Row; i++) {
 		low[i] = ERR;
@@ -146,7 +146,7 @@ bool simplex::intersect(Point* p, Point* q) {
 	}
 
 	A.setcontent(Row, Col, a);
-	cout << A.tostring(5) << endl;
+	//cout << A.tostring(5) << endl;
 	double* low = new double[Row];
 	for (int i = 0; i < Row; i++) {
 		low[i] = ERR;
@@ -298,6 +298,10 @@ void Polytope::set_vertices(std::vector<Point*> _vertices) {
 	this->vertices = _vertices;
 }
 
+void Polytope::set_vertices_size() {
+	this->num_points = this->vertices.size();
+}
+
 void Polytope::set_simplices(std::vector<simplex>& _simplices) {
 	this->num_simplices = _simplices.size();
 	this->simplices = _simplices;
@@ -306,26 +310,26 @@ void Polytope::set_simplices(std::vector<simplex>& _simplices) {
 void Polytope::set_maxmin()
 {
 	this->d = this->vertices[0]->getsize();
-	cout << "d: " << this->d << endl;
+	//cout << "d: " << this->d << endl;
 	for (int i = 0; i < this->d; i++) {
 		this->xs_max.push_back(DBL_MIN);
 		this->xs_min.push_back(DBL_MAX);
 	}
 	for (int i = 0; i < this->d; i++) {
-		for(int j=0;j<this->d;j++){
+		for(int j=0;j<this->num_points;j++){
 			this->xs_max[i] = (this->xs_max[i] > this->vertices[j]->getx(i)) ? this->xs_max[i] : this->vertices[j]->getx(i);
 			this->xs_min[i] = (this->xs_min[i] < this->vertices[j]->getx(i)) ? this->xs_min[i] : this->vertices[j]->getx(i);
 		}
 	}
 	
-	cout << "xs_max: ";
-	for (int i = 0; i < this->d; i++) {
-		cout << this->xs_max[i] << " ";
-	}
+	//cout << "xs_max: ";
+	//for (int i = 0; i < this->d; i++) {
+	//	cout << this->xs_max[i] << " ";
+	//}
 
-	cout << endl << "xs_min: ";
-	for (int i = 0; i < this->d; i++) {
-		cout << this->xs_min[i] << " ";
-	}
+	//cout << endl << "xs_min: ";
+	//for (int i = 0; i < this->d; i++) {
+	//	cout << this->xs_min[i] << " ";
+	//}
 	
 }

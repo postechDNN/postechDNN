@@ -74,8 +74,22 @@ double Point::distance(Point _p) {
 	return sqrt(a);
 }
 
+Free_Point::Free_Point(Point* _p) :Point(xs) {
+	xs = _p->getxs();
+}
+
 Free_Point::Free_Point(std::vector<double> _xs) :Point(xs) {
 	xs = _xs;
+}
+void Free_Point::set_maxmin() {
+	for (int i = 0; i < this->n; i++) {
+		this->xs_max.push_back(DBL_MIN);
+		this->xs_min.push_back(DBL_MAX);
+	}
+	for (int i = 0; i < this->n; i++) {
+		this->xs_max[i] = (this->xs_max[i] > this->getx(i)) ? this->xs_max[i] : this->getx(i);
+		this->xs_min[i] = (this->xs_min[i] < this->getx(i)) ? this->xs_min[i] : this->getx(i);
+	}
 }
 
 Grid_Point::Grid_Point(int n) : Point(n) { ind = std::vector<long long int>(n,-1); num = -1; ip_u = std::vector<bool>(n,false); ip_d = std::vector<bool>(n, false); encl = -1; }

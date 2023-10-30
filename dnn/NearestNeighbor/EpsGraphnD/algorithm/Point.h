@@ -49,9 +49,11 @@ public:
 class Free_Point : public Point {
 public:
 	Free_Point(std::vector<double>);
+	Free_Point(Point*);
 	int host = -1;
 	std::vector<double> xs_min;
 	std::vector<double> xs_max;
+	void set_maxmin();
 };
 
 class Grid_Point : public Point {

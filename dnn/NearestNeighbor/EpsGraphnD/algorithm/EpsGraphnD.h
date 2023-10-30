@@ -82,7 +82,7 @@ public:	// functions
 	vector<Free_Point> kNN(Free_Point, int); // kNN point query
 	vector<edge> path_kNN(Free_Point, int); // kNN point query
 	//pair<vector<Point>, vector<double>> Dijkstra(int, vector<Point>, vector<vector<double>>);
-	vector<pair<Point, double>> Dijkstra(Free_Point);
+	vector<pair<Point, double>> Dijkstra(Free_Point, int);
 
 	void print_grid();
 	void print_encl();

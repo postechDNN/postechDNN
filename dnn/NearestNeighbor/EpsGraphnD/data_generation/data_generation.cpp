@@ -200,10 +200,17 @@ int main() {
 	}
 	else {
 
-		string my_dir = "C:\\Users\\HWI\\Desktop\\Github Desktop\\";
-		string dir = my_dir + "postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\polytopes\\B";
+		string my_dir = "C:\\Users\\Jagun\\source\\repos\\";
+		string dir = my_dir + "postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\polytopes\\D";
 		ifstream fin;
-		int num_polytopes = 50;
+		int d = 4;
+		int num_polytopes = 1;
+		std::vector<std::pair<double, double>> bbx;
+		int u_bound = 50;
+
+		for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
+		// double upper_bound = 10.0; // maximum value for each coordinate
+		// double lower_bound = -upper_bound; // minimum value for each coordinate
 
 		vector<vector<Polytope*>> topes;
 		for (int i = 1; i < num_polytopes+1; i++) {
@@ -218,30 +225,86 @@ int main() {
 
 			final_dir += "\\";
 
-			_finddata_t fd;
-			long handle;
-			int result = 1;
+			//_finddata_t fd;
+			//long handle;
+			//int result = 1;
 
-			final_dir += "*.*";
-			const char* c = final_dir.c_str();
+			//final_dir += "*.*";
+			//const char* c = final_dir.c_str();
 
-			handle = _findfirst(c, &fd);  //현재 폴더 내 모든 파일을 찾는다.
+			//handle = _findfirst(c, &fd);  //현재 폴더 내 모든 파일을 찾는다.
 
-			int num_files = 0;
+			//int num_files = 0;
 
-			while (result != -1)
-			{
-				// printf("File: %s\n", fd.name);
-				result = _findnext(handle, &fd);
-				num_files++;
-			}
+			//while (result != -1)
+			//{
+			//	// printf("File: %s\n", fd.name);
+			//	result = _findnext(handle, &fd);
+			//	num_files++;
+			//}
 
-			_findclose(handle);
+			//_findclose(handle);
 
 			// topes.push_back(dels2polytopes(dir, num_polytopes));
-			topes.push_back(dels2polytopes(final_dir.substr(0, final_dir.size()-3), (num_files - 2) / 2));
+			// topes.push_back(dels2polytopes(final_dir.substr(0, final_dir.size()-3), (num_files - 2) / 2));
+			topes.push_back(dels2polytopes(final_dir, 1));
+			//vector<Polytope*> _rst = dels2polytopes(final_dir, 13);
+			//vector<Polytope*>::iterator it = topes.insert(topes.end(), _rst.begin(), _rst.end());
 
 		}
+		vector<Polytope> plts;
+		for (auto tps : topes) {
+			for (auto ts : tps) {
+				plts.push_back(*ts);
+			}
+		}
+		//vector<Polytope> _plts;
+		/*
+		Free_Point* q1 = new Free_Point({ 0., -10. ,0.,0. });
+		Free_Point* q2 = new Free_Point({ 0., 0. ,0.,0. });
+		Free_Point* q3 = new Free_Point({ 0., 10. ,0.,0. });
+		Free_Point* q4 = new Free_Point({ 0., 20. ,0.,0. });
+		Free_Point* q5 = new Free_Point({ 0., 30. ,0.,0. });
+		list<Free_Point> _frpts = {*q1,*q2 ,*q3 ,*q4 ,*q5 };
+		
+		vector<Point*> pts = generate_point_sites(bbx, d, 10, 0);
+		list<Free_Point> frpts(pts.begin(), pts.end());
+		cout << "Number of Polytopes: " << plts.size() << endl;
+		Eps_Graph_nD grid(4, _frpts, plts, 20.0);
+		*/
+		d = 2;
+		Free_Point* q1 = new Free_Point({ 0., -10. });
+		Free_Point* q2 = new Free_Point({ 0., 40.});
+		Free_Point* q3 = new Free_Point({ 0., 10.});
+		Free_Point* q4 = new Free_Point({ 0., 20. });
+		Free_Point* q5 = new Free_Point({ 0., 30.});
+		list<Free_Point> _frpts = { *q1,*q2 ,*q3 ,*q4 ,*q5 };
+
+		int num_pt = 0;
+		vector<Point*> pts;
+		while (num_pt < 50) {
+			vector<Point*> ps = generate_point_sites(bbx, 2, 1, 0);
+			for (auto tp : plts) {
+				if (tp.isIn(ps[0])) continue;
+			}
+			pts.push_back(ps[0]);
+			num_pt++;
+		}
+		//vector<Point*> pts = generate_point_sites(bbx, 2, 10, 0);
+		list<Free_Point> frpts(pts.begin(), pts.end());
+		cout << "Number of Polytopes: " << plts.size() << endl;
+		cout << "Number of Points: " << _frpts.size() << endl;
+		Eps_Graph_nD grid(2, _frpts, plts, 5);
+		Free_Point* q = new Free_Point({ 0., -5.});
+		grid.add_freepts(q);
+		for (int j = 0; j < d; j++) {
+			cout << q->getx(j) << ' ';
+		}
+		cout << endl;
+		//grid.print_free_point();
+		grid.print_kNN(*q, 3);
+		grid.Dijkstra(*q,3);
+
 	}
 
 	/*

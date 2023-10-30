@@ -14,10 +14,25 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	xs_max = std::vector<double>(n, DBL_MIN);
 	xs_num = std::vector<long long int>(n, 0);
 	for (auto pol : pols) {
+		//pol.set_vertices_size();
 		pol.set_maxmin();
 		pol.ord = ord_pol;
 		ord_pol++;
-		cout << "dimension of polytope: " << pol.xs_max.size() << endl;
+		cout << "---------------------" << endl;
+		cout << "Polytope " << ord_pol << endl;
+		cout << "Number of vertices: " << pol.get_num_point() << endl;
+		cout << "Max value: ";
+		for (int j = 0; j < n; j++) {
+			cout << pol.xs_max[j] << ' ';
+		}
+		cout << endl;
+		cout << "Min value: ";
+		for (int j = 0; j < n; j++) {
+			cout << pol.xs_min[j] << ' ';
+		}
+		cout << endl;
+		cout << "---------------------" << endl;
+		//cout << "dimension of polytope: " << pol.xs_max.size() << endl;
 		for (int i = 0;i < n;i++) {
 			
 			if (pol.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = pol.xs_max[i]; }
@@ -776,8 +791,10 @@ vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 	return nb_list;
 }
 
-vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry) {
+vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
+	cout << "-------------------Print Dijkstra-------------------" << endl;
 	vector<Point> vp_vertex;
+	int check_num = 0;
 	//vector<pair<Point, double>>* nb_list;
 	Point temp_qry(qry.getxs());
 	temp_qry.is_Free_Point = true;
@@ -799,7 +816,7 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry) {
 	vector<pair<Point, double>>* nb_list2 = Visibility_polygon(qry);
 	vector<double> dist(vp_vertex.size(), 0);
 	vector<bool> visited(vp_vertex.size(), false);
-	priority_queue<pair<double, int>> pq;
+	priority_queue<pair<double, int>,vector<pair<double, int>>,greater<pair<double, int>>> pq;
 	pq.push({ 0,0 });
 	while (!pq.empty()) {
 		pair<double, int> q1 = pq.top();pq.pop();
@@ -814,6 +831,8 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry) {
 					cout << vp_vertex[q1.second].getx(j) << ' ';
 				}
 				cout << endl;
+				check_num++;
+				if (check_num >= _num) break;
 			}
 		}
 		for (int j=0;j < nb_list2->size();j++) {
