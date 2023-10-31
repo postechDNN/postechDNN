@@ -823,7 +823,8 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
 		if (visited[q1.second]) continue;
 		visited[q1.second] = true;
 		dist[q1.second] = q1.first;
-		vector<pair<Point, double>>* nb_list2 = Visibility_polygon(qry);
+		//vector<pair<Point, double>>* nb_list2 = Visibility_polygon(qry);
+		vector<pair<Point, double>> nb = nb_list2[q1.second];
 		if (vp_vertex[q1.second].is_Free_Point) {
 			bool cond = (qry.getxs() == vp_vertex[q1.second].getxs());
 			if (!cond) {
@@ -835,8 +836,8 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
 				if (check_num >= _num) break;
 			}
 		}
-		for (int j=0;j < nb_list2->size();j++) {
-			pair<Point, double> q = nb_list2->at(j);
+		for (int j=0;j < nb.size();j++) {
+			pair<Point, double> q = nb[j];
 			for (int i=0;i < vp_vertex.size();i++) {
 				if (q.first.getxs() == vp_vertex[i].getxs()) {
 					if (visited[i] == false) {
