@@ -48,9 +48,9 @@ std::vector<Point> Gen_geom_data::gen_points_gaussian(int n, Point mean, double 
 
 // Function to generate random angle steps
 std::vector<double> Gen_geom_data::randomAngleSteps(int n) {
-    std::vector<double> angles; //angles�� ������ ���� ����
-    std::default_random_engine generator; //default_random_engine ���̺귯���� �̿��ؼ� generator�� random�� pt�� ����
-    std::uniform_real_distribution<double> distribution(-1, 1);//ǥ�� ���̺귯�� ���
+    std::vector<double> angles; //
+    std::default_random_engine generator; //default_random_engine
+    std::uniform_real_distribution<double> distribution(-1, 1);//
 
     double lower = (2.0 * this->const_pi() / n) - 1;
     double upper = (2.0 * this->const_pi() / n) + 1;
@@ -72,87 +72,95 @@ std::vector<double> Gen_geom_data::randomAngleSteps(int n) {
 }
 
 // Function to clip a value within a specified range
-double Gen_geom_data::clip(double value, double lower, double upper) {
-    return std::min(upper, std::max(value, lower));
+double Gen_geom_data::clip(double value, double lower_1, double upper_1) {
+    //double lower_1 = 0;
+    //double upper_1 = std::max((this->max_x - this->min_x) / 2, (this->max_y - this->min_y) / 2);
+    return std::min(upper_1, std::max(value, lower_1));
 }
 
-// Function to generate a polygon, center�� (0,0)���� ����, avgRadius�� 10���� ����
+// Function to generate a polygon
 SimplePolygon Gen_geom_data::gen_simple_polygon(int n) {
 
     std::vector<double> angleSteps = this->randomAngleSteps(n);
 
     // Generate the points
     std::vector<Point> pts;
-    std::vector<std::pair<double, double>> points;//points�� ������ ���� ����
+    std::vector<std::pair<double, double>> points;
     std::default_random_engine generator;
     std::normal_distribution<double> normalDistribution(30);
     std::uniform_real_distribution<double> uniformDistribution(0.0, 2 * this->const_pi());
 
+    double center_x = (this->max_x - this->min_x) / 2;
+    double center_y = (this->max_y - this->min_y) / 2;
+
+
+
     double angle = uniformDistribution(generator);
 
     for (int i = 0; i < n; ++i) {
-        double radius = this->clip(uniformDistribution(generator), 0, 2 * 30);
-        double x = radius * std::cos(angle);
-        double y = radius * std::sin(angle);
-        pts.push_back(Point(x,y));
+        double radius = clip(uniformDistribution(generator), 0, std::max((this->max_x - this->min_x) / 2, (this->max_y - this->min_y) / 2));
+        double x = center_x + radius * std::cos(angle);
+        double y = center_y + radius * std::sin(angle);
+        pts.push_back(Point(x, y));
         //points.push_back(std::make_pair(x, y));
         angle += angleSteps[i];
     }
 
     //return points;
-    std::reverse(pts.begin(),pts.end());
+    std::reverse(pts.begin(), pts.end());
     return SimplePolygon(pts);
 }
 
-Graph<Point> Gen_geom_data::gen_planar_graph(int n){
+Graph<Point> Gen_geom_data::gen_planar_graph(int n) {
     std::vector<Point> vertices = this->gen_points_uniform(n);
     Graph<Point> graph;
     //std::vector<std::vector<int>> matrix;
     //matrix.resize(n,std::vector<int>(n,0));
 
-    std::priority_queue<std::pair<int,int>> node_degrees;
-    for(int i = 0;i<n;i++){
-        node_degrees.push(std::pair<int,int>(0,i));
+    std::priority_queue<std::pair<int, int>> node_degrees;
+    for (int i = 0;i < n;i++) {
+        node_degrees.push(std::pair<int, int>(0, i));
         graph.insert_vertex(vertices[i]);
     }
 
-    std::vector<std::pair<int,int>> edges;
-    std::uniform_int_distribution<int> dis(0,n-1);
-    std::uniform_int_distribution<int> dis2(1,3*n-6);
+    std::vector<std::pair<int, int>> edges;
+    std::uniform_int_distribution<int> dis(0, n - 1);
+    std::uniform_int_distribution<int> dis2(1, 3 * n - 6);
     int m = dis2(this->gen);
 
-    while (m>0){
-        int deg,u;
+    while (m > 0) {
+        int deg, u;
         std::tie(deg, u) = node_degrees.top();
-        int v= u; 
-        while(u == v)
-            v= dis(this->gen);
-        Edge e(vertices[u],vertices[v]);
+        int v = u;
+        while (u == v)
+            v = dis(this->gen);
+        Edge e(vertices[u], vertices[v]);
 
         bool intersect = false;
-        for(int i = 0; i< edges.size();i++){
-            int u_t,v_t;
-            std::tie(u_t,v_t) = edges[i];
-            Edge e_t(vertices[u_t],vertices[v_t]);
-            if(e.crossing(e_t,false)){
+        for (int i = 0; i < edges.size();i++) {
+            int u_t, v_t;
+            std::tie(u_t, v_t) = edges[i];
+            Edge e_t(vertices[u_t], vertices[v_t]);
+            if (e.crossing(e_t, false)) {
                 intersect = true;
                 break;
             }
         }
-        if(!intersect){
+        if (!intersect) {
             //matrix[u][v] = matrix[v][u] = 1;
-            edges.push_back(std::pair<int,int>(u,v)); 
-            graph.insert_edge(u,v);
+            edges.push_back(std::pair<int, int>(u, v));
+            graph.insert_edge(u, v);
         }
         m--;
         node_degrees.pop();
-        node_degrees.push(std::pair<int,int>(deg-1,u));
+        node_degrees.push(std::pair<int, int>(deg - 1, u));
     }
 
     return graph;
-} 
+}
 
- std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int num_polys){
-    ;
- }
-Gen_geom_data::~Gen_geom_data(){}
+std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int num_polys) {
+    return std::vector<SimplePolygon>();
+}
+Gen_geom_data::~Gen_geom_data() {}
+

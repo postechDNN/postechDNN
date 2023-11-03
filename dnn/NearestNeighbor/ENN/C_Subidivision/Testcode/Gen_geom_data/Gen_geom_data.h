@@ -24,6 +24,8 @@ public:
     std::vector<Point> gen_points_gaussian(int n, Point mean, double dev_x, double dev_y);
 
     //Generate a random simple polygon in a bounding box, where total number of vertices is n
+    std::vector<double> randomAngleSteps(int n); //generate random angle
+    double clip(double value, double lower, double upper);//bounding box안에넣게 해주는 함수
     SimplePolygon gen_simple_polygon(int n);
     //Generate m random disjoint simple polygons in a bounding box, where total number of vertices is n.
     std::vector<SimplePolygon> gen_polygonal_domain(int n, int num_polys);
