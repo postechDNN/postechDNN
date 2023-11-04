@@ -1,4 +1,5 @@
 #include "CS_Free.h"
+#include "PointLocation/Location.h"
 
 struct PLQ {
     HEdge* top;
@@ -37,8 +38,19 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
     if (nlogn) {
         // 4. Make S'(S_overay) using point location
         std::vector<Vertex*> s_vertices = S.getVertex();
-        std::vector<PLQ> point_location_query(s_vertices, PLQ);
-        void point_location_queries(&s_vertices, &D_obs, point_location_query);
+        std::vector<PLQ> plq;
+        // std::vector<PLQ> point_location_query(s_vertices, PLQ);
+        // void point_location_queries(&s_vertices, &D_obs, point_location_query);
+        Location loc(&D_obs);
+
+        for (auto v : s_vertices) {
+            PLQ tmp;
+            tmp.top = loc.ortho_ray(&(v->getPoint()), Location::N);
+            tmp.bottom = loc.ortho_ray(&(v->getPoint()), Location::S);
+            tmp.left = loc.ortho_ray(&(v->getPoint()), Location::W);
+            tmp.right = loc.ortho_ray(&(v->getPoint()), Location::E);
+            plq.push_back(tmp);
+        }
 
         // 5. Store vertices type and half edge types by using labels of S_overlay.
 
