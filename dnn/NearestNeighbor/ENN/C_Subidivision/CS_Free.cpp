@@ -1,11 +1,19 @@
 #include "CS_Free.h"
 #include "PointLocation/Location.h"
 
+#include <algorithm>
+
+#define 
+
 struct PLQ {
-    HEdge* top;
-    HEdge* bottom;
-    HEdge* right;
-    HEdge* left;
+    HEdge* answer[4] = { NULL, NULL, NULL, NULL }; // top, bottom, right, left
+};
+
+struct Neighbor {
+    bool isNull[4] = { true, true, true, true };
+    bool isChanged[4] = { false, false, false, false };
+    Point neighbor[4];
+    int v_idx[4] = { -1, -1, -1, -1 };
 };
 
 DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key = "__default__");
@@ -19,6 +27,11 @@ Point verticalRayIntersection(Point origin, Edge edge);
 Point horizontalRayIntersection(Point origin, Edge edge);
 bool isEdgeVertical(const HEdge* const edge);
 bool isEdgeHorizontal(const HEdge* const edge);
+
+bool comparePoint1(std::pair<Point, int> a, std::pair<Point, int> b);
+bool comparePoint2(std::pair<Point, int> a, std::pair<Point, int> b);
+bool comparePoint3(std::pair<Point, int> a, std::pair<Point, int> b);
+bool comparePoint4(std::pair<Point, int> a, std::pair<Point, int> b);
 
 CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
     //1. Collect all points of obstacles and source.
@@ -40,25 +53,278 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
     if (nlogn) {
         // 4. Make S'(S_overay) using point location
         std::vector<Vertex*> s_vertices = S.getVertex();
-        std::vector<PLQ> plq;
-        // std::vector<PLQ> point_location_query(s_vertices, PLQ);
-        // void point_location_queries(&s_vertices, &D_obs, point_location_query);
-        Location loc(&D_obs);
-
-        for (auto v : s_vertices) {
-            PLQ tmp;
-            tmp.top = loc.ortho_ray(&(v->getPoint()), Location::N);
-            tmp.bottom = loc.ortho_ray(&(v->getPoint()), Location::S);
-            tmp.left = loc.ortho_ray(&(v->getPoint()), Location::W);
-            tmp.right = loc.ortho_ray(&(v->getPoint()), Location::E);
-            plq.push_back(tmp);
+        std::vector<PLQ> point_location_query(s_vertices.size(), PLQ);
+        point_location_queries(&s_vertices, &D_obs, point_location_query);
+        
+        // Construct graph for result DCEL
+        std::vector<Point> G_V;
+        std::unordered_map<std::string, int> G_V_map; // vertex key, index of G_V
+        int obs_vertex_index = 0; // O_idx
+        int new_TRP_vertex_index = 0; // A_idx
+        for (size_t i = 0; i < s_vertices.size(); i++) {
+            G_V.push_back(s_vertices[i]->getPoint());
+            G_V_map[s_vertices[i]->getKey()] = i;
         }
 
-        // 5. Store vertices type and half edge types by using labels of S_overlay.
+        // 5. Keep intact the cells in S_overaly which is incident to an obstacle vertex or S,
+        std::vector<Neighbor> V_S_Data(s_vertices.size(), Neighbor);
+        std::vector<HEdge*> s_edges = S.getHedges();
+        for (auto hedge : s_edges) {
+            Vertex u = hedge->getOrigin();
+            Vertex v = hedge->getNext()->getOrigin();
+            int u_idx = G_V_map[u.getKey()];
+            int v_idx = G_V_map[v.getKey()];
+            if (std::abs(u.getx() - v.getx()) < TOLERANCE_CS_FREE) {
+                if (u.gety() < v.gety()) { // top
+                    V_S_Data[u_idx].neighbor[0] = v.getPoint();
+                    V_S_Data[u_idx].isNull[0] = false;
+                    V_S_Data[u_idx].v_idx[0] = v_idx;
+                    V_S_Data[v_idx].neighbor[1] = u.getPoint();
+                    V_S_Data[v_idx].isNull[1] = false;
+                    V_S_Data[v_idx].v_idx[1] = u_idx;
+                }
+                else { // bottom
+                    V_S_Data[u_idx].neighbor[1] = v.getPoint();
+                    V_S_Data[u_idx].isNull[1] = false;
+                    V_S_Data[u_idx].v_idx[1] = v_idx;
+                    V_S_Data[v_idx].neighbor[0] = u.getPoint();
+                    V_S_Data[v_idx].isNull[0] = false;
+                    V_S_Data[v_idx].v_idx[0] = u_idx;
+                }
+            }                       
+            else {
+                if (u.getx() < v.getx()) { // right
+                    V_S_Data[u_idx].neighbor[2] = v.getPoint();
+                    V_S_Data[u_idx].isNull[2] = false;
+                    V_S_Data[u_idx].v_idx[2] = v_idx;
+                    V_S_Data[v_idx].neighbor[3] = u.getPoint();
+                    V_S_Data[v_idx].isNull[3] = false;
+                    V_S_Data[v_idx].v_idx[3] = u_idx;
+                }
+                else { // left
+                    V_S_Data[u_idx].neighbor[3] = v.getPoint();
+                    V_S_Data[u_idx].isNull[3] = false;
+                    V_S_Data[u_idx].v_idx[3] = v_idx;
+                    V_S_Data[v_idx].neighbor[2] = u.getPoint();
+                    V_S_Data[v_idx].isNull[2] = false;
+                    V_S_Data[v_idx].v_idx[2] = u_idx;
+                }
+            }
+        }
 
-        //6. Keep intact the cells in S_overaly which is incident to an obstacle vertex or S, 
-        //  and delete every edge fragment of S not on the boundary of one of these interesting cells.
-        // HOW: Uninteresting cell 구하고, interesting cell의 half edge만 key를 모아두고
+        std::unordered_map<std::string, int> O_hedge_map; // obstacle dcel hedges key, index
+        std::vector<HEdge*> O_hedge_vec;
+        int O_hedge_idx = 0;    
+        for (size_t i = 0; i < point_location_query.size(); i++) {
+            for (int j = 0; j < 4; j++) {
+                if (point_location_query[i].answer[j] != NULL) {
+                    if (O_hedge_map.find(point_location_query[i].answer[j]->getKey()) == O_hedge_map.end()) {
+                        O_hedge_map[point_location_query[i].answer[j]->getKey()] = O_hedge_idx++;
+                        O_hedge_vec.push_back(point_location_query[i].answer[j]);
+                    }
+                };
+            }
+        }
+        std::vector<std::vector<std::pair<Point, int>>> new_obs_point_list(O_hedge_map.size(),std::vector<std::pair<Point, int>>());
+
+        std::unordered_map<int, int> new_TRP_vertices_map;
+        std::vector<Vertex*> new_TRP_vertices;
+        for (size_t i = 0; i < point_location_query.size(); i++) {
+            for (int j = 0; j < 2; j++) {
+                if (V_S_Data[i].isNull[j]) continue;
+                if (point_location_query[i].answer[j] == NULL) continue;
+                Point intersection = verticalRayIntersection(s_vertices[i]->getPoint(), point_location_query[i].answer[j]->getEdge());
+                if (j == 0) {
+                    if (intersection.gety() < V_S_Data[i].neighbor[j]->gety()) {
+                        V_S_Data[i].neighbor[j] = intersection;
+                        V_S_Data[i].isChanged[j] = true;
+                        Vertex* new_v = new Vertex(intersection);
+                        new_v->setKey("A_"+std::to_string(new_TRP_vertex_index));
+                        new_TRP_vertices.push_back(new_v);
+                        new_TRP_vertices_map[new_TRP_vertex_index] = new_TRP_vertex_index;
+                        V_S_Data[i].v_idx[j] = new_TRP_vertex_index;
+                        new_obs_point_list[O_hedge_map[point_location_query[i].answer[j]->getKey()]].push_back(std::make_pair(intersection, new_TRP_vertex_index));
+                        new_TRP_vertex_index++;
+                    }
+                }
+                else {
+                    if (intersection.gety() > V_S_Data[i].neighbor[j]->gety()) {
+                        V_S_Data[i].neighbor[j] = intersection;
+                        V_S_Data[i].isChanged[j] = true;
+                        Vertex* new_v = new Vertex(intersection);
+                        new_v->setKey("A_" + std::to_string(new_TRP_vertex_index));
+                        new_TRP_vertices.push_back(new_v);
+                        new_TRP_vertices_map[new_TRP_vertex_index] = new_TRP_vertex_index;
+                        V_S_Data[i].v_idx[j] = new_TRP_vertex_index;
+                        new_obs_point_list[O_hedge_map[point_location_query[i].answer[j]->getKey()]].push_back(std::make_pair(intersection, new_TRP_vertex_index));
+                        new_TRP_vertex_index++;
+                    }
+                }
+            }
+            for (int j = 2; j < 4; j++) {
+                if (V_S_Data[i].isNull[j]) continue;
+                if (point_location_query[i].answer[j] == NULL) continue;
+                Point intersection = horizontalRayIntersection(s_vertices[i]->getPoint(), point_location_query[i].answer[j]->getEdge());
+                if (j == 2) {
+                    if (intersection.getx() < V_S_Data[i].neighbor[j]->getx()) {
+                        V_S_Data[i].neighbor[j] = intersection;
+                        V_S_Data[i].isChanged[j] = true;
+                        Vertex* new_v = new Vertex(intersection);
+                        new_v->setKey("A_" + std::to_string(new_TRP_vertex_index));
+                        new_TRP_vertices.push_back(new_v);
+                        new_TRP_vertices_map[new_TRP_vertex_index] = new_TRP_vertex_index;
+                        V_S_Data[i].v_idx[j] = new_TRP_vertex_index;
+                        new_obs_point_list[O_hedge_map[point_location_query[i].answer[j]->getKey()]].push_back(std::make_pair(intersection, new_TRP_vertex_index));
+                        new_TRP_vertex_index++;
+                    }
+                }
+                else {
+                    if (intersection.getx() > V_S_Data[i].neighbor[j]->getx()) {
+                        V_S_Data[i].neighbor[j] = intersection;
+                        V_S_Data[i].isChanged[j] = true;
+                        Vertex* new_v = new Vertex(intersection);
+                        new_v->setKey("A_" + std::to_string(new_TRP_vertex_index));
+                        new_TRP_vertices.push_back(new_v);
+                        new_TRP_vertices_map[new_TRP_vertex_index] = new_TRP_vertex_index;
+                        V_S_Data[i].v_idx[j] = new_TRP_vertex_index;
+                        new_obs_point_list[O_hedge_map[point_location_query[i].answer[j]->getKey()]].push_back(std::make_pair(intersection, new_TRP_vertex_index));
+                        new_TRP_vertex_index++;
+                    }
+                }
+            }
+        }
+      
+        for (size_t i = 0; i < O_hedge_vec.size(); i++) {
+            Point origin = O_hedge_vec[i]->getOrigin()->getPoint();
+
+            if (!new_obs_point_list[i].empty()) {
+                if (std::abs(origin.getx() - new_obs_point_list[i].front().first.getx()) < TOLERANCE_CS_FREE) {
+                    if (origin.gety() < new_obs_point_list[i].front().first.gety()) {
+                        std::sort(new_obs_point_list[i].begin(), new_obs_point_list[i].end(), comparePoint1);
+                    }
+                    else {
+                        std::sort(new_obs_point_list[i].begin(), new_obs_point_list[i].end(), comparePoint2);
+                    }
+                    // 중복 삭제
+                    for (size_t j = 0; j < new_obs_point_list[i].size() - 1; j++) {
+                        if (std::abs(new_obs_point_list[i][j].first.gety() - new_obs_point_list[i][j + 1].first.gety()) < TOLERANCE_CS_FREE) {
+                            new_TRP_vertices_map[new_obs_point_list[i][j + 1].second] = new_TRP_vertices_map[new_obs_point_list[i][j].second];
+                        }
+                    }
+                }
+                else {
+                    if (origin.getx() < new_obs_point_list[i].front().first.getx()) {
+                        std::sort(new_obs_point_list[i].begin(), new_obs_point_list[i].end(), comparePoint3);
+                    }
+                    else {
+                        std::sort(new_obs_point_list[i].begin(), new_obs_point_list[i].end(), comparePoint4);
+                    }
+                    // 중복 삭제
+                    if (std::abs(new_obs_point_list[i][j].first.gety() - new_obs_point_list[i][j + 1].first.gety()) < TOLERANCE_CS_FREE) {
+                        new_TRP_vertices_map[new_obs_point_list[i][j + 1].second] = new_TRP_vertices_map[new_obs_point_list[i][j].second];
+                    }
+                }
+            }
+        }
+        
+        int G_V_idx = G_V.size();
+        std::unordered_map<std::string, int> O_V_map;
+        // Point(Vertex) List update 1
+        for (size_t i = 0; i < O_hedge_vec.size(); i++) {
+            Point origin = O_hedge_vec[i]->getOrigin()->getPoint();
+            G_V.push_back(origin);
+            Vertex* v = new Vertex(origin);
+            std::string v_key = "O_" + std::to_string(G_V_idx);
+            this->vertices_types[v_key] = OBS;
+            G_V_map[v_key] = G_V_idx;
+            O_V_map[O_hedge_vec[i]->getOrigin()->getKey()] = G_V_idx;
+            G_V_idx++;
+        }
+
+        // Point(Vertex) List update 2
+        for (auto it = new_TRP_vertices_map.begin(); it != new_TRP_vertices_map.end(); it++) {
+            if (it->first == it->second) {
+                G_V.push_back(new_TRP_vertices[it->second]->getPoint());
+                this->vertices_types[v_key] = TRP;
+                G_V_map[new_TRP_vertices[it->second]->getKey()] = G_V_idx;
+                G_V_idx++;
+            }
+        }
+
+        // Edge List update 1
+        std::vector<std::vector<int>> G_E(G_V.size(), std::vector<int>);
+        for (size_t i = 0; i < V_S_Data.size(); i++) {
+            for (int j = 0; j < 4; j++) {
+                if (V_S_Data[i].isNull[j]) continue;
+                if (V_S_Data[i].isChanged[j]) {
+                    G_E[i].push_back(new_TRP_vertices_map[V_S_Data[i].v_idx[j]]);
+                }
+                else {
+                    G_E[i].push_back(V_S_Data[i].v_idx[j]);
+                }
+            }
+        }
+
+        // Edge List update 2
+        for (size_t i = 0; i < O_hedge_vec.size(); i++) {
+            // First
+            int prevIdx = O_V_map[O_hedge_vec[i]->getOrigin()->getKey()];
+            int nowIdx;
+            if (!new_obs_point_list[i].empty()) {
+                nowIdx = new_obs_point_list[i].front().second;
+                G_E[prevIdx].push_back(nowIdx);
+                prevIdx = nowIdx;
+                for (size_t j = 1; j < new_obs_point_list[i].size(); j++) {
+                    if (new_TRP_vertices_map[new_obs_point_list[i][j - 1].second] != new_TRP_vertices_map[new_obs_point_list[i][j].second]) {
+                        nowIdx = new_obs_point_list[i][j].second;
+                        G_E[prevIdx].push_back(nowIdx);
+                        prevIdx = nowIdx;
+                    }
+                }
+            }
+
+            // Last
+            nowIdx = O_V_map[O_hedge_vec[i]->getNext()->getOrigin()->getKey()];
+            G_E[prevIdx].push_back(nowIdx);
+        }
+
+        // Construct graph for result DCEL
+        std::vector<std::pair<std::string, Point>> G_V_key;
+        for (auto it = G_V_map.begin(); it != G_V_map.end(); it++) {
+            G_V_key.push_back(std::make_pair(it->first,G_V[it->second]));
+        }
+        S_overlay = DCEL(G_V_key,G_E);
+
+        // 6. Store vertices type and half edge types by using labels of S_overlay.
+        {
+            std::vector<HEdge*> edges = S_overlay.getHedges();
+            std::vector<Vertex*> vertices = S_overlay.getVertices();
+            for (auto e : edges) {
+                //std::string key = e->getKey();
+                std::string u = e->getOrigin()->getKey();
+                std::string v = e->getNext()->getOrigin()->getKey();
+                if (v.front() == "v" || u.front() == "v") {
+                    this->edge_types[key] = TRP;
+                }
+                else {
+                    this->edge_types[key] = OPQ;
+                }
+            }
+            for (auto v : vertices) {
+                std::string key = v->getKey();
+                Point pos = v->getPoint();
+                //src
+                if (std::abs(src.getx() - pos.getx()) < TOLERANCE_CS_FREE && std::abs(src.gety() - pos.gety()) < TOLERANCE_CS_FREE) {
+                    this->vertices_types[key] = SRC;
+                }
+                else if (key.front() != "O") {
+                    this->vertices_types[key] = OBS;
+                }
+                else {
+                    this->vertices_types[key] = TRP;
+                }
+            }
+        }
     }
 
     else {
@@ -82,7 +348,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                 std::string key = v->getKey();
                 Point pos = v->getPoint();
                 //src
-                if (std::abs(src.getx() - pos.getx()) < 1e-6 && std::abs(src.gety() - pos.gety()) < 1e-6) {
+                if (std::abs(src.getx() - pos.getx()) < TOLERANCE_CS_FREE && std::abs(src.gety() - pos.gety()) < TOLERANCE_CS_FREE) {
                     this->vertices_types[key] = SRC;
                 }
                 else if (key.front() == "_") {
@@ -158,7 +424,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             std::vector<HEdge*> edges = f->getInnerHEdges();
             double delta = DBL_MAX;
             for (auto he : edges) {
-                if (this->vertices_types[he->getOrigin()->getKey()] == TRP&&
+                if (this->vertices_types[he->getOrigin()->getKey()] == TRP &&
                     this->vertices_types[he->getNext()->getOrigin()->getKey()] == TRP) {
                     double temp = he->getOrigin()->getPoint().distance(he->getNext()->getOrigin()->getPoint());
                     if (delta > temp) delta = temp;
@@ -167,6 +433,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             deltas.push_back(delta);
         }
         
+        int new_vertex_idx = 0; // V_
         for (size_t i = 0; i < faces.size(); i++) {
             auto f = faces[i];
             std::vector<Vertex*> vertices = f->getInnerVertices();
@@ -241,6 +508,8 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     // Make upper hedges and Set Twin
                     for (int i = 0; i < upperEdgeNumber; i++) {
                         Vertex* newV = new Vertex(v->getx(), v->gety() + upperEdgeLength);
+                        newV->setKey("V_" + std::to_string(new_vertex_idx++));
+                        this->vertices_types[newV->getKey()] = TRP;
                         upperVertices.push_back(newV);
                         HEdge* leftHE = new HEdge();
                         HEdge* rightHE = new HEdge();
@@ -263,6 +532,8 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     // Make lower hedges and Set twin
                     for (int i = 0; i < lowerEdgeNumber; i++) {
                         Vertex* newV = new Vertex(v->getx(), v->gety() - lowerEdgeLength);
+                        newV->setKey("V_" + std::to_string(new_vertex_idx++));
+                        this->vertices_types[newV->getKey()] = TRP;
                         lowerVertices.push_back(newV);
                         HEdge* leftHE = new HEdge();
                         HEdge* rightHE = new HEdge();
@@ -461,11 +732,13 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
         std::unordered_map<std::string, int> G_V_map; // vertex key, index of G_V
         std::vector<std::vector<int>> G_E;
         std::vector<int> temp_list;
+        // Check time complexity of unordered map find
         for (auto f : faces) {
             std::vector<HEdge*> hedges = f->getInnerHEdges();
             for (auto he : hedges) {
                 Vertex u = he->getOrigin();
                 Vertex v = he->getNext()->getOrigin();
+                // 
                 if (G_V_map.find(u.getKey()) == m.end()) {
                     G_V_map[u.getKey()] = G_V.size();
                     G_V.push_back(u.getPoint());
@@ -480,8 +753,27 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             }
         }
 
-        this->subdiv = DCEL(G_V,G_E);
-        // Update edge and vertical map
+        std::vector<std::pair<std::string, Point>> G_V_key;
+        for (auto it = G_V_map.begin(); it != G_V_map.end(); it++) {
+            G_V_key.push_back(std::make_pair(it->first, G_V[it->second]));
+        }
+        this->subdiv = DCEL(G_V_key,G_E);
+        
+        // Update edges map
+        this->edge_types.clear();
+        std::vector<HEdge*> edges = this->subdiv.getHedges();
+        //std::vector<Vertex*> vertices = this->subdiv.getVertices();
+        for (auto e : edges) {
+            //std::string key = e->getKey();
+            std::string u = e->getOrigin()->getKey();
+            std::string v = e->getNext()->getOrigin()->getKey();
+            if (v.front() == "v" || u.front() == "v" || v.front() == "V" || u.front() == "V") {
+                this->edge_types[key] = TRP;
+            }
+            else {
+                this->edge_types[key] = OPQ;
+            }
+        }
     }
 }
 
@@ -563,7 +855,15 @@ bool isEdgeHorizontal(const HEdge* const edge) {
 }
 
 void point_location_queries(std::vector<Vertex*>* s_vertices, DCEL* obstacles, std::vector<PLQ>& results) {
+    Location loc(obstacles);
 
+    for (size_t i = 0; i < results.size(); i++) {
+        auto v = (*s_vertices)[i];
+        results[i].answer[0] = loc.ortho_ray(&(v->getPoint()), Location::N);
+        results[i].answer[1] = loc.ortho_ray(&(v->getPoint()), Location::S);
+        results[i].answer[2] = loc.ortho_ray(&(v->getPoint()), Location::E);
+        results[i].answer[3] = loc.ortho_ray(&(v->getPoint()), Location::W);
+    }
 }
 
 void make_Hedge_list(HEdge* start, std::vector<HEdge*>& result) {
@@ -578,4 +878,20 @@ void make_Hedge_list(HEdge* start, std::vector<HEdge*>& result) {
             break;
         }
     }
+}
+
+bool comparePoint1(std::pair<Point, int> a, std::pair<Point, int> b) {
+    return a.first.gety() < b.first.gety();
+}
+
+bool comparePoint2(std::pair<Point, int> a, std::pair<Point, int> b) {
+    return a.first.gety() > b.first.gety();
+}
+
+bool comparePoint3(std::pair<Point, int> a, std::pair<Point, int> b) {
+    return a.first.getx() < b.first.getx();
+}
+
+bool comparePoint4(std::pair<Point, int> a, std::pair<Point, int> b) {
+    return a.first.getx() > b.first.getx();
 }

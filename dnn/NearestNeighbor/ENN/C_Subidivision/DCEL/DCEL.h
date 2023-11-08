@@ -89,6 +89,7 @@ protected:
 public:
 	DCEL(std::string key ="__default__");
 	DCEL(std::vector<Point>&, std::vector<std::vector<int>>&,std::string key ="__default__");
+	DCEL(std::vector<std::pair<std::string,Point>>&, std::vector<std::vector<int>>&, std::string key = "__default__");
 	~DCEL();
 	std::vector<Face*> getFaces();
 	void setFaces(std::vector<Face*>);
