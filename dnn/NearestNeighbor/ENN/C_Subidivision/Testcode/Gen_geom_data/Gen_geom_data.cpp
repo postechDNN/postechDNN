@@ -1,4 +1,5 @@
 #include "Gen_geom_data.h"
+#include "Edge.h"
 
 Gen_geom_data::Gen_geom_data(Point left_bottom, Point right_top) {
     this->min_x = left_bottom.getx();
@@ -79,7 +80,7 @@ double Gen_geom_data::clip(double value, double lower_1, double upper_1) {
 }
 
 // Function to generate a polygon
-SimplePolygon Gen_geom_data::gen_simple_polygon(int n) {
+SimplePolygon Gen_geom_data::gen_simple_polygon(int n, double center_x, double center_y) {
 
     std::vector<double> angleSteps = this->randomAngleSteps(n);
 
@@ -92,8 +93,6 @@ SimplePolygon Gen_geom_data::gen_simple_polygon(int n) {
 
     double center_x = (this->max_x - this->min_x) / 2;
     double center_y = (this->max_y - this->min_y) / 2;
-
-
 
     double angle = uniformDistribution(generator);
 
@@ -110,6 +109,56 @@ SimplePolygon Gen_geom_data::gen_simple_polygon(int n) {
     std::reverse(pts.begin(), pts.end());
     return SimplePolygon(pts);
 }
+
+
+
+std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int m) {
+    std::vector<SimplePolygon> ret;
+    std::uniform_real_distribution<double> x_gen(min_x, max_x);
+    std::uniform_real_distribution<double> y_gen(min_y, max_y);
+
+    for (int i = m; i > 0; i--) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<int> k_gen(3, n - 3 * i + 3);
+        int k = k_gen(gen);
+        double center_x = x_gen(gen);
+        double center_y = y_gen(gen);
+
+        n -= k;
+
+        bool flag;
+        SimplePolygon tmp = gen_simple_polygon(k, center_x, center_y);
+        do {
+            flag = false;
+            tmp = gen_simple_polygon(k, center_x, center_y);
+            for (SimplePolygon sim : ret) {
+                for (auto a : sim.getEdges()) {
+                    for (auto b : tmp.getEdges()) {
+                        if (a.crossing(b, true) != nullptr) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag = false) {
+                        break;
+                    }
+                }
+                if (flag = false) {
+                    break;
+                }
+            }
+        }
+
+
+        while (flag);
+        ret.push_back(tmp);
+    }
+
+    return ret;
+
+}
+
 
 Graph<Point> Gen_geom_data::gen_planar_graph(int n) {
     std::vector<Point> vertices = this->gen_points_uniform(n);
