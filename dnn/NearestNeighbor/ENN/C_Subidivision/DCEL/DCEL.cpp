@@ -212,7 +212,7 @@ void Face::addInner(HEdge* _e) {
 
 void Face::setInners(std::vector<HEdge*>* _e) {
 	this->inners.clear();
-	for (auto e : _e) {
+	for (auto e : (*_e)) {
 		this->inners.push_back(e);
 	}
 }
