@@ -2,8 +2,7 @@
 #include "PointLocation/Location.h"
 
 #include <algorithm>
-
-#define 
+#include <cfloat>
 
 struct PLQ {
     HEdge* answer[4] = { NULL, NULL, NULL, NULL }; // top, bottom, right, left
@@ -25,8 +24,8 @@ void make_Hedge_list(HEdge* start, std::vector<HEdge*> &result);
 constexpr double TOLERANCE_CS_FREE = 1e-6;
 Point verticalRayIntersection(Point origin, Edge edge);
 Point horizontalRayIntersection(Point origin, Edge edge);
-bool isEdgeVertical(const HEdge* const edge);
-bool isEdgeHorizontal(const HEdge* const edge);
+bool isEdgeVertical(HEdge* const edge);
+bool isEdgeHorizontal(HEdge* const edge);
 
 bool comparePoint1(std::pair<Point, int> a, std::pair<Point, int> b);
 bool comparePoint2(std::pair<Point, int> a, std::pair<Point, int> b);
@@ -52,8 +51,8 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
 
     if (nlogn) {
         // 4. Make S'(S_overay) using point location
-        std::vector<Vertex*> s_vertices = S.getVertex();
-        std::vector<PLQ> point_location_query(s_vertices.size(), PLQ);
+        std::vector<Vertex*> s_vertices = S.getVertices();
+        std::vector<PLQ> point_location_query(s_vertices.size(), PLQ());
         point_location_queries(&s_vertices, &D_obs, point_location_query);
         
         // Construct graph for result DCEL
@@ -67,11 +66,11 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
         }
 
         // 5. Keep intact the cells in S_overaly which is incident to an obstacle vertex or S,
-        std::vector<Neighbor> V_S_Data(s_vertices.size(), Neighbor);
+        std::vector<Neighbor> V_S_Data(s_vertices.size(), Neighbor());
         std::vector<HEdge*> s_edges = S.getHedges();
         for (auto hedge : s_edges) {
-            Vertex u = hedge->getOrigin();
-            Vertex v = hedge->getNext()->getOrigin();
+            Vertex u = *hedge->getOrigin();
+            Vertex v = *hedge->getNext()->getOrigin();
             int u_idx = G_V_map[u.getKey()];
             int v_idx = G_V_map[v.getKey()];
             if (std::abs(u.getx() - v.getx()) < TOLERANCE_CS_FREE) {
@@ -135,7 +134,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                 if (point_location_query[i].answer[j] == NULL) continue;
                 Point intersection = verticalRayIntersection(s_vertices[i]->getPoint(), point_location_query[i].answer[j]->getEdge());
                 if (j == 0) {
-                    if (intersection.gety() < V_S_Data[i].neighbor[j]->gety()) {
+                    if (intersection.gety() < V_S_Data[i].neighbor[j].gety()) {
                         V_S_Data[i].neighbor[j] = intersection;
                         V_S_Data[i].isChanged[j] = true;
                         Vertex* new_v = new Vertex(intersection);
@@ -148,7 +147,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     }
                 }
                 else {
-                    if (intersection.gety() > V_S_Data[i].neighbor[j]->gety()) {
+                    if (intersection.gety() > V_S_Data[i].neighbor[j].gety()) {
                         V_S_Data[i].neighbor[j] = intersection;
                         V_S_Data[i].isChanged[j] = true;
                         Vertex* new_v = new Vertex(intersection);
@@ -166,7 +165,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                 if (point_location_query[i].answer[j] == NULL) continue;
                 Point intersection = horizontalRayIntersection(s_vertices[i]->getPoint(), point_location_query[i].answer[j]->getEdge());
                 if (j == 2) {
-                    if (intersection.getx() < V_S_Data[i].neighbor[j]->getx()) {
+                    if (intersection.getx() < V_S_Data[i].neighbor[j].getx()) {
                         V_S_Data[i].neighbor[j] = intersection;
                         V_S_Data[i].isChanged[j] = true;
                         Vertex* new_v = new Vertex(intersection);
@@ -179,7 +178,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     }
                 }
                 else {
-                    if (intersection.getx() > V_S_Data[i].neighbor[j]->getx()) {
+                    if (intersection.getx() > V_S_Data[i].neighbor[j].getx()) {
                         V_S_Data[i].neighbor[j] = intersection;
                         V_S_Data[i].isChanged[j] = true;
                         Vertex* new_v = new Vertex(intersection);
@@ -220,9 +219,11 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                         std::sort(new_obs_point_list[i].begin(), new_obs_point_list[i].end(), comparePoint4);
                     }
                     // 중복 삭제
-                    if (std::abs(new_obs_point_list[i][j].first.gety() - new_obs_point_list[i][j + 1].first.gety()) < TOLERANCE_CS_FREE) {
-                        new_TRP_vertices_map[new_obs_point_list[i][j + 1].second] = new_TRP_vertices_map[new_obs_point_list[i][j].second];
-                    }
+                    for (size_t j = 0; j < new_obs_point_list[i].size() - 1; j++) {
+                        if (std::abs(new_obs_point_list[i][j].first.gety() - new_obs_point_list[i][j + 1].first.gety()) < TOLERANCE_CS_FREE) {
+                            new_TRP_vertices_map[new_obs_point_list[i][j + 1].second] = new_TRP_vertices_map[new_obs_point_list[i][j].second];
+                        }
+                    }                 
                 }
             }
         }
@@ -235,7 +236,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             G_V.push_back(origin);
             Vertex* v = new Vertex(origin);
             std::string v_key = "O_" + std::to_string(G_V_idx);
-            this->vertices_types[v_key] = OBS;
+            this->vertices_types[v_key] = V_OBS;
             G_V_map[v_key] = G_V_idx;
             O_V_map[O_hedge_vec[i]->getOrigin()->getKey()] = G_V_idx;
             G_V_idx++;
@@ -244,15 +245,15 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
         // Point(Vertex) List update 2
         for (auto it = new_TRP_vertices_map.begin(); it != new_TRP_vertices_map.end(); it++) {
             if (it->first == it->second) {
-                G_V.push_back(new_TRP_vertices[it->second]->getPoint());
-                this->vertices_types[v_key] = TRP;
+                G_V.push_back(new_TRP_vertices[it->second]->getPoint());                
+                this->vertices_types[new_TRP_vertices[it->second]->getKey()] = V_TRP;
                 G_V_map[new_TRP_vertices[it->second]->getKey()] = G_V_idx;
                 G_V_idx++;
             }
         }
 
         // Edge List update 1
-        std::vector<std::vector<int>> G_E(G_V.size(), std::vector<int>);
+        std::vector<std::vector<int>> G_E(G_V.size(), std::vector<int>());
         for (size_t i = 0; i < V_S_Data.size(); i++) {
             for (int j = 0; j < 4; j++) {
                 if (V_S_Data[i].isNull[j]) continue;
@@ -300,14 +301,14 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             std::vector<HEdge*> edges = S_overlay.getHedges();
             std::vector<Vertex*> vertices = S_overlay.getVertices();
             for (auto e : edges) {
-                //std::string key = e->getKey();
+                std::string key = e->getKey(); // Check this code
                 std::string u = e->getOrigin()->getKey();
                 std::string v = e->getNext()->getOrigin()->getKey();
-                if (v.front() == "v" || u.front() == "v") {
-                    this->edge_types[key] = TRP;
+                if (v.front() == 'v' || u.front() == 'v') {
+                    this->edge_types[key] = HE_TRP;
                 }
                 else {
-                    this->edge_types[key] = OPQ;
+                    this->edge_types[key] = HE_OPQ;
                 }
             }
             for (auto v : vertices) {
@@ -315,13 +316,13 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                 Point pos = v->getPoint();
                 //src
                 if (std::abs(src.getx() - pos.getx()) < TOLERANCE_CS_FREE && std::abs(src.gety() - pos.gety()) < TOLERANCE_CS_FREE) {
-                    this->vertices_types[key] = SRC;
+                    this->vertices_types[key] = V_SRC;
                 }
-                else if (key.front() != "O") {
-                    this->vertices_types[key] = OBS;
+                else if (key.front() != 'O') {
+                    this->vertices_types[key] = V_OBS;
                 }
                 else {
-                    this->vertices_types[key] = TRP;
+                    this->vertices_types[key] = V_TRP;
                 }
             }
         }
@@ -337,11 +338,11 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             std::vector<Vertex*> vertices = S_overlay.getVertices();
             for (auto e : edges) {
                 std::string key = e->getKey();
-                if (key.front() == "_") {
-                    this->edge_types[key] = TRP;
+                if (key.front() == '_') {
+                    this->edge_types[key] = HE_TRP;
                 }
                 else {
-                    this->edge_types[key] = OPQ;
+                    this->edge_types[key] = HE_OPQ;
                 }
             }
             for (auto v : vertices) {
@@ -349,13 +350,13 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                 Point pos = v->getPoint();
                 //src
                 if (std::abs(src.getx() - pos.getx()) < TOLERANCE_CS_FREE && std::abs(src.gety() - pos.gety()) < TOLERANCE_CS_FREE) {
-                    this->vertices_types[key] = SRC;
+                    this->vertices_types[key] = V_SRC;
                 }
-                else if (key.front() == "_") {
-                    this->vertices_types[key] = OBS;
+                else if (key.front() == '_') {
+                    this->vertices_types[key] = V_OBS;
                 }
                 else {
-                    this->vertices_types[key] = TRP;
+                    this->vertices_types[key] = V_TRP;
                 }
             }
         }
@@ -370,7 +371,8 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             // Find uninteresting cell
             for (auto face : faces) {
                 // For each vertex of S_overaly, determine whether the vertex is a vertex of 'S' or 'O'
-                std::vector<Vertex*> vertices = face.getInnerVertices();
+                // idx of face->getInnerVertices is always 0??
+                std::vector<Vertex*> vertices = face->getInnerVertices(0);
                 for (auto vertex : vertices) {
                     std::string key = vertex->getKey();
                     if (key.empty()) continue;
@@ -394,7 +396,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                 if (edges.empty()) continue;
                 Point startV = edges[0]->getEdge().gets();
                 HEdge* nowE = edges[0];
-                while (nowE->getNext()->getEdge().gets() != startV) {
+                while (!(nowE->getNext()->getEdge().gets() == startV)) {
                     // if a is horizontal
                     if (isEdgeHorizontal(nowE)) {
                         if (isEdgeHorizontal(nowE->getNext())) {
@@ -424,8 +426,8 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
             std::vector<HEdge*> edges = f->getInnerHEdges();
             double delta = DBL_MAX;
             for (auto he : edges) {
-                if (this->vertices_types[he->getOrigin()->getKey()] == TRP &&
-                    this->vertices_types[he->getNext()->getOrigin()->getKey()] == TRP) {
+                if (this->vertices_types[he->getOrigin()->getKey()] == V_TRP &&
+                    this->vertices_types[he->getNext()->getOrigin()->getKey()] == V_TRP) {
                     double temp = he->getOrigin()->getPoint().distance(he->getNext()->getOrigin()->getPoint());
                     if (delta > temp) delta = temp;
                 }
@@ -436,9 +438,9 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
         int new_vertex_idx = 0; // V_
         for (size_t i = 0; i < faces.size(); i++) {
             auto f = faces[i];
-            std::vector<Vertex*> vertices = f->getInnerVertices();
+            std::vector<Vertex*> vertices = f->getInnerVertices(0);
             for (auto v : vertices) {
-                if (this->vertices_types[v->getKey()] == OBS) {
+                if (this->vertices_types[v->getKey()] == V_OBS) {
                     std::vector<HEdge*> edges = f->getInnerHEdges();
                     HEdge* het;
                     HEdge* heb;
@@ -509,7 +511,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     for (int i = 0; i < upperEdgeNumber; i++) {
                         Vertex* newV = new Vertex(v->getx(), v->gety() + upperEdgeLength);
                         newV->setKey("V_" + std::to_string(new_vertex_idx++));
-                        this->vertices_types[newV->getKey()] = TRP;
+                        this->vertices_types[newV->getKey()] = V_TRP;
                         upperVertices.push_back(newV);
                         HEdge* leftHE = new HEdge();
                         HEdge* rightHE = new HEdge();
@@ -533,7 +535,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     for (int i = 0; i < lowerEdgeNumber; i++) {
                         Vertex* newV = new Vertex(v->getx(), v->gety() - lowerEdgeLength);
                         newV->setKey("V_" + std::to_string(new_vertex_idx++));
-                        this->vertices_types[newV->getKey()] = TRP;
+                        this->vertices_types[newV->getKey()] = V_TRP;
                         lowerVertices.push_back(newV);
                         HEdge* leftHE = new HEdge();
                         HEdge* rightHE = new HEdge();
@@ -554,10 +556,10 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     }
 
 
-                    std::vector<HEdge*> edges = f->getInnerHEdges();
+                    //std::vector<HEdge*> edges = f->getInnerHEdges();
                     HEdge* firstEdge; // whose origin is obstacle vertex
                     for (auto he : edges) {
-                        Vertex nowV = he->getOrigin();
+                        Vertex nowV = *he->getOrigin();
                         if (std::abs(v->getx() - nowV.getx()) < TOLERANCE_CS_FREE && std::abs(v->gety() - nowV.gety()) < TOLERANCE_CS_FREE) {
                             firstEdge = he;
                             break;
@@ -675,12 +677,12 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     if (isUpper) {
                         upperLeft.back()->setNext(originFaceFirst);
                         lowerLeft.front()->setNext(upperLeft.front());
-                        originFaceLast.setNext(lowerLeft.back());
+                        originFaceLast->setNext(lowerLeft.back());
                     }
                     else {
                         lowerRight.back()->setNext(originFaceFirst);
                         upperRight.front()->setNext(lowerRight.front());
-                        originFaceLast.setNext(upperRight.back());
+                        originFaceLast->setNext(upperRight.back());
                     }
                     std::vector<HEdge*> fHedgeList;
                     f->setInners(&fHedgeList);
@@ -690,13 +692,13 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     std::vector<HEdge*> ufHedgeList;
                     if (isUpper) {
                         upperRight.front()->setNext(upFaceFirst);
-                        upFaceLast.setNext(upperRight.back());
+                        upFaceLast->setNext(upperRight.back());
                     }
                     else {
                         upperLeft.back()->setNext(upFaceFirst);
-                        upFaceLast.setNext(upperLeft.front());
+                        upFaceLast->setNext(upperLeft.front());
                     }
-                    make_Hedge_list(upFaceFirst, &ufHedgeList);
+                    make_Hedge_list(upFaceFirst, ufHedgeList);
                     uf->setInners(&ufHedgeList);
                     
 
@@ -705,13 +707,13 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
                     std::vector<HEdge*> lfHedgeList;
                     if (isUpper) {
                         lowerRight.back()->setNext(loFaceFirst);
-                        loFaceLast.setNext(upperRight.front());
+                        loFaceLast->setNext(upperRight.front());
                     }
                     else {
                         lowerLeft.front()->setNext(loFaceFirst);
-                        loFaceLast.setNext(upperLeft.back());
+                        loFaceLast->setNext(upperLeft.back());
                     }
-                    make_Hedge_list(upFaceFirst, &ufHedgeList);
+                    make_Hedge_list(upFaceFirst, ufHedgeList);
                     lf->setInners(&lfHedgeList);
 
                     added_faces.push_back(uf);
@@ -736,15 +738,15 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
         for (auto f : faces) {
             std::vector<HEdge*> hedges = f->getInnerHEdges();
             for (auto he : hedges) {
-                Vertex u = he->getOrigin();
-                Vertex v = he->getNext()->getOrigin();
+                Vertex u = *he->getOrigin();
+                Vertex v = *he->getNext()->getOrigin();
                 // 
-                if (G_V_map.find(u.getKey()) == m.end()) {
+                if (G_V_map.find(u.getKey()) == G_V_map.end()) {
                     G_V_map[u.getKey()] = G_V.size();
                     G_V.push_back(u.getPoint());
                     G_E.push_back(temp_list);
                 }
-                if (G_V_map.find(v.getKey()) == m.end()) {
+                if (G_V_map.find(v.getKey()) == G_V_map.end()) {
                     G_V_map[v.getKey()] = G_V.size();
                     G_V.push_back(v.getPoint());
                     G_E.push_back(temp_list);
@@ -764,14 +766,14 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles, bool nlogn){
         std::vector<HEdge*> edges = this->subdiv.getHedges();
         //std::vector<Vertex*> vertices = this->subdiv.getVertices();
         for (auto e : edges) {
-            //std::string key = e->getKey();
+            std::string key = e->getKey(); // Check this code
             std::string u = e->getOrigin()->getKey();
             std::string v = e->getNext()->getOrigin()->getKey();
-            if (v.front() == "v" || u.front() == "v" || v.front() == "V" || u.front() == "V") {
-                this->edge_types[key] = TRP;
+            if (v.front() == 'v' || u.front() == 'v' || v.front() == 'v' || u.front() == 'v') {
+                this->edge_types[key] = HE_TRP;
             }
             else {
-                this->edge_types[key] = OPQ;
+                this->edge_types[key] = HE_OPQ;
             }
         }
     }
@@ -787,7 +789,7 @@ DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key) {
     for (auto nowPolygon : obstacles) {
         int startIdx = vertex.size();
         std::vector<Point> nowPts = nowPolygon.getVertices();
-        for (auto p : nowPts) point.push_back(p);
+        for (auto p : nowPts) vertex.push_back(p);
         for (int i = 0; i < nowPts.size() - 1; i++) {
             std::vector<int> edge;
             edge.push_back(startIdx + i);
@@ -800,7 +802,7 @@ DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key) {
         graph.push_back(edge);
     }
 
-    DCEL ret(point, graph, key);
+    DCEL ret(vertex, graph, key);
     return ret;
 }
 
@@ -846,11 +848,11 @@ Point horizontalRayIntersection(Point origin, Edge edge) {
     return result;
 }
 
-bool isEdgeVertical(const HEdge* const edge) {
+bool isEdgeVertical(HEdge* const edge) {
     return (std::abs(edge->getEdge().gets().gety() - edge->getEdge().gett().gety()) < TOLERANCE_CS_FREE);
 }
 
-bool isEdgeHorizontal(const HEdge* const edge) {
+bool isEdgeHorizontal(HEdge* const edge) {
     return (std::abs(edge->getEdge().gets().getx() - edge->getEdge().gett().getx()) < TOLERANCE_CS_FREE);
 }
 
@@ -859,10 +861,14 @@ void point_location_queries(std::vector<Vertex*>* s_vertices, DCEL* obstacles, s
 
     for (size_t i = 0; i < results.size(); i++) {
         auto v = (*s_vertices)[i];
-        results[i].answer[0] = loc.ortho_ray(&(v->getPoint()), Location::N);
-        results[i].answer[1] = loc.ortho_ray(&(v->getPoint()), Location::S);
-        results[i].answer[2] = loc.ortho_ray(&(v->getPoint()), Location::E);
-        results[i].answer[3] = loc.ortho_ray(&(v->getPoint()), Location::W);
+        Point temp = v->getPoint();
+        results[i].answer[0] = loc.ortho_ray(&temp, Location::N);
+
+        results[i].answer[1] = loc.ortho_ray(&temp, Location::S);
+
+        results[i].answer[2] = loc.ortho_ray(&temp, Location::E);
+
+        results[i].answer[3] = loc.ortho_ray(&temp, Location::W);
     }
 }
 
