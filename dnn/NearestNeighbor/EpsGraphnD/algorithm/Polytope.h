@@ -17,6 +17,7 @@ public:
 	MatrixXd getmatrix();
 	bool intersect(simplex);
 	bool intersect(Point* p, Point* q);
+	bool In(Point* p, Point* q);
 	bool isIn(Point* p);
 };
 
@@ -41,6 +42,7 @@ public:
 	~Polytope();
 	int get_num_point();
 	std::vector<Point*> get_vertices();
+	bool sameIn(Point* p, Point* q);
 	bool isIn(Point* p);
 	bool intersect(Polytope P);
 	bool intersect(Point* p, Point* q);

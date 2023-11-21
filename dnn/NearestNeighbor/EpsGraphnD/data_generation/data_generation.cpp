@@ -200,7 +200,8 @@ int main() {
 	}
 	else {
 
-		string my_dir = "C:\\Users\\Jagun\\source\\repos\\";
+		//string my_dir = "C:\\Users\\Jagun\\source\\repos\\";
+		string my_dir = "C:\\Users\\ALGO\\Desktop\\StarLab\\";
 		string dir = my_dir + "postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\polytopes\\D";
 		ifstream fin;
 		int d = 4;

@@ -205,6 +205,19 @@ bool simplex::intersect(Point* p, Point* q) {
 	return false;
 }
 
+bool simplex::In(Point* p, Point* q) {
+	for (auto vert : vertices) {
+		if (*p == *vert) {
+			for (auto vert2 : vertices) {
+				if (*q == *vert2) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool simplex::isIn(Point* p) {
 	MatrixXd T(d + 1, d + 1);
 	VectorXd b(d + 1);
@@ -332,4 +345,13 @@ void Polytope::set_maxmin()
 	//	cout << this->xs_min[i] << " ";
 	//}
 	
+}
+
+bool Polytope::sameIn(Point *p, Point *q) {
+	for (auto simp : simplices) {
+		if (simp.In(p, q)) {
+			return true;
+		}
+	}
+	return false;
 }

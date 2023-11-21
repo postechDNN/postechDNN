@@ -1,6 +1,7 @@
 #include "EpsGraphnD.h"
 #include <queue>
 #include <iostream>
+#include <random>
 
 using namespace std;
 Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
@@ -777,9 +778,31 @@ vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 		for (int j = i + 1; j < vp_vertex.size(); j++) {
 			bool intersect = false;
 			for (auto pol : pols) {
-				if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+				if (pol.sameIn(&vp_vertex[i], &vp_vertex[j])) {
 					intersect = true;
-					break;
+					vector<double> mid;
+					for (int k = 0; k< vp_vertex[i].getsize(); k++) {
+						mid.push_back((vp_vertex[i].getx(k) + vp_vertex[j].getx(k)) / 2);
+					}
+					for (int k = 0; k < vp_vertex[i].getsize() * 5; k++) {
+						random_device rd;
+						mt19937 gen(rd());
+						vector<double> random_vec;
+						uniform_real_distribution<float> dis(0, 1);
+						for (int l = 0; l< vp_vertex[i].getsize(); l++) {
+							random_vec.push_back(mid[l] + dis(gen)/100);
+						}
+						Point random_pt(random_vec);
+						if (!pol.isIn(&random_pt)) {
+							intersect = false;
+						}
+					}
+				}
+				else {
+					if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+						intersect = true;
+						break;
+					}
 				}
 			}
 			if (!intersect) {
