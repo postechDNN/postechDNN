@@ -101,5 +101,5 @@ public:	// functions
 	//vector<vector<pair<double, int>>> Visibility_polygon(Free_Point);
 	vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
 	vector<vector<pair<double, int>>> Visibility_polygon2(Free_Point);
-	void export_json();
+	//void export_json();
 };
