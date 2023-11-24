@@ -728,30 +728,30 @@ void Eps_Graph_nD::print_kNN(Free_Point p, int k) {
 //	return nb_list;
 //}
 
-vector<vector<pair<double, int>>> Eps_Graph_nD::Visibility_polygon2(Free_Point qry) {
-	vector<Point> vp_vertex;
-	Point temp_qry(qry.getxs());
-	qry.is_Free_Point = true;
-	vp_vertex.push_back(temp_qry);
-	vector<vector<pair<double, int>>> nb_list(vp_vertex.size());
-	//vector<vector<pair<double, int>>>* nb_list = new vector<vector<pair<double, int>>> (vp_vertex.size());
-	for (int i = 0; i++; i < vp_vertex.size()) {
-		for (int j = i + 1; j++; j < vp_vertex.size()) {
-			bool intersect = false;
-			for (auto pol : pols) {
-				if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
-					intersect = true;
-					break;
-				}
-			}
-			if (!intersect) {
-				nb_list[i].push_back(make_pair(vp_vertex[i].distance(vp_vertex[j]),j));
-				nb_list[j].push_back(make_pair(vp_vertex[i].distance(vp_vertex[j]),i));
-			}
-		}
-	}
-	return nb_list;
-}
+//vector<vector<pair<double, int>>> Eps_Graph_nD::Visibility_polygon2(Free_Point qry) {
+//	vector<Point> vp_vertex;
+//	Point temp_qry(qry.getxs());
+//	qry.is_Free_Point = true;
+//	vp_vertex.push_back(temp_qry);
+//	vector<vector<pair<double, int>>> nb_list(vp_vertex.size());
+//	//vector<vector<pair<double, int>>>* nb_list = new vector<vector<pair<double, int>>> (vp_vertex.size());
+//	for (int i = 0; i++; i < vp_vertex.size()) {
+//		for (int j = i + 1; j++; j < vp_vertex.size()) {
+//			bool intersect = false;
+//			for (auto pol : pols) {
+//				if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+//					intersect = true;
+//					break;
+//				}
+//			}
+//			if (!intersect) {
+//				nb_list[i].push_back(make_pair(vp_vertex[i].distance(vp_vertex[j]),j));
+//				nb_list[j].push_back(make_pair(vp_vertex[i].distance(vp_vertex[j]),i));
+//			}
+//		}
+//	}
+//	return nb_list;
+//}
 
 vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 	vector<Point> vp_vertex;

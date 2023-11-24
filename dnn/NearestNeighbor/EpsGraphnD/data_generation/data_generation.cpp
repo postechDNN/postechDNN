@@ -278,7 +278,8 @@ int main() {
 		Free_Point* q3 = new Free_Point({ 0., 10.});
 		Free_Point* q4 = new Free_Point({ 0., 20. });
 		Free_Point* q5 = new Free_Point({ 0., 30.});
-		list<Free_Point> _frpts = { *q1,*q2 ,*q3 ,*q4 ,*q5 };
+		Free_Point* q6 = new Free_Point({ -21., 0. });
+		list<Free_Point> _frpts = { *q1,*q2 ,*q3 ,*q4 ,*q5, *q6 };
 
 		int num_pt = 0;
 		vector<Point*> pts;
