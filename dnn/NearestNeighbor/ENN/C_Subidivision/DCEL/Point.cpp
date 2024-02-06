@@ -52,3 +52,8 @@ std::ostream& operator<<(std::ostream& os, const Point& p){
 	os << '('<<p.getx()<<", "<<p.gety()<<')';
 	return os;
 }
+
+void Point::operator=(Point _p) {
+	this->setx(_p.getx());
+	this->sety(_p.gety());
+}
