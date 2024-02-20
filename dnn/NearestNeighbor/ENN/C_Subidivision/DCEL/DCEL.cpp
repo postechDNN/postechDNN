@@ -210,6 +210,13 @@ void Face::addInner(HEdge* _e) {
 	this->inners.push_back(_e);
 }
 
+void Face::setInners(std::vector<HEdge*>* _e) {
+	this->inners.clear();
+	for (auto e : (*_e)) {
+		this->inners.push_back(e);
+	}
+}
+
 std::vector<HEdge *> Face::getOutHEdges(){
 	std::vector<HEdge *> ret;
 	if(this->outer == nullptr) // it is outmost face

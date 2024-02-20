@@ -19,4 +19,7 @@ public:
 	double length();
 
 	friend std::ostream& operator<<(std::ostream& os, const Edge& p); //For testing
+
+	void operator=(Edge&);
+	void operator=(Edge);
 };

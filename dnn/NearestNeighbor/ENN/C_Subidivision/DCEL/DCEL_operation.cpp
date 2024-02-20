@@ -792,6 +792,99 @@ DCEL::DCEL(std::vector<Point>& pts,std::vector<std::vector<int>>& graph,std::str
     this->setFaces(ret_faces);
 }
 
+DCEL::DCEL(std::vector<std::pair<std::string, Point>>& pts, std::vector<std::vector<int>>& graph, std::string key) {
+    this->key = key;
+    Face* of = new Face();
+    of->setOuter(nullptr);
+    this->faces[of->getKey()] = of;
+
+    std::vector<Vertex*> ret_vertices;
+    std::vector<HEdge*> ret_hedges;
+
+    //1. Make vertices according to points. 
+    for (auto p : pts) {
+        Vertex* new_v = new Vertex(p.second);
+        new_v->setKey(p.first);
+        ret_vertices.push_back(new_v);
+    }
+
+    //2. Make half edges according to graph and set information(twin, origin,incidentEdge) of half edges.
+    std::vector<std::vector<HEdge*> > hedges_origin_v(ret_vertices.size());
+    for (int u = 0; u < graph.size(); u++) {
+        for (auto v : graph[u]) {
+            if (u > v) continue;
+            Vertex* org = ret_vertices[u], * dest = ret_vertices[v];
+            HEdge* he = new HEdge(), * twin = new HEdge();
+            he->setTwin(twin), twin->setTwin(he);
+            he->setOrigin(org);
+            twin->setOrigin(dest);
+            org->setIncidentEdge(he);
+            dest->setIncidentEdge(twin);
+            ret_hedges.push_back(he);
+            ret_hedges.push_back(twin);
+            hedges_origin_v[u].push_back(he);
+            hedges_origin_v[v].push_back(twin);
+        }
+    }
+
+
+    //3. set information(next, prev) of half edges.
+    //Sort in circular order.
+    auto angle_cmp = [](HEdge* a, HEdge* b) {
+        Vertex* origin = a->getOrigin();
+        Vertex* p = a->getTwin()->getOrigin();
+        Vertex* q = b->getTwin()->getOrigin();
+        double px = p->getx() - origin->getx(), py = p->gety() - origin->gety();
+        double qx = q->getx() - origin->getx(), qy = q->gety() - origin->gety();
+        double dp = std::sqrt(px * px + py * py), dq = std::sqrt(qx * qx + qy * qy);
+        px /= dp, py /= dp;
+        qx /= dq, qy /= dq;
+        if (py < 0) px = -3 - px;
+        if (qy < 0) qx = -3 - qx;
+        return px > qx;
+    };
+
+    for (auto it : hedges_origin_v) {
+        //Sort hedges in clockwise order
+        std::sort(it.begin(), it.end(), angle_cmp);
+
+        //set Next and Prev (It also operates when there is only one edge incident to v)
+        for (int i = 0; i < it.size(); i++) {
+            HEdge* he = it[i];
+            int j = i < it.size() - 1 ? i + 1 : 0;
+            HEdge* prev = it[j]->getTwin();
+            prev->setNext(he);
+            he->setPrev(prev);
+        }
+    }
+
+
+    //4. build faces.
+    std::vector<Face*> ret_faces = ConstructFaces(ret_hedges);
+
+    //5. label elements of DCEL and store the elements.
+    int v_k = 1;
+    /*
+    for (auto v : ret_vertices) {
+        v->setKey("v" + std::to_string(v_k++));
+    }
+    */
+    this->setVertices(ret_vertices);
+
+    int e_k = 1;
+    for (auto e : ret_hedges) {
+        e->setKey("e" + std::to_string(e_k) + "_1");
+        e->getTwin()->setKey("e" + std::to_string(e_k++) + "_2");
+    }
+    this->setHedges(ret_hedges);
+
+    int f_k = 1;
+    for (auto f : ret_faces) {
+        f->setKey("f" + std::to_string(f_k++));
+    }
+    this->setFaces(ret_faces);
+}
+
 bool Face::inFace(Point p, bool is_open){
 	auto out_vertices = this->getOutVertices();
     std::vector<Point> out_pts;

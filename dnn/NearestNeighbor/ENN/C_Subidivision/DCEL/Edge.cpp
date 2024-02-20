@@ -149,3 +149,17 @@ std::ostream& operator<<(std::ostream& os, const Edge& p){
 	os <<'['<< p.s <<", "<< p.t << ']';
 	return os;
 }
+
+void Edge::operator=(Edge& _e) {
+	this->s.setx(_e.gets().getx());
+	this->s.sety(_e.gets().gety());
+	this->t.setx(_e.gett().getx());
+	this->t.sety(_e.gett().gety());
+}
+
+void Edge::operator=(Edge _e) {
+	this->s.setx(_e.gets().getx());
+	this->s.sety(_e.gets().gety());
+	this->t.setx(_e.gett().getx());
+	this->t.sety(_e.gett().gety());
+}
