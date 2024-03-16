@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-typedef pair<HEdge*, bool> Event;
+typedef pair<HEdge*, bool> Event; // true: insertion, false: deletion
 
 double keyx(Event e) {
 	double s = e.first->getOrigin()->getx();
@@ -147,26 +147,24 @@ Location::Location(DCEL* dcel) {
 		events.push_back({ he, false });
 	}
 
-	CEdge::setConstantLine(leftmost->getx(), true);
 	std::sort(events.begin(), events.end(), cmpx);
 	for (auto e : events) {
-
+		CEdge::setConstantLine(keyx(e), true);
+		xcoords.push_back(keyx(e));
 		if (e.second)
 			v_slab.insert(CEdge(*e.first));
 		else
 			v_slab.remove(CEdge(*e.first));
-		xcoords.push_back(keyx(e));
 	}
 
-	CEdge::setConstantLine(leftmost->gety(), false);
 	std::sort(events.begin(), events.end(), cmpy);
 	for (auto e : events) {
-
+		CEdge::setConstantLine(keyy(e), false);
+		ycoords.push_back(keyy(e));
 		if (e.second)
 			h_slab.insert(CEdge(*e.first));
 		else
 			h_slab.remove(CEdge(*e.first));
-		ycoords.push_back(keyy(e));
 	}
 }
 
@@ -236,8 +234,9 @@ HEdge* Location::ortho_ray(Point* p, int dir) {
 		}
 	}
 	else {
-		if (slab.searchLEQ(ver, pe, e))
+		if (slab.searchLEQ(ver, pe, e)) {
 			return e.getRef();
+		}
 	}
 
 	return NULL;

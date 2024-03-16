@@ -24,7 +24,7 @@ struct Neighbor {
 };
 
 // 
-DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key = "__default__");
+DCEL* constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key = "__default__");
 
 // For each vertex of s_vertices, store results of ray shooting query in PLQ
 void point_location_queries(std::vector<Vertex*> *s_vertices, DCEL *obstacles, std::vector<PLQ> &results);
@@ -85,7 +85,30 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     }
     std::cout << debugInners << std::endl;
     //3. Construct DCEL for obstacles and label vertices and half edges of the DCEL.
-    DCEL D_obs = constructObsDCEL(obstacles);
+    DCEL* D_obs = constructObsDCEL(obstacles);
+
+    /*
+    std::vector<string> key_list({ "e4_1", "e4_2", "e6_1", "e6_2", "e12_1", "e12_2", "e14_1", "e14_2" });
+    std::vector<CEdge> edge_list;
+    for (string s : key_list) {
+        edge_list.push_back(CEdge(*(D_obs->getHedge(s))));
+    }
+    std::cout << "edge_list size: " << edge_list.size() << '\n';
+    for (CEdge x : edge_list) {
+        std::cout << x.getKey() << " (" << x.getOrigin()->getx() << ", " << x.getOrigin()->gety() << ")-("
+            << x.getNext()->getOrigin()->getx() << ", " << x.getNext()->getOrigin()->gety() << ")\n";
+    }
+    CEdge::setConstantLine(5.0, false);
+    sort(edge_list.begin(), edge_list.end());
+    std::cout << "sorted: \n";
+    for (CEdge x : edge_list) {
+        std::cout << x.getKey() << " (" << x.getOrigin()->getx() << ", " << x.getOrigin()->gety() << ")-("
+            << x.getNext()->getOrigin()->getx() << ", " << x.getNext()->getOrigin()->gety() << ")\n";
+    }
+
+    return;
+    */
+
     std::cout << "checkpoint3\n";
 
     // point location debug
@@ -95,12 +118,12 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     debug_vertex->sety(5.0);
     s_vertices_debug.push_back(debug_vertex);
     std::vector<PLQ> point_location_query_debug(s_vertices_debug.size(), PLQ());
-    point_location_queries(&s_vertices_debug, &D_obs, point_location_query_debug);
+    point_location_queries(&s_vertices_debug, D_obs, point_location_query_debug);
     for (int i = 0; i < 4; i++) {
         if (point_location_query_debug[0].answer[i] != NULL) {
             HEdge* nowEdge = point_location_query_debug[0].answer[i];
-            std::cout << i << ' ' << nowEdge->getKey() << ' ' << nowEdge->getOrigin()->getx() << ' ' << nowEdge->getOrigin()->gety() << ' '
-                << nowEdge->getNext()->getOrigin()->getx() << ' ' << nowEdge->getNext()->getOrigin()->gety() << std::endl;
+            std::cout << i << ' ' << nowEdge->getKey() << " (" << nowEdge->getOrigin()->getx() << ", " << nowEdge->getOrigin()->gety() << ")-("
+                << nowEdge->getNext()->getOrigin()->getx() << ", " << nowEdge->getNext()->getOrigin()->gety() << ")\n";
         }
     }
 
@@ -118,7 +141,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     // 4. Make S'(S_overay) using point location
     std::vector<Vertex*> s_vertices = S.getVertices();
     std::vector<PLQ> point_location_query(s_vertices.size(), PLQ());
-    point_location_queries(&s_vertices, &D_obs, point_location_query);
+    point_location_queries(&s_vertices, D_obs, point_location_query);
         
     // Construct graph for result DCEL
     std::vector<Point> G_V;
@@ -217,7 +240,8 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
 
     std::unordered_map<std::string, int> O_hedge_map; // obstacle dcel hedges key, index
     std::vector<HEdge*> O_hedge_vec;
-    std::vector<Face*> O_Faces = D_obs.getFaces();
+    std::vector<Face*> O_Faces = D_obs->getFaces();
+
     for (size_t i = 0; i < O_Faces.size(); i++) {
         std::vector<HEdge*> O_Face_Inner_Hedge_Vec = O_Faces[i]->getInnerHEdges();
         for (size_t j = 0; j < O_Face_Inner_Hedge_Vec.size(); j++) {
@@ -1062,7 +1086,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
 
 CS_Free::~CS_Free(){}
 
-DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key) {
+DCEL* constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key) {
     //std::vector<Point>&, std::vector<std::vector<int>>&
     // Initialize
     std::vector<Point> vertex;
@@ -1101,7 +1125,8 @@ DCEL constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key) {
         labled_vertex.push_back(std::make_pair("O_" + std::to_string(i), vertex[i]));   
     }
 
-    DCEL ret(labled_vertex, graph, key);
+    DCEL* ret = new DCEL(labled_vertex, graph, key);
+
     return ret;
 }
 
@@ -1181,12 +1206,10 @@ void point_location_queries(std::vector<Vertex*>* s_vertices, DCEL* obstacles, s
     for (size_t i = 0; i < results.size(); i++) {
         auto v = (*s_vertices)[i];
         Point temp = v->getPoint();
+
         results[i].answer[0] = loc.ortho_ray(&temp, Location::N);
-
         results[i].answer[1] = loc.ortho_ray(&temp, Location::S);
-
         results[i].answer[2] = loc.ortho_ray(&temp, Location::E);
-
         results[i].answer[3] = loc.ortho_ray(&temp, Location::W);
     }
 }

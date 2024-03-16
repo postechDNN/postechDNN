@@ -28,3 +28,4 @@ dnn/NearestNeighbor/ENN/DCEL/Makefile
 /dnn/NearestNeighbor/ENN/C_Subidivision/C_Subdivision.o
 /dnn/NearestNeighbor/ENN/C_Subidivision/CS_Free.o
 /dnn/NearestNeighbor/ENN/C_Subidivision/WC_region.o
+/dnn/NearestNeighbor/ENN/C_Subidivision/CS_Free.txt
