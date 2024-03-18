@@ -6,6 +6,7 @@
 #include <fstream>
 #include <numbers>
 
+constexpr double TOLERANCE_CS_FREE_TEMP = 1e-4;
 constexpr double TOLERANCE_CS_FREE = 1e-6;
 constexpr double PI_CS_FREE = 3.141592653589793238462643383279502884L;
 
@@ -112,10 +113,11 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     std::cout << "checkpoint3\n";
 
     // point location debug
+    
     std::vector<Vertex*> s_vertices_debug;
     Vertex* debug_vertex = new Vertex();
-    debug_vertex->setx(2.0);
-    debug_vertex->sety(5.0);
+    debug_vertex->setx(5.0);
+    debug_vertex->sety(1.125);
     s_vertices_debug.push_back(debug_vertex);
     std::vector<PLQ> point_location_query_debug(s_vertices_debug.size(), PLQ());
     point_location_queries(&s_vertices_debug, D_obs, point_location_query_debug);
@@ -126,7 +128,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 << nowEdge->getNext()->getOrigin()->getx() << ", " << nowEdge->getNext()->getOrigin()->gety() << ")\n";
         }
     }
-
+    
     // debug
     /*
     std::vector<Face*> debugFaces = D_obs.getFaces();
@@ -309,14 +311,19 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             if (V_S_Data[i].isNull[j]) continue;
             if (point_location_query[i].answer[j] == NULL) continue;
             Point intersection = horizontalRayIntersection(s_vertices[i]->getPoint(), point_location_query[i].answer[j]->getEdge());
+            /*
             if (i == 2330 || i == 3303) {
                 std::cout << i << ' ' << j << ' ' << intersection.getx() << ' ' << intersection.gety() << ' ' << point_location_query[i].answer[j]->getKey() << ' ' << point_location_query[i].answer[j]->getTwin()->getKey() << std::endl;
                 std::cout << i << ' ' << j << ' ' << s_vertices[i]->getx() << ' ' << s_vertices[i]->gety() << std::endl;
             }
+            */
             if (j == 2) {
                 //debug
                 //if (std::abs(s_vertices[i]->getPoint().gety() - intersection.gety()) > TOLERANCE_CS_FREE) errcntRay[2]++;
                 //if (s_vertices[i]->getPoint().getx() > intersection.getx()) errcnt++;
+                if (i == 1629) {
+                    std::cout << intersection.getx() << ' ' << V_S_Data[i].neighbor[j].getx() << std::endl;
+                }
                 if (intersection.getx() < V_S_Data[i].neighbor[j].getx()) {                    
                     V_S_Data[i].isChanged[j] = true;
                     Vertex* new_v = new Vertex(intersection);
@@ -425,6 +432,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     }
     
     //debug
+    /*
     for (int i = 0; i < G_V.size() - 1; i++) {
         for (int j = i + 1; j < G_V.size(); j++) {
             if (std::abs(G_V[i].getx() - G_V[j].getx()) < 1e-12 &&
@@ -433,6 +441,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             }
         }
     }
+    */
 
     // Edge List update 1
     std::vector<int> testest(G_V_map.size(), 0);
@@ -459,25 +468,33 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 */
             }
             else {
-                //G_E[i].push_back(V_S_Data[i].v_idx[j]);
+                G_E[i].push_back(V_S_Data[i].v_idx[j]);
                 //G_E[V_S_Data[i].v_idx[j]].push_back(i);
             }
         }
     }
 
+    std::cout << G_V[1629].getx() << ' ' << G_V[1629].gety() << std::endl;
+    for (int i = 0; i < 4; i++) {
+        //std::cout << V_S_Data[1629][i] << std::endl;
+        std::cout << point_location_query[1629].answer[i] << std::endl;
+    }
+    
+
+    //debug
+    /*
     std::cout << G_V_map[new_TRP_vertices[new_TRP_vertices_map[V_S_Data[3303].new_v_idx[3]]]->getKey()] << std::endl;
     std::cout << V_S_Data[3303].v_idx[3] << std::endl;
     std::cout << V_S_Data[V_S_Data[3303].v_idx[3]].isChanged[2] << std::endl;
     std::cout << V_S_Data[V_S_Data[3303].v_idx[3]].isNull[2] << std::endl;
     std::cout << V_S_Data[V_S_Data[3303].v_idx[3]].v_idx[2] << std::endl;
     std::cout << V_S_Data[V_S_Data[3303].v_idx[3]].new_v_idx[2] << std::endl;
-
     for (int i = 0; i < testest.size(); i++) {
         if (testest[i] == 1) std::cout << i << std::endl;
     }
+    */
 
     // Edge List update 2
-    /*
     for (size_t i = 0; i < O_hedge_vec.size(); i++) {
         // First
         int prevIdx = O_V_map[O_hedge_vec[i]->getOrigin()->getKey()];
@@ -510,7 +527,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
         nowIdx = O_V_map[O_hedge_vec[i]->getNext()->getOrigin()->getKey()];
         G_E[prevIdx].push_back(nowIdx);
         G_E[nowIdx].push_back(prevIdx);
-    }*/
+    }
     
 
     // Construct graph for result DCEL
@@ -523,6 +540,27 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     for (size_t i = 0; i < G_V_key_idx.size(); i++) {
         G_V_key.push_back(std::make_pair(G_V_key_idx[i].second, G_V[i]));
     }
+
+
+    // debug
+    for (auto it = G_V_map.begin(); it != G_V_map.end(); it++) {
+        //5.01562
+        if (std::abs(5.0 - G_V[it->second].getx()) < TOLERANCE_CS_FREE_TEMP &&
+            std::abs(1.125 - G_V[it->second].gety()) < TOLERANCE_CS_FREE_TEMP) {
+            std::cout << "debug" << ' ' << it->second << std::endl;
+            for (int i = 0; i < G_E[it->second].size(); i++) {
+                std::cout << G_V[G_E[it->second][i]].getx() << ' ' << G_V[G_E[it->second][i]].gety() << std::endl;
+            }
+            /*
+            std::cout << V_S_Data[it->second].neighbor[0].getx() << ' ' << V_S_Data[it->second].neighbor[0].gety() << std::endl;
+            std::cout << V_S_Data[it->second].neighbor[1].getx() << ' ' << V_S_Data[it->second].neighbor[1].gety() << std::endl;
+            std::cout << V_S_Data[it->second].neighbor[2].getx() << ' ' << V_S_Data[it->second].neighbor[2].gety() << std::endl;
+            std::cout << V_S_Data[it->second].neighbor[3].getx() << ' ' << V_S_Data[it->second].neighbor[3].gety() << std::endl;
+            */
+        }
+    }
+
+
 
     DCEL S_overlay(G_V_key, G_E);
     
@@ -645,16 +683,19 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
         //std::cout << faces.size() << std::endl;
         
         // debug
-        
+        /*
         int debugObs = 0;
-        
         std::cout << faces.size() << std::endl;
         for (size_t i = 0; i < faces.size(); i++) {
             auto f = faces[i];
             std::cout << i << ' ' << f->getInnerHEdges().size() << ' ' << f->getOutVertices().size() << ' ' << std::endl;
             //for (size_t j = 0; j < f.)
         }
+        */
 
+
+        //debug
+        
         std::unordered_map<string, int> debug_print_G_V_MAP;
         std::vector<Point> debug_print_G_V;
         std::vector<Vertex*> debug_print_V = S_overlay.getVertices();
@@ -669,15 +710,17 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
 
         
         std::vector<std::vector<int>> debug_print_G_E(debug_print_G_V.size(), std::vector<int>());
-        for (size_t i = 0; i < faces.size(); i++) {
-            auto f = faces[i];
+        //for (size_t i = 0; i < faces.size(); i++) {
+            auto f = faces[350];
             std::vector<HEdge*> hedges = f->getInnerHEdges();
             //std::cout << "check\n";
+            
             for (auto he : hedges) {
                 int u = debug_print_G_V_MAP[he->getOrigin()->getKey()];                
                 int v = debug_print_G_V_MAP[he->getNext()->getOrigin()->getKey()];
                 debug_print_G_E[u].push_back(v);
                 debug_print_G_E[v].push_back(u);
+                std::cout << he->getOrigin()->getx() << ' ' << he->getOrigin()->gety() << std::endl;
             }
             
             std::vector<HEdge*> hedges2 = f->getOutHEdges();
@@ -686,12 +729,14 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 int v = debug_print_G_V_MAP[he->getNext()->getOrigin()->getKey()];
                 debug_print_G_E[u].push_back(v);
                 debug_print_G_E[v].push_back(u);
-            }            
-        }
+            } 
+            
+        //}
+
         print_result(&debug_print_G_V, &debug_print_G_E,"CS_Free.txt");
-        //debug
         
 
+        //debug
         for (size_t i = 0; i < faces.size(); i++) {
             //std::cout << "checkpoint7-2-" << i << "\n";
             auto f = faces[i];
@@ -700,7 +745,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             //std::cout << "check\n";
             for (auto v : vertices) {
                 if (this->vertices_types[v->getKey()] == V_OBS) {
-                    debugObs++;
+                    //debugObs++;
                     // Exception handling variables
                     bool isUpperRayIntersect = false; // If false, upper ray does not partition interesting cell 
                     bool isLowerRayIntersect = false; // If false, lower ray does not partition interesting cell 
@@ -1021,7 +1066,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             }
         }
         std::cout << "checkpoint7-2\n";
-        std::cout << debugObs << "\n";
+        //std::cout << debugObs << "\n";
         std::cout << added_faces.size() << "\n";
         for (auto af : added_faces) {
             faces.push_back(af);

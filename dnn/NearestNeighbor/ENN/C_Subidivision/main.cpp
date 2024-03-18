@@ -5,8 +5,6 @@
 #include "Testcode/test_csdiv_pts/test_csdiv_pts.h"
 #include "CS_Free.h"
 
-#include "PointLocation/Location.h";
-
 int main(){
     //test_csdiv_pts();
 
