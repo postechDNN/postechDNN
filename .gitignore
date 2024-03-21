@@ -1,6 +1,7 @@
 dnn/.vs
 dnn/DNN.vcxproj*
 dnn/main.cpp
+*/.vs
 
 
 
