@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 
 class Point {
@@ -12,4 +13,5 @@ public:
 	bool operator==(Point);
 	double getx(int);
 	void setxs(std::vector<double>);
+	std::vector<double> getxs();
 };
