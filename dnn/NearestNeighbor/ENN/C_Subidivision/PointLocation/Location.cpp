@@ -87,7 +87,12 @@ bool CEdge::operator<(CEdge& other) {
 		double tmp = (CEdge::constant - s2a) / (t2a - s2a);
 		p2 = (1. - tmp) * s2b + tmp * t2b;
 	}
-	return p1 < p2;
+	if (p1 == p2) {
+		return (t1a - s1a) / (t1b - s1b) > (t2a - s2a) / (t2b - s2b);
+	}
+	else {
+		return p1 < p2;
+	}
 }
 
 bool CEdge::operator==(CEdge& other) {

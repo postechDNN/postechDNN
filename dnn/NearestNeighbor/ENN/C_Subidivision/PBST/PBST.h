@@ -4,8 +4,7 @@
 // Partially Persistent Binary Search Tree
 template <typename T>
 class P_PBST {
-//private:
-public:
+private:
 	std::vector<std::vector<T>> v;
 public:
 	P_PBST() {
