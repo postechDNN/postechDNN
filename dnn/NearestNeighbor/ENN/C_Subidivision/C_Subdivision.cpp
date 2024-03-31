@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Disjoint_Set.h"
 #include "Plane_sweep.h"
+#include "Graph.h"
 
 // Site::Site(){}
 // Site::Site(Point& p, Site_type t){
@@ -350,6 +351,45 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
         equiv_classes = next_equiv_classes;
     }
 }
+
+//(Efficient version) Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
+void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edges){
+    //Initialize i = −2
+    int i = -2;
+
+    //Initialize MSF(−2) to be a forest of singleton vertices
+    std::vector<Edge*> MSF; // TODO
+
+    //Initialize N = ∅.
+    std::vector<std::pair<int, Graph> > N; //TODO
+
+    //L_inf Delaunay triangulation 
+    std::vector<Edge*> Linf_del_graph; // TODO
+
+
+    std::vector<Quad*> Q =init_quads(drawn_edges); // CHECK if i=-2
+
+    while (Q.size()>1){
+        int i_old = i; 
+
+        if (N.size() > 0) 
+            i += 2; 
+
+        else{ // Set i to the smallest even i′ > i such that MSF(i′) ̸= MSF(i).
+            i = next_i(MSF, i_old); // TODO
+        }
+        std::vector<Edge*> new_edges = new_edges_func(i_old, i);
+
+
+            
+    }
+
+
+
+
+
+}
+
 
 grid_graph::grid_graph(){}
 grid_graph::~grid_graph(){
