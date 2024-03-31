@@ -5,6 +5,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <tuple>
 #include "Disjoint_Set.h"
 #include "Plane_sweep.h"
 #include "Graph.h"
@@ -354,20 +355,42 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
 
 //(Efficient version) Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
 void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edges){
+    
+    // Input vertices -> integers (one-to-one)
+    // TODO
+    int n = 10;
+
+    /* Graph initialize */
+    int a = 1;
+    typedef pair<int, int> iPair; 
+	typedef pair<double, iPair>  g_edge; 
+    std::vector<g_edge>  Delaunay_edges;
+
+
+    Graph graph(n, 0);
+
+    DisjointSets ds(n); 
+    /*********/
+
+    
     //Initialize i = −2
     int i = -2;
 
     //Initialize MSF(−2) to be a forest of singleton vertices
-    std::vector<Edge*> MSF; // TODO
+    std::set<int> MSF; // TODO
+    for (int i = 0; i < n; ++i) 
+        MSF.insert(i);
 
     //Initialize N = ∅.
-    std::vector<std::pair<int, Graph> > N; //TODO
-
-    //L_inf Delaunay triangulation 
-    std::vector<Edge*> Linf_del_graph; // TODO
+    std::set<int> N; //TODO
 
 
     std::vector<Quad*> Q =init_quads(drawn_edges); // CHECK if i=-2
+
+    std::vector<std::vector<Quad*> > Q_T; // To access Q(i, T), Q_T[parent(any node in T)]
+
+    // Init Q_T
+    // TODO
 
     while (Q.size()>1){
         int i_old = i; 
@@ -376,11 +399,22 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
             i += 2; 
 
         else{ // Set i to the smallest even i′ > i such that MSF(i′) ̸= MSF(i).
-            i = next_i(MSF, i_old); // TODO
+
+            std::vector<g_edge> new_edges; // edges of MSF(i) not in MSF(i_old)
+            for (auto edge = Delaunay_edges.rbegin(); edge != Delaunay_edges.rend(); ++edge){
+                int u = (*edge).second.first;
+                int v = (*edge).second.first;
+
+                int set_u = ds.find(u);
+                int set_v = ds.find(v);
+
+                if (set_u == set_v) continue;
+                else{
+                    ;
+                }
+
+            }
         }
-        std::vector<Edge*> new_edges = new_edges_func(i_old, i);
-
-
             
     }
 
