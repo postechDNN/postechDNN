@@ -71,7 +71,7 @@ bool CEdge::operator<(CEdge& other) {
 	t2b = getCoord(t2, false);
 
 	if (getTwin()->getKey().compare(other.getKey()) == 0) {
-		if (is_vertical)
+		if (CEdge::is_vertical)
 			return s1a > s2a;
 		else
 			return s1a < s2a;
@@ -87,8 +87,12 @@ bool CEdge::operator<(CEdge& other) {
 		double tmp = (CEdge::constant - s2a) / (t2a - s2a);
 		p2 = (1. - tmp) * s2b + tmp * t2b;
 	}
-	if (p1 == p2) {
-		return (t1a - s1a) / (t1b - s1b) > (t2a - s2a) / (t2b - s2b);
+
+	if (std::abs(p1 - p2) <= tolerance) {
+		double slope1 = (t1b - s1b) / (t1a - s1a);
+		double slope2 = (t2b - s2b) / (t2a - s2a);
+
+		return slope1 < slope2;
 	}
 	else {
 		return p1 < p2;
