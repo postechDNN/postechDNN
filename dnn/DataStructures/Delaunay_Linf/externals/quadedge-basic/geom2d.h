@@ -39,9 +39,11 @@ public:
 
 class Point2d {
 public:
+	int idx;
 	Real x, y;
-	Point2d()					{ x = 0; y = 0; }
-	Point2d(Real a, Real b)		{ x = a; y = b; }
+	Point2d()					{ idx = 0; x = 0; y = 0; }
+	Point2d(Real a, Real b)		{ idx = 0; x = a; y = b; }
+	Point2d(int i, Real a, Real b)		{ idx = i; x = a; y = b; }
 	Point2d(const Point2d& p)	{ *this = p; }
 	Point2d operator+(const Vector2d&) const;
 	Vector2d operator-(const Point2d&) const;

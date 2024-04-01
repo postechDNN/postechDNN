@@ -6,9 +6,11 @@
 #include <fstream>
 #include <iostream>
 #include <tuple>
+#include <set>
 #include "Disjoint_Set.h"
 #include "Plane_sweep.h"
 #include "Graph.h"
+#include "./../../../DataStructures/Delaunay_Linf/delaunay.h" 
 
 // Site::Site(){}
 // Site::Site(Point& p, Site_type t){
@@ -353,24 +355,38 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     }
 }
 
-//(Efficient version) Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
+//(O(nlogn) version) Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
 void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edges){
     
     // Input vertices -> integers (one-to-one)
     // TODO
-    int n = 10;
+    std::vector<Point*> vertices;
+
+    
+    /* Test input */
+    vertices.push_back(new Point(1, 4));
+    vertices.push_back(new Point(2, 10));
+    vertices.push_back(new Point(3, 6));
+
+    int n = vertices.size();
 
     /* Graph initialize */
-    int a = 1;
-    typedef pair<int, int> iPair; 
-	typedef pair<double, iPair>  g_edge; 
+    Graph graph(n, 0);
+    DisjointSets ds(n); 
+
+    /* Compute Delaunay_edges */
+	typedef std::pair<double, std::pair<int, int> > g_edge; 
     std::vector<g_edge>  Delaunay_edges;
 
 
-    Graph graph(n, 0);
 
-    DisjointSets ds(n); 
-    /*********/
+
+
+
+
+
+
+
 
     
     //Initialize i = −2
@@ -387,8 +403,8 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
 
     std::vector<Quad*> Q =init_quads(drawn_edges); // CHECK if i=-2
 
-    std::vector<std::vector<Quad*> > Q_T; // To access Q(i, T), Q_T[parent(any node in T)]
-
+    std::vector<std::vector<Quad*> > Q_list; // To access Q(i, T), Q_T[find(any node in T)]
+    std::vector<std::vector<Quad*> > Q_list_2; // For Q(i-2, T)
     // Init Q_T
     // TODO
 
@@ -399,21 +415,99 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
             i += 2; 
 
         else{ // Set i to the smallest even i′ > i such that MSF(i′) ̸= MSF(i).
-
+            bool found = false; // True if new i was determined
             std::vector<g_edge> new_edges; // edges of MSF(i) not in MSF(i_old)
-            for (auto edge = Delaunay_edges.rbegin(); edge != Delaunay_edges.rend(); ++edge){
-                int u = (*edge).second.first;
-                int v = (*edge).second.first;
+            while(!Delaunay_edges.empty()){
+                g_edge edge = Delaunay_edges.back();
+                int u = (edge).second.first;
+                int v = (edge).second.first;
+                int T_u = ds.find(u);
+                int T_v = ds.find(v);
+                double w = (edge).first; 
 
-                int set_u = ds.find(u);
-                int set_v = ds.find(v);
+                int i_temp = 2* std::ceil(double(1/2) * std::log2(double(w/6)));
 
-                if (set_u == set_v) continue;
-                else{
-                    ;
+                if ((!found)  && (i_temp > i) && (i_temp % 2 == 0)){
+                    i = i_temp;
+                    found = true;
                 }
 
+                if (found && (i_temp > i))
+                    break;
+
+                if (T_u == T_v) 
+                    continue;
+                else if (i_temp <= i_old)
+                    std::printf("[draw_one_sub_efficient WARNING!]\n");
+                else{
+                    new_edges.push_back(edge);
+
+                    int Trees[] = {T_u, T_v};
+                    for (auto Tx:Trees){
+                        if (N.find(Tx) != N.end()) 
+                            N.erase(Tx);
+                        else{
+                            // Compute the sigleton (i-2)-quad in Q(i-2, Tx)
+                        }
+                    }
+
+                    // Joint T1 and T2 to get T', and put T' in N 
+                    ds.merge(T_u, T_v);
+                    int T_new = ds.find(T_u); // T' in the paper
+                    N.insert(T_new);
+
+                    // Set Q(i-2, T') = Q(i-2, T1) \cup Q(i-2, T2)
+                    auto Q_T_u = Q_list_2[T_u];
+                    auto Q_T_v = Q_list_2[T_v];
+                    std::vector<Quad*> Q_T_new(Q_T_u.size() + Q_T_v.size()); 
+                    std::merge(Q_T_u.begin(), Q_T_u.end(), Q_T_v.begin(), Q_T_v.end(), Q_T_new.begin());
+                    Q_list_2[T_new] = Q_T_new;
+
+                    
+                }
+
+                Delaunay_edges.pop_back();
+
             }
+        }
+
+        for (auto T: N){
+
+            // 2(a) Initialzie Q(i, T) = \emptyset
+            std::vector<Quad*> Q_T;
+
+            // 2(b) for each equivalence class S of Q(i-2, T)
+            std::vector<Component > equiv_classes = compute_equiv_class(Q_list_2[ds.find(T)]);
+            for(auto S: equiv_classes){
+                // Q(i, T) = Q(i, T) \cup grwoth(S)
+                std::vector<Quad*> g_S = growth(S);
+                Q_T.insert(Q_T.end(), g_S.begin(), g_S.end());
+            }
+            Q_list[ds.find(T)] = Q_T;
+
+            // 2(c) Compute the equivalence classes of Q(i, T) by plane sweep.
+            std::vector<Component> new_equiv_classes = compute_equiv_class(Q_T);
+
+            //3. Perform Step 3 of build-subdivision on Q(i, T)
+            for(auto q:Q_T){
+                Quad* q_bar = q->growth;
+                if(q->is_simple && !q_bar->is_simple)
+                    process_simple_to_complex(q,i-2,drawn_edges);
+            }
+            //4. Perform Step 4 of build-subdivision on Q(i, T): Process complex components.
+            for(auto S:new_equiv_classes){
+                std::vector<Quad *> children_S; // denoted by S' in the original paper.
+                for(auto q: S){
+                    auto children_q = q->children;
+                    children_S.insert(children_S.end(),children_q.begin(),children_q.end());
+                } 
+                if(children_S.size() > 1)  // S is complex
+                    process_complex(S,children_S,i,drawn_edges);
+            }
+
+            // if |Q(i, T)| = 1 then Delete T from N 
+            if (Q_T.size() == 1)
+                N.erase(ds.find(T));
         }
             
     }

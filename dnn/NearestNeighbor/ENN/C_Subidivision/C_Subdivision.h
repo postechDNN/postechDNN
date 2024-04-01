@@ -85,6 +85,7 @@ public:     //NEED TO CONVERT
     void process_simple_to_complex(Quad*,int,std::set<Box_Edge> &);
     void process_complex(std::vector<Quad *>&,std::vector<Quad *>&,int,std::set<Box_Edge> &);
     void draw_one_subdivision(std::set<Box_Edge>&);
+    void draw_one_subdivision_efficient(std::set<Box_Edge>&);
     void build_graph(std::set<Box_Edge>&, std::vector<Point>&, std::vector<std::vector<int>> &,int d = 1);
 
     public:
