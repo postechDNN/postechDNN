@@ -355,18 +355,20 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     }
 }
 
+double 
+
 //(O(nlogn) version) Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
 void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edges){
     
     // Input vertices -> integers (one-to-one)
     // TODO
-    std::vector<Point*> vertices;
+    std::vector<Point> vertices;
 
     
     /* Test input */
-    vertices.push_back(new Point(1, 4));
-    vertices.push_back(new Point(2, 10));
-    vertices.push_back(new Point(3, 6));
+    vertices.push_back(Point(1, 4));
+    vertices.push_back(Point(2, 10));
+    vertices.push_back(Point(3, 6));
 
     int n = vertices.size();
 
@@ -378,30 +380,42 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
 	typedef std::pair<double, std::pair<int, int> > g_edge; 
     std::vector<g_edge>  Delaunay_edges;
 
+    std::vector<Point2d> Del_inputs;
+    for (int i=0; i<n; i++){
+        Point v = vertices[i];
+        Del_inputs.push_back(Point2d(i, v.getx(), v.gety()));
+    }
 
+    std::vector<std::pair<int, int> > Del_outputs;
+    std::vector<std::vector<std::pair<double, double>>> temp; //not used
+    Edge2d* delaunay_run = delaunay(Del_inputs);
+    delaunay_run->Draw(1000, temp, Del_outputs);
 
+    for (auto edge: Del_outputs){
+        g_edge e_new;
+        Point u = vertices[edge.first];
+        Point v = vertices[edge.second];
+        e_new.first = max(std::abs(u.getx() - v.getx()), std::abs(u.gety()-v.gety()));
+        e_new.second = edge;
 
-
-
-
-
-
+        Delaunay_edges.push_back(e_new);
+    }
 
 
     
-    //Initialize i = −2
-    int i = -2;
+    //Initialize i = 0 (In the paper, initialized to -2)
+    int i = 0;
 
     //Initialize MSF(−2) to be a forest of singleton vertices
-    std::set<int> MSF; // TODO
+    std::set<int> MSF; 
     for (int i = 0; i < n; ++i) 
         MSF.insert(i);
 
     //Initialize N = ∅.
-    std::set<int> N; //TODO
+    std::set<int> N; 
 
 
-    std::vector<Quad*> Q =init_quads(drawn_edges); // CHECK if i=-2
+    std::vector<Quad*> Q =init_quads(drawn_edges); 
 
     std::vector<std::vector<Quad*> > Q_list; // To access Q(i, T), Q_T[find(any node in T)]
     std::vector<std::vector<Quad*> > Q_list_2; // For Q(i-2, T)
@@ -509,6 +523,9 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
             if (Q_T.size() == 1)
                 N.erase(ds.find(T));
         }
+
+        Q_list_2 = Q_list;
+        Q_list.clear();
             
     }
 
