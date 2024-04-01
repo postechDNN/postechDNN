@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <random>
 
 class Point {
 public:
@@ -8,6 +9,7 @@ public:
 	Point();
 	Point(int);
 	Point(std::vector<double>);
+	Point(int, double);
 	Point(Point*);
 	~Point();
 	bool operator==(Point);

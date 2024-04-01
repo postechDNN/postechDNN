@@ -13,6 +13,19 @@ Point::Point(std::vector<double> _xs){
 	this->n = _xs.size();
 }
 
+Point::Point(int _n, double _range) {
+	this->n = _n;
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<double> dis(-_range, _range);
+
+	this->xs = std::vector<double>(_n, 0);
+	for (int i = 0; i < _n; i++) {
+		this->xs[i] = dis(gen);
+	}
+}
+
 Point::Point(Point* _p) {
 	this->xs = _p->getxs();
 	this->n = this->xs.size();
