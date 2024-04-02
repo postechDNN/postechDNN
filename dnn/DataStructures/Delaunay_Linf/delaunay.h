@@ -446,6 +446,10 @@ Edge2d* ConnectRight(Edge2d* rcand, Edge2d* base){
 
 
 //sList: A sorted point list
+// Input
+// 1) S: Input points
+// Output
+// 1) Edge2d*: A pointer to an edge (Edge2d) in the result 
 Edge2d* delaunay(vector<Point2d>& S){ 
 
   // Small Delaunay (n<=3)
@@ -462,18 +466,15 @@ Edge2d* delaunay(vector<Point2d>& S){
   Edge2d * lleft = delaunay(L);
   Edge2d * lright = delaunay(R);
 
-  printf("leftsize: %d, rightsize: %d \n", halfSize, S.size()-halfSize);
+  //printf("leftsize: %d, rightsize: %d \n", halfSize, S.size()-halfSize);
 
-  printf("Draw L \n");
-  
-	std::vector<std::vector<std::pair<double, double>>> temp;
-	std::vector<std::pair<int, int>> temp_e;
-  lleft->Draw(mystamp++, temp, temp_e);
-  //lleft->EdgeDraw(); // CHECK 1
+  //printf("Draw L \n");
+  //std::vector<std::vector<std::pair<double, double>>> temp;
+  //std::vector<std::pair<int, int>> temp_e;
+  //lleft->Draw(mystamp++, temp, temp_e);
 
-  printf("Draw R \n");
-  lright->Draw(mystamp++, temp, temp_e);
-  //lright->EdgeDraw(); // CHECK 1
+  //printf("Draw R \n");
+  //lright->Draw(mystamp++, temp, temp_e);
 
   //Create common base edge and remember lowest edge 
   Edge2d* base = LowerSupport(lleft, lright);
@@ -494,16 +495,16 @@ Edge2d* delaunay(vector<Point2d>& S){
   printf("Compute lcand and rcand \n");
 
   while(1){
-    printf("Draw base \n");
-    base->EdgeDraw();
+    // printf("Draw base \n");
+    // base->EdgeDraw();
 
     lcand = ComputeLcand(base);
-    printf("Draw Lcand \n");
-    lcand->EdgeDraw();
+    // printf("Draw Lcand \n");
+    // lcand->EdgeDraw();
 
     rcand = ComputeRcand(base);
-    printf("Draw Rcand \n");
-    rcand->EdgeDraw();
+    // printf("Draw Rcand \n");
+    // rcand->EdgeDraw();
 
     /* Figure out what is next cross edge */
     if (Valid(lcand, base) && Valid(rcand, base)){

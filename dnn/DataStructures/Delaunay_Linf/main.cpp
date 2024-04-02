@@ -10,6 +10,8 @@
 
 #include "gnuplot-iostream.h"
 
+#include "./externals/quadedge-basic/quadedge.h"
+
 int main(int argc, char** argv){
 
   

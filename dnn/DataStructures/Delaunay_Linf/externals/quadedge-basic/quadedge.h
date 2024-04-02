@@ -2,6 +2,7 @@
 #define QUADEDGE_H
 
 #include "geom2d.h"
+#include <vector>
 
 
 class QuadEdge;
@@ -32,7 +33,8 @@ class Edge2d {
 	const Point2d& Dest2d() const;
 	void  EndPoints(Point2d*, Point2d*);
 	QuadEdge* Qedge()	{ return (QuadEdge *)(this - num); }
-	void Draw(unsigned int, std::vector<std::vector<std::pair<double, double>>> & , std::vector<std::pair<int, int> >& );
+
+	void Draw(unsigned int, std::vector<std::vector<std::pair<double, double>>> & segments, std::vector<std::pair<int, int> >& edges);
 	void EdgeDraw();
 };
 

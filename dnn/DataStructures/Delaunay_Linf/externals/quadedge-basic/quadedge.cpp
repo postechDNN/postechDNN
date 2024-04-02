@@ -386,8 +386,6 @@ void DrawFun(void){
 
 }
 
-
-
 void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, double>>> & segments, std::vector<std::pair<int, int> >& edges)
 // This is a recursive drawing routine that uses time stamps to
 // determine if the edge has already been drawn. This is given
