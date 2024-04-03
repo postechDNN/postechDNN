@@ -1,5 +1,4 @@
 #include "Gen_geom_data.h"
-#include "Edge.h"
 
 Gen_geom_data::Gen_geom_data(Point left_bottom, Point right_top) {
     this->min_x = left_bottom.getx();
@@ -91,8 +90,6 @@ SimplePolygon Gen_geom_data::gen_simple_polygon(int n, double center_x, double c
     std::normal_distribution<double> normalDistribution(30);
     std::uniform_real_distribution<double> uniformDistribution(0.0, 2 * this->const_pi());
 
-    double center_x = (this->max_x - this->min_x) / 2;
-    double center_y = (this->max_y - this->min_y) / 2;
 
     double angle = uniformDistribution(generator);
 
@@ -111,6 +108,15 @@ SimplePolygon Gen_geom_data::gen_simple_polygon(int n, double center_x, double c
 }
 
 
+// STEP 1. decide the number of obstacles and decide the number of its vertices for each obstacle (>=3). 
+// STEP 2. generate obstacles one by one in a bounding box using "gen_simple_polygon". 
+//        (need to check the generated obstacle intersects with others)
+// STEP 3. convert generate obstacles into a planar graph (type of Adjacent-List)
+// STEP 4. convert the planar graph into DCEL data. (use DCEL(std::vector<Point>&, std::vector<std::vector<int>>&,std::string key ="__default__") in DCEL_operation.cpp)
+std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n) {
+    // TODO by Jeongwon
+}
+
 
 std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int m) {
     std::vector<SimplePolygon> ret;
@@ -126,7 +132,6 @@ std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int m) {
         double center_y = y_gen(gen);
 
         n -= k;
-
         bool flag;
         SimplePolygon tmp = gen_simple_polygon(k, center_x, center_y);
         do {
@@ -149,16 +154,11 @@ std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int m) {
                 }
             }
         }
-
-
         while (flag);
         ret.push_back(tmp);
     }
-
     return ret;
-
 }
-
 
 Graph<Point> Gen_geom_data::gen_planar_graph(int n) {
     std::vector<Point> vertices = this->gen_points_uniform(n);
@@ -208,8 +208,6 @@ Graph<Point> Gen_geom_data::gen_planar_graph(int n) {
     return graph;
 }
 
-std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int num_polys) {
-    return std::vector<SimplePolygon>();
-}
+
 Gen_geom_data::~Gen_geom_data() {}
 
