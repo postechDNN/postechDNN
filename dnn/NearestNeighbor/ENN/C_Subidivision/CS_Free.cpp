@@ -5,6 +5,7 @@
 #include <cfloat>
 #include <fstream>
 #include <numbers>
+#include <unordered_set>
 
 constexpr double TOLERANCE_CS_FREE_TEMP = 1e-4;
 constexpr double TOLERANCE_CS_FREE = 1e-6;
@@ -77,6 +78,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     C_Subdivision CS(pts);
     DCEL S = CS.build_alpha_subdivision(2);
     std::cout << "checkpoint2\n";
+    /*
     std::cout << S.getFaces().size() << std::endl;
     std::vector<Face*> debugFace = S.getFaces();
     int debugInners = 0;
@@ -85,6 +87,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
         debugInners += debugFace[i]->getInnerHEdges().size();
     }
     std::cout << debugInners << std::endl;
+    */
     //3. Construct DCEL for obstacles and label vertices and half edges of the DCEL.
     DCEL* D_obs = constructObsDCEL(obstacles);
 
@@ -113,7 +116,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     std::cout << "checkpoint3\n";
 
     // point location debug
-    
+    /*
     std::vector<Vertex*> s_vertices_debug;
     Vertex* debug_vertex = new Vertex();
     debug_vertex->setx(5.0);
@@ -128,7 +131,8 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 << nowEdge->getNext()->getOrigin()->getx() << ", " << nowEdge->getNext()->getOrigin()->gety() << ")\n";
         }
     }
-    
+    */
+
     // debug
     /*
     std::vector<Face*> debugFaces = D_obs.getFaces();
@@ -321,9 +325,11 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 //debug
                 //if (std::abs(s_vertices[i]->getPoint().gety() - intersection.gety()) > TOLERANCE_CS_FREE) errcntRay[2]++;
                 //if (s_vertices[i]->getPoint().getx() > intersection.getx()) errcnt++;
+                /*
                 if (i == 1629) {
                     std::cout << intersection.getx() << ' ' << V_S_Data[i].neighbor[j].getx() << std::endl;
                 }
+                */
                 if (intersection.getx() < V_S_Data[i].neighbor[j].getx()) {                    
                     V_S_Data[i].isChanged[j] = true;
                     Vertex* new_v = new Vertex(intersection);
@@ -404,6 +410,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
     std::unordered_map<std::string, int> O_V_map;
     std::unordered_map<std::string, bool> O_V_duplication_check;
     // Point(Vertex) List update 1
+    //std::cout << O_hedge_vec.size() << std::endl;
     for (size_t i = 0; i < O_hedge_vec.size(); i++) {
         Vertex* obsV = O_hedge_vec[i]->getOrigin();
         if (O_V_duplication_check.find(obsV->getKey()) == O_V_duplication_check.end()) {
@@ -473,13 +480,15 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             }
         }
     }
-
+    
+    // debug
+    /*
     std::cout << G_V[1629].getx() << ' ' << G_V[1629].gety() << std::endl;
     for (int i = 0; i < 4; i++) {
         //std::cout << V_S_Data[1629][i] << std::endl;
         std::cout << point_location_query[1629].answer[i] << std::endl;
     }
-    
+    */
 
     //debug
     /*
@@ -543,6 +552,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
 
 
     // debug
+    /*
     for (auto it = G_V_map.begin(); it != G_V_map.end(); it++) {
         //5.01562
         if (std::abs(5.0 - G_V[it->second].getx()) < TOLERANCE_CS_FREE_TEMP &&
@@ -550,17 +560,14 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             std::cout << "debug" << ' ' << it->second << std::endl;
             for (int i = 0; i < G_E[it->second].size(); i++) {
                 std::cout << G_V[G_E[it->second][i]].getx() << ' ' << G_V[G_E[it->second][i]].gety() << std::endl;
-            }
-            /*
-            std::cout << V_S_Data[it->second].neighbor[0].getx() << ' ' << V_S_Data[it->second].neighbor[0].gety() << std::endl;
-            std::cout << V_S_Data[it->second].neighbor[1].getx() << ' ' << V_S_Data[it->second].neighbor[1].gety() << std::endl;
-            std::cout << V_S_Data[it->second].neighbor[2].getx() << ' ' << V_S_Data[it->second].neighbor[2].gety() << std::endl;
-            std::cout << V_S_Data[it->second].neighbor[3].getx() << ' ' << V_S_Data[it->second].neighbor[3].gety() << std::endl;
-            */
+            }          
+            //std::cout << V_S_Data[it->second].neighbor[0].getx() << ' ' << V_S_Data[it->second].neighbor[0].gety() << std::endl;
+            //std::cout << V_S_Data[it->second].neighbor[1].getx() << ' ' << V_S_Data[it->second].neighbor[1].gety() << std::endl;
+            //std::cout << V_S_Data[it->second].neighbor[2].getx() << ' ' << V_S_Data[it->second].neighbor[2].gety() << std::endl;
+            //std::cout << V_S_Data[it->second].neighbor[3].getx() << ' ' << V_S_Data[it->second].neighbor[3].gety() << std::endl;            
         }
     }
-
-
+    */
 
     DCEL S_overlay(G_V_key, G_E);
     
@@ -633,7 +640,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             if (std::abs(src.getx() - pos.getx()) < TOLERANCE_CS_FREE && std::abs(src.gety() - pos.gety()) < TOLERANCE_CS_FREE) {
                 this->vertices_types[key] = V_SRC;
             }
-            else if (key.front() == 'O') {
+            else if (key.front() == 'O') {              
                 /*
                 if (this->vertices_types.find(key) == this->vertices_types.end()) { 
                     std::cout << key << ' ' << v->getx() << ' ' << v->gety() << std::endl;
@@ -667,7 +674,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
         std::vector<double> deltas;
         // Compute delta
         for (auto f : faces) {
-            std::vector<HEdge*> edges = f->getInnerHEdges();
+            std::vector<HEdge*> edges = f->getOutHEdges();
             double delta = DBL_MAX;
             for (auto he : edges) {
                 if (this->vertices_types[he->getOrigin()->getKey()] == V_TRP &&
@@ -685,17 +692,19 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
         // debug
         /*
         int debugObs = 0;
+        int debugInner = 0;
         std::cout << faces.size() << std::endl;
         for (size_t i = 0; i < faces.size(); i++) {
             auto f = faces[i];
             std::cout << i << ' ' << f->getInnerHEdges().size() << ' ' << f->getOutVertices().size() << ' ' << std::endl;
+            if (f->getInnerHEdges().size() > 0) debugInner++;
             //for (size_t j = 0; j < f.)
         }
+        std::cout << "Inner face: " << debugInner << std::endl;
         */
 
-
         //debug
-        
+        /*
         std::unordered_map<string, int> debug_print_G_V_MAP;
         std::vector<Point> debug_print_G_V;
         std::vector<Vertex*> debug_print_V = S_overlay.getVertices();
@@ -707,8 +716,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 //std::cout << debug_print_V[i]->getKey() << std::endl;
             }
         }
-
-        
+     
         std::vector<std::vector<int>> debug_print_G_E(debug_print_G_V.size(), std::vector<int>());
         //for (size_t i = 0; i < faces.size(); i++) {
             auto f = faces[350];
@@ -734,9 +742,32 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
         //}
 
         print_result(&debug_print_G_V, &debug_print_G_E,"CS_Free.txt");
-        
+        */
 
         //debug
+        /*
+        for (size_t i = 0; i < faces.size(); i++) {
+            auto f = faces[i];
+            std::vector<Vertex*> vertices = f->getOutVertices();
+            for (auto v : vertices) {
+                if (this->vertices_types[v->getKey()] == V_OBS) {
+                    std::cout << v->getKey() << std::endl;
+                }
+            }
+        }
+        */
+
+        //debug
+        /*
+        auto f = faces[1];
+        std::vector<HEdge*> debugedges = f->getOutHEdges();
+        HEdge* debugHedge = debugedges[0];
+        for (int i = 0; i < debugedges.size(); i++) {
+            std::cout << debugHedge->getOrigin()->getx() << ' ' << debugHedge->getOrigin()->gety() << std::endl;
+            debugHedge = debugHedge->getNext();
+        }
+        */
+
         for (size_t i = 0; i < faces.size(); i++) {
             //std::cout << "checkpoint7-2-" << i << "\n";
             auto f = faces[i];
@@ -752,60 +783,58 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                     bool isUpperIntersectVertex = true;
                     bool isLowerIntersectVertex = true;
 
-                    std::vector<HEdge*> edges = f->getInnerHEdges();
+                    //std::vector<HEdge*> edges = f->getInnerHEdges();
+                    std::vector<HEdge*> edges = f->getOutHEdges();
                     HEdge* het;
                     HEdge* heb;
-                    // obstacle vertex 기준 잘라야할 edge 찾기 (위,아래)
-                    for (auto he : edges) {
-                        Edge e = he->getEdge();
-                        Point es = e.gets();
-                        Point et = e.gett();
-                        // 예외처리 (v 포함하는 edge일 경우)
-                        if (std::abs(es.getx() - v->getx()) < TOLERANCE_CS_FREE &&
-                            std::abs(es.gety() - v->gety()) < TOLERANCE_CS_FREE) {
-                            continue;
-                        }
-                        if (std::abs(et.getx() - v->getx()) < TOLERANCE_CS_FREE &&
-                            std::abs(et.gety() - v->gety()) < TOLERANCE_CS_FREE) {
-                            continue;
-                        }
+                    if (!edges.empty()) {
+                        HEdge* startHedge = edges[0];
+                        HEdge* he = startHedge;                       
+                        // obstacle vertex 기준 잘라야할 edge 찾기 (위,아래)
+                        do {
+                            //Edge e = he->getEdge();
 
-                        double x[2];
-                        if (es.getx() > et.getx()) {
-                            x[0] = et.getx(); x[1] = es.getx();
-                        }
-                        else {
-                            x[0] = es.getx(); x[1] = et.getx();
-                        }
+                            //Point es = e.gets();
+                            Point es = he->getOrigin()->getPoint();
+                            //Point et = e.gett();
+                            Point et = he->getNext()->getOrigin()->getPoint();
+                            // 예외처리 (v 포함하는 edge일 경우)
+                            if (std::abs(es.getx() - v->getx()) < TOLERANCE_CS_FREE &&
+                                std::abs(es.gety() - v->gety()) < TOLERANCE_CS_FREE ) {
+                                he = he->getNext();
+                                continue;
+                            }
+                            if (std::abs(et.getx() - v->getx()) < TOLERANCE_CS_FREE &&
+                                std::abs(et.gety() - v->gety()) < TOLERANCE_CS_FREE) {
+                                he = he->getNext();
+                                continue;
+                            }
 
-                        double y[2];
-                        if (es.gety() > et.gety()) {
-                            y[0] = et.gety(); y[1] = es.gety();
-                        }
-                        else {
-                            y[0] = es.gety(); y[1] = et.gety();
-                        }
-
-
-                        if (std::abs(x[0] - v->getx()) < TOLERANCE_CS_FREE && v->getx() < x[1]) {
                             // v 위에 있는 edge 찾기 (부등호 예외 처리 확인)
-                            if (v->gety() < y[1]) {
-                                het = he;
-                                if (x[0] < v->getx()) {
-                                    isUpperIntersectVertex = false;
+                            if (es.getx() > et.getx()) {
+                                if (std::abs(es.getx() - v->getx()) < TOLERANCE_CS_FREE && v->getx() > et.getx()) {
+                                    het = he;
+                                    if (std::abs(es.getx() - v->getx()) > TOLERANCE_CS_FREE) {
+                                        isUpperIntersectVertex = false;
+                                    }
+                                    isUpperRayIntersect = true;
                                 }
-                                isUpperRayIntersect = true;
                             }
                             // v 아래 있는 edge 찾기
-                            else if (y[1] < v->gety()) {
-                                heb = he;
-                                if (x[0] < v->getx()) {
-                                    isLowerIntersectVertex = false;
+                            else {
+                                if (std::abs(es.getx() - v->getx()) < TOLERANCE_CS_FREE && v->getx() < et.getx()) {
+                                    heb = he;
+                                    if (std::abs(es.getx() - v->getx()) > TOLERANCE_CS_FREE) {
+                                        isLowerIntersectVertex = false;
+                                    }
+                                    isLowerRayIntersect = true;
                                 }
-                                isLowerRayIntersect = true;
                             }
-                        }
+                            he = he->getNext();
+                        } while (std::abs(he->getOrigin()->getx() - startHedge->getOrigin()->getx()) > TOLERANCE_CS_FREE || 
+                            std::abs(he->getOrigin()->gety() - startHedge->getOrigin()->gety()) > TOLERANCE_CS_FREE);
                     }
+                    std::cout << isUpperRayIntersect << ' ' << isUpperIntersectVertex << ' ' << isLowerRayIntersect << ' ' << isLowerIntersectVertex << std::endl;
                     std::cout << "checkpoint7-2-*-1\n";
 
                     // Make new edges
@@ -816,13 +845,16 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                     std::vector<Vertex*> upperVertices, lowerVertices;
                     if (isUpperRayIntersect) {
                         topIntersectionPoint = verticalRayIntersection(v->getPoint(), het->getEdge());
-                        upperEdgeNumber = std::floor(std::abs(v->getPoint().gety() - topIntersectionPoint.gety()) / deltas[i]);
+                        std::cout << v->getPoint().getx() << ' ' << v->getPoint().gety() << std::endl;
+                        std::cout << het->getEdge().gets().getx() << ' ' << het->getEdge().gets().gety() <<  ' ' << het->getEdge().gett().getx() << ' ' << het->getEdge().gett().gety() << std::endl;
+                        std::cout << topIntersectionPoint.getx() << ' ' << topIntersectionPoint.gety() << ' ' << deltas[i] << std::endl;
+                        upperEdgeNumber = std::floor((topIntersectionPoint.gety() - std::abs(v->getPoint().gety())) / deltas[i]);
                         upperEdgeLength = std::abs(v->getPoint().gety() - topIntersectionPoint.gety()) / double(upperEdgeNumber);
                         upperVertices.push_back(v);
                     }
                     if (isLowerRayIntersect) {
-                        bottomIntersectionPoint = verticalRayIntersection(v->getPoint(), het->getEdge());
-                        lowerEdgeNumber = std::floor(std::abs(v->getPoint().gety() - bottomIntersectionPoint.gety()) / deltas[i]);
+                        bottomIntersectionPoint = verticalRayIntersection(v->getPoint(), heb->getEdge());
+                        lowerEdgeNumber = std::floor((std::abs(v->getPoint().gety() - bottomIntersectionPoint.gety())) / deltas[i]);
                         lowerEdgeLength = std::abs(v->getPoint().gety() - bottomIntersectionPoint.gety()) / double(lowerEdgeNumber);
                         lowerVertices.push_back(v);
                     }                                        
@@ -830,8 +862,9 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
 
                     // Make upper hedges and Set Twin
                     if (isUpperRayIntersect) {
+                        std::cout << "upperEdgeNumber:" << upperEdgeNumber << std::endl;
                         for (int i = 0; i < upperEdgeNumber; i++) {
-                            Vertex* newV = new Vertex(v->getx(), v->gety() + upperEdgeLength);
+                            Vertex* newV = new Vertex(v->getx(), v->gety() + upperEdgeLength * (i+1));
                             newV->setKey("NV_" + std::to_string(new_vertex_idx++));
                             this->vertices_types[newV->getKey()] = V_TRP;
                             upperVertices.push_back(newV);
@@ -858,7 +891,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                     // Make lower hedges and Set twin
                     if (isLowerRayIntersect) {
                         for (int i = 0; i < lowerEdgeNumber; i++) {
-                            Vertex* newV = new Vertex(v->getx(), v->gety() - lowerEdgeLength);
+                            Vertex* newV = new Vertex(v->getx(), v->gety() - lowerEdgeLength * (i + 1));
                             newV->setKey("NV_" + std::to_string(new_vertex_idx++));
                             this->vertices_types[newV->getKey()] = V_TRP;
                             lowerVertices.push_back(newV);
@@ -883,13 +916,15 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                     std::cout << "checkpoint7-2-*-6\n";
 
                     //std::vector<HEdge*> edges = f->getInnerHEdges();
+                    HEdge* he = edges[0];
                     HEdge* firstEdge; // whose origin is obstacle vertex
-                    for (auto he : edges) {
+                    while (true) {
                         Vertex nowV = *he->getOrigin();
                         if (std::abs(v->getx() - nowV.getx()) < TOLERANCE_CS_FREE && std::abs(v->gety() - nowV.gety()) < TOLERANCE_CS_FREE) {
                             firstEdge = he;
                             break;
                         }
+                        he = he->getNext();
                     }
                     std::cout << "checkpoint7-2-*-7\n";
 
@@ -897,6 +932,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                     HEdge* upFaceFirst, *loFaceFirst, *upFaceLast, *loFaceLast;
                     HEdge* originFaceFirst, *originFaceLast;
                     HEdge* nowHEdge = firstEdge;
+                    /*
                     //HEdge* nextEdge = firstEdge->getNext();
                     Edge e_het, e_bet;
                     if (isUpperRayIntersect) {
@@ -908,170 +944,381 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                         e_bet = heb->getEdge();
                         //e_bet.sets(heb->getEdge().gets());
                         //e_bet.sett(heb->getEdge().gett());
-                    }
+                    }*/
                     
                     if (isUpperRayIntersect && isLowerRayIntersect) {
                         while (true) {
                             nowHEdge = nowHEdge->getNext();
                             //nextEdge = nowEdge->getNext();
                             Edge nowEdge = nowHEdge->getEdge();
+                            /*
                             if (std::abs(nowEdge.gets().getx() - e_het.gets().getx()) < TOLERANCE_CS_FREE &&
                                 std::abs(nowEdge.gets().gety() - e_het.gets().gety()) < TOLERANCE_CS_FREE &&
                                 std::abs(nowEdge.gett().getx() - e_het.gett().getx()) < TOLERANCE_CS_FREE &&
-                                std::abs(nowEdge.gett().gety() - e_het.gett().gety()) < TOLERANCE_CS_FREE) {
+                                std::abs(nowEdge.gett().gety() - e_het.gett().gety()) < TOLERANCE_CS_FREE) */
+                            if (std::abs(nowHEdge->getOrigin()->getx() - het->getOrigin()->getx()) < TOLERANCE_CS_FREE &&
+                                std::abs(nowHEdge->getOrigin()->gety() - het->getOrigin()->getx()) < TOLERANCE_CS_FREE ) {
                                 isUpper = true;
-                                loFaceLast = firstEdge->getPrev();
-                                // Split original edges                           
-                                upFaceFirst = firstEdge;
-                                upFaceLast = nowHEdge;
-                                originFaceFirst = new HEdge();
-                                originFaceFirst->setOrigin(upperVertices.back());
-                                originFaceFirst->setNext(nowHEdge->getNext());
-                                originFaceFirst->getNext()->setPrev(originFaceFirst);
+                                std::cout << "checkpoint7-2-*-upper\n";
 
-                                loFaceFirst = new HEdge();
-                                originFaceLast = heb;
-                                loFaceFirst->setOrigin(lowerVertices.back());
-                                loFaceFirst->setNext(originFaceLast->getNext());
-                                loFaceFirst->getNext()->setPrev(loFaceFirst);
+                                if (isUpperIntersectVertex) {
+                                    std::cout << "checkpoint7-2-*-upper-up-vertex\n";
+                                    upFaceFirst = firstEdge;
+                                    upFaceLast = nowHEdge->getPrev();
+                                    originFaceFirst = nowHEdge;
+                                }
 
-                                // Update DCEL of neighbor cell
-                                HEdge* upFaceTwin = new HEdge();
-                                HEdge* originFaceFirstTwin = nowHEdge->getTwin();
-                                upFaceTwin->setOrigin(upperVertices.back());
-                                upFaceTwin->setNext(originFaceFirstTwin->getNext());
-                                upFaceTwin->getNext()->setPrev(upFaceTwin);
-                                upFaceTwin->setPrev(originFaceFirstTwin);
-                                upFaceTwin->setTwin(upFaceLast);
-                                upFaceLast->setTwin(upFaceTwin);
-                                originFaceFirstTwin->setNext(upFaceTwin);
-                                originFaceFirstTwin->setTwin(originFaceFirst);
-                                originFaceFirst->setTwin(originFaceFirstTwin);
+                                else {
+                                    std::cout << "checkpoint7-2-*-upper-up-edge\n";
+                                    // Split original edges                           
+                                    upFaceFirst = firstEdge;
+                                    upFaceLast = nowHEdge;
+                                    originFaceFirst = new HEdge();
+                                    originFaceFirst->setOrigin(upperVertices.back());
+                                    originFaceFirst->setNext(nowHEdge->getNext());
+                                    originFaceFirst->getNext()->setPrev(originFaceFirst);
 
-                                HEdge* loFaceTwin = heb->getTwin();
-                                HEdge* originFaceLastTwin = new HEdge();
-                                originFaceLastTwin->setOrigin(lowerVertices.back());
-                                originFaceLastTwin->setNext(loFaceTwin->getNext());
-                                originFaceLastTwin->getNext()->setPrev(originFaceLastTwin);
-                                originFaceLastTwin->setPrev(loFaceTwin);
-                                originFaceLastTwin->setTwin(originFaceLast);
-                                originFaceLast->setTwin(originFaceLastTwin);
-                                loFaceTwin->setNext(originFaceLastTwin);
-                                loFaceTwin->setTwin(loFaceFirst);
-                                loFaceFirst->setTwin(loFaceTwin);
+                                    // Update DCEL of neighbor cell
+                                    HEdge* upFaceTwin = new HEdge();
+                                    HEdge* originFaceFirstTwin = nowHEdge->getTwin();
+                                    upFaceTwin->setOrigin(upperVertices.back());
+                                    upFaceTwin->setNext(originFaceFirstTwin->getNext());
+                                    upFaceTwin->getNext()->setPrev(upFaceTwin);
+                                    upFaceTwin->setPrev(originFaceFirstTwin);
+                                    upFaceTwin->setTwin(upFaceLast);
+                                    upFaceLast->setTwin(upFaceTwin);
+                                    originFaceFirstTwin->setNext(upFaceTwin);
+                                    originFaceFirstTwin->setTwin(originFaceFirst);
+                                    originFaceFirst->setTwin(originFaceFirstTwin);                                    
+                                }
+
+                                if (isLowerIntersectVertex) {
+                                    std::cout << "checkpoint7-2-*-upper-lo-vertex\n";
+                                    loFaceFirst = heb;
+                                    loFaceLast = firstEdge->getPrev();
+                                    originFaceLast = heb->getPrev();
+                                }
+
+                                else {
+                                    std::cout << "checkpoint7-2-*-upper-lo-edge\n";
+                                    loFaceLast = firstEdge->getPrev();
+                                    // Split original edges                                    
+                                    loFaceFirst = new HEdge();
+                                    originFaceLast = heb;
+                                    loFaceFirst->setOrigin(lowerVertices.back());
+                                    loFaceFirst->setNext(originFaceLast->getNext());
+                                    loFaceFirst->getNext()->setPrev(loFaceFirst);
+
+                                    // Update DCEL of neighbor cell
+                                    HEdge* loFaceTwin = heb->getTwin();
+                                    HEdge* originFaceLastTwin = new HEdge();
+                                    originFaceLastTwin->setOrigin(lowerVertices.back());
+                                    originFaceLastTwin->setNext(loFaceTwin->getNext());
+                                    originFaceLastTwin->getNext()->setPrev(originFaceLastTwin);
+                                    originFaceLastTwin->setPrev(loFaceTwin);
+                                    originFaceLastTwin->setTwin(originFaceLast);
+                                    originFaceLast->setTwin(originFaceLastTwin);
+                                    loFaceTwin->setNext(originFaceLastTwin);
+                                    loFaceTwin->setTwin(loFaceFirst);
+                                    loFaceFirst->setTwin(loFaceTwin);
+                                }
                                 break;
                             }
+                            /*
                             else if (std::abs(nowEdge.gets().getx() - e_bet.gets().getx()) < TOLERANCE_CS_FREE &&
                                 std::abs(nowEdge.gets().gety() - e_bet.gets().gety()) < TOLERANCE_CS_FREE &&
                                 std::abs(nowEdge.gett().getx() - e_bet.gett().getx()) < TOLERANCE_CS_FREE &&
-                                std::abs(nowEdge.gett().gety() - e_bet.gett().gety()) < TOLERANCE_CS_FREE) {
-                                upFaceLast = firstEdge->getPrev();
+                                std::abs(nowEdge.gett().gety() - e_bet.gett().gety()) < TOLERANCE_CS_FREE)*/
+                            else if (std::abs(nowHEdge->getOrigin()->getx() - heb->getOrigin()->getx()) < TOLERANCE_CS_FREE &&
+                                std::abs(nowHEdge->getOrigin()->gety() - heb->getOrigin()->gety()) < TOLERANCE_CS_FREE) {
+                                std::cout << "checkpoint7-2-*-lower\n";
 
-                                // Split original edges
-                                loFaceFirst = firstEdge;
-                                loFaceLast = nowHEdge;
-                                originFaceFirst = new HEdge();
-                                originFaceFirst->setOrigin(lowerVertices.back());
-                                originFaceFirst->setNext(nowHEdge->getNext());
-                                originFaceFirst->getNext()->setPrev(originFaceFirst);
+                                //std::cout << nowHEdge->getOrigin()->getx() << ' ' << nowHEdge->getOrigin()->gety() << std::endl;
+                                //std::cout << nowHEdge->getNext()->getOrigin()->getx() << ' ' << nowHEdge->getNext()->getOrigin()->gety() << std::endl;
+                                if (isLowerIntersectVertex) {
+                                    std::cout << "checkpoint7-2-*-lower-lo-vertex\n";
+                                    loFaceFirst = firstEdge;
+                                    loFaceLast = nowHEdge->getPrev();
+                                    originFaceFirst = nowHEdge;
+                                }
 
-                                upFaceFirst = new HEdge();
-                                originFaceLast = het;
-                                upFaceFirst->setOrigin(upperVertices.back());
-                                upFaceFirst->setNext(originFaceLast->getNext());
-                                upFaceFirst->getNext()->setPrev(upFaceFirst);
+                                else {
+                                    std::cout << "checkpoint7-2-*-lower-lo-edge\n";
+                                    // Split original edges
+                                    loFaceFirst = firstEdge;
+                                    loFaceLast = nowHEdge;
+                                    originFaceFirst = new HEdge();
+                                    originFaceFirst->setOrigin(lowerVertices.back());
+                                    originFaceFirst->setNext(nowHEdge->getNext());
+                                    originFaceFirst->getNext()->setPrev(originFaceFirst);
 
-                                // Update DCEL of neighbor cell
-                                HEdge* loFaceTwin = new HEdge();
-                                HEdge* originFaceFirstTwin = nowHEdge->getTwin();
-                                loFaceTwin->setOrigin(lowerVertices.back());
-                                loFaceTwin->setNext(originFaceFirstTwin->getNext());
-                                loFaceTwin->getNext()->setPrev(loFaceTwin);
-                                loFaceTwin->setPrev(originFaceFirstTwin);
-                                loFaceTwin->setTwin(loFaceLast);
-                                loFaceLast->setTwin(loFaceTwin);
-                                originFaceFirstTwin->setNext(loFaceTwin);
-                                originFaceFirstTwin->setTwin(originFaceFirst);
-                                originFaceFirst->setTwin(originFaceFirstTwin);
+                                    // Update DCEL of neighbor cell
+                                    HEdge* loFaceTwin = new HEdge();
+                                    HEdge* originFaceFirstTwin = nowHEdge->getTwin();
+                                    loFaceTwin->setOrigin(lowerVertices.back());
+                                    loFaceTwin->setNext(originFaceFirstTwin->getNext());
+                                    loFaceTwin->getNext()->setPrev(loFaceTwin);
+                                    loFaceTwin->setPrev(originFaceFirstTwin);
+                                    loFaceTwin->setTwin(loFaceLast);
+                                    loFaceLast->setTwin(loFaceTwin);
+                                    originFaceFirstTwin->setNext(loFaceTwin);
+                                    originFaceFirstTwin->setTwin(originFaceFirst);
+                                    originFaceFirst->setTwin(originFaceFirstTwin);                                    
+                                }     
 
-                                HEdge* upFaceTwin = het->getTwin();
-                                HEdge* originFaceLastTwin = new HEdge();
-                                originFaceLastTwin->setOrigin(upperVertices.back());
-                                originFaceLastTwin->setNext(upFaceTwin->getNext());
-                                originFaceLastTwin->getNext()->setPrev(originFaceLastTwin);
-                                originFaceLastTwin->setPrev(upFaceTwin);
-                                originFaceLastTwin->setTwin(originFaceLast);
-                                originFaceLast->setTwin(originFaceLastTwin);
-                                upFaceTwin->setNext(originFaceLastTwin);
-                                upFaceTwin->setTwin(upFaceFirst);
-                                upFaceFirst->setTwin(upFaceTwin);
+                                if (isUpperIntersectVertex) {
+                                    upFaceFirst = het;
+                                    upFaceLast = firstEdge->getPrev();
+                                    originFaceLast = het->getPrev();
+                                }
+
+                                else {
+                                    upFaceLast = firstEdge->getPrev();
+                                    // Split original edges
+                                    upFaceFirst = new HEdge();
+                                    originFaceLast = het;
+                                    upFaceFirst->setOrigin(upperVertices.back());
+                                    upFaceFirst->setNext(originFaceLast->getNext());
+                                    upFaceFirst->getNext()->setPrev(upFaceFirst);
+
+                                    // Update DCEL of neighbor cell
+                                    HEdge* upFaceTwin = het->getTwin();
+                                    HEdge* originFaceLastTwin = new HEdge();
+                                    originFaceLastTwin->setOrigin(upperVertices.back());
+                                    originFaceLastTwin->setNext(upFaceTwin->getNext());
+                                    originFaceLastTwin->getNext()->setPrev(originFaceLastTwin);
+                                    originFaceLastTwin->setPrev(upFaceTwin);
+                                    originFaceLastTwin->setTwin(originFaceLast);
+                                    originFaceLast->setTwin(originFaceLastTwin);
+                                    upFaceTwin->setNext(originFaceLastTwin);
+                                    upFaceTwin->setTwin(upFaceFirst);
+                                    upFaceFirst->setTwin(upFaceTwin);                                  
+                                }
+
                                 break;
                             }
                         }
                     
-                        std::cout << "checkpoint7-2-*-8\n";
-
-                        // Original cell update
+                        std::cout << upperLeft.size() << std::endl;
                         if (isUpper) {
+                            originFaceFirst->setPrev(upperLeft.back());
                             upperLeft.back()->setNext(originFaceFirst);
                             lowerLeft.front()->setNext(upperLeft.front());
+                            upperLeft.front()->setPrev(lowerLeft.front());
                             originFaceLast->setNext(lowerLeft.back());
+                            lowerLeft.back()->setPrev(originFaceLast);
                         }
                         else {
+                            originFaceFirst->setPrev(lowerRight.back());
                             lowerRight.back()->setNext(originFaceFirst);
                             upperRight.front()->setNext(lowerRight.front());
+                            lowerRight.front()->setPrev(upperRight.front());
                             originFaceLast->setNext(upperRight.back());
+                            upperRight.back()->setPrev(originFaceLast);
                         }
-                        std::vector<HEdge*> fHedgeList;
+                        //std::vector<HEdge*> fHedgeList;
                         //f->setInners(&fHedgeList);
-                        f->setOuter(fHedgeList.front());
+                        //f->setOuter(fHedgeList.front());
+                        f->setOuter(originFaceLast);                       
 
                         // Obstacle vertex 기준 Upper face 만들기 
                         Face* uf = new Face();
                         std::vector<HEdge*> ufHedgeList;
                         if (isUpper) {
+                            upFaceFirst->setPrev(upperRight.front());
                             upperRight.front()->setNext(upFaceFirst);
                             upFaceLast->setNext(upperRight.back());
+                            upperRight.back()->setPrev(upFaceLast);
                         }
                         else {
+                            upFaceFirst->setPrev(upperLeft.back());
                             upperLeft.back()->setNext(upFaceFirst);
                             upFaceLast->setNext(upperLeft.front());
+                            upperLeft.front()->setPrev(upFaceLast);
                         }
                         make_Hedge_list(upFaceFirst, ufHedgeList);
                         //uf->setInners(&ufHedgeList);
                         uf->setOuter(ufHedgeList.front());
-                        std::cout << "checkpoint7-2-*-9\n";
 
                         // Obstacle vertex 기준 Lower face 만들기
                         Face* lf = new Face();
                         std::vector<HEdge*> lfHedgeList;
                         if (isUpper) {
+                            loFaceFirst->setPrev(lowerRight.back());
                             lowerRight.back()->setNext(loFaceFirst);
-                            loFaceLast->setNext(upperRight.front());
+                            loFaceLast->setNext(lowerRight.front());
+                            upperRight.front()->setPrev(loFaceLast);
                         }
                         else {
+                            loFaceFirst->setPrev(lowerLeft.front());
                             lowerLeft.front()->setNext(loFaceFirst);
-                            loFaceLast->setNext(upperLeft.back());
+                            loFaceLast->setNext(lowerLeft.back());
+                            upperLeft.back()->setPrev(loFaceLast);
                         }
-                        make_Hedge_list(upFaceFirst, ufHedgeList);
+
+                        // debug start
+                        /*
+                        HEdge* debugHEdge = loFaceLast;
+                        std::cout << "v: " << v->getx() << ' ' << v->gety() << std::endl;
+                        for (int i = 0; i < 10; i++) {
+                            std::cout << debugHEdge->getOrigin()->getx() << ' ' << debugHEdge->getOrigin()->gety() << std::endl;
+                            debugHEdge = debugHEdge->getNext();
+                        }
+                        */
+                        // debug end
+
+                        //make_Hedge_list(upFaceFirst, ufHedgeList);
+                        //std::cout << "checkpoint7-2-*-10-before_mhl\n";
+                        make_Hedge_list(loFaceLast, lfHedgeList);
+                        //std::cout << "checkpoint7-2-*-10-after_mhl\n";
                         //lf->setInners(&lfHedgeList);
                         lf->setOuter(lfHedgeList.front());
                         added_faces.push_back(uf);
                         added_faces.push_back(lf);
-                        std::cout << "checkpoint7-2-*-10\n";
                     }
-                    // Cell 하나에 obstacle vertex 하나만 있므로 break                    
+                    // Cell 하나에 obstacle vertex 하나만 있므로 break
+                    
+                    else if (isUpperRayIntersect) {
+                        std::cout << "checkpoint7-2-*-upper_only\n";
+                        // Partition cell into left cell (old cell) and right cell (new cell) 
+                        if (isUpperIntersectVertex) {
+                            std::cout << "checkpoint7-2-*-upper_only-vertex\n";                        
+                            upFaceFirst = firstEdge;
+                            upFaceLast = het->getPrev();
+                            originFaceFirst = het;
+                            originFaceLast = firstEdge->getPrev();
+
+                            upFaceFirst->setPrev(upperRight.front());
+                            upperRight.front()->setNext(upFaceFirst);
+                            upFaceLast->setNext(upperRight.back());
+                            upperRight.back()->setPrev(upFaceLast);
+                            originFaceFirst->setPrev(upperLeft.back());
+                            upperLeft.back()->setNext(originFaceFirst);
+                            originFaceLast->setNext(upperLeft.front());
+                            upperLeft.front()->setPrev(originFaceLast);
+                        }
+                        else {
+                            std::cout << "checkpoint7-2-*-upper_only-edge\n";
+                            // Split original edges                           
+                            upFaceFirst = firstEdge;
+                            upFaceLast = het;
+                            originFaceFirst = new HEdge();
+                            originFaceFirst->setOrigin(upperVertices.back());
+                            originFaceFirst->setNext(het->getNext());
+                            originFaceFirst->getNext()->setPrev(originFaceFirst);
+                            originFaceLast = firstEdge->getPrev();
+
+                            // Update DCEL of neighbor cell
+                            HEdge* upFaceTwin = new HEdge();
+                            HEdge* originFaceFirstTwin = het->getTwin();
+                            upFaceTwin->setOrigin(upperVertices.back());
+                            upFaceTwin->setNext(originFaceFirstTwin->getNext());
+                            upFaceTwin->getNext()->setPrev(upFaceTwin);
+                            upFaceTwin->setPrev(originFaceFirstTwin);
+                            upFaceTwin->setTwin(upFaceLast);
+                            upFaceLast->setTwin(upFaceTwin);
+                            originFaceFirstTwin->setNext(upFaceTwin);
+                            originFaceFirstTwin->setTwin(originFaceFirst);
+                            originFaceFirst->setTwin(originFaceFirstTwin);
+
+                            upFaceFirst->setPrev(upperRight.front());
+                            upperRight.front()->setNext(upFaceFirst);
+                            upFaceLast->setNext(upperRight.back());
+                            upperRight.back()->setPrev(upFaceLast);
+                            originFaceFirst->setPrev(upperLeft.back());
+                            upperLeft.back()->setNext(originFaceFirst);
+                            originFaceLast->setNext(upperLeft.front());
+                            upperLeft.front()->setPrev(originFaceLast);
+                        }
+
+                        // Modify 
+                        f->setOuter(originFaceLast);
+
+                        // Make new Cell
+                        Face* uf = new Face();
+                        std::vector<HEdge*> ufHedgeList;
+                        //std::cout << "checkpoint7-2-*-upper_only-before_mhl\n";
+                        make_Hedge_list(upFaceFirst, ufHedgeList);
+                        //std::cout << "checkpoint7-2-*-upper_only-after_mhl\n";
+                        uf->setOuter(ufHedgeList.front());
+                        added_faces.push_back(uf);
+                    }
+
+                    else if (isLowerRayIntersect) {
+                        std::cout << "checkpoint7-2-*-lower_only\n";
+                        // Partition cell into left cell (old cell) and right cell (new cell) 
+                        if (isLowerIntersectVertex) {
+                            std::cout << "checkpoint7-2-*-lower_only-vertex\n";
+                            loFaceFirst = firstEdge->getPrev();
+                            loFaceLast = heb;
+                            originFaceFirst = heb->getPrev();
+                            originFaceLast = firstEdge;
+
+                            loFaceFirst->setNext(lowerRight.front());
+                            lowerRight.front()->setPrev(loFaceFirst);
+                            loFaceLast->setPrev(lowerRight.back());
+                            lowerRight.back()->setNext(loFaceLast);
+                            originFaceFirst->setNext(lowerLeft.back());
+                            lowerLeft.back()->setPrev(originFaceFirst);
+                            originFaceLast->setPrev(lowerLeft.front());
+                            lowerLeft.front()->setNext(originFaceLast);
+                        }
+                        else {
+                            std::cout << "checkpoint7-2-*-lower_only-edge\n";
+                            loFaceLast = firstEdge->getPrev();
+                            // Split original edges                                    
+                            loFaceFirst = new HEdge();
+                            originFaceLast = heb;
+                            loFaceFirst->setOrigin(lowerVertices.back());
+                            loFaceFirst->setNext(originFaceLast->getNext());
+                            loFaceFirst->getNext()->setPrev(loFaceFirst);
+                            originFaceFirst = firstEdge;
+
+                            // Update DCEL of neighbor cell
+                            HEdge* loFaceTwin = heb->getTwin();
+                            HEdge* originFaceLastTwin = new HEdge();
+                            originFaceLastTwin->setOrigin(lowerVertices.back());
+                            originFaceLastTwin->setNext(loFaceTwin->getNext());
+                            originFaceLastTwin->getNext()->setPrev(originFaceLastTwin);
+                            originFaceLastTwin->setPrev(loFaceTwin);
+                            originFaceLastTwin->setTwin(originFaceLast);
+                            originFaceLast->setTwin(originFaceLastTwin);
+                            loFaceTwin->setNext(originFaceLastTwin);
+                            loFaceTwin->setTwin(loFaceFirst);
+                            loFaceFirst->setTwin(loFaceTwin);
+
+                            loFaceFirst->setPrev(lowerRight.back());
+                            lowerRight.back()->setNext(loFaceFirst);
+                            loFaceLast->setNext(lowerRight.front());
+                            lowerRight.front()->setPrev(loFaceLast);
+                            originFaceFirst->setPrev(lowerLeft.front());
+                            lowerLeft.front()->setNext(originFaceFirst);
+                            originFaceLast->setNext(lowerLeft.back()); 
+                            lowerLeft.back()->setPrev(originFaceLast);
+                        }
+
+                        // Modify 
+                        f->setOuter(originFaceLast);
+
+                        // Make new Cell
+                        Face* lf = new Face();
+                        std::vector<HEdge*> lfHedgeList;
+                        make_Hedge_list(loFaceFirst, lfHedgeList);
+                        lf->setOuter(lfHedgeList.front());
+                        added_faces.push_back(lf);
+                    }
+
                     break;
                 }
             }
         }
-        std::cout << "checkpoint7-2\n";
+        //std::cout << "checkpoint7-2\n";
         //std::cout << debugObs << "\n";
         std::cout << added_faces.size() << "\n";
         for (auto af : added_faces) {
             faces.push_back(af);
         }
-        std::cout << "checkpoint7-3\n";
+        //std::cout << "checkpoint7-3\n";
 
         // Construct graph for result DCEL
         std::vector<Point> G_V;
@@ -1099,15 +1346,27 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 G_E[G_V_map[u.getKey()]].push_back(G_V_map[v.getKey()]);
             }
         }
-        std::cout << "checkpoint7-4\n";
+        //std::cout << "checkpoint7-4\n";
 
         std::vector<std::pair<std::string, Point>> G_V_key;
         for (auto it = G_V_map.begin(); it != G_V_map.end(); it++) {
             G_V_key.push_back(std::make_pair(it->first, G_V[it->second]));
         }
         this->subdiv = new DCEL(G_V_key,G_E);
-        std::cout << "checkpoint7-5\n";
-        //print_result(&G_V, &G_E, "CS_Free.txt");
+
+        /*
+        std::cout << this->subdiv->getFaces().size() << std::endl;
+        std::vector<Face*> debugFace = this->subdiv->getFaces();
+        int debugInners = 0;
+        for (size_t i = 0; i < debugFace.size(); i++) {
+            if (debugFace[i]->getInnerHEdges().size() != 0) std::cout << i << std::endl;
+            debugInners += debugFace[i]->getInnerHEdges().size();
+        }
+        std::cout << debugInners << std::endl;
+        */
+
+        //std::cout << "checkpoint7-5\n";
+        print_result(&G_V, &G_E, "CS_Free.txt");
         // Update edges map
         this->edge_types.clear();
         std::vector<HEdge*> edges = this->subdiv->getHedges();
@@ -1123,10 +1382,10 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                 this->edge_types[key] = HE_OPQ;
             }            
         }
-        std::cout << "checkpoint7-5\n";
+        //std::cout << "checkpoint7-5\n";
         //print_result(&G_V, &G_V_map, &G_E, "CS_Free.txt");
     }
-    std::cout << "checkpoint7-6\n";
+    //std::cout << "checkpoint7-6\n";
 }
 
 CS_Free::~CS_Free(){}
