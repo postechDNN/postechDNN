@@ -672,7 +672,40 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
         std::vector<Face*> added_faces;
         std::vector<Face*> faces = S_overlay.getFaces();
         std::vector<double> deltas;
+
+
         // Compute delta
+        std::vector<Vertex*> s_overay_vertices = S_overlay.getVertices();
+        std::vector<Vertex*> s_overay_obs_vertices;
+        std::unordered_map<std::string, int> s_overay_obs_vertices_map;
+        for (auto v : s_overay_vertices) {
+            if (this->vertices_types[v->getKey()] == V_OBS) {
+                s_overay_obs_vertices_map[v->getKey()] = s_overay_obs_vertices.size();
+                s_overay_obs_vertices.push_back(v);
+            }
+        }
+
+        std::vector<PLQ> obs_vertex_point_location_query(s_overay_obs_vertices.size(), PLQ());
+        point_location_queries(&s_overay_obs_vertices, &S, obs_vertex_point_location_query);
+        for (int i = 0; i < obs_vertex_point_location_query.size(); i++) {
+            double delta = DBL_MAX;
+            for (int j = 0; j < 4; j++) {
+                if (obs_vertex_point_location_query[i].answer[j] != NULL) {
+                    HEdge* firstHe = obs_vertex_point_location_query[i].answer[j];
+                    HEdge* he = firstHe->getNext();
+                    while (std::abs(he->getOrigin()->getx() - firstHe->getOrigin()->getx()) > TOLERANCE_CS_FREE|| 
+                        std::abs(he->getOrigin()->getx() - firstHe->getOrigin()->getx()) > TOLERANCE_CS_FREE) {
+                        double temp = he->getOrigin()->getPoint().distance(he->getNext()->getOrigin()->getPoint());
+                        if (delta > temp) delta = temp;
+                        he = he->getNext();
+                    }
+                    break;
+                }
+            }
+            deltas.push_back(delta);
+        }
+
+        /*
         for (auto f : faces) {
             std::vector<HEdge*> edges = f->getOutHEdges();
             double delta = DBL_MAX;
@@ -686,6 +719,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
             deltas.push_back(delta);
         }
         std::cout << "checkpoint7-1\n";
+        */
         int new_vertex_idx = 0; // V_
         //std::cout << faces.size() << std::endl;
         
@@ -845,16 +879,16 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                     std::vector<Vertex*> upperVertices, lowerVertices;
                     if (isUpperRayIntersect) {
                         topIntersectionPoint = verticalRayIntersection(v->getPoint(), het->getEdge());
-                        std::cout << v->getPoint().getx() << ' ' << v->getPoint().gety() << std::endl;
-                        std::cout << het->getEdge().gets().getx() << ' ' << het->getEdge().gets().gety() <<  ' ' << het->getEdge().gett().getx() << ' ' << het->getEdge().gett().gety() << std::endl;
-                        std::cout << topIntersectionPoint.getx() << ' ' << topIntersectionPoint.gety() << ' ' << deltas[i] << std::endl;
-                        upperEdgeNumber = std::floor((topIntersectionPoint.gety() - std::abs(v->getPoint().gety())) / deltas[i]);
+                        //std::cout << v->getPoint().getx() << ' ' << v->getPoint().gety() << std::endl;
+                        //std::cout << het->getEdge().gets().getx() << ' ' << het->getEdge().gets().gety() <<  ' ' << het->getEdge().gett().getx() << ' ' << het->getEdge().gett().gety() << std::endl;
+                        //std::cout << topIntersectionPoint.getx() << ' ' << topIntersectionPoint.gety() << ' ' << deltas[s_overay_obs_vertices_map[v->getKey()]] << std::endl;
+                        upperEdgeNumber = std::floor((topIntersectionPoint.gety() - std::abs(v->getPoint().gety())) / deltas[s_overay_obs_vertices_map[v->getKey()]]);
                         upperEdgeLength = std::abs(v->getPoint().gety() - topIntersectionPoint.gety()) / double(upperEdgeNumber);
                         upperVertices.push_back(v);
                     }
                     if (isLowerRayIntersect) {
                         bottomIntersectionPoint = verticalRayIntersection(v->getPoint(), heb->getEdge());
-                        lowerEdgeNumber = std::floor((std::abs(v->getPoint().gety() - bottomIntersectionPoint.gety())) / deltas[i]);
+                        lowerEdgeNumber = std::floor((std::abs(v->getPoint().gety() - bottomIntersectionPoint.gety())) / deltas[s_overay_obs_vertices_map[v->getKey()]]);
                         lowerEdgeLength = std::abs(v->getPoint().gety() - bottomIntersectionPoint.gety()) / double(lowerEdgeNumber);
                         lowerVertices.push_back(v);
                     }                                        
