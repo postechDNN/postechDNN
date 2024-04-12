@@ -804,7 +804,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                     // Cell 하나에 obstacle vertex 하나만 있므로 break
                     
                     else if (isUpperRayIntersect) {
-                        std::cout << "checkpoint7-2-*-upper_only\n";
+                        //std::cout << "checkpoint7-2-*-upper_only\n";
                         // Partition cell into left cell (old cell) and right cell (new cell) 
                         if (isUpperIntersectVertex) {
                             //std::cout << "checkpoint7-2-*-upper_only-vertex\n";                        
@@ -871,7 +871,7 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
                         //std::cout << "checkpoint7-2-*-lower_only\n";
                         // Partition cell into left cell (old cell) and right cell (new cell) 
                         if (isLowerIntersectVertex) {
-                            std::cout << "checkpoint7-2-*-lower_only-vertex\n";
+                            //std::cout << "checkpoint7-2-*-lower_only-vertex\n";
                             loFaceFirst = firstEdge->getPrev();
                             loFaceLast = heb;
                             originFaceFirst = heb->getPrev();
