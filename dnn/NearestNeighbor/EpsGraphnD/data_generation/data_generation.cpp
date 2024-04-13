@@ -21,7 +21,10 @@ std::random_device rd;
 std::mt19937 gen(rd());
 
 bool PRINT_POINT_FLAG = false;
-bool DATA_GENERATION = false;
+
+// 이 flag가 true라면 data를 만드는 
+// 이 flag가 false라면 (만들어진 data를 가지고) nearest neighbor를 찾음
+bool DATA_GENERATION = true;
 
 int main() {
 	if (DATA_GENERATION) {
@@ -34,6 +37,9 @@ int main() {
 		ifstream readFile;
 		readFile.open(config);
 
+		// 1을 입력 시 자동으로 DataGeneration사용법.docx에 해당하는 입력
+		// 0을 입력 시 수동으로 입력받음
+		int auto_answer;
 		int d;
 		double u_bound;
 		int halfplane_constraint;
@@ -71,45 +77,52 @@ int main() {
 			readFile >> dum >> str;
 			dis_pts_cell = stoi(str);
 		}
-		// 
+		// 파일이 존재하지 않을 경우 직접 input 입력
 		else {
-			std::cout << "Enter the dimension: ";
-			std::cin >> d;
+			std::cout << "Auto: ";
+			std::cin >> auto_answer;
 
-			// defines a bounding box (cube) around the origin
-			std::cout << std::endl;
-			std::cout << "Maximum value for each coordinate: ";
-			std::cin >> u_bound;
+			// DataGeneration사용법.docx에 해당하는 입력 예시: 4, 10.0, 0, 2, 2, 3, 4.
+			if (auto_answer == 1) {
+				d = 4; u_bound = 10.0; halfplane_constraint = 0; num_parts = 2; num_subspace = 2;
+				dis_pts = 3; dis_pts_cell = 4;
+			}
+			else {
 
-			// determines if the halfplanes are generated along the axes (grid)
-			std::cout << std::endl;
-			std::cout << "Halfplane constraint (0: Griddy, 1: Arbitrary)" << std::endl;
-			std::cout << "Select: ";
-			std::cin >> halfplane_constraint;
+				std::cout << "Enter the dimension: ";
+				std::cin >> d;
 
-			std::cout << std::endl;
-			std::cout << "Number of 'maximum' convex subparts: ";
-			std::cin >> num_parts;
+				// defines a bounding box (cube) around the origin
+				std::cout << std::endl;
+				std::cout << "Maximum value for each coordinate: ";
+				std::cin >> u_bound;
 
-			// std::cout << "Number of subspaces along the " << i + 1 << "-th axis: ";
-			std::cout << std::endl;
-			std::cout << "Number of subspaces along each axis: ";
-			std::cin >> num_subspace;
+				// determines if the halfplanes are generated along the axes (grid)
+				std::cout << std::endl;
+				std::cout << "Halfplane constraint (0: Griddy, 1: Arbitrary)" << std::endl;
+				std::cout << "Select: ";
+				std::cin >> halfplane_constraint;
 
-			std::cout << "Number of points to disperse on each halfplane: ";
-			std::cin >> dis_pts;
+				std::cout << std::endl;
+				std::cout << "Number of 'maximum' convex subparts: ";
+				std::cin >> num_parts;
 
-			std::cout << "Number of points to locate inside each cell: ";
-			std::cin >> dis_pts_cell;
-		}
+				// 기존에 axis별로 입력받았다면 지금은 일괄적으로, 하나의 값을 k 입력받아서 k^d개의 cell을 만듬
+				// std::cout << "Number of subspaces along the " << i + 1 << "-th axis: ";
+				std::cout << std::endl;
+				std::cout << "Number of subspaces along each axis: ";
+				std::cin >> num_subspace;
+
+				std::cout << "Number of points to disperse on each halfplane: ";
+				std::cin >> dis_pts;
+
+				std::cout << "Number of points to locate inside each cell: ";
+				std::cin >> dis_pts_cell;
+			}
+			}
 
 		// ------------------------------------------------------------------------------------------------------------------------
-		// dimension d
-
-		// ------------------------------------------------------------------------------------------------------------------------
-		// generate a bounding box
-
-		// rectangular bounding box
+		// generate a rectangular bounding box
 		std::vector<std::pair<double, double>> bbx;
 
 		for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
@@ -201,7 +214,10 @@ int main() {
 	else {
 
 		//string my_dir = "C:\\Users\\Jagun\\source\\repos\\";
+		
+		// 깃허브 스타랩 위치(사용자 직접 설정)
 		string my_dir = "C:\\Users\\ALGO\\Desktop\\StarLab\\";
+		// polytope 정보를 저장할 하위 디렉토리
 		string dir = my_dir + "postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\polytopes\\D";
 		ifstream fin;
 		int d = 4;
