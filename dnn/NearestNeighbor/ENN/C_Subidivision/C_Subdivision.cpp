@@ -355,34 +355,33 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
     }
 }
 
-double 
+
 
 //(O(nlogn) version) Build strong 1-conforming subdivision and the output is stored as the set of drawn edges.
-void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edges){
+void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edges){
     
     // Input vertices -> integers (one-to-one)
-    // TODO
-    std::vector<Point> vertices;
 
     
     /* Test input */
+    std::vector<Point> vertices;
     vertices.push_back(Point(1, 4));
     vertices.push_back(Point(2, 10));
     vertices.push_back(Point(3, 6));
 
-    int n = vertices.size();
 
     /* Graph initialize */
+    int n = this->sites.size();
     Graph graph(n, 0);
     DisjointSets ds(n); 
 
     /* Compute Delaunay_edges */
-	typedef std::pair<double, std::pair<int, int> > g_edge; 
+	typedef std::pair<double, std::pair<int, int> > g_edge; //<L_inf dist, <source, target>>
     std::vector<g_edge>  Delaunay_edges;
 
     std::vector<Point2d> Del_inputs;
     for (int i=0; i<n; i++){
-        Point v = vertices[i];
+        Point v = this->sites[i];
         Del_inputs.push_back(Point2d(i, v.getx(), v.gety()));
     }
 
@@ -400,6 +399,8 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
 
         Delaunay_edges.push_back(e_new);
     }
+
+    std::sort(Delaunay_edges.rbegin(), Delaunay_edges.rend());
 
 
     
@@ -419,11 +420,23 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
 
     std::vector<std::vector<Quad*> > Q_list; // To access Q(i, T), Q_T[find(any node in T)]
     std::vector<std::vector<Quad*> > Q_list_2; // For Q(i-2, T)
-    // Init Q_T
-    // TODO
+
+    // Init Q_list 
+    for (int i=0; i<n; i++){
+        Point p = this->sites[i];
+        Quad* q = compute_quad(p);
+
+        std::vector<Quad*> v;
+        v.push_back(q);
+
+        Q_list.push_back(v);
+    }
 
     while (Q.size()>1){
         int i_old = i; 
+
+        Q_list_2 = Q_list; 
+        
 
         if (N.size() > 0) 
             i += 2; 
@@ -441,18 +454,23 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
 
                 int i_temp = 2* std::ceil(double(1/2) * std::log2(double(w/6)));
 
-                if ((!found)  && (i_temp > i) && (i_temp % 2 == 0)){
-                    i = i_temp;
+                // Case 0) This should not happen
+                if (i_temp <= i_old)
+                    std::printf("[draw_one_sub_efficient WARNING!]\n");
+
+                // Case 1) i' was found
+                if ((!found)  && (i_temp > i_old)){
+                    i = i_temp + (i_temp % 2);
                     found = true;
                 }
 
+                // Case 2) Should be handled at next step. 
                 if (found && (i_temp > i))
                     break;
 
+                // Case 3) (found && i_temp <= i). That is this should be inserted to MSF(i') 
                 if (T_u == T_v) 
                     continue;
-                else if (i_temp <= i_old)
-                    std::printf("[draw_one_sub_efficient WARNING!]\n");
                 else{
                     new_edges.push_back(edge);
 
@@ -462,10 +480,11 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
                             N.erase(Tx);
                         else{
                             // Compute the sigleton (i-2)-quad in Q(i-2, Tx)
+                            // TODO
                         }
                     }
 
-                    // Joint T1 and T2 to get T', and put T' in N 
+                    // Join T1 and T2 to get T', and put T' in N 
                     ds.merge(T_u, T_v);
                     int T_new = ds.find(T_u); // T' in the paper
                     N.insert(T_new);
@@ -497,7 +516,7 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
                 std::vector<Quad*> g_S = growth(S);
                 Q_T.insert(Q_T.end(), g_S.begin(), g_S.end());
             }
-            Q_list[ds.find(T)] = Q_T;
+            Q_list[ds.find(T)] = Q_T; // TODO: Q_list_2 should not change
 
             // 2(c) Compute the equivalence classes of Q(i, T) by plane sweep.
             std::vector<Component> new_equiv_classes = compute_equiv_class(Q_T);
@@ -524,8 +543,6 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge> &drawn_edg
                 N.erase(ds.find(T));
         }
 
-        Q_list_2 = Q_list;
-        Q_list.clear();
             
     }
 
@@ -836,6 +853,17 @@ std::vector<Quad*> C_Subdivision::init_quads(std::set<Box_Edge> &drawn_edges){
         Q.push_back(q);
     }
     return Q;
+}
+
+Quad* C_Subdivision::compute_quad(Point p){
+    std::vector<Quad*> Q;
+
+    double x = p.getx()*this->scale_factor + this->tr_x_factor;
+    double y = p.gety()*this->scale_factor + this->tr_y_factor;
+    int r = find_index_order(x,0), c= find_index_order(y,0);
+    Quad* q= new Quad(r-1,c-1,0,true); 
+
+    return q;
 }
 
 C_Subdivision::~C_Subdivision(){}

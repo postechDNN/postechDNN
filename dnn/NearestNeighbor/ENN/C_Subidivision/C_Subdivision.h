@@ -77,6 +77,7 @@ public:     //NEED TO CONVERT
 
     //void init_sites(Point, std::vector<Point>);
     std::vector<Quad*> init_quads(std::set<Box_Edge> &);
+    Quad* compute_quad(Point);
     std::vector<Component > compute_equiv_class(std::vector<Quad*>&);
     std::vector<Quad*> growth(std::vector<Quad*>&);
     void inline draw_n_edges(int,int, int, int, int,std::set<Box_Edge>&);
