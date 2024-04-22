@@ -5,7 +5,6 @@
 #include <vector>
 #include <queue> 
 
-#include "./externals/quadedge-basic/Point.h"
 #include "./externals/quadedge-basic/quadedge.h"
 //#include <GLUT/glut.h>
 

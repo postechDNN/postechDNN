@@ -6,7 +6,6 @@
 #include <queue> 
 #include "delaunay.h"
 
-#include <GLUT/glut.h>
 
 #include "gnuplot-iostream.h"
 

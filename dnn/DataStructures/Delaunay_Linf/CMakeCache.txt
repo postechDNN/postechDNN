@@ -219,15 +219,6 @@ CMAKE_STRIP:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/strip
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
-//Path to a file.
-GLUT_INCLUDE_DIR:PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/GLUT.framework/Headers
-
-//Cocoa framework for OSX
-GLUT_cocoa_LIBRARY:FILEPATH=/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/Cocoa.framework
-
-//GLUT library for OSX
-GLUT_glut_LIBRARY:FILEPATH=/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/GLUT.framework
-
 //Include for OpenGL on OS X
 OPENGL_INCLUDE_DIR:PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework
 
@@ -407,16 +398,8 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Boost
 FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/opt/homebrew/lib/cmake/Boost-1.82.0/BoostConfig.cmake][cfound components: filesystem system iostreams ][v1.82.0()]
-//Details about finding GLUT
-FIND_PACKAGE_MESSAGE_DETAILS_GLUT:INTERNAL=[/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/GLUT.framework][/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/GLUT.framework/Headers][v()]
 //Details about finding OpenGL
 FIND_PACKAGE_MESSAGE_DETAILS_OpenGL:INTERNAL=[/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework][/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework][c ][v()]
-//ADVANCED property for variable: GLUT_INCLUDE_DIR
-GLUT_INCLUDE_DIR-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: GLUT_cocoa_LIBRARY
-GLUT_cocoa_LIBRARY-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: GLUT_glut_LIBRARY
-GLUT_glut_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENGL_INCLUDE_DIR
 OPENGL_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENGL_gl_LIBRARY

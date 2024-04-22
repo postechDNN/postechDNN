@@ -419,19 +419,11 @@ CMakeFiles/delaunay.dir/main.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/queue \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/deque \
   /Users/chaeyoon/Local_Git/Starlab/dnn/DataStructures/Delaunay_Linf/delaunay.h \
-  /Users/chaeyoon/Local_Git/Starlab/dnn/DataStructures/Delaunay_Linf/./externals/quadedge-basic/Point.h \
   /Users/chaeyoon/Local_Git/Starlab/dnn/DataStructures/Delaunay_Linf/./externals/quadedge-basic/quadedge.h \
   /Users/chaeyoon/Local_Git/Starlab/dnn/DataStructures/Delaunay_Linf/./externals/quadedge-basic/geom2d.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/cmath \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/math.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/math.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/GLUT.framework/Headers/glut.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework/Headers/OpenGLAvailability.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/os/availability.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework/Headers/gl.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework/Headers/gltypes.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework/Headers/glext.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/OpenGL.framework/Headers/glu.h \
   /Users/chaeyoon/Local_Git/Starlab/dnn/DataStructures/Delaunay_Linf/externals/gnuplot-iostream/gnuplot-iostream.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/fstream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/filesystem \
