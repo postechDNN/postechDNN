@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc delaunay_lib.a CMakeFiles/delaunay_lib.dir/Users/chaeyoon/Local_Git/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/Delaunay_Linf/externals/quadedge-basic/fakeirisgl.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib delaunay_lib.a
