@@ -4,6 +4,8 @@ project(test_sub VERSION 1.0.1 DESCRIPTION "Test C_subdivision")
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Delaunay_Linf/making_lib)
+
 add_library(dcel "")
 set(DCEL_DIR ${CMAKE_CURRENT_LIST_DIR}/DCEL)
 target_sources(dcel 
@@ -65,7 +67,7 @@ target_link_libraries(csub dcel test_lib wcregion)
 target_include_directories(csub PUBLIC ${CMAKE_CURRENT_LIST_DIR}/DCEL ${CMAKE_CURRENT_LIST_DIR}/Testcode/test_csdiv_pts)
 
 add_executable(test_sub main.cpp)
-target_link_libraries(test_sub csub dcel wcregion test_lib)
+target_link_libraries(test_sub csub dcel wcregion test_lib delaunay_lib)
 
 
 
