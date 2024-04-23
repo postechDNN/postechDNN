@@ -9,7 +9,7 @@ $(SUBDIRS):
 	$(MAKE) -C $@
 
 main.exe : main.o C_Subdivision.o WC_region.o Testcode/test_csdiv_pts/test_csdiv_pts.h Testcode/test_csdiv_pts/CS_valid_check.cpp
-	g++ -o main.exe main.o C_Subdivision.o WC_region.o ./DCEL/DCEL_lib.a ./Testcode/test_lib.a
+	g++ -o main.exe main.o C_Subdivision.o WC_region.o ./DCEL/DCEL_lib.a ./Testcode/test_lib.a ./Delaunay_Linf/making_lib/delaunay_lib.a
 
 main.o : main.cpp C_Subdivision.h DCEL/DCEL.h DCEL/point.h
 	g++ -o main.o -c main.cpp -std=c++17
