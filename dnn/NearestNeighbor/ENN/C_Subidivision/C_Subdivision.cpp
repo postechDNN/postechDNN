@@ -434,12 +434,12 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
     }
 
 
-
+    int ep_cnt = 0;
     while(std::count_if(Q_list_2.begin(), Q_list_2.end(), [](std::vector<Quad*> elem) { return !(elem.empty()); }) >1){ // while (Q.size()>1) for the original i.
         
         
         int i_old = i; 
-        std::printf("[draw_one_sub_efficient] Ep %d starts. i_old = %d \n", temp, i_old);
+        std::printf("[draw_one_sub_efficient] Ep %d starts. i_old = %d \n", ep_cnt++, i_old);
 
         
         std::printf("[draw_one_sub_efficient] Phase | start \n");
