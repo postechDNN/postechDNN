@@ -405,7 +405,7 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
 
 
     
-    //Initialize i = 0 (In the paper, initialized to -2)
+    //Initialize i = -2 (In the paper, initialized to -2)
     int i = -2;
 
     //Initialize MSF(−2) to be a forest of singleton vertices
@@ -419,8 +419,8 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
 
     std::vector<Quad*> Q =init_quads(drawn_edges); 
 
-    std::vector<std::vector<Quad*> > Q_list; // To access Q(i, T), Q_T[find(any node in T)]
-    std::vector<std::vector<Quad*> > Q_list_2; // For Q(i-2, T)
+    std::vector<std::vector<Quad*> > Q_list(n); // To access Q(i, T), Q_T[find(any node in T)]. For new i (i').
+    std::vector<std::vector<Quad*> > Q_list_2(n); // For Q(i-2, T). For the original i. 
 
     // Init Q_list 
     for (int i=0; i<n; i++){
@@ -430,18 +430,17 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
         std::vector<Quad*> v;
         v.push_back(q);
 
-        Q_list.push_back(v);
+        Q_list_2[i] =v;
     }
 
-    Q_list_2 = Q_list; 
 
-    for(int temp=0 ; temp < 10; temp ++){ // while (Q.size()>1)
+
+    while(std::count_if(Q_list_2.begin(), Q_list_2.end(), [](std::vector<Quad*> elem) { return !(elem.empty()); }) >1){ // while (Q.size()>1) for the original i.
         
         
         int i_old = i; 
         std::printf("[draw_one_sub_efficient] Ep %d starts. i_old = %d \n", temp, i_old);
 
-        Q_list_2 = Q_list; 
         
         std::printf("[draw_one_sub_efficient] Phase | start \n");
 
@@ -572,6 +571,11 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
             }
 
         }
+
+        
+        std::vector<std::vector<Quad*> > empty_temp_vector;
+        Q_list_2 = Q_list; 
+        Q_list = empty_temp_vector;
 
         std::printf("[draw_one_sub_efficient] Phase || ends \n");
 
