@@ -1,0 +1,2 @@
+C:/MinGW/bin/ar.exe qc libtest_lib.a CMakeFiles/test_lib.dir/Testcode/test_csdiv_pts/test_csdiv_pts.cpp.obj CMakeFiles/test_lib.dir/Testcode/test_csdiv_pts/CS_valid_check.cpp.obj CMakeFiles/test_lib.dir/DCEL/DCEL_IO.cpp.obj CMakeFiles/test_lib.dir/DCEL/DCEL.cpp.obj CMakeFiles/test_lib.dir/DCEL/DCEL_operation.cpp.obj CMakeFiles/test_lib.dir/DCEL/Vector.cpp.obj CMakeFiles/test_lib.dir/DCEL/Edge.cpp.obj CMakeFiles/test_lib.dir/DCEL/Point.cpp.obj CMakeFiles/test_lib.dir/DCEL/Polygon.cpp.obj CMakeFiles/test_lib.dir/WC_region.cpp.obj
+C:/MinGW/bin/ranlib.exe libtest_lib.a

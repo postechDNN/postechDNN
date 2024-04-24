@@ -1,0 +1,2 @@
+C:/MinGW/bin/ar.exe qc libgeom2d.a 
+C:/MinGW/bin/ranlib.exe libgeom2d.a

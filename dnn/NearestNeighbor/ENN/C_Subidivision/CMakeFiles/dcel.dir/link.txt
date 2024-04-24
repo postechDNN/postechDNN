@@ -1,0 +1,2 @@
+C:/MinGW/bin/ar.exe qc libdcel.a CMakeFiles/dcel.dir/DCEL/DCEL_IO.cpp.obj CMakeFiles/dcel.dir/DCEL/DCEL.cpp.obj CMakeFiles/dcel.dir/DCEL/DCEL_operation.cpp.obj CMakeFiles/dcel.dir/DCEL/Vector.cpp.obj CMakeFiles/dcel.dir/DCEL/Edge.cpp.obj CMakeFiles/dcel.dir/DCEL/Point.cpp.obj CMakeFiles/dcel.dir/DCEL/Polygon.cpp.obj
+C:/MinGW/bin/ranlib.exe libdcel.a

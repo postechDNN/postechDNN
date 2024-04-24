@@ -1,0 +1,2 @@
+C:/MinGW/bin/ar.exe qc libwcregion.a CMakeFiles/wcregion.dir/WC_region.cpp.obj CMakeFiles/wcregion.dir/DCEL/DCEL_IO.cpp.obj CMakeFiles/wcregion.dir/DCEL/DCEL.cpp.obj CMakeFiles/wcregion.dir/DCEL/DCEL_operation.cpp.obj CMakeFiles/wcregion.dir/DCEL/Vector.cpp.obj CMakeFiles/wcregion.dir/DCEL/Edge.cpp.obj CMakeFiles/wcregion.dir/DCEL/Point.cpp.obj CMakeFiles/wcregion.dir/DCEL/Polygon.cpp.obj
+C:/MinGW/bin/ranlib.exe libwcregion.a

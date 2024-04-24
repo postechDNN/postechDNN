@@ -1,0 +1,13 @@
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/CMakeFiles/dcel.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/CMakeFiles/wcregion.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/CMakeFiles/test_lib.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/CMakeFiles/csub.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/CMakeFiles/test_sub.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/CMakeFiles/edit_cache.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/CMakeFiles/rebuild_cache.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/Delaunay_Linf/CMakeFiles/geom2d.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/Delaunay_Linf/CMakeFiles/quadedge.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/Delaunay_Linf/CMakeFiles/delaunay.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/Delaunay_Linf/CMakeFiles/delaunay_test.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/Delaunay_Linf/CMakeFiles/edit_cache.dir
+C:/Local_Projects/Starlab/dnn/NearestNeighbor/ENN/C_Subidivision/Delaunay_Linf/CMakeFiles/rebuild_cache.dir
