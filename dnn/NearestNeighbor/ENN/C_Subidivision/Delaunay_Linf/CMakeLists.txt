@@ -22,13 +22,18 @@ target_include_directories(quadedge PUBLIC
     ${EXT_DIR}/quadedge-basic
 )
 
-add_library(delaunay "")
+add_library(delaunay STATIC)
 set_target_properties(delaunay PROPERTIES LINKER_LANGUAGE CXX)
 target_sources(delaunay PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/delaunay.h)  
+    ${CMAKE_CURRENT_SOURCE_DIR}/delaunay.h
+    ${EXT_DIR}/quadedge-basic/fakeirisgl.cpp 
+    ${EXT_DIR}/quadedge-basic/geom2d.h 
+    ${EXT_DIR}/quadedge-basic/fakeirisgl.h)  
 target_include_directories(delaunay PUBLIC 
     ${EXT_DIR}/quadedge-basic
 )
+target_link_libraries(delaunay quadedge geom2d )
+
 
 add_executable(delaunay_test main.cpp)
 set_target_properties(delaunay_test PROPERTIES LINKER_LANGUAGE CXX)
