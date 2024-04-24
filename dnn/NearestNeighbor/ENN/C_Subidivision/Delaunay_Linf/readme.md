@@ -4,14 +4,20 @@ Delaunay triangulation with L_inf
 
 1. Install cmake
 2. run
+   2.1. Window
+
+   ```
+   cmake -G "Unix Makefiles" 
+   ```
+
+   2.2. Mac
+
    ```
    cmake -DCMAKE_OSX_ARCHITECTURES=arm64 CMakeLists.txt 
    ```
 
-    if you are using arm64 os.
+Then it will make a Makefile.
 
-Then it will make a Makefile. 
+If you run `make`, you will have `delaunay_test.exe` (or  `delaunay_test`).
 
-If you run `make`, you will have `delaunay`. 
-
-Then, run `delaunay`.
+Then, run `delaunay_test`.

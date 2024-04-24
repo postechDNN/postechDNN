@@ -189,8 +189,8 @@ int RightOf(const Point2d& x, Edge2d* e);
 int LeftOf(const Point2d& x, Edge2d* e);
 int OnEdge(const Point2d& x, Edge2d* e);
 
-void myInit(void);
-void myDisplay(void);
+// void myInit(void);
+// void myDisplay(void);
 bool LowerThan(Point2d a, Point2d b);
 bool LessThan(Point2d a, Point2d b);
 /********************************************/

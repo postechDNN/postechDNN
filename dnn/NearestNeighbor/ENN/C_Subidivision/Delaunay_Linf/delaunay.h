@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <queue> 
+#include <algorithm> 
 
 #include "./externals/quadedge-basic/quadedge.h"
 //#include <GLUT/glut.h>

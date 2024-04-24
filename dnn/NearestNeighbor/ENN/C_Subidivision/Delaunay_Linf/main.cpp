@@ -4,10 +4,11 @@
 #include <string>
 #include <vector>
 #include <queue> 
+#include <algorithm> 
 #include "delaunay.h"
 
 
-#include "gnuplot-iostream.h"
+// #include "./externals/gnuplot-iostream/gnuplot-iostream.h"
 
 #include "./externals/quadedge-basic/quadedge.h"
 
@@ -88,13 +89,13 @@ int main(int argc, char** argv){
     printf("%d -> %d \n", e.first, e.second);
   }
 
-
+  /* Drawing Part! # include gnuplot-iostream.h
   Gnuplot gp;
 
   gp << "set xrange [-50:150]\nset yrange [-50:150]\n";
   gp << "plot '-' with linespoints\n";
   gp.send2d(segments); //NOTE: send2d is used here, rather than send1d.  This puts a blank line between segments.
-  
+  */
 
   
 

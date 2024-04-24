@@ -1,10 +1,11 @@
 #include "quadedge.h"
 //#include "fakeirisgl.h"
 
-#include <GLUT/glut.h>
+// #include <GLUT/glut.h>
 #include <vector>
+#include <algorithm>
 
-#include "./../gnuplot-iostream/gnuplot-iostream.h"
+//#include "./../gnuplot-iostream/gnuplot-iostream.h"
 
 using namespace std; 
 
@@ -12,52 +13,52 @@ using namespace std;
 Point2d drA, drB; // for drawing 
 
 // Function to initialize the drivers
-void myInit(void)
-{
-    // Clear all the screen color
-    glClearColor(1.0, 0.5, 0.0, 1.0);
+// void myInit(void)
+// {
+//     // Clear all the screen color
+//     glClearColor(1.0, 0.5, 0.0, 1.0);
  
-    // Sets background color to orang
-    glMatrixMode(GL_PROJECTION);
+//     // Sets background color to orang
+//     glMatrixMode(GL_PROJECTION);
  
-    glLoadIdentity();
+//     glLoadIdentity();
  
-    // Specify the display area
-    gluOrtho2D(0.0, 400.0, 0.0, 400.0);
-}
+//     // Specify the display area
+//     gluOrtho2D(0.0, 400.0, 0.0, 400.0);
+// }
 
-void myDisplay(void)
-{
-    // Clear the screen buffer
-    glClear(GL_COLOR_BUFFER_BIT);
+// void myDisplay(void)
+// {
+//     // Clear the screen buffer
+//     glClear(GL_COLOR_BUFFER_BIT);
  
-    glPointSize(4.0);
+//     glPointSize(4.0);
  
-    // Rectangular part of hut
-    glColor3f(0.5f, 0.5f, 0.5f);
+//     // Rectangular part of hut
+//     glColor3f(0.5f, 0.5f, 0.5f);
  
-    // Begin the polygon
-    glBegin(GL_POLYGON);
+//     // Begin the polygon
+//     glBegin(GL_POLYGON);
  
-    // Create the polygon
-    glVertex2i(40, 40);
-    glVertex2i(320, 40);
+//     // Create the polygon
+//     glVertex2i(40, 40);
+//     glVertex2i(320, 40);
  
-    glVertex2i(40, 200);
-    glVertex2i(320, 200);
+//     glVertex2i(40, 200);
+//     glVertex2i(320, 200);
  
-    glVertex2i(40, 200);
-    glVertex2i(40, 40);
+//     glVertex2i(40, 200);
+//     glVertex2i(40, 40);
  
-    glVertex2i(320, 200);
-    glVertex2i(320, 40);
+//     glVertex2i(320, 200);
+//     glVertex2i(320, 40);
  
-    glEnd();
+//     glEnd();
  
  
-    // Sends all output to display
-    glFlush();
-}
+//     // Sends all output to display
+//     glFlush();
+// }
 
 void bgnline(const Point2d& a, const Point2d& b){
 	printf("Draw_bgnline\n");
@@ -367,24 +368,24 @@ void Subdivision::Draw()
 	//startingEdge->Draw(timestamp); //CHECK
 }
 
-void DrawFun(void){
-	// Clear the screen buffer
-    glClear(GL_COLOR_BUFFER_BIT);
+// void DrawFun(void){
+// 	// Clear the screen buffer
+//     glClear(GL_COLOR_BUFFER_BIT);
  
-    glPointSize(4.0);
+//     glPointSize(4.0);
  
-    // Rectangular part of hut
-    glColor3f(0.5f, 0.5f, 0.5f);
+//     // Rectangular part of hut
+//     glColor3f(0.5f, 0.5f, 0.5f);
  
-    // Begin the polygon
-    glBegin(GL_LINES);
-    glVertex2d(drA.x, drA.y);
-    glVertex2d(drB.x, drB.y);
-    glEnd();
+//     // Begin the polygon
+//     glBegin(GL_LINES);
+//     glVertex2d(drA.x, drA.y);
+//     glVertex2d(drB.x, drB.y);
+//     glEnd();
  
  
 
-}
+// }
 
 void Edge2d::Draw(unsigned int stamp, std::vector<std::vector<std::pair<double, double>>> & segments, std::vector<std::pair<int, int> >& edges)
 // This is a recursive drawing routine that uses time stamps to
