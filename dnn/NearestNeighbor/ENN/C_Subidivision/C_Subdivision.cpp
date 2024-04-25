@@ -362,13 +362,14 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
 void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edges){
     
     // Input vertices -> integers (one-to-one)
+    std::vector<Point> vertices = this->sites;
 
     
     /* Test input */
-    std::vector<Point> vertices;
-    vertices.push_back(Point(1, 4));
-    vertices.push_back(Point(2, 10));
-    vertices.push_back(Point(3, 6));
+    // std::vector<Point> vertices;
+    // vertices.push_back(Point(1, 4));
+    // vertices.push_back(Point(2, 10));
+    // vertices.push_back(Point(3, 6));
 
 
     /* Graph initialize */
@@ -403,7 +404,24 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
 
     std::sort(Delaunay_edges.rbegin(), Delaunay_edges.rend());
 
+    /* Compute FAKE Delaunay_edges */
+    // A complete graph 
+    std::vector<g_edge>  Delaunay_FAKE_edges;
+    for (int i=0; i<n; i++){
+        for(int j=i+1 ; j<n; j++){
+            g_edge e_new;
+            Point u = this->sites[i];
+            Point v = this->sites[j];
+            e_new.first = max(std::abs(u.getx() - v.getx()), std::abs(u.gety()-v.gety()));
+            std::pair<int, int> edge(i, j);
+            e_new.second = edge;
 
+            Delaunay_FAKE_edges.push_back(e_new);
+
+        }
+    }
+    std::printf("[DRAW ONE] Delaunay_FAKE_edges has %lu edges \n", Delaunay_FAKE_edges.size() );
+    
     
     //Initialize i = -2 (In the paper, initialized to -2)
     int i = -2;
@@ -435,14 +453,22 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
 
 
     int ep_cnt = 0;
-    while(std::count_if(Q_list_2.begin(), Q_list_2.end(), [](std::vector<Quad*> elem) { return !(elem.empty()); }) >1){ // while (Q.size()>1) for the original i.
-        
-        
+    while(std::count_if(Q_list_2.begin(), Q_list_2.end(), [](std::vector<Quad*> elem) { return !(elem.empty()); }) >1){ 
+        // Stopping Condition. <- While (Q.size()>1) for the original i.
+        // # TODO Count only the roots in MSF 
+        int quad_cnt = 0;
+        for (auto q_l: Q_list_2){
+            if (q_l.empty()) continue; 
+            else quad_cnt += q_l.size(); 
+        }
+        if (quad_cnt <= 1) break;
+
+        // Start 
         int i_old = i; 
-        std::printf("[draw_one_sub_efficient] Ep %d starts. i_old = %d \n", ep_cnt++, i_old);
+        std::printf("[DRAW ONE] Ep %d starts. i_old = %d \n", ep_cnt++, i_old);
 
         
-        std::printf("[draw_one_sub_efficient] Phase | start \n");
+        std::printf("[DRAW ONE] Phase | start \n");
 
         if (N.size() > 0) 
             i += 2; 
@@ -452,7 +478,7 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
             bool found = false; // True if new i was determined
             std::vector<g_edge> new_edges; // edges of MSF(i) not in MSF(i_old)
             while(!Delaunay_edges.empty()){
-                std::printf("[draw_one_sub_efficient] Edgepop.. \n");
+                std::printf("[DRAW ONE] Edgepop.. \n");
                 g_edge edge = Delaunay_edges.back();
                 int u = (edge).second.first;
                 int v = (edge).second.second;
@@ -464,7 +490,7 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
 
                 // Case 0) This should not happen
                 if (i_temp <= i_old){
-                    std::printf("[draw_one_sub_efficient WARNING!] i_temp < i_old \n");
+                    std::printf("[DRAW ONE] i_temp < i_old \n");
                     std::printf("w: %f, i_temp: %d \n", w, i_temp);
                     // exit(EXIT_FAILURE);
 
@@ -493,6 +519,9 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
                         else{
                             // Compute the sigleton (i-2)-quad in Q(i-2, Tx)
                             // TODO
+                            // Really need to do? 
+                            ;
+
                         }
                     }
 
@@ -500,13 +529,16 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
                     ds.merge(T_u, T_v);
                     int T_new = ds.find(T_u); // T' in the paper
                     N.insert(T_new);
-                    std::printf("[draw_one_sub_efficient] Join %d + %d -> %d \n", T_u, T_v, T_new);
+                    std::printf("[DRAW ONE] Join %d + %d -> %d \n", T_u, T_v, T_new);
 
                     // Set Q(i-2, T') = Q(i-2, T1) \cup Q(i-2, T2)
                     auto Q_T_u = Q_list_2[T_u];
                     auto Q_T_v = Q_list_2[T_v];
-                    std::vector<Quad*> Q_T_new(Q_T_u.size() + Q_T_v.size()); 
-                    std::merge(Q_T_u.begin(), Q_T_u.end(), Q_T_v.begin(), Q_T_v.end(), Q_T_new.begin());
+                    std::vector<Quad*> Q_T_new; 
+                    Q_T_new.insert(Q_T_new.end(), Q_T_u.begin(), Q_T_u.end());
+                    Q_T_new.insert(Q_T_new.end(), Q_T_v.begin(), Q_T_v.end()); //#TODO check if not copying, inserting
+
+                    //std::merge(Q_T_u.begin(), Q_T_u.end(), Q_T_v.begin(), Q_T_v.end(), Q_T_new.begin());
                     Q_list_2[T_new] = Q_T_new;
 
                     
@@ -517,17 +549,17 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
             }
         }
 
-        std::printf("[draw_one_sub_efficient] Phase || starts \n");
+        std::printf("[DRAW ONE] Phase || starts \n");
         for (auto it_T = N.begin(); it_T != N.end(); ){ // [CAUTION] We need to do ++ it_T if no element is erased.
             auto T = *it_T;
-            std::printf("[draw_one_sub_efficient] Testing %d in N.. \n", T);
+            std::printf("[DRAW ONE] Testing %d in N.. \n", T);
 
             // 2(a) Initialzie Q(i, T) = \emptyset
-            std::printf("[draw_one_sub_efficient] 2(a) \n");
+            std::printf("[DRAW ONE] 2(a) \n");
             std::vector<Quad*> Q_T;
 
             // 2(b) for each equivalence class S of Q(i-2, T)
-            std::printf("[draw_one_sub_efficient] 2(b) \n");
+            std::printf("[DRAW ONE] 2(b) \n");
             std::vector<Component > equiv_classes = compute_equiv_class(Q_list_2[ds.find(T)]);
             for(auto S: equiv_classes){
                 // Q(i, T) = Q(i, T) \cup grwoth(S)
@@ -537,18 +569,18 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
             Q_list[ds.find(T)] = Q_T; // TODO: Q_list_2 should not change
 
             // 2(c) Compute the equivalence classes of Q(i, T) by plane sweep.
-            std::printf("[draw_one_sub_efficient] 2(c) \n");
+            std::printf("[DRAW ONE] 2(c) \n");
             std::vector<Component> new_equiv_classes = compute_equiv_class(Q_T);
 
             //3. Perform Step 3 of build-subdivision on Q(i, T)
-            std::printf("[draw_one_sub_efficient] 3 \n");
+            std::printf("[DRAW ONE] 3 \n");
             for(auto q:Q_T){
                 Quad* q_bar = q->growth;
                 if(q->is_simple && !q_bar->is_simple)
                     process_simple_to_complex(q,i-2,drawn_edges);
             }
             //4. Perform Step 4 of build-subdivision on Q(i, T): Process complex components.
-            std::printf("[draw_one_sub_efficient] 4 \n");
+            std::printf("[DRAW ONE] 4 \n");
             for(auto S:new_equiv_classes){
                 std::vector<Quad *> children_S; // denoted by S' in the original paper.
                 for(auto q: S){
@@ -560,11 +592,10 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
             }
 
             // if |Q(i, T)| = 1 then Delete T from N 
-            std::printf("[draw_one_sub_efficient] T to the next. T = %d , find(T) = %d \n", T, ds.find(T));
+            std::printf("[DRAW ONE] T to the next. T = %d , find(T) = %d \n", T, ds.find(T));
             if (Q_T.size() == 1){
-                std::printf("[draw_one_sub_efficient] DEBUGGGG \n" );
                 N.erase(ds.find(T));
-                std::printf("[draw_one_sub_efficient] DEBUGGGG2 \n");
+                std::printf("[DRAW ONE] DEBUGGGG2 \n");
             }
             else{
                 ++ it_T;
@@ -577,7 +608,7 @@ void C_Subdivision::draw_one_subdivision_efficient(std::set<Box_Edge>& drawn_edg
         Q_list_2 = Q_list; 
         Q_list = empty_temp_vector;
 
-        std::printf("[draw_one_sub_efficient] Phase || ends \n");
+        std::printf("[DRAW ONE] Phase || ends \n");
 
             
     }
