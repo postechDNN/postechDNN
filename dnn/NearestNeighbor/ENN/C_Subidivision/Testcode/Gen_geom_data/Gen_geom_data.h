@@ -23,11 +23,11 @@ public:
     std::vector<Point> gen_points_gaussian(int n, Point mean, double dev_x, double dev_y);
 
     //Generate a random simple polygon in a bounding box, where total number of vertices is n
-    std::vector<double> randomAngleSteps(int n); //generate random angle
+    std::vector<double> randomAngleSteps(int n, double irregularity); //generate random angle
     double clip(double value, double lower, double upper);//bounding box
     SimplePolygon gen_simple_polygon(int n, double center_x, double center_y);
     //Generate m random disjoint simple polygons in a bounding box, where total number of vertices is n.
-    std::vector<SimplePolygon> gen_polygonal_domain(int n);
+    DCEL gen_polygonal_domain(int n);
     std::vector<SimplePolygon> gen_polygonal_domain(int n, int num_polys);
 
     //Generate a planar graph on which the number of vertices is n and the number of edges is m. 

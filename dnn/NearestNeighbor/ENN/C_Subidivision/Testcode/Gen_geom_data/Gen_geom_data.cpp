@@ -1,4 +1,7 @@
 #include "Gen_geom_data.h"
+#include <iostream>
+#include <fstream>
+#include <string>
 
 Gen_geom_data::Gen_geom_data(Point left_bottom, Point right_top) {
     this->min_x = left_bottom.getx();
@@ -47,24 +50,27 @@ std::vector<Point> Gen_geom_data::gen_points_gaussian(int n, Point mean, double 
 
 
 // Function to generate random angle steps
-std::vector<double> Gen_geom_data::randomAngleSteps(int n) {
-    std::vector<double> angles; //
-    std::default_random_engine generator; //default_random_engine
-    std::uniform_real_distribution<double> distribution(-1, 1);//
+std::vector<double> Gen_geom_data::randomAngleSteps(int n, double irregularity) {
+    std::vector<double> angles;
+    std::random_device rd;
+    std::mt19937 gen(rd());
 
-    double lower = (2.0 * this->const_pi() / n) - 1;
-    double upper = (2.0 * this->const_pi() / n) + 1;
+    double lower = (2.0 * this->const_pi() / n) - irregularity;
+    double upper = (2.0 * this->const_pi() / n) + irregularity;
     double cumsum = 0;
 
-    for (int i = 0; i < n; ++i) {
-        double angle = std::uniform_real_distribution<double>(lower, upper)(generator);
+    std::uniform_real_distribution<double> dis(lower, upper);
+    double angle;
+
+    for (int i = 0; i < n; i++) {
+        angle = dis(gen);
         angles.push_back(angle);
         cumsum += angle;
     }
 
     // Normalize the steps so that point 0 and point n+1 are the same
     cumsum /= (2.0 * this->const_pi());
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; i++) {
         angles[i] /= cumsum;
     }
 
@@ -80,41 +86,147 @@ double Gen_geom_data::clip(double value, double lower_1, double upper_1) {
 
 // Function to generate a polygon
 SimplePolygon Gen_geom_data::gen_simple_polygon(int n, double center_x, double center_y) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0, 1);
 
-    std::vector<double> angleSteps = this->randomAngleSteps(n);
+    double irr = dis(gen);
+    irr *= 2 * const_pi() / n;
+
+    std::vector<double> angleSteps = this->randomAngleSteps(n, irr);
 
     // Generate the points
     std::vector<Point> pts;
-    std::vector<std::pair<double, double>> points;
-    std::default_random_engine generator;
-    std::normal_distribution<double> normalDistribution(30);
     std::uniform_real_distribution<double> uniformDistribution(0.0, 2 * this->const_pi());
 
-
-    double angle = uniformDistribution(generator);
+    double angle = uniformDistribution(gen);
+    double radius;
+    double x, y;
 
     for (int i = 0; i < n; ++i) {
-        double radius = clip(uniformDistribution(generator), 0, std::max((this->max_x - this->min_x) / 2, (this->max_y - this->min_y) / 2));
-        double x = center_x + radius * std::cos(angle);
-        double y = center_y + radius * std::sin(angle);
+        radius = clip(uniformDistribution(gen), 0, std::max((this->max_x - this->min_x) / 2, (this->max_y - this->min_y) / 2));
+        x = center_x + radius * std::cos(angle);
+        y = center_y + radius * std::sin(angle);
         pts.push_back(Point(x, y));
-        //points.push_back(std::make_pair(x, y));
         angle += angleSteps[i];
     }
 
-    //return points;
     std::reverse(pts.begin(), pts.end());
     return SimplePolygon(pts);
 }
 
+// function to generate obstacles as DCEL data
+DCEL Gen_geom_data::gen_polygonal_domain(int n) {
+    // input n: sum of vertices for all obstacle
 
-// STEP 1. decide the number of obstacles and decide the number of its vertices for each obstacle (>=3). 
-// STEP 2. generate obstacles one by one in a bounding box using "gen_simple_polygon". 
-//        (need to check the generated obstacle intersects with others)
-// STEP 3. convert generate obstacles into a planar graph (type of Adjacent-List)
-// STEP 4. convert the planar graph into DCEL data. (use DCEL(std::vector<Point>&, std::vector<std::vector<int>>&,std::string key ="__default__") in DCEL_operation.cpp)
-std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n) {
-    // TODO by Jeongwon
+    std::vector<SimplePolygon> ret;
+    std::uniform_real_distribution<double> x_gen(min_x, max_x);
+    std::uniform_real_distribution<double> y_gen(min_y, max_y);
+
+    // STEP 1. decide the number of obstacles and decide the number of its vertices for each obstacle (>=3)
+    // m: the number of obstacle, random (1 ~ n/3)
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> m_gen(1, n / 3);
+    int m = m_gen(gen);
+    int ver_n = n;
+
+    // std::cout << m << std::endl;
+    
+    // STEP 2. generate obstacles one by one in a bounding box using "gen_simple_polygon"
+    for (int i = m; i > 0; i--) {
+        // k: the number of its vertices
+        std::uniform_int_distribution<int> k_gen(3, n - 3 * i + 3);
+        int k;
+        if (i == 1) {
+            k = n;
+        } else {
+            k = k_gen(gen);
+        }
+        n -= k;
+
+        double center_x = x_gen(gen);
+        double center_y = y_gen(gen);
+
+        bool flag;
+
+        // generate obstacles as Simple Polygon data
+        SimplePolygon tmp = gen_simple_polygon(k, center_x, center_y);
+        
+        // check the generated obstacle(tmp) intersects with others(sim)
+        // flag: if two edges are crossing then true, otherwise false
+        do {
+            flag = false;
+            center_x = x_gen(gen);
+            center_y = y_gen(gen);
+            tmp = gen_simple_polygon(k, center_x, center_y);
+
+            for (SimplePolygon sim: ret) {
+                for (auto a : sim.getEdges()) {
+                    for (auto b : tmp.getEdges()) {
+                        // if two edges are crossing, make simple polygon again
+                        if (a.crossing(b, true) != nullptr) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        break;
+                    }
+                }
+                if (flag) {
+                    break;
+                }
+            }
+        } while (flag);
+        ret.push_back(tmp);
+    }
+
+    // STEP 3. convert generate obstacles (type of SimplePolygon) into a planar graph (type of Adjacent-List)
+    // adjList: Adjacent-list for all Simple Polygon (express the connection between vertices)
+    std::vector<std::vector<int>> adjList;
+    // allVerList: Vertex list (Point data) for all Simple Polygon - to make DCEL data
+    std::vector<Point> allVerList;
+
+    for (auto x : ret) {
+        // verList: Vertex list (Point data) for one Simple Polygon
+        std::vector<Point> verList = x.getVertices();
+
+        allVerList.insert(allVerList.end(), verList.begin(), verList.end());
+        
+        int size = verList.size();
+        int exist = adjList.size();
+
+        for (int i = 0; i < size; i++) {
+            int prev = (i - 1 < 0) ? size - 1 : i - 1;
+            int next = (i + 1 >= size) ? 0 : i + 1;
+
+            std::vector<int> adjTmp = {prev+exist, next+exist};
+            adjList.push_back(adjTmp);
+        }
+    }
+
+    // std::string line;
+    // std::ofstream file("output1.txt");
+    // if (file.is_open()) {
+    //     file << ver_n << "\n"; // the number of Point
+    //     for (auto v : allVerList) {
+    //         file << v.getx() << " " << v.gety() << "\n";
+    //     } // Point x, y info
+    //     file << 2*ver_n << "\n"; // the number of Edge
+    //     for (int i = 0; i < ver_n; i++) {
+    //         file << i << " " << adjList[i][0] << "\n";
+    //         file << i << " " << adjList[i][1] << "\n";
+    //     }
+    //     file.close();
+    // } else {
+    //     std::cout << "error" << std::endl;
+    // }
+
+    // STEP 4. convert the planar graph into DCEL data. (use DCEL(std::vector<Point>&, std::vector<std::vector<int>>&,std::string key ="__default__") in DCEL_operation.cpp)
+    DCEL dcel = DCEL(allVerList, adjList);
+
+    return dcel;
 }
 
 
