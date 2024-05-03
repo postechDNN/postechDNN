@@ -1,6 +1,6 @@
-#include "Boxnn.h"
+﻿#include "Boxnn.h"
 #include <queue>
-
+/*
 int main() {
 	std::vector<std::pair<Point, Point> > boxes;
 	std::vector<Point> pts;
@@ -41,7 +41,7 @@ int main() {
     // }
     B.print_knn(3);
 	return 0;
-}
+}*/
 
 BoxNN::BoxNN(std::vector<std::pair<Point,Point>> _boxes, std::vector<Point> _pts, Point _q){
     n = _q.n;
@@ -75,6 +75,12 @@ void BoxNN::init_grid(){
         ind_num.push_back(grid_val[i].size());
         tot_num*=grid_val[i].size();
     }
+
+    //vector<Box> boxes;
+    //struct Box {
+    //    vector<std::pair<double, double>> coordinates;
+    //};
+
     visited = std::vector<bool>(tot_num, false);
     valid = std::vector<bool>(tot_num, true);
     dist = std::vector<double>(tot_num, std::numeric_limits<double>::infinity());

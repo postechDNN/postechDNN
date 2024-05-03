@@ -3,6 +3,8 @@
 #include <vector>
 #include "Boxnn.h"
 #include "Point.h"
+#include "Box.h"
+#include "Space.h"
 
 int main() {
 	std::cout << "Hello World"<<std::endl;
@@ -24,6 +26,9 @@ int main() {
 	pts.push_back(p3);
 	Point* q1 = new Point({-1.,-1.,-1.});
 	std::cout << "Hello World";
-	BoxNN B(1,boxes,pts, q1);
+	BoxNN B(boxes,pts, q1);
+
+
+
 	return 0;
 }
