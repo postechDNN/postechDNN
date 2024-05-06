@@ -17,7 +17,7 @@ public:
     double rmin;
     vector<Box> Boxes; // Obstacles
     vector<Point> vertices; // Input points + Box vertices + Steiner points
-    vector<vector<pair<Point, double>>> adj_list; // Adjacent list
+    vector<vector<pair<long long int, double>>> adj_list; // Adjacent list
 
 public:
     // Setting
@@ -25,11 +25,11 @@ public:
     ~Space();
     void set_Space(int, vector<Point>, vector<Box>);
 
-    std::vector<std::pair<double, double>> Combination();
-    std::vector<std::vector<double>> gen_SteinerPoint();
-
-
+    vector<pair<double, double>> Combination();
+    vector<vector<double>> gen_SteinerPoint();
     void cal_rmin();
+
+    void visibility_graph();
 
     // Function
     void add_Box(Box);

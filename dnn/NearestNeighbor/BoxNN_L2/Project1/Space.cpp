@@ -97,9 +97,6 @@ std::vector<std::pair<double, double>> Space:: Combination() {
 
 };
 
-
-
-
 std::vector<std::vector<double>> Space::gen_SteinerPoint() {
     std::cout << "1" << endl;
     std::vector<std::pair<double, double>> combination = this->Combination();
@@ -155,6 +152,22 @@ std::vector<std::vector<double>> Space::gen_SteinerPoint() {
 
 void Space::cal_rmin() {
 
+};
+
+void Space::visibility_graph() {
+    this->adj_list.clear();
+    for (long long int i = 0; i < size(this->vertices); i++) {
+        vector<pair<long long int, double>> temp;
+        for (long long int j = 0; j < size(this->vertices); j++) {
+            bool intersect = false;
+            for (auto box : this->Boxes) {
+                if (box.intersect(vertices[i], vertices[j])) { intersect = true; break; }
+            }
+            if (intersect) { break; }
+            temp.push_back(make_pair(j,vertices[i].dist(vertices[j])));
+        }
+        this->adj_list.push_back(temp);
+    }   
 };
 
 void Space::add_Box(Box) {

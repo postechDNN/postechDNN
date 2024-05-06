@@ -20,13 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
-    <ClInclude Include="Boxnn.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="Space.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Box.cpp" />
-    <ClCompile Include="Boxnn.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="Space.cpp" />

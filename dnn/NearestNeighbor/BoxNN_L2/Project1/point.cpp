@@ -2,6 +2,8 @@
 
 
 Point::Point(){
+	this->n = 1;
+	this->xs = std::vector<double>(1, 0);
 }
 Point::Point(int _n){
     this->n=_n;
@@ -49,4 +51,12 @@ std::vector<double> Point::getxs() {
 
 void Point::setxs(std::vector<double> _xs) {
 	this->xs = _xs;
+}
+
+double Point::dist(Point x) {
+	double sum = 0;
+	for (int i = 0; i < this->n; i++) {
+		sum += pow(this->xs[i] - x.getx(i), 2);
+	}
+	return sqrt(sum);
 }

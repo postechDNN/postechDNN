@@ -15,9 +15,11 @@ public:
     vector<double> max;
     
 public:
-    vector<vector<double>> generate_epsilon(double rmin, double epsilon);
     Box(int, vector<double>, vector<double>);
     ~Box();
+
+    vector<vector<double>> generate_epsilon(double rmin, double epsilon);
+    bool intersect(Point, Point);
    
 };
 
