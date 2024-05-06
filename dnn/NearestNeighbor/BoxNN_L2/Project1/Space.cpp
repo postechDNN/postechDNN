@@ -48,7 +48,7 @@ std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>&
 //std::vector<std::pair<double, double>>Space:: Combination(int d) {
 std::vector<std::pair<double, double>> Space:: Combination() {
 
-    std::vector<std::pair<double, double>> combinations;//Á¶ÇÕ ouputÀÇ index¸¦ ÀúÀåÇÏ´Â ¹è¿­
+    std::vector<std::pair<double, double>> combinations;//ï¿½ï¿½ï¿½ï¿½ ouputï¿½ï¿½ indexï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½è¿­
 
     std::vector<bool> v(this->d);
     std::fill(v.end() - 2, v.end(), true);
@@ -56,7 +56,7 @@ std::vector<std::pair<double, double>> Space:: Combination() {
     do {
         for (auto i = 0; i < d; ++i) {
             if (v[i]) {
-                combinations.push_back({ i + 1, i + 2 });//Å©±â°¡ 2ÀÌ±â ¶§¹®¿¡, dC2¶ó¼­
+                combinations.push_back({ i + 1, i + 2 });//Å©ï¿½â°¡ 2ï¿½Ì±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, dC2ï¿½ï¿½
             }
         }
     } while (std::next_permutation(v.begin(), v.end()));
@@ -127,7 +127,92 @@ double max_j = *std::max_element(arr[j].begin(), arr[j].end());
 
 */
 void Space::cal_rmin() {
+    std::vector<double> results;
+    double sum = 0.0;
+    double diff;
 
+    // Box vs Box
+    for (int i = 0; i < Boxes.size(); i ++) {
+        for (int j = i + 1; j < Boxes.size(); j ++) {
+            sum = 0.0;
+
+            for (int k = 0; k < d; k ++) {
+                double a_ik = Boxes[i].min[k];
+                double b_ik = Boxes[i].max[k];
+
+                double a_jk = Boxes[j].min[k];
+                double b_jk = Boxes[j].max[k];
+
+                if (std::max(a_ik, a_jk) <= std::min(b_ik, b_jk)) {
+                    diff = 0.0;
+                } else {
+                    if (b_ik < a_jk) {
+                        diff = b_ik - a_jk;
+                    } else if (b_jk < a_ik) {
+                        diff = b_jk - a_ik;
+                    }
+                }
+
+                sum += diff * diff;
+            }
+
+            results.push_back(sqrt(sum));
+        }
+    }
+
+
+    // Point vs Point
+    for (int i = 0; i < vertices.size(); i ++) {
+        for (int j = i + 1; j < vertices.size(); j ++) {
+            sum = 0.0;
+
+            for (int k = 0; k < d; k ++) {
+                double x_k = vertices[i].xs[k];
+                double y_k = vertices[j].xs[k];
+
+                diff = x_k - y_k;
+
+                sum += diff * diff;
+            }
+
+            results.push_back(sqrt(sum));
+        }
+    }
+
+
+    // Box vs Point
+    for (int i = 0; i < Boxes.size(); i ++) {
+        for (int j = 0; j < vertices.size(); j ++) {
+            sum = 0.0;
+
+            for (int k = 0; k < d; k ++) {
+                double a_ik = Boxes[i].min[k];
+                double b_ik = Boxes[i].max[k];
+
+                double a_jk = vertices[j].xs[k];
+                double b_jk = vertices[j].xs[k];
+
+                if (std::max(a_ik, a_jk) <= std::min(b_ik, b_jk)) {
+                    diff = 0.0;
+                } else {
+                    if (b_ik < a_jk) {
+                        diff = b_ik - a_jk;
+                    } else if (b_jk < a_ik) {
+                        diff = b_jk - a_ik;
+                    }
+                }
+
+                sum += diff * diff;
+            }
+
+            results.push_back(sqrt(sum));
+        }
+    }
+
+
+    double rmin = *std::min_element(results.begin(), results.end());
+
+    cout << "rmin: " << rmin << endl;
 };
 
 void Space::add_Box(Box) {
