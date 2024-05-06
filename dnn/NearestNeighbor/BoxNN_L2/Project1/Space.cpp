@@ -1,3 +1,4 @@
+
 #include "Space.h"
 #include "Box.h"
 
@@ -5,10 +6,26 @@ Space::Space(int n, vector<Point> vert, vector<Box> boxes) {
     this->d = n;
     this->vertices = vert;
     this->Boxes = boxes;
+    cal_rmin();
     this->rmin = 0.1;
     gen_SteinerPoint();
-    cal_rmin();
+    
 }
+/*
+
+
+Space::Space(const Space& p)
+{
+    this->d=p.d;
+    this->vertices = p.vert;
+    this->Boxes = p.boxes;
+    cal_rmin();
+    this->rmin = 0.1;
+    gen_SteinerPoint();
+}
+
+
+*/
 
 Space::~Space(){
 }
@@ -19,22 +36,31 @@ void  Space::set_Space(int, vector<Point>, vector<Box>) {
 
 
 template<typename T>
-std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items) {
-    int length = items.size();
+std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items, int a, int b) {
+    
+    std::vector<std::vector<double>> new_items;
+    for (int i = 0; i < items.size(); ++i) {
+        if (i != a && i != b) {
+            new_items.push_back(items[i]);
+        }
+    }
+
+    int length = new_items.size();
     std::vector<int> indexes(length, 0);
 
-    std::vector<std::vector<T>> result;
+    std::vector<std::vector<double>> result;
 
     while (true) {
-        std::vector<T> arr(length);
-        for (int i = 0; i < length; ++i) {
-            arr[i] = items[i][indexes[i]];
+        std::vector<double> arr(length);
+        for (int i = 0; i < length; i++) {
+            arr[i] = new_items[i][indexes[i]];
         }
         result.push_back(arr);
 
         int row = length - 1;
         indexes[row]++;
-        while (indexes[row] == items[row].size()) {
+
+        while (indexes[row] == new_items[row].size()) {
             if (row == 0)
                 return result;
             indexes[row] = 0;
@@ -48,171 +74,87 @@ std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>&
 //std::vector<std::pair<double, double>>Space:: Combination(int d) {
 std::vector<std::pair<double, double>> Space:: Combination() {
 
-    std::vector<std::pair<double, double>> combinations;//ï¿½ï¿½ï¿½ï¿½ ouputï¿½ï¿½ indexï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½è¿­
+    std::vector<vector<double>> combinations;//Á¶ÇÕ ouputÀÇ index¸¦ ÀúÀåÇÏ´Â ¹è¿­
 
     std::vector<bool> v(this->d);
     std::fill(v.end() - 2, v.end(), true);
 
     do {
+        vector<double> temp;
         for (auto i = 0; i < d; ++i) {
             if (v[i]) {
-                combinations.push_back({ i + 1, i + 2 });//Å©ï¿½â°¡ 2ï¿½Ì±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, dC2ï¿½ï¿½
+                //combinations.push_back({ i + 1, i + 2 });//Å©±â°¡ 2ÀÌ±â ¶§¹®¿¡, dC2¶ó¼­
+                temp.push_back(i);
             }
         }
+        combinations.push_back(temp);
     } while (std::next_permutation(v.begin(), v.end()));
-
-    return combinations;
+    std::vector<std::pair<double, double>> comb;
+    for (auto &c : combinations) {
+        comb.emplace_back(c[0], c[1]);
+    }
+    return comb;
 
 };
 
 
-//std::vector<std::vector<int>> answer = MyProduct(variableVectors);
-std::vector<std::vector<double>> Space::gen_SteinerPoint() {
-    cout << "1" << endl;
-    std::vector<std::pair<double, double>> combination=this->Combination();
 
-    cout << "1" << endl;
+
+std::vector<std::vector<double>> Space::gen_SteinerPoint() {
+    std::cout << "1" << endl;
+    std::vector<std::pair<double, double>> combination = this->Combination();
+
     for (auto box : Boxes) {
         std::vector<std::vector<double> > Range = box.generate_epsilon(this->rmin, this->epsilon);
+        decltype(Range) new_Range;
+
+        std::copy(Range.begin(), Range.end(), std::back_inserter(new_Range));
+
+        std::vector<std::vector<double>> answer_1;
 
         for (auto space : combination) {
-            int a = space.first - 1;
-            //Range[a];
-            for (int i = 0; i < Range[a].size(); i++) {
-                double k = Range[a].front();
-                Range[a][i] = k;
-            };
+            std::vector<std::vector<double>> fixed_Range = new_Range;
 
-            int b = space.second - 1;
-            //Range[b];
-            for (int i = 0; i < Range[b].size(); i++) {
-                double k = Range[b].front();
-                Range[b][i] = k;
+            int a = space.first;
+            int b = space.second;
 
-            };
+            std::vector<std::vector<double>> answer = Cartesian_Product(fixed_Range, a, b);
+            answer_1.insert(answer_1.end(), answer.begin(), answer.end());
+        }
+        return answer_1;
 
-            std::vector<std::vector<double>> answer = Cartesian_Product(Range);
-            //answer.insert(answer.begin(), Range.begin(), Range.end());
-            return answer;
-        };
-        
+        /*
+        double min_a = Range[a].front();
+        double min_b = Range[b].front();
+        double max_a = Range[a].back();
+        double max_b = Range[b].back();
+
+        std::vector<std::vector<double>> answer_2;
+        answer_2 = { {min_a,min_b},{min_a,max_b},{max_a,min_b},{max_a,max_b} };
+
+        decltype(answer_1) steiner_point;
+        std::copy(answer_1.begin(), answer_1.end(), std::back_inserter(steiner_point));
+
+        std::vector<std::vector<double>> answer_3;
+
+        for (auto& k : answer_1) {
+
+            for (int i = 0; i < steiner_point[i].size(); i++) {
+                steiner_point[i].insert(steiner_point[i].begin() + a, k[0]);
+                steiner_point[i].insert(steiner_point[i].begin() + b, k[1]);
+                answer_3.insert(answer_3.end(), steiner_point.begin(), steiner_point.end());
+            }
+        }
+        return answer_3;
+
+        */
+
     };
-        
+
 };
 
-
-/*
-vector<Point>& a = box.min;
-vector<Point>& b = box.max;
-*/
-
-// std::vector<double> 
-// auto Range = generate_epsilon(min, max);
-// i->combinations;
-// Range[i]=
-//variableVectors.push_back(vectors[i]);
-
-    //vector<Point> Box::vertices;
-    //x.Boxgenste(rmin)
-
-/*
-   std::vector<double> min_values(arr.size());
-    std::vector<double> max_values(arr.size());
-
-
-double min_i = *std::min_element(arr[i].begin(), arr[i].end());
-double max_i = *std::max_element(arr[i].begin(), arr[i].end());
-double min_j = *std::min_element(arr[j].begin(), arr[j].end());
-double max_j = *std::max_element(arr[j].begin(), arr[j].end());
-
-*/
 void Space::cal_rmin() {
-    std::vector<double> results;
-    double sum = 0.0;
-    double diff;
 
-    // Box vs Box
-    for (int i = 0; i < Boxes.size(); i ++) {
-        for (int j = i + 1; j < Boxes.size(); j ++) {
-            sum = 0.0;
-
-            for (int k = 0; k < d; k ++) {
-                double a_ik = Boxes[i].min[k];
-                double b_ik = Boxes[i].max[k];
-
-                double a_jk = Boxes[j].min[k];
-                double b_jk = Boxes[j].max[k];
-
-                if (std::max(a_ik, a_jk) <= std::min(b_ik, b_jk)) {
-                    diff = 0.0;
-                } else {
-                    if (b_ik < a_jk) {
-                        diff = b_ik - a_jk;
-                    } else if (b_jk < a_ik) {
-                        diff = b_jk - a_ik;
-                    }
-                }
-
-                sum += diff * diff;
-            }
-
-            results.push_back(sqrt(sum));
-        }
-    }
-
-
-    // Point vs Point
-    for (int i = 0; i < vertices.size(); i ++) {
-        for (int j = i + 1; j < vertices.size(); j ++) {
-            sum = 0.0;
-
-            for (int k = 0; k < d; k ++) {
-                double x_k = vertices[i].xs[k];
-                double y_k = vertices[j].xs[k];
-
-                diff = x_k - y_k;
-
-                sum += diff * diff;
-            }
-
-            results.push_back(sqrt(sum));
-        }
-    }
-
-
-    // Box vs Point
-    for (int i = 0; i < Boxes.size(); i ++) {
-        for (int j = 0; j < vertices.size(); j ++) {
-            sum = 0.0;
-
-            for (int k = 0; k < d; k ++) {
-                double a_ik = Boxes[i].min[k];
-                double b_ik = Boxes[i].max[k];
-
-                double a_jk = vertices[j].xs[k];
-                double b_jk = vertices[j].xs[k];
-
-                if (std::max(a_ik, a_jk) <= std::min(b_ik, b_jk)) {
-                    diff = 0.0;
-                } else {
-                    if (b_ik < a_jk) {
-                        diff = b_ik - a_jk;
-                    } else if (b_jk < a_ik) {
-                        diff = b_jk - a_ik;
-                    }
-                }
-
-                sum += diff * diff;
-            }
-
-            results.push_back(sqrt(sum));
-        }
-    }
-
-
-    double rmin = *std::min_element(results.begin(), results.end());
-
-    cout << "rmin: " << rmin << endl;
 };
 
 void Space::add_Box(Box) {
@@ -233,3 +175,104 @@ void Space::Dijkstra(Point query) {
 void Space::print_knn(int) {
 
 }
+
+
+//v.insert(it + 2, v2.begin(), v2.end());
+//front¿¡¼­ end ¹Ù²Ù¸é ok
+//for (int i = 0; i < space.size(); i++) {
+//answer.insert(answer.begin() + a, temp_1.begin(), temp_1.end());
+//answer.insert(answer.begin() + b, temp_1.end(), temp_1.end() + 1);
+//std::vector<std::vector<double>> answer = Cartesian_Product(Range);
+//answer.insert(answer.begin(), Range.begin(), Range.end());
+//return answer;
+
+/*
+//std::vector<std::vector<int>> answer = MyProduct(variableVectors);
+std::vector<std::vector<double>> Space::gen_SteinerPoint() {
+    cout << "1" << endl;
+    std::vector<std::pair<double, double>> combination=this->Combination();
+
+    cout << "1" << endl;
+    for (auto box : Boxes) {
+        std::vector<std::vector<double> > Range = box.generate_epsilon(this->rmin, this->epsilon);
+
+        for (auto space : combination) {
+            int a = space.first - 1;
+            int b = space.second - 1;
+            double min_a = Range[a].front()-1;
+            double min_b = Range[b].front()-1;
+            vector<double> temp_1 = { min_a, min_b };
+
+            Range.erase(Range.begin()+a-1);
+            Range.erase(Range.begin()+b-1);
+
+            std::vector<std::vector<double>> answer = Cartesian_Product(Range);
+
+
+            Range.insert(Range.begin() + a-1, temp_1.begin()-1, temp_1.end()-1);
+            Range.insert(Range.begin() + b-1, temp_1.end()-1, temp_1.end());
+            return answer;
+
+        };
+
+    };
+
+};
+
+
+vector<vector<double>> Space::deep_copy() {
+
+    Box b(3, { 0,0,0 }, {1,1,1});
+    vector<vector<double>> vec =b.generate_epsilon(this->rmin, this->epsilon);
+    vector<vector<double>> new_range;
+
+    vector<double> arr;
+    int NS = d;
+    double* new_range = (double*)calloc(NS, sizeof(double));
+
+        for (int i = 0; i < d; i++) {
+
+            std::copy(Range.begin(), Range.end(), std::back_inserter(y));
+
+            new_range.push_back(arr);
+        };
+
+
+}
+
+*/
+
+/*
+    int length = items.size();
+std::vector<int> indexes(length, 0);
+
+std::vector<std::vector<T>> result;
+
+while (true) {
+    std::vector<T> arr(length);
+    for (int i = 0; i < length; ++i) {
+        arr[i] = items[i][indexes[i]];
+    }
+    result.push_back(arr);
+
+    int row = length - 1;
+    indexes[row]++;
+
+    while (indexes[row] == items[row].size()) {
+        if (row == 0)
+            return result;
+        indexes[row] = 0;
+        row--;
+        indexes[row]++;
+
+
+
+                    //std::vector<double> temp_1 = { min_a, min_b };
+
+            // Remove Range[a] and Range[b]
+            //fixed_Range.erase(fixed_Range.begin() + a);
+            //fixed_Range.erase(fixed_Range.begin() + b);
+
+            // Calculate Cartesian Product for newRang
+
+*/
