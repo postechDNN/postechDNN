@@ -98,57 +98,64 @@ std::vector<std::pair<double, double>> Space:: Combination() {
 };
 
 std::vector<std::vector<double>> Space::gen_SteinerPoint() {
+
     std::cout << "1" << endl;
-    std::vector<std::pair<double, double>> combination = this->Combination();
+    std::vector<std::pair<int, int>> combination = this->Combination();
+    
+    // 
+    std::vector<std::vector<double>> answer_1;
+
+    // 최종 정답
+    std::vector<std::vector<double>> answer_3;
 
     for (auto box : Boxes) {
         std::vector<std::vector<double> > Range = box.generate_epsilon(this->rmin, this->epsilon);
-        decltype(Range) new_Range;
+        //decltype(Range) new_Range;
 
-        std::copy(Range.begin(), Range.end(), std::back_inserter(new_Range));
+       // std::copy(Range.begin(), Range.end(), std::back_inserter(new_Range));
 
-        std::vector<std::vector<double>> answer_1;
 
         for (auto space : combination) {
-            std::vector<std::vector<double>> fixed_Range = new_Range;
+            std::vector<std::vector<double>> fixed_Range = Range;
 
             int a = space.first;
             int b = space.second;
 
             std::vector<std::vector<double>> answer = Cartesian_Product(fixed_Range, a, b);
-            answer_1.insert(answer_1.end(), answer.begin(), answer.end());
-        }
-        return answer_1;
+            //.insert(answer_1.end(), answer.begin(), answer.end());
 
-        /*
-        double min_a = Range[a].front();
-        double min_b = Range[b].front();
-        double max_a = Range[a].back();
-        double max_b = Range[b].back();
+            //double min_a = box.min[a];
+            double min_a = box.min[a];
+            double min_b = box.min[b];
+            double max_a = box.max[a];
+            double max_b = box.max[b];
 
-        std::vector<std::vector<double>> answer_2;
-        answer_2 = { {min_a,min_b},{min_a,max_b},{max_a,min_b},{max_a,max_b} };
+            std::vector<std::vector<double>> answer_2;
 
-        decltype(answer_1) steiner_point;
-        std::copy(answer_1.begin(), answer_1.end(), std::back_inserter(steiner_point));
+            answer_2 = { {min_a,min_b},{min_a,max_b},{max_a,min_b},{max_a,max_b} };
 
-        std::vector<std::vector<double>> answer_3;
+            // for (int i = 0; i < answer_1)
 
-        for (auto& k : answer_1) {
+            for (auto& k : answer_2) {
 
-            for (int i = 0; i < steiner_point[i].size(); i++) {
-                steiner_point[i].insert(steiner_point[i].begin() + a, k[0]);
-                steiner_point[i].insert(steiner_point[i].begin() + b, k[1]);
-                answer_3.insert(answer_3.end(), steiner_point.begin(), steiner_point.end());
+                std::vector<std::vector<double>> answer_1 = answer; //
+
+                for (int i = 0; i < answer_1.size(); i++) {
+                   
+                    answer_1[i].insert(answer_1[i].begin()+a, k[0]);
+                    answer_1[i].insert(answer_1[i].begin()+b, k[1]);
+                    answer_3.push_back(answer_1[i]);
+
+                }
+
             }
         }
-        return answer_3;
-
-        */
-
-    };
+    }
+    
+    return answer_3;
 
 };
+
 
 void Space::cal_rmin() {
     std::vector<double> results;
