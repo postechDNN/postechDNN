@@ -80,3 +80,7 @@ WC_region::WC_region(DCEL& dcel, HEdge* he){
     }
     this->boundary.insert(this->boundary.end(), wc_boundary.begin(), wc_boundary.end());
 }
+
+WC_region_free::WC_region_free(CS_Free& cs_free, HEdge* he){
+    // TODO
+}
