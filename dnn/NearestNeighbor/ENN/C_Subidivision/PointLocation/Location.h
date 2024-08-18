@@ -10,41 +10,37 @@ using namespace std;
 const double EPS = tolerance;
 
 class CEdge : public HEdge {
+private:
+	static double constant;
+	static bool is_vertical;
+
+	HEdge* ref;
+
+	double getCoord(Vertex* p, bool parallel);
 public:
-	static double x;
+	CEdge();
+	CEdge(HEdge& he);
+	CEdge(Point* p1, Point* p2);
 
-	friend bool operator<(CEdge& const c1, CEdge& const c2) {
-		Edge e1 = c1.getEdge();
-		Edge e2 = c2.getEdge();
-		double t1 = (x - e1.gets().getx()) / (e1.gett().getx() - e1.gets().getx());
-		double t2 = (x - e2.gets().getx()) / (e2.gett().getx() - e2.gets().getx());
-		return (1. - t1) * e1.gets().gety() + t1 * e1.gett().gety() <
-			(1. - t2) * e2.gets().gety() + t2 * e2.gett().gety();
-		return true;
-	}
+	bool operator<(CEdge& other);
+	bool operator==(CEdge& other);
+	HEdge* getRef();
 
-	friend bool operator==(CEdge& const c1, CEdge& const c2) {
-		Edge e1 = c1.getEdge();
-		Edge e2 = c2.getEdge();
-		double t1 = (x - e1.gets().getx()) / (e1.gett().getx() - e1.gets().getx());
-		double t2 = (x - e2.gets().getx()) / (e2.gett().getx() - e2.gets().getx());
-		return ((1. - t1) * e1.gets().gety() + t1 * e1.gett().gety() -
-			(1. - t2) * e2.gets().gety() + t2 * e2.gett().gety() < EPS);
-		return true;
-	}
-
-	CEdge() : HEdge() {};
-	CEdge(HEdge& he) : HEdge(he) {}
-	CEdge(Point* p1, Point* p2) : HEdge(new Vertex(*p1), new Vertex(*p2)) {}
+	static void setConstantLine(double constant, bool is_vertical);
+	static double getConstant();
 };
 
 class Location
 {
+private:
+	int getVersion(Point* p, bool is_vertical);
 public:
-	P_PBST<CEdge> vt;
-	vector<double> xcoords;
+	static const int N = 0, S = 1, W = 2, E = 3;
+	P_PBST<CEdge> v_slab, h_slab;
+	vector<double> xcoords, ycoords;
+	Face* outmost;
 	Location(DCEL* dcel);
 	Face* locate(Point* p);
-};
 
-Face* locate(P_PBST<CEdge>* t, Point* p);
+	HEdge* ortho_ray(Point* p, int dir);
+};

@@ -22,4 +22,6 @@ public:
 	double distance(Point);
 
 	friend std::ostream& operator<<(std::ostream& os, const Point& p); //For testing
+
+	void operator=(Point);
 };

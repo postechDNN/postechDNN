@@ -16,27 +16,25 @@ public:
 		return v.size() - 1;
 	}
 
-	bool searchLEQ(const int ver, const T key, T& ret) {
+	bool searchLEQ(int ver, T key, T& ret) {
 		for (auto it = v[ver].rbegin(); it != v[ver].rend(); it++) {
-			if (*it <= key) {
+			if (*it == key || *it < key) {
 				ret = *it;
 				return true;
 			}
 		}
 		return false;
 	}
-
-	bool searchGEQ(const int ver, const T key, T& ret) {
+	bool searchGEQ(int ver, T key, T& ret) {
 		for (auto x : v[ver]) {
-			if (x >= key) {
+			if (x == key || key < x) {
 				ret = x;
 				return true;
 			}
 		}
 		return false;
 	}
-
-	void insert(const T key) {
+	void insert(T key) {
 		v.push_back(v.back());
 		for (auto x : v.back()) {
 			if (x == key) {
@@ -47,7 +45,7 @@ public:
 		sort(v.back().begin(), v.back().end());
 	}
 
-	void remove(const T key) {
+	void remove(T key) {
 		v.push_back(v.back());
 		for (auto it = v.back().begin(); it != v.back().end(); it++) {
 			if (*it == key) {

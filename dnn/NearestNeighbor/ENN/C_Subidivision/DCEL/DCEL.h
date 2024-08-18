@@ -71,7 +71,7 @@ public:
 	HEdge* getOuter();
 	std::vector<HEdge*> getInners();
 	void addInner(HEdge*);
-	//void setInners(std::vector<HEdge*>*);
+	void setInners(std::vector<HEdge*>*);
 	std::vector<HEdge *> getOutHEdges();
 	std::vector<HEdge*> getInnerHEdges();
 	std::vector<Vertex*> getOutVertices();
@@ -89,6 +89,7 @@ protected:
 public:
 	DCEL(std::string key ="__default__");
 	DCEL(std::vector<Point>&, std::vector<std::vector<int>>&,std::string key ="__default__");
+	DCEL(std::vector<std::pair<std::string,Point>>&, std::vector<std::vector<int>>&, std::string key = "__default__");
 	~DCEL();
 	std::vector<Face*> getFaces();
 	void setFaces(std::vector<Face*>);
