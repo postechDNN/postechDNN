@@ -2,7 +2,8 @@
 #include "WC_region.h"
 
 
-WF_propagation::WF_propagation(CS_Free& cs) : cs_free(cs){
+WF_propagation::WF_propagation(Vertex* s, CS_Free& cs) : src(src), cs_free(cs){
+    
 }
 
 WF_propagation::~WF_propagation(){

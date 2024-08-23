@@ -82,7 +82,10 @@ private:
     // std::unordered_map<HEdge*, CoverTime> covertime_of_edges;
 public:
     // Constructor initializing the wavefront propagation with a reference to the configuration space
-    WF_propagation(CS_Free& cs_free) : cs_free(cs_free) {}
+    WF_propagation(Vertex* s, CS_Free& cs);
+    
+    // Destructor
+    ~WF_propagation();  
 
     // Method to start the wavefront propagation process from the source vertex
     void propagate();
@@ -117,6 +120,5 @@ public:
     // Compute the output edges (half-edges) at a particular edge, which will be used to determine how the wavefront exits this region
     IOEdgesContainers compute_output_e(HEdge *e);
 
-    ~WF_propagation() {}  // Destructor
 };
 
