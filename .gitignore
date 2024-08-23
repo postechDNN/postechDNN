@@ -29,3 +29,5 @@ dnn/NearestNeighbor/ENN/DCEL/Makefile
 /dnn/NearestNeighbor/ENN/C_Subidivision/CS_Free.o
 /dnn/NearestNeighbor/ENN/C_Subidivision/WC_region.o
 /dnn/NearestNeighbor/ENN/C_Subidivision/CS_Free.txt
+/dnn/NearestNeighbor/ENN/C_Subidivision/APX_wavefront.o
+/dnn/NearestNeighbor/ENN/C_Subidivision/WF_propagation.o
