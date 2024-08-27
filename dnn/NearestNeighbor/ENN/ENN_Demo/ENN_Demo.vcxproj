@@ -137,6 +137,7 @@
     <ClCompile Include="..\C_Subidivision\DCEL\PolygonalDomain.cpp" />
     <ClCompile Include="..\C_Subidivision\DCEL\Vector.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Space.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\C_Subidivision\DCEL\AVLTree.h" />
@@ -150,6 +151,8 @@
     <ClInclude Include="..\C_Subidivision\DCEL\Polygon.h" />
     <ClInclude Include="..\C_Subidivision\DCEL\PolygonalDomain.h" />
     <ClInclude Include="..\C_Subidivision\DCEL\Vector.h" />
+    <ClInclude Include="Space.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

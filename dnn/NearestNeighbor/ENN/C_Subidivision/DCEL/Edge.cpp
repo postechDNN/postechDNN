@@ -22,7 +22,7 @@ Edge::Edge(const Edge& _e) {
 
 Edge::~Edge() {}
 
-bool Edge::operator==(Edge& _e) {
+bool Edge::operator==(const Edge& _e) {
 	return ((this->gett()) == _e.gett()) && ((this->gets()) == _e.gets()) || ((this->gett()) == _e.gets()) && ((this->gets()) == _e.gett());
 }
 
@@ -124,11 +124,11 @@ Edge* Edge::crossing(Edge& _e, bool closed = true) {
 	}
 }
 
-Point Edge::gets() {
+Point Edge::gets() const{
 	return this->s;
 }
 
-Point Edge::gett() {
+Point Edge::gett() const{
 	return this->t;
 }
 
@@ -150,16 +150,18 @@ std::ostream& operator<<(std::ostream& os, const Edge& p){
 	return os;
 }
 
-void Edge::operator=(Edge& _e) {
+Edge& Edge::operator=(const Edge& _e) {
 	this->s.setx(_e.gets().getx());
 	this->s.sety(_e.gets().gety());
 	this->t.setx(_e.gett().getx());
 	this->t.sety(_e.gett().gety());
+	return *this;
 }
 
+/*
 void Edge::operator=(Edge _e) {
 	this->s.setx(_e.gets().getx());
 	this->s.sety(_e.gets().gety());
 	this->t.setx(_e.gett().getx());
 	this->t.sety(_e.gett().gety());
-}
+}*/

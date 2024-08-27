@@ -48,6 +48,9 @@
     <ClCompile Include="..\C_Subidivision\DCEL\Vector.cpp">
       <Filter>소스 파일\DCEL</Filter>
     </ClCompile>
+    <ClCompile Include="Space.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\C_Subidivision\DCEL\DCEL.h">
@@ -82,6 +85,12 @@
     </ClInclude>
     <ClInclude Include="..\C_Subidivision\DCEL\Vector.h">
       <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="Space.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
