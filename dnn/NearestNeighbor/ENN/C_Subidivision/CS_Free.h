@@ -15,8 +15,11 @@ protected:
     DCEL* subdiv;
 public:
 
-    DCEL* getDCEL() { return this->subdiv; };
-
+    DCEL* getDCEL() { return this->subdiv; }
+    std::unordered_map<std::string, Vertex_Type> getVertices_types() { return this->vertices_types; }
+    void setVertices_types(std::string, int);
+    std::unordered_map<std::string, HEdge_Type> getEdge_types() { return this->edge_types; }
+    void setEdge_types(std::string, int);
     CS_Free(Point src, std::vector<SimplePolygon>& obstacles);
     ~CS_Free();
 };

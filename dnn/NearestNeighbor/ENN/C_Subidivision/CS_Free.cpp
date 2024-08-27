@@ -992,6 +992,37 @@ CS_Free::CS_Free(Point src, std::vector<SimplePolygon>& obstacles){
 
 CS_Free::~CS_Free(){}
 
+void CS_Free::setVertices_types(std::string key, int value) {
+    if (this->vertices_types.find(key) == this->vertices_types.end()) {
+        std::cout << "There is no " << key << " in the conforming subdivision of free space.\n";
+    }
+    else {
+        if (value == 0) {
+            this->vertices_types[key] = V_SRC;
+        }
+        else if (value == 1) {
+            this->vertices_types[key] = V_OBS;
+        }
+        else if (value == 2) {
+            this->vertices_types[key] = V_TRP;
+        }
+    }
+}
+
+void CS_Free::setEdge_types(std::string key, int value) {
+    if (this->vertices_types.find(key) == this->vertices_types.end()) {
+        std::cout << "There is no " << key << " in the conforming subdivision of free space.\n";
+    }
+    else {
+        if (value == 0) {
+            this->edge_types[key] = HE_TRP;
+        }
+        else if (value == 1) {
+            this->edge_types[key] = HE_OPQ;
+        }
+    }
+}
+
 DCEL* constructObsDCEL(std::vector<SimplePolygon>& obstacles, std::string key) {
     //std::vector<Point>&, std::vector<std::vector<int>>&
     // Initialize
