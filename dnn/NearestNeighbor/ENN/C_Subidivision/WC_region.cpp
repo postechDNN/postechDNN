@@ -2,6 +2,8 @@
 #include "DCEL/Vector.h"
 #include <set>
 
+constexpr double TOLERANCE_WC_REGION = 1e-6;
+
 bool inline is_colinear(HEdge* a, HEdge* b){
     Point org = *a->getOrigin(), dest = *a->getTwin()->getOrigin();
     Vector vec_he(org,dest);
@@ -82,5 +84,80 @@ WC_region::WC_region(DCEL& dcel, HEdge* he){
 }
 
 WC_region_free::WC_region_free(CS_Free& cs_free, HEdge* he){
-    // TODO
+    this->e = he;
+
+    std::unordered_map<std::string, HEdge_Type> types = cs_free.getEdge_types();
+
+    if (types[he->getKey()] == HEdge_Type::HE_OPQ) {
+        return;
+    }
+    
+    bool added = false;
+
+    HEdge* check_opq = he->getNext();
+    HEdge* check_trp = he->getTwin()->getPrev();
+    Face *f1, *f2, *f3;
+
+    if (types[check_opq->getKey()] == HEdge_Type::HE_OPQ && types[check_trp->getKey()] == HEdge_Type::HE_TRP) {
+        added = true;
+        f1 = he->getIncidentFace();
+        f2 = he->getTwin()->getIncidentFace();
+        f3 = check_trp->getTwin()->getIncidentFace();
+    }
+
+    check_opq = he->getTwin()->getNext();
+    check_trp = he->getPrev();
+
+    if (types[check_opq->getKey()] == HEdge_Type::HE_OPQ && types[check_trp->getKey()] == HEdge_Type::HE_TRP) {
+        added = true;
+        f1 = he->getIncidentFace();
+        f2 = he->getTwin()->getIncidentFace();
+        f3 = check_trp->getIncidentFace();
+    }
+
+    if (added) {
+        std::vector<HEdge*> square_edges;
+        std::vector<Face*> faces = { f1, f2, f3 };
+
+        for (Face* f : faces) {
+            for (HEdge* he : f->getInnerHEdges()) {
+                bool contain = false;
+                for (HEdge* e : square_edges) {
+                    if (e->getKey().compare(he->getKey()) == 0) {
+                        bool contain = true;
+                        break;
+                    }
+                }
+
+                if (!contain) {
+                    square_edges.push_back(he);
+                }
+            }
+        }
+
+        for (HEdge* e : square_edges) {
+            WC_region wc(*cs_free.getDCEL(), e);
+
+            for (Face* f : wc.regions) {
+                for (Face* tf : this->regions) {
+                    if (f->getKey().compare(tf->getKey()) != 0) {
+                        this->regions.push_back(f);
+                    }
+                }
+            }
+
+            for (HEdge* b : wc.boundary) {
+                for (HEdge* tb : this->boundary) {
+                    if (b->getKey().compare(tb->getKey()) != 0) {
+                        this->boundary.push_back(b);
+                    }
+                }
+            }
+        }
+    }
+    else {
+        WC_region wc(*cs_free.getDCEL(), he);
+        this->regions = wc.regions;
+        this->boundary = wc.boundary;
+    }
 }
