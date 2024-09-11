@@ -28,11 +28,32 @@ std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::
 
 void WF_propagation::update_covertime_of_edge(HEdge *e, double t){
     // TODO
+    auto it = covertime_of_edges.find(e);
+    if (it != covertime_of_edges.end()) {
+        CoverTime &target = it->second;
+        if (target.t > t) {
+            target.t = t;
+            CoverTime temp(e, t);
+            covertime_pq.push(temp);
+        }
+    } else {
+        // Exception
+        CoverTime newCoverTime(e, t);
+        covertime_of_edges.insert(std::make_pair(e, newCoverTime));
+        covertime_pq.push(newCoverTime);
+    }
 }
 
 
 CoverTime WF_propagation::get_covertime_of_edge(HEdge *e){
     // TODO
+    auto it = covertime_of_edges.find(e);
+    if (it != covertime_of_edges.end()) {
+        return it->second;
+    } else {
+        // Exception
+        return CoverTime(e, std::numeric_limits<double>::max());
+    }
 }
 
 

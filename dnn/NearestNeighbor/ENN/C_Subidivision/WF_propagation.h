@@ -79,7 +79,7 @@ private:
     // Maps to store the shortest distance to vertices and to keep track of which cells (faces) have been influenced by which wavefront generators
     std::unordered_map<Vertex*, double> dist_vertices;  // Distance map for vertices (used in the wavefront propagation)
     std::unordered_map<Face*, std::vector<WF_generator> > marked_cells; 
-    // std::unordered_map<HEdge*, CoverTime> covertime_of_edges;
+    std::unordered_map<HEdge*, CoverTime> covertime_of_edges;
 public:
     // Constructor initializing the wavefront propagation with a reference to the configuration space
     WF_propagation(Vertex* s, CS_Free& cs);
