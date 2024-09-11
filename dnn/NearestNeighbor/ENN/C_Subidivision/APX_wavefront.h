@@ -1,5 +1,9 @@
 #pragma once
 
+
+#include <vector>
+#include "DCEL/DCEL.h"
+
 enum Direction {
     UP,
     DOWN,
@@ -13,4 +17,6 @@ public:
     Direction reach_from;     
     APX_wavefront();
     ~APX_wavefront();
+
+    std::vector<Point> get_generators();
 };

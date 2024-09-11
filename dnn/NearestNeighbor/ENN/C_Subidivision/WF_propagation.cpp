@@ -21,9 +21,61 @@ IOEdgesContainers WF_propagation::compute_output_e(HEdge *e){
     // Use WC_region.h
 }
 
+ std::vector<std::vector<APX_wavefront> > split_APX_wavefront(std::vector<APX_wavefront>& wavefronts){
+    //TODO
+ }
+
+ Point compute_intersection(HEdge* e, APX_wavefront& wf){
+    //TODO
+ }
+
 std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts){
     // TODO
     // marking rule for generators (Rule 2, 3, 4)
+
+    std::vector<std::vector<APX_wavefront> > l = split_APX_wavefront(wavefronts);
+
+    APX_wavefront left, right;
+
+    APX_wavefront res = wavefronts[0]; 
+
+    for (auto g:wavefronts ){
+        
+        // Decide which one is left 
+
+        std::pair<Point, Point> temp_a = compute_intersection(e, res.get_generators[0]);
+        std::pair<Point, Point> temp_b = compute_intersection(e, g.get_generators[0]);
+
+        if (temp_a.first.getx() - temp_b.first.getx() < 0){
+            left = res;
+            right = g;
+        }  
+        else{
+            left = g;
+            right = res;
+        }
+
+        Point a = *(left.get_generators().end());
+        std::pair<Point, Point> a_claim = compute_intersection(e, a); 
+        Point p_a = a_claim.second;
+
+        Point b = *(right.get_generators().begin());
+        std::pair<Point, Point> b_claim = compute_intersection(e, b); 
+        Point p_b = b_claim.first;
+
+        
+
+
+
+        // Check if res[0] claim an endpoint
+
+
+
+        
+    }
+
+
+
 }
 
 void WF_propagation::update_covertime_of_edge(HEdge *e, double t){
