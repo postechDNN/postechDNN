@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <limits>
 #include <functional>
+#include <algorithm>
 
 class IOEdgesContainers {
 public:
