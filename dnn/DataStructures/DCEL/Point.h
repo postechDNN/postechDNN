@@ -6,6 +6,7 @@
 class Point {
 protected:
 	double x, y;
+	double weight;
 
 public:
 

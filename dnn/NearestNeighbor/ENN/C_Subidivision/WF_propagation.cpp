@@ -63,6 +63,13 @@ std::vector<APX_wavefront> WF_propagation::get_apx_wavefront_of_edge(HEdge *e){
 void WF_propagation::set_apx_wavefront_of_edge(HEdge *e){
     // TODO
 }
+
+
+Point WF_propagation::compute_weighted_dist_point(int idx1, int idx2, int idx3, HEdge *e){
+    // TODO
+}
+
+
 void WF_propagation::compute_dist_to_endpoints(HEdge *, std::vector<APX_wavefront>&){
     // TODO
 }
