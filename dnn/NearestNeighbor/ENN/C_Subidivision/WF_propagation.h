@@ -106,7 +106,7 @@ public:
     void set_apx_wavefront_of_edge(HEdge *e);
 
     // Compute the point that has same weighted distance between three point
-    Point WF_propagation::compute_weighted_dist_point(int idx1, int idx2, int idx3, HEdge *e);
+    Point compute_weighted_dist_point(int idx1, int idx2, int idx3, HEdge *e);
 
     // Compute the distance from the source to the endpoints of an edge using the current wavefronts
     void compute_dist_to_endpoints(HEdge *, std::vector<APX_wavefront>&);

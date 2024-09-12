@@ -6,7 +6,6 @@
 class Point {
 protected:
 	double x, y;
-	double weight;
 
 public:
 
@@ -21,6 +20,7 @@ public:
 	double gety(void) const;
 	void sety(double);
 	double distance(Point);
+	double weight;
 
 	friend std::ostream& operator<<(std::ostream& os, const Point& p); //For testing
 };
