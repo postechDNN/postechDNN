@@ -259,3 +259,7 @@ void WF_propagation::propagate(){
         this->covertime_pq.pop();
     }
 }
+
+std::vector<WF_generator> WF_propagation::getMarked_cells(Face* f) {
+    return this->marked_cells[f];
+}

@@ -124,5 +124,7 @@ public:
     // Compute the output edges (half-edges) at a particular edge, which will be used to determine how the wavefront exits this region
     IOEdgesContainers compute_output_e(HEdge *e);
 
+
+    std::vector<WF_generator> getMarked_cells(Face*);
 };
 

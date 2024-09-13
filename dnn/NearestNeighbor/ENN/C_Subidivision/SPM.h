@@ -7,13 +7,19 @@
 // Shortest path map
 class SPM{ 
 //variables
-public:
-  
+private:
+	Vertex* src;
+	WF_propagation& wfp;
+
 
 //functions
 public:
-	SPM(WF_propagation& wfp);
+	SPM(Vertex* s, WF_propagation& wfp);
 	~SPM();
+
+	void ComputingSPM(); // main function for computing SPM
+	void ComputeVertices(); // compute the vertices of SPM inside each cell
+	void CombinedVertices(); // Plane sweep to assemble SPM edges
 };
 
 
