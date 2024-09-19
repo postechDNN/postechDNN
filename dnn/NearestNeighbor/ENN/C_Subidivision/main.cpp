@@ -26,7 +26,7 @@ int main(){
 
 
     std::cout << "Wave front propagation start\n";
-    SPM spm(&srcV, wf_propagation);
+    SPM spm(&srcV, wf_propagation, obstacles);
     std::cout << "Wave front propagation done\n";
 
     return 0;

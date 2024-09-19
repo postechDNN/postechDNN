@@ -64,6 +64,8 @@ public:
 class WF_generator {
 public:
     Vertex* src;  // Source vertex from which the wavefront is generated
+    HEdge* hedge; // each marked generator is in the approximate wavefront of one of the boundary edges of c(cell)
+    double weight; // distance from src to hedge 
     // TODO: Implement additional functionalities or properties for the wavefront generator
 };
 
