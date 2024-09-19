@@ -70,6 +70,9 @@ double distGenToPoint(WF_generator gen, Point p) {
 	return distSegToPoint(gen.hedge->getEdge(),p) + gen.weight;
 }
 
+bool cmpX(PlaneSweepEvent a, PlaneSweepEvent b) {
+	return a.getP().getx() < b.getP().getx();
+}
 
 std::vector<std::vector<HEdge*>> compute_active_cells(std::vector<HEdge*> edges, std::vector<WF_generator> generators) {
 	std::vector<std::vector<HEdge*>> result;
@@ -144,23 +147,57 @@ void SPM::CombinedVertices() {
 		Hyperbola hyperbola(classifiedEdges[i].front().getHyperbola().gets(), classifiedEdges[i].back().getHyperbola().gett(),
 			classifiedEdges[i].front().getHyperbola().geta(), classifiedEdges[i].front().getHyperbola().getb());
 		SPMEdge temp(hyperbola, classifiedEdges[i].getV(), classifiedEdges[i].getW());
+		arcs.push_back(temp);
 	}
+
 
 	// 2. Standard plane sweep for combining arcs and obstacle edges
 	std::priority_queue<PlaneSweepEvent> pq;
-	// Initialize prioirty queue 1 (push Hyperbola)
-	
+	// Initialize prioirty queue 1 (push Hyperbola arcs)
+	int idx = 0;
+	for (size_t i = 0; i < classifiedEdges.size(); i++) {
+		PlaneSweepEvent tempS;
+		PlaneSweepEvent tempT;
+		tempS.setP(classifiedEdges[i].getHyperbola().gets());
+		tempS.setHyperbolaArc(&classifiedEdges[i].getHyperbola());
+		tempS.setType(true);
+		tempS.setIdx(idx);
+		tempT.setP(classifiedEdges[i].getHyperbola().gett());
+		tempT.setType(true);
+		tempT.setHyperbolaArc(&classifiedEdges[i].getHyperbola());
+		tempT.setIdx(idx);
+		pq.push(tempS);
+		pq.push(tempT);
+		idx++;
+	}
 
 	// Initialize prioirty queue 2 (push obstacles' edges)
+	for (size_t i = 0; i < this->obs.size(); i++) {
+		for (size_t j = 0; j < this->obs[i].size(); j++) {
+			PlaneSweepEvent tempS;
+			PlaneSweepEvent tempT;
+			tempS.setP(obs[i][j].gets());
+			tempS.setLineSegment(&obs[i][j]);
+			tempS.setType(false);
+			tempS.setIdx(idx);
+			tempT.setP(obs[i][j].gett());
+			tempT.setType(false);
+			tempT.setLineSegment(&obs[i][j]);
+			tempT.setIdx(idx);
+			pq.push(tempS);
+			pq.push(tempT);
+			idx++;
+		}
+	}
 
 	// plane sweep
+	std::map<int, PlaneSweepEvent*> 
 	while (!pq.empty()) {
 		PlaneSweepEvent nowEvent = pq.top();
-
-
-
 		pq.pop();
 	}
+
+	// Convert to DCEL
 }
 
 

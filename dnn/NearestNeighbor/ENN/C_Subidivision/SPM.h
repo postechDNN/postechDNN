@@ -74,22 +74,41 @@ public:
 	void CombinedVertices(); // Plane sweep to assemble SPM edges
 };
 
+class HArcEdge {
+private:
+	Edge* lineSegment;
+	SPMEdge* HyperbolaArc;
+	bool isArc;
+public:
+
+};
 
 class PlaneSweepEvent {
 private:
+	enum Event_Type { START, END, INTERSECTION };
 	Point p;
-	HEdge* lineSegment;
-	SPMEdge* HyperbolaArc;
-	enum Event_Type { ARC, OBS };
+	HArcEdge* edge1;
+	HArcEdge* edge2;
+	Event_Type type;
 public:
 	bool isStartEP() {
-		Point s = this->edge->getEdge().gets();
-		Point t = this->edge->getEdge().gett();
+		Point s;
+		Point t;
+
+		if (this->type == ARC) {
+			s = this->HyperbolaArc->getHyperbola().gets();
+			t = this->HyperbolaArc->getHyperbola().gett();
+		}
+		else {
+			s = this->lineSegment->gets();
+			t = this->lineSegment->gett();
+		}
+
 		Point* start = nullptr;
-		if (s.sety() > t.sety()) {
+		if (s.gety() > t.gety()) {
 			start = &s;
 		}
-		else if (s.sety() == t.sety()) {
+		else if (s.gety() == t.gety()) {
 			if (s.getx() > t.getx()) start = &s;
 			else start = &t;
 		}
@@ -99,9 +118,39 @@ public:
 		if (this->p == *start) return true;
 		else return false;
 	}
+
+	bool isPositiveSlope() {
+		Point t;
+		if (this->type == ARC) {
+			t = this->HyperbolaArc->getHyperbola().gett();
+		}
+		else {
+			t = this->lineSegment->gett();
+		}
+		if (this->p.getx() > t.getx()) return true;
+		else return false;
+	}
 	
+	void setP(const Point& p) { this->p = p; }
+	void setLineSegment(const Edge* hedge) { this->lineSegment = hedge; }
+	void setHyperbolaArc(const SPMEdge* spmedge) { this->HyperbolaArc = spmedge; }
+	void setType(bool t) {
+		if (t) this->type = ARC;
+		else this->type = OBS;
+	}
+
+	Point getP() { this->p = p; }
+	Edge* getLineSegment() { return this->lineSegment; }
+	SPMEdge* getHyperbolaArc() { return this->HyperbolaArc; }
+	bool getType() {
+		if (this->type == ARC) return true;
+		else return false;
+	}
+
 	// Comparison operator to allow ordering in a priority queue (for the combined vertices SPM)
 	bool operator<(const PlaneSweepEvent& cmpE) const {
-		//return t > other.t;
+		return this->p.gety() < cmpE.getP().gety();
 	}
+
+	Point intersection(PlaneSweepEvent& cmpE) {}
 };
