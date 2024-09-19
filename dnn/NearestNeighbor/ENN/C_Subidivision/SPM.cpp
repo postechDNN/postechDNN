@@ -7,62 +7,65 @@
 #include <string>
 #include <utility>
 #include <algorithm>
+#include <stdlib.h>
 
 using namespace std;
 
 constexpr double TOLERANCE_SPM = 1e-6;
 
 double distSegToPoint(Edge e, Point p) {
-	// Horizontal
+	
+	// When e is horizontal
 	if (std::abs(e.gets().gety() - e.gett().gety()) < TOLERANCE_SPM) {
-		Point* left;
-		Point* right;
+		Point left;
+		Point right;
 		if (e.gets().getx() > e.gett().getx()) {
-			right = &e.gets();
-			left = &e.gett();
+			right = e.gets();
+			left = e.gett();
 		}
 		else {
-			left = &e.gets();
-			right = &e.gett();
+			left = e.gets();
+			right = e.gett();
 		}
 
-		if (left->getx() > p.getx()) {
-			return left->distance(p);
+		if (left.getx() > p.getx()) {
+			return left.distance(p);
 		}
-		else if (bottom->getx() < p.getx()) {
-			return right->distance(p);
+		else if (right.getx() < p.getx()) {
+			return right.distance(p);
 		}
 		else {
-			return std::abs(left->gety() - p.gety());
+			return std::abs(left.gety() - p.gety());
 		}
 	}
 
-	// Vertical
+	// When e is vertical
 	else if (std::abs(e.gets().getx() - e.gett().getx()) < TOLERANCE_SPM) {
-		Point* top;
-		Point* bottom;
+		Point top;
+		Point bottom;
 		if (e.gets().gety() > e.gett().gety()) {
-			top = &e.gets();
-			bottom = &e.gett();
+			top = e.gets();
+			bottom = e.gett();
 		}
 		else {
-			bottom = &e.gets();
-			top = &e.gett();
+			bottom = e.gets();
+			top = e.gett();
 		}
 
-		if (top->gety() < p.gety()) {
-			return top->distance(p);
+		if (top.gety() < p.gety()) {
+			return top.distance(p);
 		}
-		else if (bottom->gety() > p.gety()) {
-			return bottom->distance(p);
+		else if (bottom.gety() > p.gety()) {
+			return bottom.distance(p);
 		}
 		else {
-			return std::abs(top->getx() - p.getx());
+			return std::abs(top.getx() - p.getx());
 		}
 	}
 
+	// Another case
 	else {
-		return;
+		return 0;
 	}
 }
 
@@ -70,20 +73,21 @@ double distGenToPoint(WF_generator gen, Point p) {
 	return distSegToPoint(gen.hedge->getEdge(),p) + gen.weight;
 }
 
-bool cmpX(PlaneSweepEvent a, PlaneSweepEvent b) {
-	return a.getP().getx() < b.getP().getx();
-}
-
 std::vector<std::vector<HEdge*>> compute_active_cells(std::vector<HEdge*> edges, std::vector<WF_generator> generators) {
 	std::vector<std::vector<HEdge*>> result;
 	return result;
 };
 
+std::vector<SPMEdge> compute_spm_edges(std::vector<std::vector<SFaces>> SFaces_results) {
+	std::vector<SPMEdge> result;
+	return result;
+}
+
 bool SPMEdge::operator<(const SPMEdge& cmpE) const {
 	return distGenToPoint(this->v, this->hyperbola.gets()) < distGenToPoint(cmpE.getV(), cmpE.getHyperbola().gets());
 }
 
-SPM::SPM(Vertex* s, WF_propagation& wfp, std::vector<SimplePolygon> obs) : src(src), wfp(wfp), obs(obs) {
+SPM::SPM(Vertex* s, WF_propagation& wfp, CS_Free& cs_free, std::vector<SimplePolygon>& obs) : src(src), wfp(wfp), cs_free(cs_free), obs(obs) {
 	this->ComputingSPM();
 }
 SPM::~SPM() {
@@ -92,24 +96,24 @@ SPM::~SPM() {
 void SPM::ComputingSPM() {
 	this->ComputeVertices();
 	
-	this->CombinedVertices();
+	this->CombineVertices();
 }
 
 void SPM::ComputeVertices() {
-	std::vector<Face*> cells = this->wfp.cs_free.getDCEL()->getFaces();
+	std::vector<Face*> cells = this->cs_free.getDCEL()->getFaces();
 	for (auto nowCell : cells) {
 		// break cell into active and inactive regions
 		std::vector<HEdge*> edges = nowCell->getInnerHEdges();
-		std::vector<WF_generator> generators = this->wfp.getMarked_cells();
+		std::vector<WF_generator> generators = this->wfp.getMarked_cells(nowCell);
 		// Stores marked edges of each active region
-		std::vector<std::vecter<HEdge*>> active_regions = compute_active_cells(edges,generators); // transparent edge
+		std::vector<std::vector<HEdge*>> active_regions = compute_active_cells(edges,generators); // transparent edge
 		
 		for (auto nowRegion : active_regions) {
 			// Compute S-Faces for each marked transparent edge
 			std::vector<std::vector<SFaces>> SFaces_results;
 			for (auto nowGen : nowRegion) {
 				std::vector<SFaces> temp_result;
-				IOEdgesContainers input_edges = this->wfp.compute_input_e(nowGen.hedge);
+				IOEdgesContainers input_edges = this->wfp.compute_input_e(nowGen);
 				for (auto nowInputEdge : input_edges.hedges) {
 					SFaces temp(nowInputEdge);
 					temp_result.push_back(temp);
@@ -118,15 +122,18 @@ void SPM::ComputeVertices() {
 			}
 
 
-			// Compute the vertices of SPM (divide and conquer)
+			// Compute the edges(vertices) of SPM (divide and conquer)
+			std::vector<SPMEdge> tempEdges = compute_spm_edges(SFaces_results);
 
-
-			// Collect vertices
+			// Collect edges(vertices)
+			for (size_t i = 0; i < tempEdges.size(); i++) {
+				this->edges.push_back(tempEdges[i]);
+			}
 		}
 	}
 }
 
-void SPM::CombinedVertices() {
+void SPM::CombineVertices() {
 	// 1. Standard plane sweep for computing arcs
 	// Take the endpoints belonging to the bisector of a generator pair (v, w)
 	std::map<std::pair<string, string>, int> generatorPairIdx;
@@ -142,62 +149,140 @@ void SPM::CombinedVertices() {
 		}
 		sort(classifiedEdges[i].begin(), classifiedEdges[i].end());
 	}
-	std::vector<SPMEdge> arcs;
+	std::vector<Hyperbola> arcs;
 	for (size_t i = 0; i < classifiedEdges.size(); i++) {
 		Hyperbola hyperbola(classifiedEdges[i].front().getHyperbola().gets(), classifiedEdges[i].back().getHyperbola().gett(),
 			classifiedEdges[i].front().getHyperbola().geta(), classifiedEdges[i].front().getHyperbola().getb());
-		SPMEdge temp(hyperbola, classifiedEdges[i].getV(), classifiedEdges[i].getW());
-		arcs.push_back(temp);
+		//SPMEdge temp(hyperbola, classifiedEdges[i].front().getV(), classifiedEdges[i].front().getW());
+		arcs.push_back(hyperbola);
 	}
 
 
 	// 2. Standard plane sweep for combining arcs and obstacle edges
 	std::priority_queue<PlaneSweepEvent> pq;
 	// Initialize prioirty queue 1 (push Hyperbola arcs)
-	int idx = 0;
-	for (size_t i = 0; i < classifiedEdges.size(); i++) {
+	for (size_t i = 0; i < arcs.size(); i++) {
+		HArcEdge* temp = new HArcEdge();
+		temp->setHyperbolaArc(&arcs[i]);
+		temp->setIsArc(true);
+
 		PlaneSweepEvent tempS;
 		PlaneSweepEvent tempT;
-		tempS.setP(classifiedEdges[i].getHyperbola().gets());
-		tempS.setHyperbolaArc(&classifiedEdges[i].getHyperbola());
-		tempS.setType(true);
-		tempS.setIdx(idx);
-		tempT.setP(classifiedEdges[i].getHyperbola().gett());
-		tempT.setType(true);
-		tempT.setHyperbolaArc(&classifiedEdges[i].getHyperbola());
-		tempT.setIdx(idx);
+		tempS.setP(temp->getHyperbolaArc()->gets());
+		tempS.setType(0);
+		tempS.setEdge1(temp);
+
+		tempT.setP(temp->getHyperbolaArc()->gett());
+		tempT.setType(1);
+		tempT.setEdge1(temp);
+		
 		pq.push(tempS);
 		pq.push(tempT);
-		idx++;
 	}
 
 	// Initialize prioirty queue 2 (push obstacles' edges)
 	for (size_t i = 0; i < this->obs.size(); i++) {
-		for (size_t j = 0; j < this->obs[i].size(); j++) {
+		std::vector<Edge> edges = this->obs[i].getEdges();
+		for (size_t j = 0; j < edges.size(); j++) {
+			Point s;
+			Point t;
+			if (edges[i].gets().gety() > edges[i].gett().gety()) {
+				s = edges[i].gets();
+				t = edges[i].gett();
+			}
+			else {
+				t = edges[i].gets();
+				s = edges[i].gett();
+			}
+			Edge* tempEdge = new Edge(s,t);
+
+			HArcEdge* temp = new HArcEdge();
+			temp->setLineSegment(tempEdge);
+			temp->setIsArc(false);
+
 			PlaneSweepEvent tempS;
 			PlaneSweepEvent tempT;
-			tempS.setP(obs[i][j].gets());
-			tempS.setLineSegment(&obs[i][j]);
-			tempS.setType(false);
-			tempS.setIdx(idx);
-			tempT.setP(obs[i][j].gett());
-			tempT.setType(false);
-			tempT.setLineSegment(&obs[i][j]);
-			tempT.setIdx(idx);
+			tempS.setP(temp->getLineSegment()->gets());
+			tempS.setType(0);
+			tempS.setEdge1(temp);
+
+			tempT.setP(temp->getLineSegment()->gett());
+			tempT.setType(1);
+			tempT.setEdge1(temp);
+
 			pq.push(tempS);
 			pq.push(tempT);
-			idx++;
 		}
 	}
 
 	// plane sweep
-	std::map<int, PlaneSweepEvent*> 
+	std::vector<HArcEdge> planeSweepResult;
+	std::set<HArcEdge*> HArcEdgeList; // sorted by x-coordinate order
 	while (!pq.empty()) {
 		PlaneSweepEvent nowEvent = pq.top();
 		pq.pop();
+
+		int event_type = nowEvent.getType();
+		// Start endpoint of an edge
+		if (event_type == 0) {
+			auto nowEdge = nowEvent.getEdge1();
+			HArcEdgeList.insert(nowEdge);
+			if (HArcEdgeList.size() > 1) {
+				auto it = HArcEdgeList.find(nowEdge);
+				if (nowEdge->isPositiveSlope()) {
+					if (it != HArcEdgeList.begin()) {
+						it--;
+						Point intersection = nowEdge->intersection(**it);
+						PlaneSweepEvent temp;
+						temp.setP(intersection);
+						temp.setEdge1(nowEdge);
+						temp.setEdge2(*it);
+						temp.setType(2);
+						pq.push(temp);
+					}
+				}
+				else {
+					if (++it != --HArcEdgeList.end()) {
+						Point intersection = nowEdge->intersection(**it);
+						PlaneSweepEvent temp;
+						temp.setP(intersection);
+						temp.setEdge1(nowEdge);
+						temp.setEdge2(*it);
+						temp.setType(2);
+						pq.push(temp);
+					}
+				}
+			}
+		}
+		// End endpoint of an edge
+		else if (event_type == 1) { 
+			planeSweepResult.push_back(*nowEvent.getEdge1());
+			auto it = HArcEdgeList.find(nowEvent.getEdge1());
+			HArcEdgeList.erase(it);
+		}
+		// Intersection point of a pair of two edges
+		else {
+			HArcEdge temp1(nowEvent.getEdge1());
+			HArcEdge temp2(nowEvent.getEdge2());
+			temp1.sett(nowEvent.getP());
+			temp2.sett(nowEvent.getP());
+			planeSweepResult.push_back(temp1);
+			planeSweepResult.push_back(temp2);
+			
+			auto it1 = HArcEdgeList.find(nowEvent.getEdge1());
+			HArcEdgeList.erase(it1);
+			auto it2 = HArcEdgeList.find(nowEvent.getEdge2());
+			HArcEdgeList.erase(it2);
+
+			temp1.sets(nowEvent.getP());
+			temp2.sets(nowEvent.getP());
+			HArcEdgeList.insert(nowEvent.getEdge1());
+			HArcEdgeList.insert(nowEvent.getEdge2());
+		}
 	}
 
 	// Convert to DCEL
+	this->dcel = new SPMDCEL(planeSweepResult);
 }
 
 
