@@ -73,13 +73,53 @@ double distGenToPoint(WF_generator gen, Point p) {
 	return distSegToPoint(gen.hedge->getEdge(),p) + gen.weight;
 }
 
-std::vector<std::vector<HEdge*>> compute_active_cells(std::vector<HEdge*> edges, std::vector<WF_generator> generators) {
+Hyperbola bisectorTwoGen(WF_generator a, WF_generator b) {
+	Hyperbola result;
+	return result;
+}
+
+// Compute active region for each cell
+std::vector<std::vector<HEdge*>> compute_active_regions(std::vector<HEdge*> edges, std::vector<WF_generator> generators) {
 	std::vector<std::vector<HEdge*>> result;
+	std::map<std::string, WF_generator*> marked_edges;
+	std::vector<WF_generator*> sorted_marked_edges;
+	for (size_t i = 0; i < generators.size(); i++) {
+		marked_edges[generators[i].hedge->getKey()] = &generators[i];
+	}
+
+	// Sort generators along boundary of cell
+	for (size_t i = 0; i < edges.size(); i++) {
+		if (marked_edges.find(edges[i]->getKey()) != marked_edges.end()) {
+			sorted_marked_edges.push_back(marked_edges[edges[i]->getKey()]);
+		}
+	}
+
+	// Compute bisector of a pair of marked generator
+	WF_generator* prevMarked = sorted_marked_edges.back();
+	for (size_t i = 0; i < sorted_marked_edges.size(); i++) {
+		Hyperbola bisector = bisectorTwoGen(*sorted_marked_edges[i], *prevMarked);
+		prevMarked = sorted_marked_edges[i];
+	}
+
 	return result;
 };
 
-std::vector<SPMEdge> compute_spm_edges(std::vector<std::vector<SFaces>> SFaces_results) {
+// Compute edges of shortest path map (divide and conquer)
+std::vector<SPMEdge> compute_spm_edges(std::vector<SFaces> SFaces_results) {
 	std::vector<SPMEdge> result;
+
+	for (int i = 0; i < SFaces_results.size(); i++) {
+		SFaces* nowF = SFaces_results[i];
+		SFaces* nextF = SFaces_results[(i+1)% SFaces_results.size()];
+		std::vector<HEdge*> nowEdges = nowF->getEdges();
+		std::vector<HEdge*> nextEdges = nextF->getEdges();
+		int idx1 = 0;
+		int idx2 = 0;
+		while (idx1 < nowEdges.size() && idx2 < nowEdges.size()) {
+
+		}
+	}
+
 	return result;
 }
 
@@ -88,15 +128,10 @@ bool SPMEdge::operator<(const SPMEdge& cmpE) const {
 }
 
 SPM::SPM(Vertex* s, WF_propagation& wfp, CS_Free& cs_free, std::vector<SimplePolygon>& obs) : src(src), wfp(wfp), cs_free(cs_free), obs(obs) {
-	this->ComputingSPM();
+	this->ComputeVertices();
+	this->CombineVertices();
 }
 SPM::~SPM() {
-}
-
-void SPM::ComputingSPM() {
-	this->ComputeVertices();
-	
-	this->CombineVertices();
 }
 
 void SPM::ComputeVertices() {
@@ -106,21 +141,22 @@ void SPM::ComputeVertices() {
 		std::vector<HEdge*> edges = nowCell->getInnerHEdges();
 		std::vector<WF_generator> generators = this->wfp.getMarked_cells(nowCell);
 		// Stores marked edges of each active region
-		std::vector<std::vector<HEdge*>> active_regions = compute_active_cells(edges,generators); // transparent edge
+		std::vector<std::vector<HEdge*>> active_regions = compute_active_regions(edges,generators); // transparent edge
 		
+		std::set<std::string> marked_edges;
+		for (auto nowGen : generators) {
+			marked_edges.insert(nowGen.hedge->getKey());
+		}
 		for (auto nowRegion : active_regions) {
 			// Compute S-Faces for each marked transparent edge
-			std::vector<std::vector<SFaces>> SFaces_results;
+			std::vector<SFaces> SFaces_results;
 			for (auto nowGen : nowRegion) {
-				std::vector<SFaces> temp_result;
-				IOEdgesContainers input_edges = this->wfp.compute_input_e(nowGen);
-				for (auto nowInputEdge : input_edges.hedges) {
-					SFaces temp(nowInputEdge);
-					temp_result.push_back(temp);
+				if (marked_edges.find(nowGen->getKey()) != marked_edges.end()) {
+					IOEdgesContainers input_edges = this->wfp.compute_input_e(nowGen);
+					SFaces temp(nowRegion, &input_edges);
+					SFaces_results.push_back(temp);
 				}
-				SFaces_results.push_back(temp_result);
 			}
-
 
 			// Compute the edges(vertices) of SPM (divide and conquer)
 			std::vector<SPMEdge> tempEdges = compute_spm_edges(SFaces_results);
@@ -152,6 +188,7 @@ void SPM::CombineVertices() {
 	std::vector<Hyperbola> arcs;
 	for (size_t i = 0; i < classifiedEdges.size(); i++) {
 		Hyperbola hyperbola(classifiedEdges[i].front().getHyperbola().gets(), classifiedEdges[i].back().getHyperbola().gett(),
+			classifiedEdges[i].front().getHyperbola().getTranslation(), classifiedEdges[i].front().getHyperbola().getRotation(),
 			classifiedEdges[i].front().getHyperbola().geta(), classifiedEdges[i].front().getHyperbola().getb());
 		//SPMEdge temp(hyperbola, classifiedEdges[i].front().getV(), classifiedEdges[i].front().getW());
 		arcs.push_back(hyperbola);
@@ -216,7 +253,7 @@ void SPM::CombineVertices() {
 	}
 
 	// plane sweep
-	std::vector<HArcEdge> planeSweepResult;
+	std::vector<HArcEdge*> planeSweepResult;
 	std::set<HArcEdge*> HArcEdgeList; // sorted by x-coordinate order
 	while (!pq.empty()) {
 		PlaneSweepEvent nowEvent = pq.top();
@@ -262,8 +299,8 @@ void SPM::CombineVertices() {
 		}
 		// Intersection point of a pair of two edges
 		else {
-			HArcEdge temp1(nowEvent.getEdge1());
-			HArcEdge temp2(nowEvent.getEdge2());
+			HArcEdge* temp1 = new HArcEdge(nowEvent.getEdge1());
+			HArcEdge* temp2 = new HArcEdge(nowEvent.getEdge2());
 			temp1.sett(nowEvent.getP());
 			temp2.sett(nowEvent.getP());
 			planeSweepResult.push_back(temp1);
@@ -288,4 +325,34 @@ void SPM::CombineVertices() {
 
 
 
+SPMDCEL::SPMDCEL(std::vector<HArcEdge*> planeSweepResult) {
+	// Find next and prev for each HArc
+	int idx = 0;
+	for (auto nowEdge : planeSweepResult) {
+		std::string key = "e_" + std::to_string(idx++);
+		nowEdge->setKey(key);
+		this->hedges[key] = nowEdge;
 
+		std::vector<HArcEdge*> neis = nowEdge->getNeighbor();
+		
+		Point t = nowEdge->gett();
+		std::vector<HArcEdge*> alignNeis;
+		for (auto nowNei : neis) {
+			Point NeiS = nowNei->gets();
+			if (t == NeiS) alignNeis.push_back(nowNei);
+		}
+		
+		double minAngle = nowEdge->angle(*alignNeis.front());
+		HArcEdge* min = alignNeis.front();
+		for (size_t i = 1; i < alignNeis.size(); i++) {
+			double temp = nowEdge->angle(*alignNeis[i]);
+			if (minAngle > temp) {
+				minAngle = temp;
+				min = alignNeis[i];
+			}
+		}
+
+		nowEdge->setNext(min);
+		min->setPrev(nowEdge);
+	}
+}
