@@ -91,12 +91,12 @@ public:
 	void pushNeighbor(HArcEdge* nei) { this->TNeighbor.push_back(nei); }
 
 	Point gets() const {
-		if (this->isArc) this->HyperbolaArc->gets();
-		else this->lineSegment->gets();
+		if (this->isArc) return this->HyperbolaArc->gets();
+		else return this->lineSegment->gets();
 	}
-	Point gett()const {
-		if (this->isArc) this->HyperbolaArc->gett();
-		else this->lineSegment->gett(g);
+	Point gett() const {
+		if (this->isArc) return this->HyperbolaArc->gett();
+		else return this->lineSegment->gett();
 	}
 	Edge* getLineSegment() const { return this->lineSegment; }
 	Hyperbola* getHyperbolaArc() const { return this->HyperbolaArc; }

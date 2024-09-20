@@ -40,7 +40,10 @@ public:
 	double geta() const { return this->a; }
 	double getb() const { return this->b; }
 
-	std::vector<Point> intersectionPoints(Hyperbola HB) {}
+	std::vector<Point> intersectionPoints(Hyperbola HB) {
+		std::vector<Point> result;
+		return result;
+	}
 
 	void flip() {
 		Point temp = this->s;

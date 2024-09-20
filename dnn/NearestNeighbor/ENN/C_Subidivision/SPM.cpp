@@ -109,8 +109,8 @@ std::vector<SPMEdge> compute_spm_edges(std::vector<SFaces> SFaces_results) {
 	std::vector<SPMEdge> result;
 
 	for (int i = 0; i < SFaces_results.size(); i++) {
-		SFaces* nowF = SFaces_results[i];
-		SFaces* nextF = SFaces_results[(i+1)% SFaces_results.size()];
+		SFaces* nowF = &SFaces_results[i];
+		SFaces* nextF = &SFaces_results[(i+1)% SFaces_results.size()];
 		std::vector<HEdge*> nowEdges = nowF->getEdges();
 		std::vector<HEdge*> nextEdges = nextF->getEdges();
 		int idx1 = 0;
@@ -293,7 +293,7 @@ void SPM::CombineVertices() {
 		}
 		// End endpoint of an edge
 		else if (event_type == 1) { 
-			planeSweepResult.push_back(*nowEvent.getEdge1());
+			planeSweepResult.push_back(nowEvent.getEdge1());
 			auto it = HArcEdgeList.find(nowEvent.getEdge1());
 			HArcEdgeList.erase(it);
 		}
@@ -301,8 +301,8 @@ void SPM::CombineVertices() {
 		else {
 			HArcEdge* temp1 = new HArcEdge(nowEvent.getEdge1());
 			HArcEdge* temp2 = new HArcEdge(nowEvent.getEdge2());
-			temp1.sett(nowEvent.getP());
-			temp2.sett(nowEvent.getP());
+			temp1->sett(nowEvent.getP());
+			temp2->sett(nowEvent.getP());
 			planeSweepResult.push_back(temp1);
 			planeSweepResult.push_back(temp2);
 			
@@ -311,8 +311,10 @@ void SPM::CombineVertices() {
 			auto it2 = HArcEdgeList.find(nowEvent.getEdge2());
 			HArcEdgeList.erase(it2);
 
-			temp1.sets(nowEvent.getP());
-			temp2.sets(nowEvent.getP());
+			temp1 = nowEvent.getEdge1();
+			temp2 = nowEvent.getEdge2();
+			temp1->sets(nowEvent.getP());
+			temp2->sets(nowEvent.getP());
 			HArcEdgeList.insert(nowEvent.getEdge1());
 			HArcEdgeList.insert(nowEvent.getEdge2());
 		}
