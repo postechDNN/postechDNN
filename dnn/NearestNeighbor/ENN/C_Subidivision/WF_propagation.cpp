@@ -1,5 +1,6 @@
 #include "WF_propagation.h"
 #include "WC_region.h"
+#include "Hyperbola.h"
 
 
 WF_propagation::WF_propagation(Vertex* s, CS_Free& cs) : src(src), cs_free(cs){
