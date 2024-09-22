@@ -108,6 +108,9 @@ public:
     // Set (store) the approximate wavefront associated with a particular edge
     void set_apx_wavefront_of_edge(HEdge *e);
 
+    // CCW algorithm
+    int ccw(int x1, int y1, int x2, int y2, int x3, int y3);
+
     // Compute the point that has same weighted distance between three point
     Point compute_weighted_dist_point(int idx1, int idx2, int idx3, HEdge *e);
 

@@ -179,9 +179,78 @@ void WF_propagation::set_apx_wavefront_of_edge(HEdge *e){
     // TODO
 }
 
+int WF_propagation::ccw(int x1, int y1, int x2, int y2, int x3, int y3){
+    int cross_product = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1);
+
+    if (cross_product > 0){
+        return 1;
+    }
+    else if (cross_product < 0){
+        return -1;
+    }
+    else{
+        return 0;
+    }
+}
 
 Point WF_propagation::compute_weighted_dist_point(int idx1, int idx2, int idx3, HEdge *e){
     // TODO
+    // idx1, idx2, idx3로 각 vertex 가져오고(CS_Free, subdiv), p1, p2, p3으로 Point 할당
+    
+    DCEL* dcel = cs_free.getDCEL();
+    std::vector<Vertex*> verlist = dcel->getVertices();
+
+    Vertex* v1 = verlist[idx1];
+    Vertex* v2 = verlist[idx2];
+    Vertex* v3 = verlist[idx3];
+
+    Point p1 = v1->getPoint();
+    Point p2 = v2->getPoint();
+    Point p3 = v3->getPoint();
+
+    // p1, p2, p3를 x좌표 기준으로 정렬
+    std::vector<Point> points = { p1, p2, p3 };
+    std::sort(points.begin(), points.end(), [](const Point& a, const Point& b) {
+        return a.getx() < b.getx();
+    });
+    Point sorted_p1 = points[0];
+    Point sorted_p2 = points[1];
+    Point sorted_p3 = points[2];
+
+    // p1, p2 / p2, p3 각각에 대해 weighted distance가 동일한 bisector 구하기
+
+    // p1, p2 weighted distance가 동일한 bisector를 hyperbola로 구현: h1
+    Hyperbola h1(p1, p2, p1.weight, p2.weight);
+
+    // p2, p3 weighted distance가 동일한 bisector를 hyperbola로 구현: h2
+    Hyperbola h2(p2, p3, p2.weight, p3.weight);
+
+
+
+    // h1과 h2 사이의 교점 중 e를 기준으로 p1, p2, p3와 반대방향에 존재하는 교점을 Point로 바꾸기
+    std::vector<Point> intersections = h1.intersectionPoints(h2);
+    Point answer;
+
+    // 반대방향 존재 확인을 두 선분(e, intersection 중 1개와 p1)이 교차하는지 확인해서 판단
+    if (intersections.size() < 2) {
+        answer = intersections[0];
+    } else {
+        Point eStart = e->getOrigin()->getPoint(); // 1
+        Point eEnd = e->getNext()->getOrigin()->getPoint(); // 2
+
+        Point iStart = p1; // 3
+        Point iEnd = intersections[0]; // 4
+
+        double flag1 = ccw(eStart.getx(), eStart.gety(), eEnd.getx(), eEnd.gety(), iStart.getx(), iStart.gety()) * ccw(eStart.getx(), eStart.gety(), eEnd.getx(), eEnd.gety(), iEnd.getx(), iEnd.gety());
+        double flag2 = ccw(iStart.getx(), iStart.gety(), iEnd.getx(), iEnd.gety(), eStart.getx(), eStart.gety()) * ccw(iStart.getx(), iStart.gety(), iEnd.getx(), iEnd.gety(), eEnd.getx(), eEnd.gety());
+
+        if (flag1 < 0 && flag2 < 0) {
+            answer = intersections[0];
+        } else {
+            answer = intersections[1];
+        }
+    }
+    return answer;
 }
 
 
