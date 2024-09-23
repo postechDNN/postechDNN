@@ -4,36 +4,72 @@
 
 
 WF_propagation::WF_propagation(Vertex* s, CS_Free& cs) : src(src), cs_free(cs){
-    
+    return;
 }
 
 WF_propagation::~WF_propagation(){
-    ;
+    return;
 }
 
-IOEdgesContainers WF_propagation::compute_input_e(HEdge *e){
-    // TODO
-    WC_region_free wc_region(this->cs_free,e);
-    // Use WC_region.h
-}
-IOEdgesContainers WF_propagation::compute_output_e(HEdge *e){
-    // TODO
-    WC_region_free wc_region(this->cs_free,e);
-    // Use WC_region.h
+IOEdgesContainers WF_propagation::compute_input_e(HEdge* e) {
+    WC_region_free wc_region(this->cs_free, e);
+    IOEdgesContainers ret;
+
+    ret.e = e;
+    ret.hedges = wc_region.boundary;
+    ret.in_out = 0;
+
+    return ret;
 }
 
- std::vector<std::vector<APX_wavefront> > split_APX_wavefront(std::vector<APX_wavefront>& wavefronts){
-    //TODO
- }
+IOEdgesContainers WF_propagation::compute_output_e(HEdge* e) {
+    IOEdgesContainers ret;
+    WC_region_free wc_region(this->cs_free, e);
+    std::unordered_map<std::string, HEdge_Type> edge_types = this->cs_free.getEdge_types();
 
+    ret.e = e;
+    ret.hedges = wc_region.boundary;
+    ret.in_out = 1;
+
+
+    for (HEdge* f : this->cs_free.getDCEL()->getHedges()) {
+        if (edge_types[f->getKey()] == HE_TRP) {
+            IOEdgesContainers input = compute_input_e(f);
+
+            bool flag = false;
+            for (HEdge* x : input) {
+                if (!(x->getKey().compare(e->getKey()))) {
+                    ret.hedges.push_back(f);
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (flag) {
+                continue;
+            }
+        }
+    }
+
+    return ret;
+}
+
+std::vector<std::vector<APX_wavefront>> split_APX_wavefront(std::vector<APX_wavefront>& wavefronts){
+    std::vector<std::vector<APX_wavefront>> ret;
+    return ret;
+}
 
 void mark(Point* v, Face * face){
-
+    //TODO
+    return;
 }
 
 Point compute_bisector_and_edge_intersection(Point a, Point b, HEdge* e){
-
+    //TODO
+    Point ret;
+    return ret;
 }
+
 std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts){
     // TODO
     // marking rule for generators (Rule 2, 3, 4)
@@ -139,7 +175,9 @@ std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::
     }
 
 
-
+    // 임시 코드
+    std::vector<APX_wavefront> ret;
+    return ret;
 }
 
 void WF_propagation::update_covertime_of_edge(HEdge *e, double t){
@@ -174,10 +212,14 @@ CoverTime WF_propagation::get_covertime_of_edge(HEdge *e){
 
 
 std::vector<APX_wavefront> WF_propagation::get_apx_wavefront_of_edge(HEdge *e){
-    // TODO
+    //TODO
+    std::vector<APX_wavefront> ret;
+
+    return ret;
 }
 void WF_propagation::set_apx_wavefront_of_edge(HEdge *e){
-    // TODO
+    //TODO
+    return;
 }
 
 int WF_propagation::ccw(int x1, int y1, int x2, int y2, int x3, int y3){
@@ -260,6 +302,9 @@ void WF_propagation::compute_dist_to_endpoints(HEdge *, std::vector<APX_wavefron
 }
 double WF_propagation::compute_endpoint_engulf_time(HEdge*, std::vector<APX_wavefront>&){
     // TODO
+    double ret;
+
+    return ret;
 }
 
 void WF_propagation::mark_generator_to_cell(Face *f, WF_generator generator){

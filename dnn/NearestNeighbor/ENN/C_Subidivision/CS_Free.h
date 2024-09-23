@@ -6,10 +6,11 @@
 #include <unordered_map>
 #include <vector>
 
+enum Vertex_Type { V_SRC, V_OBS, V_TRP };   //source vertex, obstacle vertex, transparent vertex
+enum HEdge_Type { HE_TRP, HE_OPQ };   //transparent edge, opaque edge
+
 class CS_Free{
 protected:
-    enum Vertex_Type{V_SRC, V_OBS, V_TRP};   //source vertex, obstacle vertex, transparent vertex
-    enum HEdge_Type{HE_TRP, HE_OPQ};   //transparent edge, opaque edge
     std::unordered_map<std::string, Vertex_Type> vertices_types;      //vertex key, vertex type
     std::unordered_map<std::string, HEdge_Type> edge_types;           //HEdge key, HEdge type
     DCEL* subdiv;

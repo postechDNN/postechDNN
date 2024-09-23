@@ -95,10 +95,12 @@ std::vector<std::vector<HEdge*>> compute_active_regions(std::vector<HEdge*> edge
 	}
 
 	// Compute bisector of a pair of marked generator
-	WF_generator* prevMarked = sorted_marked_edges.back();
-	for (size_t i = 0; i < sorted_marked_edges.size(); i++) {
-		Hyperbola bisector = bisectorTwoGen(*sorted_marked_edges[i], *prevMarked);
-		prevMarked = sorted_marked_edges[i];
+	if (sorted_marked_edges.size() != 0) {
+		WF_generator* prevMarked = sorted_marked_edges.back();
+		for (size_t i = 0; i < sorted_marked_edges.size(); i++) {
+			Hyperbola bisector = bisectorTwoGen(*sorted_marked_edges[i], *prevMarked);
+			prevMarked = sorted_marked_edges[i];
+		}
 	}
 
 	return result;
@@ -142,7 +144,7 @@ void SPM::ComputeVertices() {
 		std::vector<WF_generator> generators = this->wfp.getMarked_cells(nowCell);
 		// Stores marked edges of each active region
 		std::vector<std::vector<HEdge*>> active_regions = compute_active_regions(edges,generators); // transparent edge
-		
+
 		std::set<std::string> marked_edges;
 		for (auto nowGen : generators) {
 			marked_edges.insert(nowGen.hedge->getKey());
