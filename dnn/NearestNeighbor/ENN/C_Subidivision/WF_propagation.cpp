@@ -11,14 +11,45 @@ WF_propagation::~WF_propagation(){
 }
 
 IOEdgesContainers WF_propagation::compute_input_e(HEdge *e){
-    // TODO
     WC_region_free wc_region(this->cs_free,e);
-    // Use WC_region.h
+    IOEdgesContainers ret;
+
+    ret.e = e;
+    ret.hedges = wc_region.boundary;
+    ret.in_out = 0;
+
+    return ret;
 }
 IOEdgesContainers WF_propagation::compute_output_e(HEdge *e){
-    // TODO
+    IOEdgesContainers ret;
     WC_region_free wc_region(this->cs_free,e);
-    // Use WC_region.h
+    std::unordered_map<std::string, HEdge_Type> edge_types = this->cs_free.getEdge_types();
+
+    ret.e = e;
+    ret.hedges = wc_region.boundary;
+    ret.in_out = 1;
+
+
+    for (HEdge* f : this->cs_free.getDCEL()->getHedges()) {
+        if (edge_types[f->getKey()] == HE_TRP) {
+            IOEdgesContainers input = compute_input_e(f);
+
+            bool flag = false;
+            for (HEdge* x : input) {
+                if (!(x->getKey().compare(e->getKey()))) {
+                    ret.hedges.push_back(f);
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (flag) {
+                continue;
+            }
+        }
+    }
+
+    return ret;
 }
 
 std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts){
