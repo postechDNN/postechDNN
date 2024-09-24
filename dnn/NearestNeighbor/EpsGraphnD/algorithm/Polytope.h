@@ -37,6 +37,7 @@ public:
 
 public:
 	Polytope();
+	Polytope(int dimension);
 	Polytope(FILE*);
 	Polytope(vector<simplex>, std::vector<Point*>);
 	~Polytope();

@@ -159,4 +159,4 @@ void data_generation(int dim, double u_bound, int halfplane_constraint, int num_
 
 // std::string config = ""
 
-void autoGeneration();
+void autoTest();

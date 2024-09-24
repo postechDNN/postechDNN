@@ -242,6 +242,9 @@ bool simplex::isIn(Point* p) {
 
 // Polytope Function
 Polytope::Polytope() {};
+Polytope::Polytope(int dimension) {
+	this->d = dimension;
+};
 Polytope::Polytope(FILE* input) {};
 Polytope::~Polytope() {};
 Polytope::Polytope(vector<simplex> cmp, std::vector<Point*> vt) {

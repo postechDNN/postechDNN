@@ -532,23 +532,90 @@ void run_nearest_neighbor() {
 }
 
 // polytope 저장하는 디렉토리
-string polytopeDir = "C:\1polytopes";
+string polytopeDir = "C:\\1polytopes";
+
+namespace fs = std::filesystem;
+
+void dataGeneration() {
+	
+}
 
 // 자체평가보고서 2022 기준에서 가져옴.
-void autoGeneration() {
+void autoTest() {
 	// 1000회 반복
 	int numIterations = 1000;
 	// kNN에서 k값
 	vector<int> ks = {10, 50, 100, 500, 1000};
 
-	ifstream fin;
+	fs::path dataDirDir = "C:\\epsGraphTestData";
+	fs::directory_iterator iterDirDir(dataDirDir);
+	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
 
-	fin
+		// 폴더가 2개 있음. polytopes 그리고 points
+
+		fs::path dataDir = (*i00).path();
+		// string polytopesDirStr = dataDir.string() +  "\\polytopes";
+		// string pointsDirStr = dataDir.string() + "\\points";
+		fs::path polytopesDir(dataDir.string() + "\\polytopes");
+		fs::path pointsDir(dataDir.string() + "\\points");
+
+		// 각각의 polytope이 폴더 안에 있음
+		fs::directory_iterator iterTopes(polytopesDir);
+		for (auto& i01 = iterTopes; i01 != fs::end(iterTopes); ++i01) {
+			
+			fs::path topeDir = (*i01).path();
+
+
+		}
+
+		for 
+		// 
+
+
+		fs::directory_iterator
+		polytopesDir
+	}
+
+	
+
+	// dataDir
+
+	// ifstream fin;
+
+	// dataset
+	// 각각의 데이터셋에 대해서 epsilon graph 생성
+	for () {
+		// 폴더
+
+		Eps_Graph_nD* epsGraph = new Eps_Graph_nD();
+
+		// kNN 시행
+		// vector of free point
+		for (int k : ks) {
+			epsGraph->kNN();
+		}
+		
+		delete epsGraph;
+	}
+
+
+	// 
+	for () {
+		
+	}
+	// kNN 시도
+	epsGraph
+
+	//fs::path currentPath = dir;
+	//fs::remove_all(dir);
+	//fs::create_directories(currentPath);
+
+	//thiskNN()
 
 	// read Polytopes
-	polytopeDir();
+	// polytopeDir();
 
-	uniform
+	// uniform
 
 }
 
@@ -558,7 +625,7 @@ int main() {
 	// 1 - 
 
 	cout << "menu\n";
-	cout << "0. auto data generation\n";
+	cout << "0. auto test\n"; // data generation\n";
 	cout << "1. generate point sites\n";
 	cout << "2. read point sites\n";
 	cout << "3. read polytopes";
@@ -566,19 +633,19 @@ int main() {
 	int inVal; cin >> inVal;
 	switch (inVal) {
 		case 0:
-			autoGeneration();
+			autoTest();
 			break;
 		case 1:
-
+			// generatePoints();
 			break;
 		case 2:
-
+			// readPoints();
 			break;
 		case 3:
-
+			// readPolytopes();
 			break;
 		case 4:
-
+			
 			break;
 	}
 
