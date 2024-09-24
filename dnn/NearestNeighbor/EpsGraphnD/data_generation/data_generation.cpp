@@ -29,6 +29,12 @@ bool DATA_GENERATION = true;
 void data_generation() {
 	std::cout.precision(3);
 	std::cout << std::fixed;
+
+	// config를 입력받기
+
+
+	// dummy 없이 그냥 해도 될 듯?
+
 	std::string config("C:\\Users\\HWI\\Desktop\\StarLab_1017\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\config.ini");
 	// std::string config("./config.ini");
 	// std::string config("config.ini");
@@ -211,6 +217,195 @@ void data_generation() {
 	}
 }
 
+// int d - dimension
+// double u_bound - max_value 
+// int num_parts - # maximum convex subparts
+// halfplane_constraint - griddy or arbitrary
+// num_subspaces - # subspaces along each axis
+// dis_pts - # points on each halfplane
+// dis_pts_cell - # points on within each cell
+void data_generation(int d, double u_bound, int halfplane_constraint, int num_parts, int num_subspace, int dis_pts, int dis_pts_cell) {
+	std::cout.precision(3);
+	std::cout << std::fixed;
+
+	// config를 입력받기
+
+	// dummy 없이 그냥 해도 될 듯?
+
+	std::string config("C:\\Users\\HWI\\Desktop\\StarLab_1017\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\config.ini");
+	// std::string config("./config.ini");
+	// std::string config("config.ini");
+
+	ifstream readFile;
+	readFile.open(config);
+
+	// 1을 입력 시 자동으로 DataGeneration사용법.docx에 해당하는 입력
+	// 0을 입력 시 수동으로 입력받음
+	int auto_answer;
+
+	// 파일 입출력
+	if (readFile.is_open()) {
+		// string dum1, dum2, str;
+		// readFile >> dum1 >> dum2 >> s;
+
+		string dum, str;
+		// dimension
+		readFile >> dum >> str;
+		d = stoi(str);
+
+		readFile >> dum >> str;
+		u_bound = stod(str);
+
+		readFile >> dum >> str;
+		halfplane_constraint = stoi(str);
+
+		readFile >> dum >> str;
+		num_parts = stoi(str);
+
+		readFile >> dum >> str;
+		num_subspace = stoi(str);
+
+		readFile >> dum >> str;
+		dis_pts = stoi(str);
+
+		readFile >> dum >> str;
+		dis_pts_cell = stoi(str);
+	}
+	// 파일이 존재하지 않을 경우 직접 input 입력
+	else {
+		std::cout << "Auto: ";
+		std::cin >> auto_answer;
+
+		// DataGeneration사용법.docx에 해당하는 입력 예시: 4, 10.0, 0, 2, 2, 3, 4.
+		if (auto_answer == 1) {
+			d = 4; u_bound = 10.0; halfplane_constraint = 0; num_parts = 2; num_subspace = 2;
+			dis_pts = 3; dis_pts_cell = 4;
+		}
+		else {
+
+			std::cout << "Enter the dimension: ";
+			std::cin >> d;
+
+			// defines a bounding box (cube) around the origin
+			std::cout << std::endl;
+			std::cout << "Maximum value for each coordinate: ";
+			std::cin >> u_bound;
+
+			// determines if the halfplanes are generated along the axes (grid)
+			std::cout << std::endl;
+			std::cout << "Halfplane constraint (0: Griddy, 1: Arbitrary)" << std::endl;
+			std::cout << "Select: ";
+			std::cin >> halfplane_constraint;
+
+			std::cout << std::endl;
+			std::cout << "Number of 'maximum' convex subparts: ";
+			std::cin >> num_parts;
+
+			// 기존에 axis별로 입력받았다면 지금은 일괄적으로, 하나의 값을 k 입력받아서 k^d개의 cell을 만듬
+			// std::cout << "Number of subspaces along the " << i + 1 << "-th axis: ";
+			std::cout << std::endl;
+			std::cout << "Number of subspaces along each axis: ";
+			std::cin >> num_subspace;
+
+			std::cout << "Number of points to disperse on each halfplane: ";
+			std::cin >> dis_pts;
+
+			std::cout << "Number of points to locate inside each cell: ";
+			std::cin >> dis_pts_cell;
+		}
+	}
+
+	// ------------------------------------------------------------------------------------------------------------------------
+	// generate a rectangular bounding box
+	std::vector<std::pair<double, double>> bbx;
+
+	for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
+	// double upper_bound = 10.0; // maximum value for each coordinate
+	// double lower_bound = -upper_bound; // minimum value for each coordinate
+
+	switch (halfplane_constraint) {
+	case 0: {
+		// for each axis
+
+		std::cout << std::endl;
+		vector<int> num_subspaces_over_axes;
+		for (int i = 0; i < d; i++) {
+			num_subspaces_over_axes.push_back(num_subspace);
+		}
+		// generate grid (cells)
+		// set neighbors inside generate_grid( )
+		auto cells = generate_grid(bbx, num_subspaces_over_axes); // 
+		activate_cells(cells, num_parts);
+
+		// 각 hp에 흩뿌리고 나서
+		// 임의의 active한 pair 사이에서 발생하는 건가? 그럼 각 cell에 대해서 neighbor 다 뒤져서 restricted_halfplane을 가져와야 하나?
+		disperse_pts_between_active_cells(bbx, num_subspaces_over_axes, cells, dis_pts);
+
+		for (int i = 0; i + 1 < cells.size(); i++) {
+			if (cells[i]->active) {
+				for (auto nb : cells[i]->neighbors) {
+					if (nb.first->active &&
+						cells[i]->total_index < nb.first->total_index) {
+						for (int j = 0; j < nb.second->on_points.size(); j++) {
+							if (PRINT_POINT_FLAG) print_pt(nb.second->on_points[j], j);
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < cells.size(); i++) {
+			generate_points_on_bb(cells[i], dis_pts_cell);
+			for (int j = 0; j < cells[i]->in_points.size(); j++) {
+				if (PRINT_POINT_FLAG) print_pt(cells[i]->in_points[j], j);
+			}
+		}
+
+		std::string dir("C:\\qhull\\bin\\A\\");
+		// user-defined directory end
+
+		int count = 0;
+
+		for (int i = 0; i < cells.size(); i++) {
+			if (!cells[i]->active) continue;
+
+			vector<Point*> pts = cells[i]->in_points;
+			for (auto nb : cells[i]->neighbors) {
+				if (!nb.first->active) continue;
+
+				pts.insert(pts.end(), nb.second->on_points.begin(), nb.second->on_points.end());
+			}
+
+			std::string res = "result";
+			if (count < 10) {
+				res += "00";
+			}
+			else if (count < 100) {
+				res += "0";
+			}
+			res += std::to_string(count) + ".txt";
+
+			std::ofstream fout(dir + res);
+
+			// first line contains the dimension
+			fout << d << std::endl;
+			// second line contains the number of input points
+			fout << pts.size() << std::endl;
+			// remaining lines contain point coordinates
+			for (auto pt : pts) {
+				for (int j = 0; j < d - 1; j++) {
+					fout << pt->getx(j) << " ";
+				}
+				fout << pt->getx(d - 1) << std::endl;
+			}
+			count++;
+
+			fout.close();
+		}
+	}
+	}
+}
+
 void run_nearest_neighbor() {
 	// string my_dir = "C:\\Users\\Jagun\\source\\repos\\";
 	// string my_dir = "C:\\Users\\ALGO\\Desktop\\StarLab\\";
@@ -219,12 +414,16 @@ void run_nearest_neighbor() {
 	string my_dir = "C:\\Users\\hwikim\\Desktop\\GitHub\\";
 	// polytope 정보를 저장할 하위 디렉토리
 	string dir = my_dir + "postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\polytopes\\D";
+
+
 	ifstream fin;
+
 	int d = 4;
 	int num_polytopes = 1;
-	std::vector<std::pair<double, double>> bbx;
-	int u_bound = 50;
 
+	std::vector<std::pair<double, double>> bbx;
+
+	int u_bound = 50;
 	for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
 	// double upper_bound = 10.0; // maximum value for each coordinate
 	// double lower_bound = -upper_bound; // minimum value for each coordinate
@@ -269,6 +468,7 @@ void run_nearest_neighbor() {
 		//vector<Polytope*>::iterator it = topes.insert(topes.end(), _rst.begin(), _rst.end());
 
 	}
+
 	vector<Polytope> plts;
 	for (auto tps : topes) {
 		for (auto ts : tps) {
@@ -289,6 +489,7 @@ void run_nearest_neighbor() {
 	cout << "Number of Polytopes: " << plts.size() << endl;
 	Eps_Graph_nD grid(4, _frpts, plts, 20.0);
 	*/
+
 	d = 2;
 	Free_Point* q1 = new Free_Point({ 0., -10. });
 	Free_Point* q2 = new Free_Point({ 0., 40. });
@@ -308,10 +509,12 @@ void run_nearest_neighbor() {
 		pts.push_back(ps[0]);
 		num_pt++;
 	}
+
 	//vector<Point*> pts = generate_point_sites(bbx, 2, 10, 0);
 	list<Free_Point> frpts(pts.begin(), pts.end());
 	cout << "Number of Polytopes: " << plts.size() << endl;
 	cout << "Number of Points: " << _frpts.size() << endl;
+
 	Eps_Graph_nD grid(2, _frpts, plts, 5);
 	Free_Point* q = new Free_Point({ 0., -5. });
 	grid.add_freepts(q);
@@ -321,10 +524,75 @@ void run_nearest_neighbor() {
 	cout << endl;
 	//grid.print_free_point();
 	grid.print_kNN(*q, 3);
+
 	grid.Dijkstra(*q, 3);
+
+
+
+}
+
+// polytope 저장하는 디렉토리
+string polytopeDir = "C:\1polytopes";
+
+// 자체평가보고서 2022 기준에서 가져옴.
+void autoGeneration() {
+	// 1000회 반복
+	int numIterations = 1000;
+	// kNN에서 k값
+	vector<int> ks = {10, 50, 100, 500, 1000};
+
+	ifstream fin;
+
+	fin
+
+	// read Polytopes
+	polytopeDir();
+
+	uniform
+
 }
 
 int main() {
+	
+	// menu
+	// 1 - 
+
+	cout << "menu\n";
+	cout << "0. auto data generation\n";
+	cout << "1. generate point sites\n";
+	cout << "2. read point sites\n";
+	cout << "3. read polytopes";
+	cout << "4. kNN query";
+	int inVal; cin >> inVal;
+	switch (inVal) {
+		case 0:
+			autoGeneration();
+			break;
+		case 1:
+
+			break;
+		case 2:
+
+			break;
+		case 3:
+
+			break;
+		case 4:
+
+			break;
+	}
+
+
+
+	// read input points
+
+	// generate input points
+
+	// read polytopes generated by python code
+
+
+
+
 	int data_g;
 	cin >> data_g;
 
@@ -437,7 +705,7 @@ vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 
 		fin.close();
 
-		Polytope* tope = new Polytope();
+		Polytope* tope = new Polytope(dim);
 		tope->set_vertices(pts);
 
 		std::vector<simplex> sims;
@@ -1012,7 +1280,7 @@ void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bb
 //// ------------------------------------------------------------------------------------------------------------------------
 
 // random point generation
-// bbx 내에서 random하게 point 만들기
+// bounding box (d-dimensional rectangular box) 내에서 (uniformly) random하게 point 만들기
 vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, int dim, int num_points, int TYPE) {
 	vector<Point*> ret;
 
@@ -1027,7 +1295,7 @@ vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, 
 			}
 			// clustered
 			if (TYPE == 1) {
-
+				
 			}
 		}
 		auto pt = new Point(coords);

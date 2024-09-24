@@ -3,7 +3,8 @@
 // #include "stdafx.h"
 
 #include "../algorithm/Point.h"
-#include "../Polytope.h"
+#include "../algorithm/Polytope.h"
+
 
 // 2#include "data_generation_print.h"
 
@@ -151,3 +152,11 @@ void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bb
 vector<Polytope*> dels2polytopes(string dir, int num_topes);
 
 vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, int dim, int num_points, int TYPE = 0);
+
+void data_generation();
+
+void data_generation(int dim, double u_bound, int halfplane_constraint, int num_parts, int num_subspaces, int dis_pts, int dis_pts_cell);
+
+// std::string config = ""
+
+void autoGeneration();
