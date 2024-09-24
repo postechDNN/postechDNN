@@ -7,13 +7,6 @@
 #include <iostream>
 #include "Disjoint_Set.h"
 
-// Site::Site(){}
-// Site::Site(Point& p, Site_type t){
-//     this->x = p.getx();
-//     this->y = p.gety();
-//     this->t = t;
-// }
-// Site::~Site(){}
 
 Quad::Quad(int r, int c ,int ord, bool is_simple=false):r(r), c(c), ord(ord),growth(nullptr), is_simple(is_simple){}
 Quad::~Quad(){}
@@ -96,9 +89,7 @@ std::vector<Quad*> C_Subdivision::growth(std::vector<Quad*>& S){
             int rB = quadB -> r;
             int cB = quadB -> c; 
             
-            //std::cout <<"Test (" << quadA->r <<", " <<quadA->c << ") and (" <<quadB->r <<", "<<quadB->c<<")" << std::endl;
             if ((std::abs(rA - rB) <= 4) && (std::abs(cA-cB) <=4)){
-                //std::cout <<"Graph edge between (" << quadA->r <<", " <<quadA->c << ") and (" <<quadB->r <<", "<<quadB->c<<")" << std::endl;
                 graph[i][j] = true;
                 graph[j][i] = true;
             } 
@@ -279,16 +270,13 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
         i+=2;
         
         //Step 2. Compute Q(i) from Q(i-2)
-        std::vector<Quad*> next_Q; //TODO: Is it okay that change the data structure from set to vector
-
+        std::vector<Quad*> next_Q; 
         for(auto S: equiv_classes){
             std::vector<Quad*> g_S = growth(S);
             next_Q.insert(next_Q.end(),g_S.begin(),g_S.end());
         }
         //Construct equivalent relation on next_Q
         std::vector<Component > next_equiv_classes = compute_equiv_class(next_Q);
-
-        //std::cout <<"TEST: "<<"Q.size " <<Q.size()<<' '<< "next Q.size " << next_Q.size()<<std::endl; 
 
         //Step 3. Process simple components of equivalent relation in Q(i-2) that are about to merge with some other component.
         for(auto q:Q){
@@ -306,7 +294,7 @@ void C_Subdivision::draw_one_subdivision(std::set<Box_Edge> &drawn_edges){
             if(children_S.size() > 1)  // S is complex
                 process_complex(S,children_S,i,drawn_edges);
         }
-        //TODO: release the memory assigned to quads.
+        //release the memory assigned to quads.
         Q = next_Q;
         equiv_classes = next_equiv_classes;
     }
@@ -408,9 +396,6 @@ void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Poi
         int x2 = x1, y2 = y1;
         if(is_vertical) y2 += 1<<ord;
         else x2 += 1 <<ord;
-        
-        // std::cout <<"drawn edge"<<ord <<' '<<r <<' '<< c <<' '<< is_vertical << std::endl;
-        // std::cout <<"grid pt "<<x1<<' '<<y1<<' '<<x2 <<' '<<y2 << std::endl;
 
         Grid_graph.add_grid_point(x1,y1);
         Grid_graph.add_grid_point(x2,y2);
@@ -431,8 +416,6 @@ void C_Subdivision::build_graph(std::set<Box_Edge>& drawn_edges, std::vector<Poi
             it++;
             if(incident){  // There is a vertical edge.
                 int dest_idx = it->ptr->idx;
-                // graph[org_idx].push_back(dest_idx);
-                // graph[dest_idx].push_back(org_idx);
                 int prev_idx = org_idx;
 
                 //Subdivide an edge into d equal length edges.
@@ -494,29 +477,6 @@ DCEL C_Subdivision::build_alpha_subdivision(int alpha){
     std::vector<std::vector<int> > graph;
     this->build_graph(drawn_edges,vertices,graph, alpha);     
 
-    //------------TEST---------------- print the graph to text file
-    // std::ofstream fout;
-    // fout.open("test.txt");
-
-    // fout<<vertices.size()+this->sites.size()<<std::endl;
-    // for(int i = 0 ; i<vertices.size();i++){
-    //     fout<<vertices[i].getx()<<' '<<vertices[i].gety()<<std::endl;
-    // }
-    // for(int i = 0 ; i<this->sites.size();i++){
-    //     fout << sites[i].getx()*scale_factor+tr_x_factor<<' '<<sites[i].gety()*scale_factor+tr_y_factor<<std::endl;
-    // }
-
-    // int num_edges=0;
-    // for(int u =0;u<vertices.size();u++)
-    //     num_edges += graph[u].size();
-    // fout << num_edges<<std::endl;
-    // for(int u = 0; u<vertices.size();u++){
-    //     for(auto v :graph[u]){
-    //         fout << u <<' '<<v <<std::endl;
-    //     }
-    // }
-    // fout.close();
-    //-------------------------------------
 
     //3. perform scaling and translation vertices to restore an original vector space.
     for(int i =0 ;i<vertices.size();i++){
@@ -534,7 +494,6 @@ C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
     this->sites = sites;
 
     // Compute the minimum x-distance (y-distance) between sites 
-    // TODO: Need to improve it to O(nlog n) algorithm
     double min_dist = std::numeric_limits<double>::infinity();
     for(int i = 0;i<this->sites.size();i++){
         for(int j = i+1; j < this->sites.size();j++){
@@ -544,19 +503,6 @@ C_Subdivision::C_Subdivision(const std::vector<Point>& sites){
         }
     }
 
-    // double min_xdist = std::numeric_limits<double>::infinity();
-    // double min_ydist = min_xdist;
-    // std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.getx()<b.getx();});
-    // for(int i = 0; i<this->sites.size()-1;i++){
-    //     double d = this->sites[i+1].getx()-this->sites[i].getx();
-    //     if (d < min_xdist) min_xdist = d;
-    // }
-
-    // std::sort(this->sites.begin(), this->sites.end(),[](Point &a, Point &b){return a.gety()<b.gety();});
-    // for(int i = 0; i<this->sites.size()-1;i++){
-    //     double d = this->sites[i+1].gety()-this->sites[i].gety();
-    //     if (d < min_ydist) min_ydist = d;
-    // }
     
     // scaling to make the distance between points be larger than 1
     //double min_dist = std::max(min_xdist, min_ydist);

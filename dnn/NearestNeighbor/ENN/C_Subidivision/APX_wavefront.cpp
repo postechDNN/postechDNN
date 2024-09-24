@@ -1,5 +1,9 @@
 #include "APX_wavefront.h"
 
+bool WF_generator::operator==(WF_generator _g) {
+	return this->src->getPoint() == _g.src->getPoint();
+}
+
 APX_wavefront::APX_wavefront() {
 
 }
@@ -8,17 +12,16 @@ APX_wavefront::~APX_wavefront() {
 	;
 }
 
-std::vector<Point> APX_wavefront::get_generators(){
-    std::vector<Point> ret;
+std::vector<WF_generator> APX_wavefront::get_generators(){
+    return this->wavefront;
+}
+
+std::pair<WF_generator, WF_generator> APX_wavefront::compute_claim_range(HEdge* e, int idx){
+    std::pair<WF_generator, WF_generator> ret;
     return ret;
 }
 
-std::pair<Point, Point> APX_wavefront::compute_claim_range(HEdge* e, int idx){
-    std::pair<Point, Point> ret;
-    return ret;
-}
-
-std::pair<Point, Point> APX_wavefront::compute_claim_range(HEdge* e, Point & pt){
-    std::pair<Point, Point> ret;
+std::pair<WF_generator, WF_generator> APX_wavefront::compute_claim_range(HEdge* e, WF_generator & g){
+    std::pair<WF_generator, WF_generator> ret;
     return ret;
 }

@@ -61,14 +61,6 @@ public:
     ~CoverTime(){} // Destructor
 };
 
-class WF_generator {
-public:
-    Vertex* src;  // Source vertex from which the wavefront is generated
-    HEdge* hedge; // each marked generator is in the approximate wavefront of one of the boundary edges of c(cell)
-    double weight; // distance from src to hedge 
-    // TODO: Implement additional functionalities or properties for the wavefront generator
-};
-
 class WF_propagation{
 private:
     Vertex* src;  // Source vertex for the wavefront propagation
@@ -95,6 +87,9 @@ public:
 
     // Compute approximate wavefronts at a given half-edge based on the incoming wavefronts
     std::vector<APX_wavefront> compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts);
+
+    //mark a point to the face
+    void mark(WF_generator* v, Face * face);
 
     // Update the cover time for a specific edge as the wavefront propagates
     void update_covertime_of_edge(HEdge *e, double t);

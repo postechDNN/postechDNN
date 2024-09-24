@@ -59,8 +59,8 @@ std::vector<std::vector<APX_wavefront>> split_APX_wavefront(std::vector<APX_wave
     return ret;
 }
 
-void mark(Point* v, Face * face){
-    //TODO
+void WF_propagation::mark(WF_generator* v, Face * face){
+    this->marked_cells.at(face).push_back(*v);
     return;
 }
 
@@ -71,7 +71,6 @@ Point compute_bisector_and_edge_intersection(Point a, Point b, HEdge* e){
 }
 
 std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts){
-    // TODO
     // marking rule for generators (Rule 2, 3, 4)
 
 
@@ -84,10 +83,10 @@ std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::
         bool repeat = true; 
 
         while(repeat){
-            std::pair<Point, Point> temp_a = res.compute_claim_range(e, 0);
-            std::pair<Point, Point> temp_b = g.compute_claim_range(e, g.get_generators().size()-1);
+            std::pair<WF_generator, WF_generator> temp_a = res.compute_claim_range(e, 0);
+            std::pair<WF_generator, WF_generator> temp_b = g.compute_claim_range(e, g.get_generators().size()-1);
 
-            if (temp_a.first.getx() - temp_b.first.getx() < 0){
+            if (temp_a.first.src->getPoint().getx() - temp_b.first.src->getPoint().getx() < 0){
                 left = res;
                 right = g;
             }  
@@ -97,32 +96,32 @@ std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::
             }
 
             // Compute the two points to compare
-            Point a = *(left.get_generators().end());
-            std::pair<Point, Point> a_claim = left.compute_claim_range(e, a);
-            Point p_a = a_claim.second;
+            WF_generator a = *(left.get_generators().end());
+            std::pair<WF_generator, WF_generator> a_claim = left.compute_claim_range(e, a);
+            WF_generator g_a = a_claim.second;
 
-            Point b = *(right.get_generators().begin());
-            std::pair<Point, Point> b_claim = right.compute_claim_range(e, b);
-            Point p_b = b_claim.first;
+            WF_generator b = *(right.get_generators().begin());
+            std::pair<WF_generator, WF_generator> b_claim = right.compute_claim_range(e, b);
+            WF_generator g_b = b_claim.first;
 
-            Point x = compute_bisector_and_edge_intersection(a, b, e); 
+            Point x = compute_bisector_and_edge_intersection(a.src->getPoint(), b.src->getPoint(), e); 
 
             // [Marking Rule 3(b)] Mark v in both the cells that have e as an edge if v participates in a bisector event detected during the computaiton of W(e, f)
-            Point* p_list[2] = {&a, &b};
+            WF_generator* g_list[2] = {&a, &b};
             Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
-            for (auto temp_p : p_list){
+            for (auto temp_g : g_list){
                 for (auto temp_f: f_list){
-                    mark(temp_p, temp_f);
+                    mark(temp_g, temp_f);
                 }
 
             }
 
             // If x is left to p_a, then delete a from W(left, e)
-            if (x.getx() < p_a.getx()){
+            if (x.getx() < g_a.src->getPoint().getx()){
                 std::remove(left.get_generators().begin(), left.get_generators().end(), a);
             }
             // If x is right to p_b, then delete b from W(right, e)
-            else if (x.getx() > p_b.getx()){
+            else if (x.getx() > g_b.src->getPoint().getx()){
                 std::remove(right.get_generators().begin(), right.get_generators().end(), b);
             }
             else{
@@ -136,32 +135,32 @@ std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::
 
         // [Marking Rule 2] If v claims an endpoint e in W(e), mark v in all cells incident to the claimed endpoint.
         
-        std::pair<Point, Point> claim_range = res.compute_claim_range(e, 0);
-        Point p = claim_range.first;
+        std::pair<WF_generator, WF_generator> claim_range = res.compute_claim_range(e, 0);
+        WF_generator temp_g = claim_range.first;
 
-        if (p == (e->getOrigin()->getPoint()) | p == (e-> getTwin() ->getOrigin()->getPoint())){
+        if (temp_g.src->getPoint() == (e->getOrigin()->getPoint()) || temp_g.src->getPoint() == (e-> getTwin() ->getOrigin()->getPoint())){
             Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
             for (auto temp_f: f_list){
-                mark(&p, temp_f); // Mark
+                mark(&temp_g, temp_f); // Mark
             }
 
         }
         claim_range = res.compute_claim_range(e, res.get_generators().size()-1);
-        Point q = claim_range.second;
+        WF_generator temp_h = claim_range.second;
 
-        if (q == (e->getOrigin()->getPoint()) | q == (e-> getTwin() ->getOrigin()->getPoint())){
+        if (temp_h.src->getPoint() == (e->getOrigin()->getPoint()) || temp_h.src->getPoint() == (e-> getTwin() ->getOrigin()->getPoint())){
             Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
             for (auto temp_f: f_list){
-                mark(&q, temp_f); // Mark
+                mark(&temp_h, temp_f); // Mark
             }
 
         }
 
         // [Marking Rule 4] If v claims part of an opaque edge when it is propagated from an edge e toward output(e), mark v in both cells with e on their boundary. 
-        for(Point p: res.get_generators()){
+        for(WF_generator g: res.get_generators()){
             Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
             for (auto temp_f: f_list){
-                mark(&p, temp_f); // Mark
+                mark(&g, temp_f); // Mark
             }
 
         }
@@ -181,7 +180,6 @@ std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::
 }
 
 void WF_propagation::update_covertime_of_edge(HEdge *e, double t){
-    // TODO
     auto it = covertime_of_edges.find(e);
     if (it != covertime_of_edges.end()) {
         CoverTime &target = it->second;
@@ -200,7 +198,6 @@ void WF_propagation::update_covertime_of_edge(HEdge *e, double t){
 
 
 CoverTime WF_propagation::get_covertime_of_edge(HEdge *e){
-    // TODO
     auto it = covertime_of_edges.find(e);
     if (it != covertime_of_edges.end()) {
         return it->second;
@@ -326,7 +323,7 @@ void WF_propagation::propagate(){
         double t = covertime_e.t; // The time at which the wavefront reaches this edge
 
 
-        /*  TODO
+        /*  
             Implement the marking rule for generators (Rule 1)
             - Let v be an endpoint of e
             - If v is a generator, mark v in the faces incident to v
