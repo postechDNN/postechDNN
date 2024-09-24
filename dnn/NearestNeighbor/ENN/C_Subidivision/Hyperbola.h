@@ -45,6 +45,11 @@ public:
 		return result;
 	}
 
+    std::vector<Point> intersectionPoints(HEdge *e) {
+		std::vector<Point> result;
+		return result;
+	}
+
 	void flip() {
 		Point temp = this->s;
 		this->s = this->t;

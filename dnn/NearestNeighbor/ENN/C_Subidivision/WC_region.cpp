@@ -15,7 +15,7 @@ bool inline is_colinear(HEdge* a, HEdge* b){
 }
 
 
-// TODO: make it for the case of CS_free space
+//make it for the case of CS_free space
 WC_region::WC_region(DCEL& dcel, HEdge* he){
     this->e = he;
     HEdge* twin_he = he->getTwin();
@@ -43,15 +43,9 @@ WC_region::WC_region(DCEL& dcel, HEdge* he){
     std::set<Face*> incident_faces;
     //MODIFY LATER incominghedges
     for(auto v:incident_vertices){
-        // for(auto bd_he: dcel.getIncomingHEdges(v)){
-        //     incident_faces.insert(bd_he->getIncidentFace());
-        //     //std::cout<<bd_he->getKey()<<' '<<bd_he->getIncidentFace()->getKey()<< ' ';
-        // }
         for(auto bd_he:dcel.getOutgoingHEdges(v)){
             incident_faces.insert(bd_he->getIncidentFace());
-            //std::cout<<bd_he->getKey()<<' '<<bd_he->getIncidentFace()->getKey()<< ' ';
         }
-        //std::cout<<std::endl;
     }
     this->regions.insert(this->regions.end(), incident_faces.begin(),incident_faces.end());
     std::set<HEdge*> wc_boundary;
@@ -67,15 +61,6 @@ WC_region::WC_region(DCEL& dcel, HEdge* he){
             bool inc_twin_f = incident_faces.find(twin_f) == incident_faces.end();
             if(inc_f ^ inc_twin_f)
                 wc_boundary.insert(bd_he);
-            // Point org = bd_he->getOrigin()->getPoint();
-            // Point dest = bd_he->getTwin()->getOrigin()->getPoint();
-            // int inc_flag = false;
-            // for(auto v : incident_vertices){
-            //     if (org == v->getPoint() || dest == v->getPoint()){
-            //         inc_flag = true;
-            //     }
-            // }
-            // if(inc_flag == false) wc_boundary.insert(bd_he);
         }
     }
     this->boundary.insert(this->boundary.end(), wc_boundary.begin(), wc_boundary.end());

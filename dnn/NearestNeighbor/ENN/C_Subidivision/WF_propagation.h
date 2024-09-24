@@ -47,6 +47,8 @@ public:
 
     // Constructor to initialize the CoverTime with a half-edge and an initial time (default is max double value)
     CoverTime(HEdge* e, float t = std::numeric_limits<double>::max()): e(e), t(t){}
+
+    CoverTime() {}
     
     // Update the cover time to the minimum of the current and the new time
     void update(double new_t) {
@@ -75,6 +77,8 @@ private:
     std::unordered_map<Vertex*, double> dist_vertices;  // Distance map for vertices (used in the wavefront propagation)
     std::unordered_map<Face*, std::vector<WF_generator> > marked_cells; 
     std::unordered_map<HEdge*, CoverTime> covertime_of_edges;
+    std::unordered_map<HEdge*, APX_wavefront> wavefronts;
+
 public:
     // Constructor initializing the wavefront propagation with a reference to the configuration space
     WF_propagation(Vertex* s, CS_Free& cs);
@@ -86,7 +90,7 @@ public:
     void propagate();
 
     // Compute approximate wavefronts at a given half-edge based on the incoming wavefronts
-    std::vector<APX_wavefront> compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts);
+    APX_wavefront compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts);
 
     //mark a point to the face
     void mark(WF_generator* v, Face * face);
@@ -98,7 +102,7 @@ public:
     CoverTime get_covertime_of_edge(HEdge *e);
 
     // Get the approximate wavefront associated with a particular edge
-    std::vector<APX_wavefront> get_apx_wavefront_of_edge(HEdge *e);
+    APX_wavefront get_apx_wavefront_of_edge(HEdge *e);
 
     // Set (store) the approximate wavefront associated with a particular edge
     void set_apx_wavefront_of_edge(HEdge *e);
@@ -110,10 +114,10 @@ public:
     Point compute_weighted_dist_point(int idx1, int idx2, int idx3, HEdge *e);
 
     // Compute the distance from the source to the endpoints of an edge using the current wavefronts
-    void compute_dist_to_endpoints(HEdge *, std::vector<APX_wavefront>&);
+    void compute_dist_to_endpoints(HEdge *, APX_wavefront&);
 
     // Compute the time it would take for the wavefront to reach and engulf the endpoint of an edge
-    double compute_endpoint_engulf_time(HEdge*, std::vector<APX_wavefront>&);
+    double compute_endpoint_engulf_time(HEdge*, APX_wavefront&);
 
     // Mark a wavefront generator as having influenced a particular cell (face) in the domain
     void mark_generator_to_cell(Face *f, WF_generator generator);
