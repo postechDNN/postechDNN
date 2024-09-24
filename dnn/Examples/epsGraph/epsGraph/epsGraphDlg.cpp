@@ -4,10 +4,13 @@
 
 #include "pch.h"
 #include "framework.h"
+
 #include "epsGraph.h"
 #include "epsGraphDlg.h"
+
 #include "afxdialogex.h"
 #include "../../../NearestNeighbor/EpsGraph/eps_graph.h"
+
 #include <random>
 #include <algorithm>
 #include <ctime>
@@ -188,7 +191,7 @@ void CepsGraphDlg::OnBnClickedCancel()
 	CDialogEx::OnCancel();
 }
 
-
+// generate random polygon
 void CepsGraphDlg::OnBnClickedmake()
 {
 	double epsilon;
@@ -266,7 +269,7 @@ void CepsGraphDlg::OnBnClickedmake()
 	SetDlgItemText(IDC_log, log);
 }
 
-
+// kNN part
 void CepsGraphDlg::OnBnClickedquery()
 {
 	double x, y;
@@ -341,7 +344,7 @@ void CepsGraphDlg::OnBnClickedquerypoint()
 	SetDlgItemText(IDC_query_result, tmp);
 }
 
-
+// not used
 void CepsGraphDlg::OnBnClickedaddpoint()
 {
 	double x, y;
@@ -359,7 +362,7 @@ void CepsGraphDlg::OnBnClickedaddpoint()
 	SetDlgItemText(IDC_log, log);
 }
 
-
+// not used
 void CepsGraphDlg::OnBnClickeddeletepoint()
 {
 	int idx = GetDlgItemInt(IDC_index_point);
@@ -377,6 +380,7 @@ void CepsGraphDlg::OnBnClickeddeletepoint()
 	SetDlgItemText(IDC_log, log);
 }
 
+
 BOOL CDialogEx::PreTranslateMessage(MSG* pMsg) {
 	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) {
 		if (GetDlgItem(IDC_vertices) == GetFocus()) {
@@ -390,6 +394,7 @@ BOOL CDialogEx::PreTranslateMessage(MSG* pMsg) {
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
+// not used
 void CepsGraphDlg::OnBnClickedaddpolygon()
 {
 	CString buff;
@@ -421,7 +426,7 @@ void CepsGraphDlg::OnBnClickedaddpolygon()
 	SetDlgItemText(IDC_log, log);
 }
 
-
+// not used
 void CepsGraphDlg::OnBnClickeddeletepolygon()
 {
 	int idx = GetDlgItemInt(IDC_index_polygon);
@@ -442,7 +447,6 @@ void CepsGraphDlg::OnBnClickeddeletepolygon()
 	}
 	SetDlgItemText(IDC_log, log);
 }
-
 
 
 void CepsGraphDlg::OnBnClickedquerypolygon()
@@ -480,6 +484,7 @@ double __clip(double x, double min, double max) {
 	else if (x > max) return max;
 	else return x;
 }
+
 
 vector<Point> generatePolygon(double ctrX, double ctrY, double aveRadius, double irregularity, double spikeyness, int numVerts) {
 	double PI = 3.1415926535897;
@@ -519,7 +524,7 @@ vector<Point> generatePolygon(double ctrX, double ctrY, double aveRadius, double
 	return points;
 }
 
-
+// open input file
 void CepsGraphDlg::OnBnClickedOpen()
 {
 	static TCHAR BASED_CODE szFilter[] = _T("텍스트 파일(*.TXT) | *.TXT;|모든파일(*.*)|*.*||");

@@ -1,7 +1,13 @@
+// #include "pch.h"
+
+// #include "..//"
+
 #include "EpsGraphnD.h"
 #include <queue>
 #include <iostream>
 #include <random>
+
+// #include "pch.h"
 
 using namespace std;
 Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
@@ -9,16 +15,19 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 	fr_pts = _fr_pts;
 	pols = _pols;
 	eps = _eps;
-	NN_dist = {};
-	ord_pol = 0;
+
+	NN_dist = {}; // nearest neighbor들까지의 거리를 저장하는 vector
+	ord_pol = 0; // 현재 epsGraph가 저장하고 있는 polytope의 수
+
 	xs_min = std::vector<double>(n, DBL_MAX);
 	xs_max = std::vector<double>(n, DBL_MIN);
 	xs_num = std::vector<long long int>(n, 0);
 	for (auto pol : pols) {
 		//pol.set_vertices_size();
-		pol.set_maxmin();
-		pol.ord = ord_pol;
-		ord_pol++;
+
+		pol.set_maxmin(); // 축별로 polytope의 vertex 중에서 max와 min 값을 저장
+		pol.ord = ord_pol; // 현재 추가 중인 polytope의 order를 저장
+		ord_pol++; // polytope 수 1 증가
 		cout << "---------------------" << endl;
 		cout << "Polytope " << ord_pol << endl;
 		cout << "Number of vertices: " << pol.get_num_point() << endl;
@@ -34,20 +43,29 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _p
 		cout << endl;
 		cout << "---------------------" << endl;
 		//cout << "dimension of polytope: " << pol.xs_max.size() << endl;
+
+		// polytope을 보면서 
+		// eps graph의 min과 max 값(일종의 bounding box 정보)을 업데이트
 		for (int i = 0;i < n;i++) {
-			
 			if (pol.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = pol.xs_max[i]; }
 			if (pol.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = pol.xs_min[i]; }
 		}
 
 	}
+
+	// free point들을 보면서
+	// eps graph의 min과 max 값(일종의 bounding box 정보)을 업데이트
 	for (auto fr_pt : fr_pts) {
 		for (int i = 0;i < n;i++) {
 			if (fr_pt.xs[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs[i]; }
 			if (fr_pt.xs[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs[i]; }
 		}
 	}
+
+	// 이를 바탕으로 인접한 grid의 cell들 간 edge를 연결
 	init_grid();
+
+	// free point 각각을 anchor
 	for (Free_Point& fr_pt : fr_pts) {
 		anchor(fr_pt);
 	}
@@ -104,7 +122,7 @@ bool Eps_Graph_nD::get_step_comb(vector<int> arr, int index, int sum, int step, 
 	if (index == arr.size() - 1) {
 		arr[index] = step - sum;
 		for (int i = 0;i < this->n;i++) {
-			if (xs[i] + arr[i] < 0 or xs_num[i] <= xs[i] + arr[i]) {
+			if (xs[i] + arr[i] < 0 || xs_num[i] <= xs[i] + arr[i]) {
 				break;
 			}
 			std::vector<long long int> sums(this->n);
@@ -119,7 +137,7 @@ bool Eps_Graph_nD::get_step_comb(vector<int> arr, int index, int sum, int step, 
 		}
 		arr[index] = -step + sum;
 		for (int i = 0;i < this->n;i++) {
-			if (xs[i] + arr[i] < 0 or xs_num[i] <= xs[i] + arr[i]) {
+			if (xs[i] + arr[i] < 0 || xs_num[i] <= xs[i] + arr[i]) {
 				break;
 			}
 			std::vector<long long int> sums(this->n);
@@ -165,6 +183,9 @@ void Eps_Graph_nD::anchor(Free_Point& p) { // cast anchor onto a grid point from
 	for (int i = 0;i < this->n;i++) {
 		xs[i] = int(ceil((p.xs[i] - this->upper_left.xs[i]) / eps - 0.5));
 	}
+
+	int temp = ind2num(xs);
+
 	if (grid[ind2num(xs)].encl == -1) {
 		p.host = grid[ind2num(xs)].num;
 		grid[ind2num(xs)].anchored.push_back(&p);
@@ -183,21 +204,31 @@ Grid_Point Eps_Graph_nD::get_gridpt(vector<long long int> ind) {//O
 	return grid[ind2num(ind)];
 }
 
+// point가 grid의 어느 위치에 있는지에 대한 정보를
+// index(vector of int)를 숫자 하나로 바꿔주는 함수 
+// 결국 차원을 d라고 했을 때, d진수로 바꾸는 것일 테니까
 long long int Eps_Graph_nD::ind2num(vector<long long int> ind) {
+
 	long long out = 0;
 	long long mul = 1;
+
 	for (int i = n - 1;i >= 0;i--) {
 		out += ind[i] * mul;
 		mul *= xs_num[i];
 	}
+
 	return out;
 }
 
+// point가 grid의 어느 위치에 있는지에 대한 정보를
+// 숫자에서 vector of int로 바꿔주는 함수
 vector<long long int> Eps_Graph_nD::num2ind(long long int num) {//O
 	long long t = 1;
 	for (int i = 1;i < n;i++) {
 		t *= xs_num[i];
 	}
+
+
 	vector<long long int> out(n);
 	for (int i = 0;i < n - 1;i++) {
 		out[i] = num / (t);
@@ -469,13 +500,17 @@ vector<edge> Eps_Graph_nD::get_path(Free_Point p, int k) {
 
 vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
+	// polytope 내에 free_point가 있으면 즉시 종료
 	for (Polytope& pol : pols) {
 		assert(!pol.isIn(&p));
 	}
 
+	// return되는 free point들과
+	// NN_dist(free point들에 해당하는 거리) 초기화
 	vector<Free_Point> ret = {};
 	vector<int>().swap(NN_dist);
 
+	// 
 	anchor(p);
 	Grid_Point s = grid[p.host];
 	for (int& elem : dist) { elem = INT_MAX; }

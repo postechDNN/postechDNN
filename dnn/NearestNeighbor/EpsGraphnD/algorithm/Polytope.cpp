@@ -242,6 +242,7 @@ bool simplex::isIn(Point* p) {
 
 // Polytope Function
 Polytope::Polytope() {};
+Polytope::Polytope(int _d) {this->d = _d;}
 Polytope::Polytope(FILE* input) {};
 Polytope::~Polytope() {};
 Polytope::Polytope(vector<simplex> cmp, std::vector<Point*> vt) {
@@ -319,6 +320,8 @@ void Polytope::set_simplices(std::vector<simplex>& _simplices) {
 	this->num_simplices = _simplices.size();
 	this->simplices = _simplices;
 }
+
+int Polytope::getDimension() {return this->d;}
 
 void Polytope::set_maxmin()
 {

@@ -1,5 +1,6 @@
 #pragma once
 
+// #include "pch.h"
 #include "Point.h"
 #include "polytope.h"
 #include <tuple>
@@ -21,17 +22,29 @@ private:
 
 public: // variables
 	int n;
+
+	// epsilon (그리드의 간격)
 	double eps;
+
+	// bounding box의 최소 좌표들만 모은 벡터
 	vector<double> xs_min;
+	// bounding box의 최대 좌표들만 모은 벡터
 	vector<double> xs_max;
+
+	// ?
 	vector<long long int> xs_num;
+
+	// ?
 	long long int tot_num;
 	//double x_min; double x_max;
 	//double y_min; double y_max;
 	//double z_min; double z_max;
 	//long long int x_num, y_num, z_num;
+
+	// polytope 수인가?
 	int ord_pol;
 
+	// 아마 xs_min 혹은 xs_max 값들을 좌표로 가지는 점(bounding box의 꼭짓점 중 하나)인 것 같은데.
 	Point upper_left;
 	// int row_num, col_num, layer_num; // (# of points in the eps_graph) = (row_num) * (col_num) * (layer_num) // index는 0부터 n-1까지
 
@@ -43,6 +56,8 @@ public: // variables
 	vector<bool> visited;
 	vector<int> closest; // gridpt indices in nondecreasing order of distance
 	vector<int> NN_dist;
+
+	Point* queryPoint;
 
 public:	// functions
 	Eps_Graph_nD(int);

@@ -219,12 +219,16 @@ void run_nearest_neighbor() {
 	string my_dir = "C:\\Users\\hwikim\\Desktop\\GitHub\\";
 	// polytope 정보를 저장할 하위 디렉토리
 	string dir = my_dir + "postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\data_generation\\polytopes\\D";
+
+
 	ifstream fin;
+
 	int d = 4;
 	int num_polytopes = 1;
-	std::vector<std::pair<double, double>> bbx;
-	int u_bound = 50;
 
+	std::vector<std::pair<double, double>> bbx;
+
+	int u_bound = 50;
 	for (int i = 0; i < d; i++) bbx.push_back(std::make_pair(-u_bound, u_bound));
 	// double upper_bound = 10.0; // maximum value for each coordinate
 	// double lower_bound = -upper_bound; // minimum value for each coordinate
@@ -269,6 +273,7 @@ void run_nearest_neighbor() {
 		//vector<Polytope*>::iterator it = topes.insert(topes.end(), _rst.begin(), _rst.end());
 
 	}
+
 	vector<Polytope> plts;
 	for (auto tps : topes) {
 		for (auto ts : tps) {
@@ -289,6 +294,7 @@ void run_nearest_neighbor() {
 	cout << "Number of Polytopes: " << plts.size() << endl;
 	Eps_Graph_nD grid(4, _frpts, plts, 20.0);
 	*/
+
 	d = 2;
 	Free_Point* q1 = new Free_Point({ 0., -10. });
 	Free_Point* q2 = new Free_Point({ 0., 40. });
@@ -308,10 +314,12 @@ void run_nearest_neighbor() {
 		pts.push_back(ps[0]);
 		num_pt++;
 	}
+
 	//vector<Point*> pts = generate_point_sites(bbx, 2, 10, 0);
 	list<Free_Point> frpts(pts.begin(), pts.end());
 	cout << "Number of Polytopes: " << plts.size() << endl;
 	cout << "Number of Points: " << _frpts.size() << endl;
+
 	Eps_Graph_nD grid(2, _frpts, plts, 5);
 	Free_Point* q = new Free_Point({ 0., -5. });
 	grid.add_freepts(q);
@@ -321,6 +329,7 @@ void run_nearest_neighbor() {
 	cout << endl;
 	//grid.print_free_point();
 	grid.print_kNN(*q, 3);
+
 	grid.Dijkstra(*q, 3);
 }
 
@@ -437,7 +446,7 @@ vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 
 		fin.close();
 
-		Polytope* tope = new Polytope();
+		Polytope* tope = new Polytope(dim);
 		tope->set_vertices(pts);
 
 		std::vector<simplex> sims;
@@ -1013,7 +1022,8 @@ void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bb
 
 // random point generation
 // bbx 내에서 random하게 point 만들기
-vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, int dim, int num_points, int TYPE) {
+vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx,
+	int dim, int num_points, int TYPE) {
 	vector<Point*> ret;
 
 	int cur_num_points = 0;
@@ -1027,7 +1037,7 @@ vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, 
 			}
 			// clustered
 			if (TYPE == 1) {
-
+				
 			}
 		}
 		auto pt = new Point(coords);

@@ -37,6 +37,7 @@ public:
 
 public:
 	Polytope();
+	Polytope(int);
 	Polytope(FILE*);
 	Polytope(vector<simplex>, std::vector<Point*>);
 	~Polytope();
@@ -51,4 +52,5 @@ public:
 	void set_vertices_size();
 	void set_simplices(std::vector<simplex>&);
 	void set_maxmin();
+	int getDimension();
 };

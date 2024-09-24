@@ -1,6 +1,8 @@
 #include "Point.h"
 #include <cmath>
 
+// #include "pch.h"
+
 //this class defines a point in 2D space
 #define ERR 1e-6
 Point::Point() {
