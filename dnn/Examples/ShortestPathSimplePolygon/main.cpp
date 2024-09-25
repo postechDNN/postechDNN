@@ -11,7 +11,7 @@
 #include "SNode.h"
 #include "polygon_operation.h"
 #include "polygon_decomposition.h"
-#include <GL/glew.h>
+#include <GL/glfw3.h>
 #include <GL/freeglut.h>
 #include <sstream>
 #include "hourglass_operation.h"

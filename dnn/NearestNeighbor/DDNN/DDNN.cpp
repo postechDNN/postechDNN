@@ -1,6 +1,7 @@
-#include <GL/glew.h>
+#include <GL/glfw3.h>
 #include <GL/freeglut.h>
 #include "DD.h"
+
 
 enum InputMod {defualt,Distance,Insert,Delete,Query};
 InputMod NowMod = defualt;
