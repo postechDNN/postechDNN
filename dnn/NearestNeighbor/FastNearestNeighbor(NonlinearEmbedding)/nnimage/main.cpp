@@ -8,57 +8,198 @@
 void load_data(char* dataname,char* queryname,_image*& data, _image*& query,int datanum,int qnum,int width,int height);
 _result ibrute_nnsearch(_image* data, _image* query,int datanum,int width,int height);
 
+enum InputMod { defualt, Distance, Insert, Delete, Query };
+InputMod NowMod = defualt;
+
+
+int MenuCentorX = 700;
+int MenuCentorY = 500;
+int MenuH = 100;
+int MenuW = 100;
+int MenuScaleX = 50;
+int MenuScaleY = 50;
+
+
+void reshape(int w, int h) {
+	//w_w = w;
+	//w_h = h;
+	glViewport(0, 0, w, h);
+	glLoadIdentity();
+	gluOrtho2D(0, 800, 0, 600);
+}
+
+void display() {
+	glLoadIdentity();
+	gluOrtho2D(0, 800, 0, 600);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	//gluOrtho2D(min_x, max_x, min_y, max_y);
+
+
+	glLineWidth(8);
+	glPointSize(5.0f);
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glEnable(GL_POINT_SMOOTH);
+
+
+
+
+	//boundary for distance function
+	glBegin(GL_LINE_LOOP);
+	glVertex2d(MenuCentorX + MenuW, MenuCentorY + MenuH);
+	glVertex2d(MenuCentorX + MenuW, MenuCentorY - MenuH);
+	glVertex2d(MenuCentorX - MenuW, MenuCentorY - MenuH);
+	glVertex2d(MenuCentorX - MenuW, MenuCentorY + MenuH);
+	glEnd();
+	//
+	glBegin(GL_POINTS);
+	glVertex2d(MenuCentorX, MenuCentorY);
+	glEnd();
+	//
+
+
+	int ModPosStartX = 630;
+	int ModPosStartY = 370;
+	//print about mod
+	glRasterPos2d(ModPosStartX, ModPosStartY);
+	const char* modst = "defualt";
+	switch (NowMod) {
+	case Distance:
+		modst = "DIST";
+		break;
+	case Insert:
+		modst = "INSERT";
+		break;
+	case Query:
+		modst = "Query";
+		break;
+	}
+	int ModLen = strlen(modst);
+	for (unsigned int i = 0; i < ModLen; i++)
+		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, modst[i]);
+	//about number of k
+
+	char theK[4] = "k=3";
+	glRasterPos2d(ModPosStartX + 120, ModPosStartY);
+	for (unsigned int i = 0; i < 3; i++)
+		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, theK[i]);
+
+	glColor3f(0.0f, 0.0f, 0.0f);
+	if (NowMod == Query) {
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glBegin(GL_POINTS);
+
+		srand((unsigned int)time(NULL));
+
+		FILE* ofile = fopen("out.txt", "w");
+
+		//load data	
+		_fnnne fnn;
+		char datafilename[] = "data_batch_1.bin";
+		char queryfilename[] = "data_batch_6.bin";
+		int datanum = 10000;
+		int qnum = 100;
+		int image_width = 16;
+		int image_height = 16;
+		_image* data;
+		_image* query;
+		load_data(datafilename, queryfilename, data, query, datanum, qnum, image_width, image_height);
+		printf("cifar data load done\n");
+
+		_result* fnnres = new _result[qnum];
+		_result* brtres = new _result[qnum];
+
+		//fnnseed preprocessing
+		printf("FNN prep...\n");
+		fnn.fnn_preprocessing(data, datanum, image_width, image_height);
+
+		//fnnseed query
+		printf("FNN query...\n");
+		for (int i = 0; i < qnum; i++) {
+			fnnres[i] = fnn.fnn_query(&query[i]);
+		}
+
+		printf("Release memory...\n");
+		fnn.release();
+		printf("FNN done.\n");
+
+		//opt brute query
+		printf("optBRT query...\n");
+		for (int i = 0; i < qnum; i++) {
+			brtres[i] = ibrute_nnsearch(data, &query[i], datanum, image_width, image_height);
+		}
+		printf("optBRT done.\n");
+
+		printf("FNN: %d %g\n", fnnres[0].idx, fnnres[0].sqdist);
+		printf("BRT: %d %g\n", brtres[0].idx, brtres[0].sqdist);
+
+		//write result on file
+		for (int q = 0; q < qnum; q++) {
+			fprintf(ofile, "FNNidx:%d FNNdist:%g BRTidx:%d BRTdist%g\n", fnnres[q].idx, fnnres[q].sqdist, brtres[q].idx, brtres[q].sqdist);
+		}
+		fclose(ofile);
+
+		glEnd();
+	}
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glutSwapBuffers();
+	return;
+
+}
+
+
+
+void ModChange(unsigned char key, int x, int y) {
+	if (NowMod == Distance) {
+		switch (key) {
+		case 'i':
+		case 'I':
+			NowMod = Insert;
+			break;
+		case 'q':
+		case 'Q':
+			NowMod = Query;
+			break;
+		case 'd':
+		case 'D':
+			NowMod = defualt;
+			break;
+		}
+
+	}
+	else {
+		switch (key) {
+		case 'i':
+		case 'I':
+			NowMod = Insert;
+			break;
+		case 'q':
+		case 'Q':
+			NowMod = Query;
+			break;
+		case 'd':
+		case 'D':
+			NowMod = Distance;
+			break;
+		}
+	}
+	glutPostRedisplay();
+}
+
 int main(int argc, char* argv[])
 {
-	srand((unsigned int)time(NULL));
-
-	FILE* ofile = fopen("out.txt","w");
-
-	//load data	
-	_fnnne fnn;
-	char datafilename[] = "data_batch_1.bin";
-	char queryfilename[] = "data_batch_6.bin";
-	int datanum = 10000;
-	int qnum = 100;
-	int image_width = 16;
-	int image_height = 16;
-	_image* data;
-	_image* query;
-	load_data(datafilename,queryfilename,data,query,datanum,qnum,image_width,image_height);
-	printf("cifar data load done\n");
-
-	_result* fnnres = new _result[qnum];
-	_result* brtres  = new _result[qnum];
 	
-	//fnnseed preprocessing
-	printf("FNN prep...\n");
-	fnn.fnn_preprocessing(data,datanum,image_width,image_height);
+	glutInit(&argc, argv);
+	glutInitWindowPosition(100, 0);
+	glutInitWindowSize(800, 600);//창 크기 설정
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutCreateWindow("Dynamic Distance Nearest neighbor");
+	glutReshapeFunc(reshape);
+	glutDisplayFunc(display);
+	glutKeyboardFunc(ModChange);
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+	glutMainLoop();
 
-	//fnnseed query
-	printf("FNN query...\n");
-	for(int i=0 ; i<qnum ; i++){
-		fnnres[i] = fnn.fnn_query(&query[i]);
-	}
-	
-	printf("Release memory...\n");
-	fnn.release();
-	printf("FNN done.\n");
-
-	//opt brute query
-	printf("optBRT query...\n");
-	for(int i=0 ; i<qnum ; i++){
-		brtres[i] = ibrute_nnsearch(data, &query[i],datanum,image_width,image_height);
-	}
-	printf("optBRT done.\n");
-
-	printf("FNN: %d %g\n",fnnres[0].idx,fnnres[0].sqdist);
-	printf("BRT: %d %g\n",brtres[0].idx,brtres[0].sqdist);
-
-	//write result on file
-	for(int q=0 ; q<qnum ; q++){
-		fprintf(ofile,"FNNidx:%d FNNdist:%g BRTidx:%d BRTdist%g\n",fnnres[q].idx,fnnres[q].sqdist,brtres[q].idx,brtres[q].sqdist);
-	}
-	fclose(ofile);
 	return 0;
 }
 
