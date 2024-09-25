@@ -15,7 +15,8 @@ PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
 		for (int j = 0; j < sp->getEdges()->size(); j++) {
 			Edge* e = (*sp->getEdges())[j];
 			PDNode* n = new PDNode();
-			n->setPoint(e->gets());
+			Point np = e->gets();
+			n->setPoint(&np);
 			n->setSite(false);
 			n->setAdj(new std::vector<PDNode*>());
 			this->nodes->push_back(n);
@@ -31,13 +32,13 @@ PDgraph::PDgraph(PolygonalDomain* _pd, std::vector<Point*>* pv) {
 	}
 	for (int i = 0; i < this->nodes->size(); i++) {
 		for (int j = i + 1; j < this->nodes->size(); j++) {
-			Edge* ne = new Edge((*this->nodes)[i]->getPoint(), (*this->nodes)[j]->getPoint());
+			Edge* ne = new Edge(*(*this->nodes)[i]->getPoint(), *(*this->nodes)[j]->getPoint());
 			bool flag = true;
 			for (int k = 0; k < pd->getObstacles()->size(); k++) {
 				SimplePolygon* sp = (*pd->getObstacles())[k];
 				for (int l = 0; l < sp->getEdges()->size(); l++) {
 					Edge* te = (*sp->getEdges())[l];
-					if (!(*ne == *te) &&  ne->crossing(te, false)) {
+					if (!(*ne == *te) &&  ne->crossing(*te, false)) {
 						flag = false;
 						break;
 					}
@@ -63,13 +64,13 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 	std::priority_queue <std::pair<PDNode*, double>, std::vector <std::pair<PDNode*, double>>, struct cmp> PQ;
 	
 	for (int i = 0; i < this->nodes->size(); i++) {
-		Edge* ne = new Edge((*this->nodes)[i]->getPoint(), start);
+		Edge* ne = new Edge(*(*this->nodes)[i]->getPoint(), *start);
 		bool flag = true;
 		for (int j = 0; j < pd->getObstacles()->size(); j++) {
 			SimplePolygon* sp = (*pd->getObstacles())[j];
 			for (int k = 0; k < sp->getEdges()->size(); k++) {
 				Edge* te = (*sp->getEdges())[k];
-				if (!(*ne == *te) && ne->crossing(te, false)) {
+				if (!(*ne == *te) && ne->crossing(*te, false)) {
 					flag = false;
 					break;
 				}
@@ -78,7 +79,7 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 				break;
 		}
 		if (flag) {
-			PQ.push(std::pair<PDNode*, double>((*this->nodes)[i], start->distance((*this->nodes)[i]->getPoint())));
+			PQ.push(std::pair<PDNode*, double>((*this->nodes)[i], start->distance(*(*this->nodes)[i]->getPoint())));
 		}
 		delete(ne);
 	}
@@ -104,7 +105,7 @@ std::vector<std::pair<Point*, double>>* PDgraph::knn(Point* start, int k) {
 		for (int i = 0; i < here->getAdj()->size(); i++) {
 			if (visited[(*here->getAdj())[i]]) continue;
 			PDNode* next = (*here->getAdj())[i];
-			double acost = (*here->getAdj())[i]->getPoint()->distance(here->getPoint()) + cost;
+			double acost = (*here->getAdj())[i]->getPoint()->distance(*here->getPoint()) + cost;
 			PQ.push({ next, acost });
 		}
 	}

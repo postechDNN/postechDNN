@@ -129,30 +129,6 @@ void display() {
 		glEnd();
 	}
 	glColor3f(0.0f, 0.0f, 0.0f);
-	/*
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glBegin(GL_POINTS);
-	glVertex2d(point_list[0].get_x(), point_list[0].get_y());
-	glEnd();
-
-	glColor3f(0.5f, 0.7f, 0.30f);
-	glBegin(GL_POINTS);
-
-	glEnd();
-
-	glLineWidth(3);//every diagonal
-	glColor3f(float(0.6), float(0.6), float(0.6));
-
-
-	glColor3f(1.0f, 0.0f, 1.0f);
-
-	glColor3d(0, 0.47, 0.43);
-
-
-
-	glColor3f(0.0f, 1.0f, 1.0f);
-	*/
-
 	glutSwapBuffers();
 	return;
 

@@ -2,6 +2,8 @@
 //
 
 #include "fnnne.h"
+#include <GL/glfw3.h>
+#include <GL/freeglut.h>
 
 void load_data(char* dataname,char* queryname,_image*& data, _image*& query,int datanum,int qnum,int width,int height);
 _result ibrute_nnsearch(_image* data, _image* query,int datanum,int width,int height);
