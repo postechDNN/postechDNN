@@ -160,3 +160,7 @@ void data_generation(int dim, double u_bound, int halfplane_constraint, int num_
 // std::string config = ""
 
 void autoTest();
+
+vector<Point*> makePointSet(std::string dir);
+vector<Point> makePointSetNoPtr(std::string dir);
+vector<Free_Point> makeFreePointSetNoPtr(std::string dir);

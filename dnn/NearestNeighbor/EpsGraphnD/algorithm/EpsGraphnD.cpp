@@ -4,54 +4,63 @@
 #include <random>
 
 using namespace std;
-Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _pols, double _eps) {
+// Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<vector<Polytope>> _NonconvexPols, double _eps) {
+Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _NonconvexPols, double _eps) {
 	n = _n;
 	fr_pts = _fr_pts;
-	pols = _pols;
+	pols = _NonconvexPols;
 	eps = _eps;
 	NN_dist = {};
 	ord_pol = 0;
 	xs_min = std::vector<double>(n, DBL_MAX);
 	xs_max = std::vector<double>(n, DBL_MIN);
 	xs_num = std::vector<long long int>(n, 0);
-	for (auto pol : pols) {
-		//pol.set_vertices_size();
-		pol.set_maxmin();
-		pol.ord = ord_pol;
-		ord_pol++;
-		cout << "---------------------" << endl;
-		cout << "Polytope " << ord_pol << endl;
-		cout << "Number of vertices: " << pol.get_num_point() << endl;
-		cout << "Max value: ";
-		for (int j = 0; j < n; j++) {
-			cout << pol.xs_max[j] << ' ';
+
+	//for (auto NonconvexPol : _NonconvexPols) {
+	//	for (auto convexPol : NonconvexPol) {
+
+		for (auto convexPol: pols) {
+			//pol.set_vertices_size();
+				convexPol.set_maxmin();
+				convexPol.ord = this->ord_pol;
+				this->ord_pol++;
+
+				for (int i = 0; i < n; i++) {
+					if (convexPol.xs_max[i] > this->xs_max[i]) 
+						{ this->xs_max[i] = convexPol.xs_max[i]; }
+					if (convexPol.xs_min[i] < this->xs_min[i]) 
+						{ this->xs_min[i] = convexPol.xs_min[i]; }
+				}
+
 		}
-		cout << endl;
-		cout << "Min value: ";
-		for (int j = 0; j < n; j++) {
-			cout << pol.xs_min[j] << ' ';
-		}
-		cout << endl;
-		cout << "---------------------" << endl;
-		//cout << "dimension of polytope: " << pol.xs_max.size() << endl;
-		for (int i = 0;i < n;i++) {
-			
-			if (pol.xs_max[i] > this->xs_max[i]) { this->xs_max[i] = pol.xs_max[i]; }
-			if (pol.xs_min[i] < this->xs_min[i]) { this->xs_min[i] = pol.xs_min[i]; }
+		for (auto fr_pt : fr_pts) {
+			for (int i = 0; i < n; i++) {
+				if (fr_pt.xs[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs[i]; }
+				if (fr_pt.xs[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs[i]; }
+			}
 		}
 
-	}
-	for (auto fr_pt : fr_pts) {
-		for (int i = 0;i < n;i++) {
-			if (fr_pt.xs[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt.xs[i]; }
-			if (fr_pt.xs[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt.xs[i]; }
-		}
-	}
 	init_grid();
 	for (Free_Point& fr_pt : fr_pts) {
 		anchor(fr_pt);
 	}
 }
+
+//cout << "---------------------" << endl;
+//cout << "Polytope " << ord_pol << endl;
+//cout << "Number of vertices: " << pol.get_num_point() << endl;
+//cout << "Max value: ";
+//for (int j = 0; j < n; j++) {
+//	cout << pol.xs_max[j] << ' ';
+//}
+//cout << endl;
+//cout << "Min value: ";
+//for (int j = 0; j < n; j++) {
+//	cout << pol.xs_min[j] << ' ';
+//}
+//cout << endl;
+//cout << "---------------------" << endl;
+////cout << "dimension of polytope: " << pol.xs_max.size() << endl;
 
 void Eps_Graph_nD::init_grid() {
 	for (int i = 0;i < n;i++) {
@@ -77,12 +86,14 @@ void Eps_Graph_nD::init_grid() {
 
 	// for each grid & free point, count # of crossings of the rightward ray with each polytope
 	for (Grid_Point& pt : grid) {
-		for (Polytope& pol : pols) {
-			if (pol.isIn(&pt)) {
-				pt.encl = pol.ord;
-				pol.encl_pts.push_back(&pt);
+		//for (auto nonconvexPol : pols) {
+		//	for (Polytope& convexPol : nonconvexPol) {
+			for (auto& convexPol : pols) {
+				if (convexPol.isIn(&pt)) {
+					pt.encl = convexPol.ord;
+					convexPol.encl_pts.push_back(&pt);
+				}
 			}
-		}
 	}
 	for (int i = 0; i < tot_num; i++) {
 		if (grid[i].encl != -1) { continue; }
@@ -238,15 +249,20 @@ bool Eps_Graph_nD::cmpNadd(vector<long long int> ind, int direc) {  //O
 	B = grid[ind2num(ind) + t];
 
 	for (unsigned int ind1 = 0; ind1 < pols.size(); ind1++) {
-		auto pol = pols[ind1];
-		if (pol.isIn(&A) || pol.isIn(&B)) {
-			return false;
-		}
 
-		// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
-		Point _A = Point(A.xs);
-		Point _B = Point(B.xs);
-		if (pol.intersect(&_A, &_B)) { return false; }
+
+		//auto& nonconvexPol = pols[ind1];
+		//for (auto& pol : nonconvexPol) {
+			auto pol = pols[ind1];
+			if (pol.isIn(&A) || pol.isIn(&B)) {
+				return false;
+			}
+
+			// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
+			Point _A = Point(A.xs);
+			Point _B = Point(B.xs);
+			if (pol.intersect(&_A, &_B)) { return false; }
+		
 
 	}
 
@@ -258,12 +274,25 @@ bool Eps_Graph_nD::cmpNadd_SinPol(vector<long long int> ind, int direc, int ord)
 	Polytope pol;
 	vector<Polytope>::iterator it;
 
-	for (it = pols.end() - 1;; it--) {
-		if ((*it).ord == ord) {
-			pol = *it;
-			break;
+	// for (auto& nonconvexPol : pols) { // pols. 
+		// vector<Polytope>::iterator it;
+		//for (int i = 0; i < nonconvexPol.size(); i++) {
+		//	if (nonconvexPol[i].ord == ord) {
+		//		pol = nonconvexPol[i];
+		//		break;
+		//	}
+		//	
+		//}
+
+		// for (it = nonconvexPol.end() - 1;; it--) {
+		for (it = pols.end() - 1;; it--) {
+			if ((*it).ord == ord) {
+				pol = *it;
+				break;
+			}
 		}
-	}
+
+
 	Grid_Point A = grid[ind2num(ind)];
 	Grid_Point B = Grid_Point(n);
 	long long t = 1;
@@ -283,9 +312,12 @@ bool Eps_Graph_nD::cmpNadd_SinPol(vector<long long int> ind, int direc, int ord)
 
 void Eps_Graph_nD::add_freepts(Free_Point* p) { // add points to the point set P //O
 	Free_Point& pt = fr_pts.back();
+
 	for (Polytope& pol : pols) {
-		assert(!pol.isIn(p)); // Assert error if a freepoint is contained in some polytope
-	}
+	//for (auto& nonconvexPol : pols) {
+	//	for (auto& pol : nonconvexPol) {
+			assert(!pol.isIn(p)); // Assert error if a freepoint is contained in some polytope
+		}
 	anchor(*p);
 	fr_pts.push_back(*p);
 }
@@ -293,8 +325,11 @@ void Eps_Graph_nD::add_freepts(Free_Point* p) { // add points to the point set P
 void Eps_Graph_nD::add_freepts(vector<Free_Point> p_vec) { // add points to the point set P //O
 	for (auto p : p_vec) {
 		for (Polytope& pol : pols) {
-			assert(!pol.isIn(&p)); // Assert error if a freepoint is contained in some polytope
-		}
+		//for (auto& nonconvexPol : pols) {
+		//	for (auto& pol : nonconvexPol) {
+				assert(!pol.isIn(&p)); // Assert error if a freepoint is contained in some polytope
+			}
+
 		anchor(p);
 		fr_pts.push_back(p);
 	}
@@ -356,7 +391,11 @@ void Eps_Graph_nD::add_pol(Polytope P) { // add a polygon to the set of obstacle
 			vector<Free_Point*>().swap(gr_pt.anchored);
 		}
 	}
+
 	pols.push_back(P);
+
+	//vector<Polytope> nonconvexPol = {P};
+	//pols.push_back(nonconvexPol);
 	ord_pol++;
 
 	vector<vector<long long int>> diagonal = eff_region(P);
@@ -388,16 +427,21 @@ void Eps_Graph_nD::add_pol(Polytope P) { // add a polygon to the set of obstacle
 	}
 }
 
-void Eps_Graph_nD::delete_pol(int ord) { // delete a polygon from O, specified by its index
+// delete a polygon from O, specified by its index
+void Eps_Graph_nD::delete_pol(int ord) { 
 
 	bool check = true;
 	Polytope P;
 
-	for (Polytope& p : pols) {
-		if (p.ord == ord) {
-			P = p;
-			check = false;
-		}
+
+	//for (auto& nonconvexPol: pols) {
+	//	for (Polytope& p : nonconvexPol) {
+
+	for (auto& p : pols) {
+			if (p.ord == ord) {
+				P = p;
+				check = false;
+			}
 	}
 
 	if (check) { return; }
@@ -453,7 +497,13 @@ Free_Point Eps_Graph_nD::get_free_point(int index) {
 	return *iter;
 }
 
+//vector<vector<Polytope>> Eps_Graph_nD::get_Polytope() {
+//
+//	return pols;
+//}
+
 vector<Polytope> Eps_Graph_nD::get_Polytope() {
+
 	return pols;
 }
 
@@ -470,7 +520,10 @@ vector<edge> Eps_Graph_nD::get_path(Free_Point p, int k) {
 vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
 
 	for (Polytope& pol : pols) {
-		assert(!pol.isIn(&p));
+	//for (auto& nonconvexPol : pols) {
+	//	for (auto& pol : nonconvexPol) {
+			assert(!pol.isIn(&p));
+		
 	}
 
 	vector<Free_Point> ret = {};
@@ -558,11 +611,20 @@ vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approxi
 	return ret;
 }
 
+// vector<edge> Eps_Graph_nD::path_kNN(Free_Point p, int k){}
+
 vector<edge> Eps_Graph_nD::path_kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
+
+	//for (auto& nonconvexPol : pols) {
+	//	for (auto& pol : nonconvexPol) {
+	//		assert(!pol.isIn(&p));
+	//	}
+	//}
 
 	for (Polytope& pol : pols) {
 		assert(!pol.isIn(&p));
 	}
+
 	vector<edge> path = {};
 	vector<int>().swap(NN_dist);
 	long long int* previous = new long long int[tot_num];
@@ -766,44 +828,52 @@ vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 		temp.is_Free_Point = true;
 		vp_vertex.push_back(temp);
 	}
+
 	for (auto pol : pols) {
-		vector<Point*> temp = pol.get_vertices();
-		for (auto temp_temp : temp) {
-			temp_temp->is_Free_Point = false;
-			vp_vertex.push_back(*temp_temp);
-		}
+	//for (auto nonconvexPol : pols) {
+	//	for (auto pol : nonconvexPol) {
+			vector<Point*> temp = pol.get_vertices();
+			for (auto temp_temp : temp) {
+				temp_temp->is_Free_Point = false;
+				vp_vertex.push_back(*temp_temp);
+			}
+		
 	}
 	nb_list = new vector<pair<Point, double>>[vp_vertex.size()];
 	for (int i = 0; i < vp_vertex.size(); i++) {
 		for (int j = i + 1; j < vp_vertex.size(); j++) {
 			bool intersect = false;
+
 			for (auto pol : pols) {
-				if (pol.sameIn(&vp_vertex[i], &vp_vertex[j])) {
-					intersect = true;
-					vector<double> mid;
-					for (int k = 0; k< vp_vertex[i].getsize(); k++) {
-						mid.push_back((vp_vertex[i].getx(k) + vp_vertex[j].getx(k)) / 2);
-					}
-					for (int k = 0; k < vp_vertex[i].getsize() * 5; k++) {
-						random_device rd;
-						mt19937 gen(rd());
-						vector<double> random_vec;
-						uniform_real_distribution<float> dis(0, 1);
-						for (int l = 0; l< vp_vertex[i].getsize(); l++) {
-							random_vec.push_back(mid[l] + dis(gen)/100);
-						}
-						Point random_pt(random_vec);
-						if (!pol.isIn(&random_pt)) {
-							intersect = false;
-						}
-					}
-				}
-				else {
-					if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+			//for (auto nonconvexPol : pols) {
+			//	for (auto pol : nonconvexPol) {
+					if (pol.sameIn(&vp_vertex[i], &vp_vertex[j])) {
 						intersect = true;
-						break;
+						vector<double> mid;
+						for (int k = 0; k< vp_vertex[i].getsize(); k++) {
+							mid.push_back((vp_vertex[i].getx(k) + vp_vertex[j].getx(k)) / 2);
+						}
+						for (int k = 0; k < vp_vertex[i].getsize() * 5; k++) {
+							random_device rd;
+							mt19937 gen(rd());
+							vector<double> random_vec;
+							uniform_real_distribution<float> dis(0, 1);
+							for (int l = 0; l< vp_vertex[i].getsize(); l++) {
+								random_vec.push_back(mid[l] + dis(gen)/100);
+							}
+							Point random_pt(random_vec);
+							if (!pol.isIn(&random_pt)) {
+								intersect = false;
+							}
+						}
 					}
-				}
+					else {
+						if (pol.intersect(&vp_vertex[i], &vp_vertex[j])) {
+							intersect = true;
+							break;
+						}
+					}
+				
 			}
 			if (!intersect) {
 				nb_list[i].push_back(make_pair(vp_vertex[j], vp_vertex[i].distance(vp_vertex[j])));
@@ -828,13 +898,19 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
 		temp.is_Free_Point = true;
 		vp_vertex.push_back(temp);
 	}
-	for (auto pol : pols) {
-		vector<Point*> temp = pol.get_vertices();
-		for (auto temp_temp : temp) {
-			temp_temp->is_Free_Point = false;
-			vp_vertex.push_back(*temp_temp);
-		}
+	
+	for (auto& pol : pols) {
+	//for (auto nonconvexPol : pols) {
+	//	for (auto pol : nonconvexPol) {
+			vector<Point*> temp = pol.get_vertices();
+			for (auto temp_temp : temp) {
+				temp_temp->is_Free_Point = false;
+				vp_vertex.push_back(*temp_temp);
+			}
+		
 	}
+
+
 	//vector<vector<pair<double, int>>> nb_list = Visibility_polygon2(qry);
 	vector<pair<Point, double>>* nb_list2 = Visibility_polygon(qry);
 	vector<double> dist(vp_vertex.size(), 0);
@@ -878,6 +954,8 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
 	return output;
 
 }
+
+
 //pair<vector<Point>, vector<double>> Eps_Graph_nD::Dijkstra(int j, vector<Point> _P, vector<vector<double>> _mat) {
 //	vector<Point> P(_P.size(), Point(this->n));
 //	vector<double> dist(_P.size(), 0);

@@ -308,6 +308,18 @@ bool Polytope::operator==(Polytope P) {
 	}
 	else return false;
 };
+/*
+bool Polytope::operator==(const Polytope* P) {
+	return ord == P->ord;
+}
+
+bool Polytope::operator==(const Polytope& P) {
+	return ord == P.ord;
+}
+*/
+//bool operator==(const Polytope t1, const Polytope t2) {
+//	return t1.ord == t2.ord;
+//}
 
 void Polytope::set_vertices(std::vector<Point*> _vertices) {
 	this->num_points = _vertices.size();

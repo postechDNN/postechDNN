@@ -14,12 +14,22 @@ Point::Point(int _n) {
 	//this->y = 0.;
 	//this->z = 0.;
 }
+Point::Point(int _n, bool isFreePoint) {
+	this->n = _n;
+	this->xs = std::vector<double>(_n, 0.);
+	this->is_Free_Point = isFreePoint;
+}
 Point::Point(std::vector<double> _xs) {
 	this->xs = _xs;
 	this->n = _xs.size();
 	//this->x = _x;
 	//this->y = _y;
 	//this->z = _z;
+}
+Point::Point(std::vector<double> _xs, bool isFreePoint) {
+	this->xs = _xs;
+	this->n = _xs.size();
+	this->is_Free_Point = isFreePoint;
 }
 Point::Point(Point* _p) {
 	this->xs = _p->getxs();

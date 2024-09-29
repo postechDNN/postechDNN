@@ -12,6 +12,7 @@
 #include "../algorithm/Point.h"
 #include <typeinfo>
 #include <filesystem>
+#include <sstream>
 
 #include <stdio.h>
 #include <io.h>
@@ -515,19 +516,18 @@ void run_nearest_neighbor() {
 	cout << "Number of Polytopes: " << plts.size() << endl;
 	cout << "Number of Points: " << _frpts.size() << endl;
 
-	Eps_Graph_nD grid(2, _frpts, plts, 5);
-	Free_Point* q = new Free_Point({ 0., -5. });
-	grid.add_freepts(q);
-	for (int j = 0; j < d; j++) {
-		cout << q->getx(j) << ' ';
-	}
-	cout << endl;
-	//grid.print_free_point();
-	grid.print_kNN(*q, 3);
-
-	grid.Dijkstra(*q, 3);
+	//Eps_Graph_nD grid(2, _frpts, plts, 5);
+	//Free_Point* q = new Free_Point({ 0., -5. });
+	//grid.add_freepts(q);
+	//for (int j = 0; j < d; j++) {
+	//	cout << q->getx(j) << ' ';
+	//}
+	//cout << endl;
+	////grid.print_free_point();
 
 
+	//grid.print_kNN(*q, 3);
+	//grid.Dijkstra(*q, 3);
 
 }
 
@@ -540,14 +540,121 @@ void dataGeneration() {
 	
 }
 
+vector<Point*> makePointSet(std::string dir) {
+	
+	vector<Point*> ret;
+	
+	ifstream fin(dir);
+
+	string line;
+	getline(fin, line); // dimension
+	getline(fin, line); // number of points
+	int numPoints = stoi(line);
+
+	// 
+	for (int j = 0; j < numPoints; j++) {
+		getline(fin, line);
+		stringstream ss(line);
+		ss.str(line);
+
+		vector<double> values;
+		vector<string> words;
+
+		string word;
+		while (ss >> word) {
+			// words.push_back(word);
+			values.push_back(stod(word));
+		}
+
+		auto pt = new Point(values);
+		pt->is_Free_Point = true;
+		ret.push_back(pt);
+	}
+
+	return ret;
+}
+
+vector<Point> makePointSetNoPtr(std::string dir) {
+
+	vector<Point> ret;
+
+	ifstream fin(dir);
+
+	string line;
+	getline(fin, line); // dimension
+	getline(fin, line); // number of points
+	int numPoints = stoi(line);
+
+	// 
+	for (int j = 0; j < numPoints; j++) {
+		getline(fin, line);
+		stringstream ss(line);
+		ss.str(line);
+
+		vector<double> values;
+		vector<string> words;
+
+		string word;
+		while (ss >> word) {
+			// words.push_back(word);
+			values.push_back(stod(word));
+		}
+
+		ret.push_back(Point(values, true));
+	}
+
+	return ret;
+}
+
+vector<Free_Point> makeFreePointSetNoPtr(std::string dir) {
+
+	vector<Free_Point> ret;
+
+	ifstream fin(dir);
+
+	string line;
+	getline(fin, line); // dimension
+	getline(fin, line); // number of points
+	int numPoints = stoi(line);
+
+	for (int j = 0; j < numPoints; j++) {
+		getline(fin, line);
+		stringstream ss(line);
+		ss.str(line);
+
+		vector<double> values;
+		vector<string> words;
+
+		string word;
+		while (ss >> word) {
+			// words.push_back(word);
+			values.push_back(stod(word));
+		}
+
+		ret.push_back(Free_Point(values)); // , true));
+	}
+
+	return ret;
+}
+
 // 자체평가보고서 2022 기준에서 가져옴.
+// void autoTest(){}
+
+
 void autoTest() {
-	// 1000회 반복
-	int numIterations = 1000;
+	int dimension = 4;
+	double epsilon = 50;
+	// double bound = ;
+
+	// 100개의 데이터셋
+	int numDatasets = 100;
+	// 1000번의 랜덤 쿼리
+	int numQueries = 1000;
+
 	// kNN에서 k값
 	vector<int> ks = {10, 50, 100, 500, 1000};
 
-	fs::path dataDirDir = "C:\\epsGraphTestData";
+	fs::path dataDirDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestData";
 	fs::directory_iterator iterDirDir(dataDirDir);
 	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
 
@@ -557,65 +664,68 @@ void autoTest() {
 		// string polytopesDirStr = dataDir.string() +  "\\polytopes";
 		// string pointsDirStr = dataDir.string() + "\\points";
 		fs::path polytopesDir(dataDir.string() + "\\polytopes");
-		fs::path pointsDir(dataDir.string() + "\\points");
+
+		vector<vector<Polytope*>> multiTopes;
+		// vector<Polytope*> singleTope
+		// vector<vector<Polytope>> multiTopesNoPtr;
+		// multiTopesNoPtr.assign(multiTopes.size(), {});
+
+		vector<Polytope> multiTopesNoPtr;
 
 		// 각각의 polytope이 폴더 안에 있음
 		fs::directory_iterator iterTopes(polytopesDir);
+
+		// ex) \\polytopes\\0\\ 니까 매 폴더마다 하나의 polytope,
+		// 해서 총 10개의 polytope 체크.
+
 		for (auto& i01 = iterTopes; i01 != fs::end(iterTopes); ++i01) {
-			
 			fs::path topeDir = (*i01).path();
+			// topeDir.string();
 
-
+			multiTopes.push_back(dels2polytopes(topeDir.string(), 1));
 		}
 
-		for 
-		// 
-
-
-		fs::directory_iterator
-		polytopesDir
-	}
-
-	
-
-	// dataDir
-
-	// ifstream fin;
-
-	// dataset
-	// 각각의 데이터셋에 대해서 epsilon graph 생성
-	for () {
-		// 폴더
-
-		Eps_Graph_nD* epsGraph = new Eps_Graph_nD();
-
-		// kNN 시행
-		// vector of free point
-		for (int k : ks) {
-			epsGraph->kNN();
+		// multiTopes에서 multiTopesNoPtr로 변경
+		for (int j = 0; j < multiTopes.size(); j++) {
+			for (auto singleConvexTope : multiTopes[j]) {
+				// multiTopesNoPtr[j].push_back(*singleConvexTope);
+				multiTopesNoPtr.push_back(*singleConvexTope);
+			}
 		}
+
+		// ex) C:\Users\HWI\Documents\epsGraphTestData\000\points
+		fs::path pointsDir(dataDir.string() + "\\points");
+
+		std::string pointsSpecificDir = dataDir.string() + "\\points\\points.txt";
+
 		
-		delete epsGraph;
-	}
 
+		// list<Free_Point> frpts(pts.begin(), pts.end());
+		vector<Point*> pts = makePointSet(pointsSpecificDir);
 
-	// 
-	for () {
+		list<Free_Point> frpts(pts.begin(), pts.end());
+
+		// grid를 마지막에 만듬.
+		Eps_Graph_nD epsGraph(dimension, frpts, multiTopesNoPtr, epsilon);
+
+		// 쿼리 점들도 읽어 오기
+		// convex polytope을 피해야 하기 때문에?
+
+		std::string queriesSpecificDir = dataDir.string() + "\\points\\queries.txt";
+
+		// size of queryPoints = numQueries
+		vector<Free_Point> queryPoints = makeFreePointSetNoPtr(queriesSpecificDir);
+
+		for (int j = 0; j < numQueries; j++ )
+			// auto& currentQuery = queryPoints[j];
+			for (auto& k : ks) {
+				// epsGraph.print_kNN(currentQuery, k);
+				epsGraph.print_kNN(queryPoints[j], k);
+			}
 		
+		//grid.print_kNN(*q, 3);
+		//grid.Dijkstra(*q, 3);
 	}
-	// kNN 시도
-	epsGraph
-
-	//fs::path currentPath = dir;
-	//fs::remove_all(dir);
-	//fs::create_directories(currentPath);
-
-	//thiskNN()
-
-	// read Polytopes
-	// polytopeDir();
-
-	// uniform
 
 }
 
@@ -628,8 +738,9 @@ int main() {
 	cout << "0. auto test\n"; // data generation\n";
 	cout << "1. generate point sites\n";
 	cout << "2. read point sites\n";
-	cout << "3. read polytopes";
-	cout << "4. kNN query";
+	cout << "3. read polytopes\n";
+	cout << "4. kNN query\n";
+	cout << "Enter: ";
 	int inVal; cin >> inVal;
 	switch (inVal) {
 		case 0:
@@ -722,33 +833,32 @@ vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 	//	dir = "C:\\qhull\\bin\\AAA" + s +  " (" + iter_num + ")";
 	//}
 
-	std::string index;
-	std::vector<string> filenames;
-	 for (int count = 0; count < num_topes; count++) {
-	 
-		/*
-		std::cout << "Enter the input file index: ";
-		std::cin >> index; filenames.push_back(index);
-		*/
+	// std::string index;
+	std::vector<string> filenames = {""};
 
-		string res = "";
-		if (count < 10) {
-			res += "00";
-		}
-		else if (count < 100) {
-			res += "0";
-		}
-		res += std::to_string(count);//  + ".txt";
-		filenames.push_back(res);
-	}
+	// for (int count = 0; count < num_topes; count++) {
+	// 
+	//	/*
+	//	std::cout << "Enter the input file index: ";
+	//	std::cin >> index; filenames.push_back(index);
+	//	*/
+
+	//	string res = "";
+	//	if (count < 10) {
+	//		res += "00";
+	//	}
+	//	else if (count < 100) {
+	//		res += "0";
+	//	}
+	//	res += std::to_string(count);//  + ".txt";
+	//	filenames.push_back(res);
+	//}
 
 	for (auto index : filenames) {
 		std::ifstream fin;
 		
-		// AAA에서
-		// string str = "C:\\qhull\\bin\\AAA" + index + ".txt";
-		// string str = dir + "DEL" + index + ".txt";
-		string str = dir + "result" + index + ".txt";
+		// string str = dir + "result" + index + ".txt";
+		string str = dir + "points" + index + ".txt";
 		fin.open(str);
 
 		string s;
@@ -778,7 +888,7 @@ vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 		std::vector<simplex> sims;
 
 		// std::ifstream fin2(dir + "CH" + to_string(index));
-		string str2 = dir + "DEL" + index + ".txt";
+		string str2 = dir + "tets" + index + ".txt";
 		std::ifstream fin2;
 		
 		fin.open(str2);

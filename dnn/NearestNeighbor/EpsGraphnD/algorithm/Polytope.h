@@ -48,8 +48,12 @@ public:
 	bool intersect(Polytope P);
 	bool intersect(Point* p, Point* q);
 	bool operator==(Polytope P);
+	//bool operator==(const Polytope* P);
+	//bool operator==(const Polytope& P);
 	void set_vertices(std::vector<Point*>);
 	void set_vertices_size();
 	void set_simplices(std::vector<simplex>&);
 	void set_maxmin();
 };
+
+// bool operator==(const Polytope t1, const Polytope t2);

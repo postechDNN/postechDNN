@@ -28,8 +28,10 @@ public:
 public:
 	Point();
 	Point(int);
+	Point(int, bool);
 	//Point(double, double, double);
 	Point(std::vector<double>);
+	Point(std::vector<double>, bool);
 	Point(Point*);
 	~Point();
 	bool operator==(Point);
