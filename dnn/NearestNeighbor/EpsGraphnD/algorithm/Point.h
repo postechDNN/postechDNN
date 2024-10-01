@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <string>
 
 /*
 struct indices {
@@ -18,12 +19,15 @@ struct ind_pts {
 };
 */
 
+extern int numTotalPoints;
+
 class Point {
 public:
 	int n;
 	std::vector<double> xs;
 	bool is_Free_Point;
 	//double x, y, z;
+
 
 public:
 	Point();
@@ -46,7 +50,11 @@ public:
 	//void setz(double);
 	int getsize();
 	double distance(Point);
+	void print();
+	void print(std::string dir);
 };
+
+
 
 class Free_Point : public Point {
 public:
@@ -56,6 +64,7 @@ public:
 	std::vector<double> xs_min;
 	std::vector<double> xs_max;
 	void set_maxmin();
+	int id;
 };
 
 class Grid_Point : public Point {
@@ -74,3 +83,6 @@ public:
 	Grid_Point(std::vector<long long int>, Point, double, std::vector<long long int>);
 	// Grid_Point(int, int, int, double, double, double, double, int, int);
 };
+
+double distanceBtwFreePoints(Free_Point p1, Free_Point p2);
+double distanceBtwGPandFP(Grid_Point p1, Free_Point p2);

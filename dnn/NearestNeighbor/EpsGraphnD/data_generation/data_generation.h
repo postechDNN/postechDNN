@@ -4,7 +4,7 @@
 
 #include "../algorithm/Point.h"
 #include "../algorithm/Polytope.h"
-
+#include "../EpsGraphnD.h"
 
 // 2#include "data_generation_print.h"
 
@@ -163,4 +163,18 @@ void autoTest();
 
 vector<Point*> makePointSet(std::string dir);
 vector<Point> makePointSetNoPtr(std::string dir);
+vector<Free_Point*> makeFreePointSet(std::string dir);
 vector<Free_Point> makeFreePointSetNoPtr(std::string dir);
+
+typedef pair<vector<Free_Point>, vector<double>> pVV;
+
+pair<double, double> printErrorDijk(Eps_Graph_nD& epsGraph, pVV& pr,
+	vector<pair<Free_Point, double>>& prDijk, Free_Point& q, int& k, string& dir);
+
+pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2,
+	pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir);
+// double printNeighborError(pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir);
+
+// void printSpeedTemp(string dir, int id, long long time);
+
+// void printSpeedFinal(string dir, vector<double> avgSpeed);

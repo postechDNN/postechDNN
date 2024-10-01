@@ -37,7 +37,8 @@ public: // variables
 
 	vector<Grid_Point> grid; // Grid edges
 	list<Free_Point> fr_pts; // 초기화할 때 이미 anchor를 시키므로, add_freept에서도 anchor시키는 부분이 포함돼야 함.
-	
+	vector<Free_Point> freePointsVec;
+
 	// vector<vector<Polytope>> pols; // Set of polytope
 	vector<Polytope> pols;
 
@@ -49,10 +50,10 @@ public: // variables
 public:	// functions
 	
 
-	Eps_Graph_nD(int);
-	Eps_Graph_nD(int, list<Free_Point>, vector<Polytope>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
+	Eps_Graph_nD(int); // , string printDir);
+	Eps_Graph_nD(int, list<Free_Point>, vector<Polytope>, double, string printDir); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	// Eps_Graph_nD(int, list<Free_Point>, vector<vector<Polytope>>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
-	void init_grid();
+	void init_grid(string printDir);
 	// Grid_Point get_gridpt(indices);
 	Grid_Point get_gridpt(vector<long long int>);
 
@@ -67,7 +68,7 @@ public:	// functions
 	void delete_edge(vector<long long int>, vector<long long int>);
 	// void delete_edge(indices, indices);
 	//bool cmpNadd(indices, int);
-	bool cmpNadd(vector<long long int>, int);
+	bool cmpNadd(vector<long long int>&, int);
 	bool cmpNadd_SinPol(vector<long long int>, int, int);
 	// bool cmpNadd_SinPol(indices, int, int);
 
@@ -84,10 +85,13 @@ public:	// functions
 	std::vector<vector<long long int>> eff_region(Polytope);
 	// indices* eff_region(Polytope); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
 
-	vector<Free_Point> kNN(Free_Point, int); // kNN point query
+	// vector<Free_Point> kNN(Free_Point, int); // kNN point query
+	// vector<pair<Free_Point, double>> kNN(Free_Point, int);
+	pair<vector<Free_Point>, vector<double>> kNN(Free_Point, int, string dir);
+
 	vector<edge> path_kNN(Free_Point, int); // kNN point query
 	//pair<vector<Point>, vector<double>> Dijkstra(int, vector<Point>, vector<vector<double>>);
-	vector<pair<Point, double>> Dijkstra(Free_Point, int);
+	vector<pair<Free_Point, double>> Dijkstra(Free_Point, int);
 
 	void print_grid();
 	void print_encl();

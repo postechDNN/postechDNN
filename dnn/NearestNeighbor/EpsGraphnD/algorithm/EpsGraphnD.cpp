@@ -1,11 +1,14 @@
 #include "EpsGraphnD.h"
 #include <queue>
 #include <iostream>
+#include <fstream>
 #include <random>
+#include <chrono>
 
 using namespace std;
 // Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<vector<Polytope>> _NonconvexPols, double _eps) {
-Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _NonconvexPols, double _eps) {
+Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _NonconvexPols, 
+	double _eps, string printDir = "") {
 	n = _n;
 	fr_pts = _fr_pts;
 	pols = _NonconvexPols;
@@ -40,10 +43,40 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _N
 			}
 		}
 
-	init_grid();
+	ofstream fout;
+	fout.open(printDir + ".txt");
+	fout << "started grid initialization" << endl;
+
+	auto start = chrono::high_resolution_clock::now();
+
+	init_grid(printDir + "initGrid");
+
+	auto stop = chrono::high_resolution_clock::now();
+	auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+	auto exe_time = duration.count();
+
+	fout << "finished grid initialized" << endl;
+	// fout << "time taken: " << duration << endl;
+	fout << "time taken: " << exe_time << " ms, or " << exe_time / 1000 << " s" << endl;
+
+	fout << "started anchoring" << endl;
+
+	start = chrono::high_resolution_clock::now();
+
 	for (Free_Point& fr_pt : fr_pts) {
 		anchor(fr_pt);
 	}
+
+	stop = chrono::high_resolution_clock::now();
+	duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+	exe_time = duration.count();
+
+	fout << "finished anchoring" << endl;
+	// fout << "time taken: " << duration << endl;
+	fout << "time taken: " << exe_time << " ms, or " << exe_time / 1000 << " s" << endl;
+
+	fout.close();
+	
 }
 
 //cout << "---------------------" << endl;
@@ -62,7 +95,7 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _N
 //cout << "---------------------" << endl;
 ////cout << "dimension of polytope: " << pol.xs_max.size() << endl;
 
-void Eps_Graph_nD::init_grid() {
+void Eps_Graph_nD::init_grid(string printDir = "") {
 	for (int i = 0;i < n;i++) {
 		xs_num[i] = 1 + long long int(ceil((xs_max[i] - xs_min[i]) / eps));
 	}
@@ -84,6 +117,12 @@ void Eps_Graph_nD::init_grid() {
 		// grid.push_back(Grid_Point(num2ind(i).x_ind, num2ind(i).y_ind, num2ind(i).z_ind, upper_left.x, upper_left.y, upper_left.z, eps, y_num, z_num));
 	}
 
+	ofstream fout;
+	fout.open(printDir + ".txt");
+	fout << "started checking encl" << endl;
+
+	auto start = chrono::high_resolution_clock::now();
+
 	// for each grid & free point, count # of crossings of the rightward ray with each polytope
 	for (Grid_Point& pt : grid) {
 		//for (auto nonconvexPol : pols) {
@@ -95,20 +134,54 @@ void Eps_Graph_nD::init_grid() {
 				}
 			}
 	}
+
+	auto stop = chrono::high_resolution_clock::now();
+	auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+	auto exe_time = duration.count();
+
+	fout << "finished checking encl" << endl;
+	// fout << "time taken: " << duration << endl;
+	fout << "time taken: " << exe_time << " ms, or " << exe_time / 1000 << " s" << endl;
+
+	fout << "started adding grid edges" << endl;
+
+	start = chrono::high_resolution_clock::now();
+
+	// 각 grid vertex, grid[i]에 대해서
 	for (int i = 0; i < tot_num; i++) {
-		if (grid[i].encl != -1) { continue; }
+		// 만약 이 grid vertex가 어떤 polytope (장애물) 에 포함돼있다면 넘어감, 즉 어떤 edge도 추가하지 않음
+		if (grid[i].encl != -1) { 
+			continue; 
+		}
+
+		// 그게 아니라면 해당 grid vertex를
 		std::vector<long long int> inds = num2ind(i);
+
 		for (int j = 0;j < n;j++) {
 			if (inds[j] != xs_num[j] - 1) {
 				std::vector<long long int> _inds(n);
 				std::copy(inds.begin(), inds.end(), _inds.begin());
 				_inds[j] += 1;
+
+				// 연결할 (반대편) grid vertex도 장애물에 덮여있지 않다면
 				if (grid[ind2num(_inds)].encl == -1) {
+					// edge를 추가
 					if (cmpNadd(inds, j)) { add_edge(inds, _inds); }
 				}
 			}
 		}
 	}
+
+	stop = chrono::high_resolution_clock::now();
+	duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+	exe_time = duration.count();
+
+	fout << "finished adding grid edges" << endl;
+	// fout << "time taken: " << duration << endl;
+	fout << "time taken: " << exe_time << " ms, or " << exe_time / 1000 << " s" << endl;
+
+	fout.close();
+
 }
 
 bool Eps_Graph_nD::get_step_comb(vector<int> arr, int index, int sum, int step, vector<long long int> xs, Free_Point& p) {
@@ -157,6 +230,8 @@ bool Eps_Graph_nD::get_step_comb(vector<int> arr, int index, int sum, int step, 
 }
 
 void Eps_Graph_nD::anchor(Free_Point& p) { // cast anchor onto a grid point from a free point
+	double verySmallVal = pow(0.1, 10);
+
 	if (p.host != -1) {
 		int gs = grid.size();
 		assert(0 <= p.host && p.host < gs);
@@ -173,6 +248,16 @@ void Eps_Graph_nD::anchor(Free_Point& p) { // cast anchor onto a grid point from
 
 	bool flag = false;
 	vector<long long int> xs(this->n,0);
+
+	if (84.4594676528 < p.xs[0] && p.xs[0] < 84.4594676529) {
+		int _=0;
+	}
+
+
+	// 3.4 eps 만큼 오면, ceil(2.9)만큼이니까 3번째 index로 가개 되는 거고
+	// 3.6 eps 만큼이면 ceil(3.1)만큼이니까 4번째 index로 가게 됨
+	// 일단 적어도 그렇게 해서 한번 돌려 보자고.
+	// upper_left가 
 	for (int i = 0;i < this->n;i++) {
 		xs[i] = int(ceil((p.xs[i] - this->upper_left.xs[i]) / eps - 0.5));
 	}
@@ -237,37 +322,75 @@ void Eps_Graph_nD::delete_edge(vector<long long int> ind1, vector<long long int>
 	grid[ind2num(ind2)].ip_d[i] = false;
 }
 
-bool Eps_Graph_nD::cmpNadd(vector<long long int> ind, int direc) {  //O
+bool Eps_Graph_nD::cmpNadd(vector<long long int>& ind, int direc) {  //O
 	// checks if the line connecting the gridpoint and its neighboring one is blocked by any polytope. if is not, add an edge between them.
 
-	Grid_Point A = grid[ind2num(ind)];
-	Grid_Point B = Grid_Point(this->n);
+	Grid_Point& A = grid[ind2num(ind)];
+
+	// 새 grid point를 만들기?
+	 // Grid_Point B = Grid_Point(this->n);
 	long long t = 1;
 	for (int i = 0;i < n - 1 - direc;i++) {
 		t *= xs_num[n - 1 - i];
 	}
-	B = grid[ind2num(ind) + t];
+	Grid_Point& B = grid[ind2num(ind) + t];
 
 	for (unsigned int ind1 = 0; ind1 < pols.size(); ind1++) {
 
-
 		//auto& nonconvexPol = pols[ind1];
 		//for (auto& pol : nonconvexPol) {
-			auto pol = pols[ind1];
+			auto& pol = pols[ind1];
+
+			// 참조자의 포인터
 			if (pol.isIn(&A) || pol.isIn(&B)) {
 				return false;
 			}
 
 			// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
-			Point _A = Point(A.xs);
-			Point _B = Point(B.xs);
-			if (pol.intersect(&_A, &_B)) { return false; }
+			if (pol.intersect(&A, &B)) { return false; }
+
+			// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
+			// Point _A = Point(A.xs);
+			// Point _B = Point(B.xs);
+			// if (pol.intersect(&_A, &_B)) { return false; }
 		
 
 	}
 
 	return true;
 }
+
+//bool Eps_Graph_nD::cmpNadd(vector<long long int>& ind, int direc) {  //O
+//	// checks if the line connecting the gridpoint and its neighboring one is blocked by any polytope. if is not, add an edge between them.
+//
+//	Grid_Point& A = grid[ind2num(ind)];
+//	Grid_Point B = Grid_Point(this->n);
+//	long long t = 1;
+//	for (int i = 0; i < n - 1 - direc; i++) {
+//		t *= xs_num[n - 1 - i];
+//	}
+//	B = grid[ind2num(ind) + t];
+//
+//	for (unsigned int ind1 = 0; ind1 < pols.size(); ind1++) {
+//
+//
+//		//auto& nonconvexPol = pols[ind1];
+//		//for (auto& pol : nonconvexPol) {
+//		auto pol = pols[ind1];
+//		if (pol.isIn(&A) || pol.isIn(&B)) {
+//			return false;
+//		}
+//
+//		// if a polygon edge crosses the line connecting two gridpoints, then the edge between them is not present
+//		Point _A = Point(A.xs);
+//		Point _B = Point(B.xs);
+//		if (pol.intersect(&_A, &_B)) { return false; }
+//
+//
+//	}
+//
+//	return true;
+//}
 
 bool Eps_Graph_nD::cmpNadd_SinPol(vector<long long int> ind, int direc, int ord) { // do the same with a specific polygon.
 
@@ -517,19 +640,34 @@ vector<edge> Eps_Graph_nD::get_path(Free_Point p, int k) {
 	return path;
 }
 
-vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approximate nearest neighbors of p
+// free point에 index를 줘야할 듯?
+pair<vector<Free_Point>, vector<double>> Eps_Graph_nD::kNN(Free_Point p, int k, string dir = "") { // returns k approximate nearest neighbors of p
+	
+	ofstream fout;
+	fout.open(dir, ios::app);
+
+	auto time1 = chrono::high_resolution_clock::now();
+
+	for (int i = 0; i < visited.size(); i++) visited[i] = false;
+	// visited[] for (auto& c : this->visited) c = false;
+
+	vector<double> finalDistance;
 
 	for (Polytope& pol : pols) {
 	//for (auto& nonconvexPol : pols) {
 	//	for (auto& pol : nonconvexPol) {
 			assert(!pol.isIn(&p));
-		
 	}
 
 	vector<Free_Point> ret = {};
 	vector<int>().swap(NN_dist);
 
+	auto time2 = chrono::high_resolution_clock::now();
+
 	anchor(p);
+
+	auto time3 = chrono::high_resolution_clock::now();
+
 	Grid_Point s = grid[p.host];
 	for (int& elem : dist) { elem = INT_MAX; }
 	//for (long long int i = 0; i < visited.size(); i++) { visited[i] = false; }
@@ -542,6 +680,17 @@ vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approxi
 	int grid_dist = 0;
 	vector<Free_Point> FPs_temp = {};
 	vector<Free_Point> FPs = {};
+
+	int rememberQ = -1;
+
+	if (k == 500) {
+		int _ = 0;
+	}
+
+	auto time4 = chrono::high_resolution_clock::now();
+	// std::chrono::steady_clock time5, time6, time7;
+	// std::chrono::high_resolution_clock time5, time6, time7;
+	std::chrono::time_point<std::chrono::high_resolution_clock> time5, time6, time7;
 
 	while (k > 0 && !q.empty()) {
 
@@ -564,6 +713,7 @@ vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approxi
 			for (auto FP : grid[q.front()].anchored) {
 				FPs_temp.push_back(*FP);
 			}
+			rememberQ = q.front();
 			q.pop();
 		}
 
@@ -571,35 +721,73 @@ vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approxi
 			FPs.push_back(pt);
 		}
 
+		//sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
+		//	{
+		//		double fx = 0;
+		//		double fy = 0;
+		//		for (int i = 0;i < n;i++) {
+		//			fx += pow(first.xs[i] - p.xs[i], 2);
+		//			fy += pow(second.xs[i] - p.xs[i], 2);
+		//		}
+		//		return fx < fy;
+		//	});
+
+		time5 = chrono::high_resolution_clock::now();
 
 		sort(FPs.begin(), FPs.end(), [=](Free_Point first, Free_Point second)
-			{
-				double fx = 0;
-				double fy = 0;
-				for (int i = 0;i < n;i++) {
-					fx += pow(first.xs[i] - p.xs[i], 2);
-					fy += pow(second.xs[i] - p.xs[i], 2);
-				}
-				return fx < fy;
-			});
+		{
+
+			return distanceBtwFreePoints(p, first) < distanceBtwFreePoints(p, second);
+			//if (grid_dist == 0)
+			//	return distanceBtwFreePoints(p, first) < distanceBtwFreePoints(p, second);
+			//else
+			//	return distanceBtwGPandFP(grid[rememberQ], first) < distanceBtwGPandFP(grid[rememberQ], second);
+		});
+
+		time6 = chrono::high_resolution_clock::now();
 
 		int sz = int(FPs.size());
 
 		if (sz < k) {
-			for (int ind2 = 0; ind2 < sz; ind2++) { NN_dist.push_back(grid_dist); }
+			for (int ind2 = 0; ind2 < sz; ind2++) { 
+				NN_dist.push_back(grid_dist); 
+
+				//if (grid_dist == 0) 
+				//	finalDistance.push_back(distanceBtwFreePoints(p, FPs[ind2]));
+				//else 
+				//	finalDistance.push_back(double(grid_dist) * eps + distanceBtwGPandFP(grid[rememberQ], FPs[ind2]));
+
+				// finalDistance.push_back(double(grid_dist) * eps + distanceBtwGPandFP(get_gridpt(num2ind(FPs[ind2].host)), FPs[ind2]));
+				finalDistance.push_back(distanceBtwFreePoints(p, FPs[ind2]));
+			}
+			
 			k -= sz;
 			ret.insert(ret.end(), FPs.begin(), FPs.end());
 		}
 		else {
-			for (int ind2 = 0; ind2 < k; ind2++) { NN_dist.push_back(grid_dist); }
+			for (int ind2 = 0; ind2 < k; ind2++) { 
+				NN_dist.push_back(grid_dist); 
+
+				//if (grid_dist == 0)
+				//	finalDistance.push_back(distanceBtwFreePoints(p, FPs[ind2]));
+				//else
+				//	finalDistance.push_back(double(grid_dist)* eps + distanceBtwGPandFP(grid[rememberQ], FPs[ind2]));
+
+				// finalDistance.push_back(double(grid_dist) * eps + distanceBtwFreePoints(p, FPs[ind2]));
+				finalDistance.push_back(distanceBtwFreePoints(p, FPs[ind2]));
+			}
 			ret.insert(ret.end(), FPs.begin(), FPs.begin() + k);
 			k = 0;
 		}
+
+		time7 = chrono::high_resolution_clock::now();
 
 		vector<Free_Point>().swap(FPs_temp);
 		vector<Free_Point>().swap(FPs);
 		grid_dist += 1;
 	}
+
+
 	for (vector<Free_Point*>::iterator it = grid[p.host].anchored.begin(); it != grid[p.host].anchored.end(); ++it) {
 
 		if ((*(*it)).xs == p.xs) {
@@ -608,7 +796,28 @@ vector<Free_Point> Eps_Graph_nD::kNN(Free_Point p, int k) { // returns k approxi
 		}
 	}
 
-	return ret;
+	auto time8 = chrono::high_resolution_clock::now();
+
+	auto duration1 = chrono::duration_cast<chrono::milliseconds>(time2 - time1); auto exe_time1 = duration1.count(); 
+	auto duration2 = chrono::duration_cast<chrono::milliseconds>(time3 - time2); auto exe_time2 = duration2.count();
+	auto duration3 = chrono::duration_cast<chrono::milliseconds>(time4 - time3); auto exe_time3 = duration3.count();
+	auto duration4 = chrono::duration_cast<chrono::milliseconds>(time5 - time4); auto exe_time4 = duration4.count();
+	auto duration5 = chrono::duration_cast<chrono::milliseconds>(time6 - time5); auto exe_time5 = duration5.count();
+	auto duration6 = chrono::duration_cast<chrono::milliseconds>(time7 - time6); auto exe_time6 = duration6.count();
+	auto duration7 = chrono::duration_cast<chrono::milliseconds>(time8 - time7); auto exe_time7 = duration7.count();
+
+	fout << exe_time1 << endl;
+	fout << exe_time2 << endl;
+	fout << exe_time3 << endl;
+	fout << exe_time4 << endl;
+	fout << exe_time5 << endl;
+	fout << exe_time6 << endl;
+	fout << exe_time7 << endl;
+	fout << endl;
+
+	fout.close();
+
+	return make_pair(ret, finalDistance);
 }
 
 // vector<edge> Eps_Graph_nD::path_kNN(Free_Point p, int k){}
@@ -739,15 +948,39 @@ void Eps_Graph_nD::print_free_point() {
 
 void Eps_Graph_nD::print_kNN(Free_Point p, int k) {
 	cout << "-------------------Print KNN-------------------" << endl;
-	vector<Free_Point> nbhd = kNN(p, k + 1);
-	for (auto nb : nbhd) {
+	// vector<Free_Point> nbhd = kNN(p, k + 1);
+	pair<vector<Free_Point>, vector<double>> pr = kNN(p, k + 1);
+
+	int prSize = pr.first.size();
+	int curRank = 1;
+
+	cout << "Query Point: "; p.print();
+	cout << endl;
+	cout << "k: " << k << endl;
+
+	for (int i = 0; i < prSize; i++) {
+		auto nb = pr.first[i];
+		auto nbDist = pr.second[i];
+
+		// query point는 제외
 		bool cond = (nb.getxs() == p.getxs());
 		if (cond) continue;
-		for (int j = 0; j < this->n; j++) {
-			cout << nb.getx(j) << ' ';
-		}
+
+		cout << "Rank " << curRank << ", "; // ': ';
+		cout << "#" << nb.id << ", ";
+		nb.print();
 		cout << endl;
+		curRank++;
 	}
+
+	//for (auto nb : nbhd) {
+	//	bool cond = (nb.getxs() == p.getxs());
+	//	if (cond) continue;
+	//	for (int j = 0; j < this->n; j++) {
+	//		cout << nb.getx(j) << ' ';
+	//	}
+	//	cout << endl;
+	//}
 }
 
 //vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
@@ -839,6 +1072,7 @@ vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 			}
 		
 	}
+
 	nb_list = new vector<pair<Point, double>>[vp_vertex.size()];
 	for (int i = 0; i < vp_vertex.size(); i++) {
 		for (int j = i + 1; j < vp_vertex.size(); j++) {
@@ -884,17 +1118,17 @@ vector<pair<Point, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point qry) {
 	return nb_list;
 }
 
-vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
+vector<pair<Free_Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
 	cout << "-------------------Print Dijkstra-------------------" << endl;
-	vector<Point> vp_vertex;
+	vector<Free_Point> vp_vertex;
 	int check_num = 0;
 	//vector<pair<Point, double>>* nb_list;
-	Point temp_qry(qry.getxs());
+	Free_Point temp_qry(qry.getxs());
 	temp_qry.is_Free_Point = true;
 	vp_vertex.push_back(temp_qry);
 
 	for (auto f_p : fr_pts) {
-		Point temp(f_p.getxs());
+		Free_Point temp(f_p.getxs());
 		temp.is_Free_Point = true;
 		vp_vertex.push_back(temp);
 	}
@@ -905,7 +1139,7 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
 			vector<Point*> temp = pol.get_vertices();
 			for (auto temp_temp : temp) {
 				temp_temp->is_Free_Point = false;
-				vp_vertex.push_back(*temp_temp);
+				vp_vertex.push_back(Free_Point(temp_temp));
 			}
 		
 	}
@@ -947,7 +1181,7 @@ vector<pair<Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num) {
 			}
 		}
 	}
-	vector<pair<Point, double>> output;
+	vector<pair<Free_Point, double>> output;
 	for (int i = 0;i < vp_vertex.size();i++) {
 		output.push_back({ vp_vertex[i], dist[i] });
 	}

@@ -1,5 +1,7 @@
 #include "Point.h"
 #include <cmath>
+#include <iostream>
+#include <fstream>
 
 //this class defines a point in 2D space
 #define ERR 1e-6
@@ -77,20 +79,71 @@ int Point::getsize() {
 
 
 double Point::distance(Point _p) {
-	int a = 0;
+	double a = 0;
 	for (int i=0;i<this->n;i++){
 		a += pow(this->xs[i] - _p.getx(i), 2);
 	}
 	return sqrt(a);
 }
 
+void Point::print() {
+	
+	std::cout << "(";
+	for (int j = 0; j < this->xs.size(); j++) {
+		if (j == this->xs.size() - 1) {
+			std::cout << this->getx(j) << ") ";
+		}
+		else {
+			std::cout << this->getx(j) << " ";
+		}
+	}
+}
+
+void Point::print(std::string dir) {
+	std::ofstream fout; 
+	fout.open(dir);
+	
+	fout << "(";
+	for (int j = 0; j < this->xs.size(); j++) {
+		if (j == this->xs.size() - 1) {
+			fout << this->getx(j) << ") ";
+		}
+		else {
+			fout << this->getx(j) << " ";
+		}
+	}
+
+	fout.close();
+}
+
+double distanceBtwFreePoints(Free_Point p1, Free_Point p2) {
+	double a = 0;
+	for (int i = 0; i < p1.xs.size(); i++) {
+		a += pow(p1.xs[i] - p2.getx(i), 2);
+	}
+	return sqrt(a);
+}
+
+double distanceBtwGPandFP(Grid_Point p1, Free_Point p2) {
+	double a = 0;
+	for (int i = 0; i < p1.xs.size(); i++) {
+		a += pow(p1.xs[i] - p2.getx(i), 2);
+	}
+	return sqrt(a);
+}
+
+int numTotalPoints = 0;
+
 Free_Point::Free_Point(Point* _p) :Point(xs) {
 	xs = _p->getxs();
+	id = numTotalPoints; numTotalPoints++;
 }
 
 Free_Point::Free_Point(std::vector<double> _xs) :Point(xs) {
 	xs = _xs;
+	id = numTotalPoints; numTotalPoints++;
 }
+
 void Free_Point::set_maxmin() {
 	for (int i = 0; i < this->n; i++) {
 		this->xs_max.push_back(DBL_MIN);

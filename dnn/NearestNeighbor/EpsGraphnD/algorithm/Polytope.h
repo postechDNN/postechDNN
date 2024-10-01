@@ -17,6 +17,7 @@ public:
 	MatrixXd getmatrix();
 	bool intersect(simplex);
 	bool intersect(Point* p, Point* q);
+	bool intersect(Grid_Point* p, Grid_Point* q);
 	bool In(Point* p, Point* q);
 	bool isIn(Point* p);
 };
@@ -47,6 +48,7 @@ public:
 	bool isIn(Point* p);
 	bool intersect(Polytope P);
 	bool intersect(Point* p, Point* q);
+	bool intersect(Grid_Point* p, Grid_Point* q);
 	bool operator==(Polytope P);
 	//bool operator==(const Polytope* P);
 	//bool operator==(const Polytope& P);

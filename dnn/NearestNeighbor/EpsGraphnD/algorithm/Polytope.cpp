@@ -205,6 +205,94 @@ bool simplex::intersect(Point* p, Point* q) {
 	return false;
 }
 
+bool simplex::intersect(Grid_Point* p, Grid_Point* q) {
+	MatrixXd T(d + 1, d + 3);
+	// Concatenate
+	T.block(0, 0, d, d + 1) = A;
+	vector<double> tmp1 = p->getxs();
+	vector<double> tmp2 = q->getxs();
+	for (int i = 0; i < d; i++) {
+		T(i, d + 1) = -tmp1[i];
+		T(i, d + 2) = -tmp2[i];
+	}
+	for (int i = 0; i < d + 3; i++) {
+		if (i < d + 1) T(d, i) = 1;
+		else T(d, i) = -1;
+	}
+
+	// Find basis of Null space of T
+	Eigen::FullPivLU<Eigen::MatrixXd> Temp(T);
+	MatrixXd N = Temp.kernel().cast<double>();
+	int Row = N.rows();
+	int Col = N.cols();
+
+	// Convert eigen structure to alglib data structure
+	real_2d_array A;
+	double* a = new double[Col * Row];
+	for (int i = 0; i < Col * Row; i++) {
+		a[i] = N(i / Col, i % Col);
+	}
+
+	A.setcontent(Row, Col, a);
+	//cout << A.tostring(5) << endl;
+	double* low = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		low[i] = ERR;
+	}
+	real_1d_array al;
+	al.setcontent(Row, low);
+
+	double* upp = new double[Row];
+	for (int i = 0; i < Row; i++) {
+		upp[i] = INFINITY;
+	}
+	real_1d_array au;
+	au.setcontent(Row, upp);
+
+	double* c1 = new double[Col];
+	double* c2 = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		c1[i] = 1;
+		c2[i] = 1;
+	}
+	real_1d_array c;
+	real_1d_array s;
+	c.setcontent(Col, c2);
+	s.setcontent(Col, c1);
+
+	double* v_low = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_low[i] = -INFINITY;
+	}
+	real_1d_array bndl;
+	bndl.setcontent(Col, v_low);
+
+	double* v_upp = new double[Col];
+	for (int i = 0; i < Col; i++) {
+		v_upp[i] = INFINITY;
+	}
+	real_1d_array bndu;
+	bndu.setcontent(Col, v_upp);
+
+	// Problem Setting
+	real_1d_array sol;
+	minlpstate state;
+	minlpreport rep;
+	minlpcreate(Col, state);
+	minlpsetcost(state, c);
+	minlpsetbc(state, bndl, bndu);
+	minlpsetlc2dense(state, A, al, au, Row);
+	minlpsetscale(state, s);
+
+	// Solve
+	minlpoptimize(state);
+	minlpresults(state, sol, rep);
+	if (0 < rep.terminationtype && rep.terminationtype < 5) {
+		return true;
+	}
+	return false;
+}
+
 bool simplex::In(Point* p, Point* q) {
 	for (auto vert : vertices) {
 		if (*p == *vert) {
@@ -295,6 +383,14 @@ bool Polytope::intersect(Polytope P) {
 };
 
 bool Polytope::intersect(Point* p, Point* q) {
+	for (auto simp1 : this->simplices) {
+		bool intersect = simp1.intersect(p, q);
+		if (intersect) { return true; }
+	}
+	return false;
+};
+
+bool Polytope::intersect(Grid_Point* p, Grid_Point* q) {
 	for (auto simp1 : this->simplices) {
 		bool intersect = simp1.intersect(p, q);
 		if (intersect) { return true; }
