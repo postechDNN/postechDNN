@@ -304,3 +304,59 @@ BRT_LABEL:
 	}
 	return res;
 }
+
+/*
+int main(int argc, char* argv[])
+{
+	srand((unsigned int)time(NULL));
+
+	FILE* ofile = fopen("out.txt","w");
+
+	//load data	
+	_fnnne fnn;
+	char datafilename[] = "data_batch_1.bin";
+	char queryfilename[] = "data_batch_6.bin";
+	int datanum = 10000;
+	int qnum = 100;
+	int image_width = 16;
+	int image_height = 16;
+	_image* data;
+	_image* query;
+	load_data(datafilename,queryfilename,data,query,datanum,qnum,image_width,image_height);
+	printf("cifar data load done\n");
+
+	_result* fnnres = new _result[qnum];
+	_result* brtres  = new _result[qnum];
+	
+	//fnnseed preprocessing
+	printf("FNN prep...\n");
+	fnn.fnn_preprocessing(data,datanum,image_width,image_height);
+
+	//fnnseed query
+	printf("FNN query...\n");
+	for(int i=0 ; i<qnum ; i++){
+		fnnres[i] = fnn.fnn_query(&query[i]);
+	}
+	
+	printf("Release memory...\n");
+	fnn.release();
+	printf("FNN done.\n");
+
+	//opt brute query
+	printf("optBRT query...\n");
+	for(int i=0 ; i<qnum ; i++){
+		brtres[i] = ibrute_nnsearch(data, &query[i],datanum,image_width,image_height);
+	}
+	printf("optBRT done.\n");
+
+	printf("FNN: %d %g\n",fnnres[0].idx,fnnres[0].sqdist);
+	printf("BRT: %d %g\n",brtres[0].idx,brtres[0].sqdist);
+
+	//write result on file
+	for(int q=0 ; q<qnum ; q++){
+		fprintf(ofile,"FNNidx:%d FNNdist:%g BRTidx:%d BRTdist%g\n",fnnres[q].idx,fnnres[q].sqdist,brtres[q].idx,brtres[q].sqdist);
+	}
+	fclose(ofile);
+	return 0;
+}
+*/

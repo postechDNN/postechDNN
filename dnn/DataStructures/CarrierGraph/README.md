@@ -1,7 +1,9 @@
-# Class CarrierGraph v1.1
+# CarrierGraph 
 CarrierGraph class is a class for a carrier graph explained in "Orthogonal Shortest Route Queries Among Axis Parallel Rectangular Obstacles" by Elgindy & Mitra.  
 CarrierGraph stores points and edges.  
 An original carrier graph is DAG (Directly Acyclic Graph), but present version represents this graph as undirected graph.
+
+## What is 'Carrier graph'
 
 ## Dependencies in postechDNN
 DataStructures/DCEL/Edge.h
