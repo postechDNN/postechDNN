@@ -43,14 +43,18 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _N
 			}
 		}
 
+
+	// print 何盒
 	ofstream fout;
 	fout.open(printDir + ".txt");
 	fout << "started grid initialization" << endl;
 
 	auto start = chrono::high_resolution_clock::now();
+	// print 何盒
 
 	init_grid(printDir + "initGrid");
 
+	// print 何盒
 	auto stop = chrono::high_resolution_clock::now();
 	auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
 	auto exe_time = duration.count();
@@ -62,11 +66,13 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _N
 	fout << "started anchoring" << endl;
 
 	start = chrono::high_resolution_clock::now();
+	// print 何盒
 
 	for (Free_Point& fr_pt : fr_pts) {
 		anchor(fr_pt);
 	}
 
+	// print 何盒
 	stop = chrono::high_resolution_clock::now();
 	duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
 	exe_time = duration.count();
@@ -76,7 +82,9 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<Polytope> _N
 	fout << "time taken: " << exe_time << " ms, or " << exe_time / 1000 << " s" << endl;
 
 	fout.close();
-	
+	// print 何盒
+
+	// cout << this->
 }
 
 //cout << "---------------------" << endl;
@@ -1189,6 +1197,69 @@ vector<pair<Free_Point, double>> Eps_Graph_nD::Dijkstra(Free_Point qry, int _num
 
 }
 
+
+
+void Eps_Graph_nD::checkMemory(string dir) {
+
+	ofstream fout;
+	fout.open(dir + "\\" + "checkMemory.txt");
+
+	double axisDifference = this->xs_max[0] - this->xs_min[0];
+	fout << "size of bounding box: " << axisDifference << endl;
+	fout << "epsilon: " << this->eps << endl;
+	fout << "number of grid lines per each axis: " << ceil(axisDifference) + 1 << endl;
+	fout << endl;
+
+	fout << "Base" << endl;
+
+	fout << "sizeof(Grid_Point) = " << sizeof(Grid_Point) << " byte" << endl;
+	fout << "sizeof(Free_Point) = " << sizeof(Free_Point) << " byte" << endl;
+	fout << "sizeof(Polytope) = " << sizeof(Polytope) << " byte" << endl;
+	
+	fout << endl;
+
+	fout << "Result" << endl;
+
+	int sizeGrid = sizeof(Grid_Point) * (this->grid).size();
+	fout << "type: vector<Grid_Point>. sizeof(Eps_Graph_nD.grid) = "
+		<< sizeGrid
+		// sizeof(this->grid) 
+		<< " byte" << " = " << double(sizeGrid) / 1024 << " KB = "
+		<< double(sizeGrid) / 1024 / 1024 << " MB " << endl;
+		
+	fout << "size of this->grid: " << (this->grid).size() << endl;
+
+	int sizeFreePoints = sizeof(Free_Point) * (this->fr_pts).size();
+	fout << "type: list<Free_Point>. sizeof(Eps_Graph_nD.fr_pts) = "
+		<< sizeFreePoints
+		// sizeof(this->fr_pts) 
+		<< " byte" << " = " << double(sizeFreePoints) / 1024 << " MB = "
+		<< double(sizeFreePoints) / 1024 / 1024 << " MB " << endl;
+	fout << "size of this->fr_pts: " << (this->fr_pts).size() << endl;
+	fout << endl;
+
+	vector<int> numDistribution;
+	numDistribution.assign(50, 0);
+
+	// vector<int> numFPsPerGP;
+
+	for (int i = 0; i < this->grid.size(); i++) {
+		auto& gridP = grid[i]; // numFPsPerGP[i];
+		int numAnchored = gridP.anchored.size();
+		if (numAnchored >= 50) continue;
+		numDistribution[numAnchored]++;
+	}
+
+	for (int i = 0; i < numDistribution.size(); i++) {
+		if (i % 10 == 0) fout << endl;
+		fout << i << " pts - " << numDistribution[i] << " ||| ";
+		// fout << "number of gridpoints with anchored.size() " << i << ": " << numDistribution[i];
+	}
+
+	fout << endl;
+
+	fout.close();
+}
 
 //pair<vector<Point>, vector<double>> Eps_Graph_nD::Dijkstra(int j, vector<Point> _P, vector<vector<double>> _mat) {
 //	vector<Point> P(_P.size(), Point(this->n));

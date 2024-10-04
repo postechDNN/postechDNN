@@ -37,7 +37,7 @@ public: // variables
 
 	vector<Grid_Point> grid; // Grid edges
 	list<Free_Point> fr_pts; // 초기화할 때 이미 anchor를 시키므로, add_freept에서도 anchor시키는 부분이 포함돼야 함.
-	vector<Free_Point> freePointsVec;
+	// vector<Free_Point> freePointsVec;
 
 	// vector<vector<Polytope>> pols; // Set of polytope
 	vector<Polytope> pols;
@@ -112,6 +112,10 @@ public:	// functions
 	//vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
 	//vector<vector<pair<double, int>>> Visibility_polygon(Free_Point);
 	vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
-	vector<vector<pair<double, int>>> Visibility_polygon2(Free_Point);
+	// vector<vector<pair<double, int>>> Visibility_polygon2(Free_Point);
 	//void export_json();
+
+	void checkMemory(string dir);
 };
+
+// typedef Eps_Graph_nD EG;

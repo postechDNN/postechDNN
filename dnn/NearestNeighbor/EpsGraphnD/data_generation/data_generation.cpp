@@ -726,14 +726,31 @@ pair<double, double> printErrorDijk(Eps_Graph_nD& epsGraph, pVV& pr,
 	return make_pair(noIDnum / double(k), ((myDistSum - optDistSum)) / optDistSum);
 }
 
-pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2,
-	pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir) {
+//pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2,
+//	pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir) {
+//	// std::string resultDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestResult";
+//
+//	bool printFlag = false;
+//
+//	vector<Grid_Point>& gr1 = epsGraph1.grid;
+//	vector<Grid_Point>& gr2 = epsGraph2.grid;
+
+//auto now = epsGraph1.fr_pts.begin();
+//std::advance(now, id);
+//
+//auto now2 = epsGraph2.fr_pts.begin();
+//std::advance(now2, id);
+
+
+pair<double, double> printError(Eps_Graph_nD* epsGraph1, Eps_Graph_nD* epsGraph2,
+	int useDataSetId,
+	pVV & pr1, pVV & pr2, Free_Point & q, int& k, string & dir) {
 	// std::string resultDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestResult";
 
 	bool printFlag = false;
 
-	vector<Grid_Point>& gr1 = epsGraph1.grid;
-	vector<Grid_Point>& gr2 = epsGraph2.grid;
+	vector<Grid_Point>& gr1 = epsGraph1->grid;
+	vector<Grid_Point>& gr2 = epsGraph2->grid;
 
 	// if (k != 10) return {};
 
@@ -750,6 +767,8 @@ pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2
 	string printDir = dir + "\\" + "accuracyError.txt";
 
 	fout.open(printDir, ios::app);
+
+	// fout << "dataset #" << useDataSetId << endl;
 
 	if (printFlag) {
 		fout << "k: " << k << endl;
@@ -815,10 +834,10 @@ pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2
 			fout << "#" << id << " ";
 
 			// id 번만큼 뒤로 이동
-			auto now = epsGraph1.fr_pts.begin();
+			auto now = epsGraph1->fr_pts.begin();
 			std::advance(now, id);
 
-			auto now2 = epsGraph2.fr_pts.begin();
+			auto now2 = epsGraph2->fr_pts.begin();
 			std::advance(now2, id);
 
 			for (auto& val : (*now).xs) fout << val << " ";
@@ -922,7 +941,7 @@ pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2
 void printSpeedFinal(string dir, vector<double> avgSpeed) {
 	
 	ofstream fout;
-	fout.open(dir);
+	fout.open(dir, ios::app);
 
 	for (int i = 0; i < avgSpeed.size(); i++) {
 		fout << "DataSet " << i+1 << endl;
@@ -936,7 +955,7 @@ void printSpeedFinal(string dir, vector<double> avgSpeed) {
 // printSpeedFinal(resultDir + "\\" + "speedSum.txt", speedSum);
 void printSpeedFinal(string dir, vector<long long int> speedSum) {
 	ofstream fout;
-	fout.open(dir);
+	fout.open(dir, ios::app);
 
 	for (int i = 0; i < speedSum.size(); i++) {
 		fout << "DataSet " << i + 1 << endl;
@@ -960,7 +979,7 @@ void printSpeedTemp(string dir, int id, long long time) {
 void printErrorFinal(string dir, vector<double> numErrorSumsAll, vector<double> distErrorSumsAll,
 	int numQueries, int numDatasets) {
 	ofstream fout;
-	fout.open(dir);
+	fout.open(dir, ios::app);
 	// fout.open(resultDir + "\\" + "result.txt");
 
 	fout << fixed << setprecision(10);
@@ -976,20 +995,27 @@ void printErrorFinal(string dir, vector<double> numErrorSumsAll, vector<double> 
 	fout.close();
 }
 
-void autoTest() {
+void autoTest(string dir, double epsilon, bool speedFlag, int useDataSetId) {
 	
-	remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\accuracyError.txt");
-	remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\distanceError.txt");
-	remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\result.txt");
-	remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\log.txt");
-	remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\speed.txt");
-	remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\speedPerEach.txt");
+	bool checkMemory = false;
 
-	bool speedFlag = true;
+	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\accuracyError.txt");
+	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\distanceError.txt");
+	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\result.txt");
+	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\log.txt");
+	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\speed.txt");
+	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\speedPerEach.txt");
+
+	cout << "started autotest" << endl;
+
+	// bool speedFlag = true;
 
 	int dimension = 4;
 	// double epsilon = 50.0;
-	double epsilon = 65.0;
+	// double epsilon = 200.0;
+
+	cout << "epsilon: " << epsilon << endl;
+
 	// double epsilon = 12.5;
 	// double bound = ;
 
@@ -1001,13 +1027,17 @@ void autoTest() {
 	// kNN에서 k값
 	vector<int> ks = {10, 50, 100, 500, 1000};
 
-	std::string resultDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestResult";
-	fs::path dataDirDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestData";
-	if (speedFlag) dataDirDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestDataSpeed";
+	//std::string resultDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestResult";
+	//fs::path dataDirDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestData";
+	//if (speedFlag) dataDirDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestDataSpeed";
+
+	std::string resultDir = dir + "Result"; 
+	fs::path dataDirDir = dir + "Data"; // "C:\\Users\\\HWI\\Documents\\epsGraphTestData";
+	if (speedFlag) dataDirDir = dir + "DataSpeed"; // C:\\Users\\\HWI\\Documents\\epsGraphTestDataSpeed";
 
 	fs::directory_iterator iterDirDir(dataDirDir);
 
-	int curDataSetId = 0;
+	int curDataSetId = -1;
 
 	vector<long long> speedSum = {0, 0, 0, 0, 0};
 	vector<double> avgSpeed = {0.0, 0.0, 0.0, 0.0, 0.0};
@@ -1021,7 +1051,13 @@ void autoTest() {
 	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
 
 		curDataSetId++;
-		if (speedFlag) {}
+		if (curDataSetId != useDataSetId) {
+			// cout << "not same " << curDataSetId << " " << useDataSetId << endl;
+			continue;
+		}
+		// else cout << "same " << curDataSetId;
+		
+		// if (speedFlag) {}
 			// if (curDataSetId % 20 != 10) continue;
 			// if (curDataSetId % 20 != 0) continue;
 
@@ -1046,8 +1082,10 @@ void autoTest() {
 		// ex) \\polytopes\\0\\ 니까 매 폴더마다 하나의 polytope,
 		// 해서 총 10개의 polytope 체크.
 
+		cout << "before reading inputs" << endl;
+
 		for (auto& i01 = iterTopes; i01 != fs::end(iterTopes); ++i01) {
-			// break;
+			break;
 
 			fs::path topeDir = (*i01).path();
 			// topeDir.string();
@@ -1081,11 +1119,30 @@ void autoTest() {
 			frpts.push_back(*pt);
 		}
 
+		cout << "finished reading inputs" << endl;
+
 		// 준비된 free points와 polytopes 이용해 epsilon graph 생성
-		Eps_Graph_nD epsGraph(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
+
+		// Eps_Graph_nD epsGraph(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
+		auto* epsGraph = 
+			new Eps_Graph_nD(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
+			if (checkMemory) {
+				epsGraph->checkMemory("C:\\Users\\HWI\\Desktop\\finalResult");
+				return;
+			}
+
+		cout << "constructed epsGraph1" << endl;
+
+		Eps_Graph_nD* epsGraphOpt = nullptr;
+		if (!speedFlag) {
+			epsGraphOpt = 
+				new Eps_Graph_nD(dimension, frpts, multiTopesNoPtr, epsilon * 0.5, resultDir + "\\" + "EG2");
+			cout << "constructed epsGraph2" << endl;
+		}
+		
 
 		// 비교할 near-optimal epsilon graph 생성
-		Eps_Graph_nD epsGraphOpt(dimension, frpts, multiTopesNoPtr, epsilon * 0.5, resultDir + "\\" + "EG2");
+		// Eps_Graph_nD epsGraphOpt(dimension, frpts, multiTopesNoPtr, epsilon * 0.5, resultDir + "\\" + "EG2");
 
 		// 쿼리 점들도 읽어 오기
 		// convex polytope을 피해야 하기 때문에?
@@ -1099,6 +1156,8 @@ void autoTest() {
 		vector<double> distErrorSums = {0.0, 0.0, 0.0, 0.0, 0.0};
 		vector<double> numErrorSums = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
+		cout << "ready to start" << endl;
+
 		if (speedFlag) {
 
 			//auto start = chrono::high_resolution_clock::now();
@@ -1107,32 +1166,38 @@ void autoTest() {
 
 			auto start = chrono::high_resolution_clock::now();
 			for (int j = 0; j < numQueries; j++) {
-				if (j == 0) epsGraph.kNN(queryPoints[j], 10, "C:\\Users\\HWI\\Documents\\epsGraphTestResult\\kNNtimeline");
-				else epsGraph.kNN(queryPoints[j], 10, "");
+				if (j % 100 == 0) cout << j << "-th query" << endl;
+
+				if (j == 0) epsGraph->kNN(queryPoints[j], 10, resultDir + "\\" + "kNNtimeline.txt"); 
+				//"C:\\Users\\HWI\\Documents\\epsGraphTestResult\\kNNtimeline.txt");
+				else epsGraph->kNN(queryPoints[j], 10, "");
 			}
 			auto stop = chrono::high_resolution_clock::now();
 			auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
 			auto exe_time = duration.count();
+
 			// speedSum[curDataSetId / 20] += exe_time;
-			speedSum[curDataSetId / 20] += exe_time;
+			// speedSum[curDataSetId / 20] += exe_time;
 			// avgSpeed[curDataSetId / 20 - 1] += exe_time;
-			printSpeedTemp(resultDir + "\\" + "speedPerEach.txt", curDataSetId, exe_time);
+			printSpeedTemp(resultDir + "\\" + "speedPerEach.txt", useDataSetId, exe_time);
 			// printSpeedTemp(resultDir + "\\" + "speedSum.txt", curDataSetId, exe_time);
 		}
 		else {
 			for (int j = 0; j < numQueries; j++) {
 
+				if (j % 10 == 0) cout << j << "-th query" << endl;
+
 				for (int ii = 0; ii < ks.size(); ii++) {
 					auto& k = ks[ii];
 
 					// 시간 측정
-					auto pr = epsGraph.kNN(queryPoints[j], k, "");
-					auto pr2 = epsGraphOpt.kNN(queryPoints[j], k, "");
+					auto pr = epsGraph->kNN(queryPoints[j], k, "");
+					auto pr2 = epsGraphOpt->kNN(queryPoints[j], k, "");
 
 					// auto prDijk = epsGraph.Dijkstra(queryPoints[j], k);
 					// grid.Dijkstra(*q, 3);
 
-					auto pr3 = printError(epsGraph, epsGraphOpt, pr, pr2, queryPoints[j], k, resultDir);
+					auto pr3 = printError(epsGraph, epsGraphOpt, useDataSetId, pr, pr2, queryPoints[j], k, resultDir);
 
 					// auto pr4 = printErrorDijk(epsGraph, pr, prDijk, queryPoints[j], k, resultDir);
 
@@ -1148,15 +1213,20 @@ void autoTest() {
 			}
 		}
 
+		cout << "finished computing errors" << endl;
 
 		if (speedFlag) {
 			// for (auto& elem : avgSpeed) elem / numQueries;
-			printSpeedFinal(resultDir + "\\" + "speed.txt", avgSpeed);
-			printSpeedFinal(resultDir + "\\" + "speedSum.txt", speedSum);
+			// printSpeedFinal(resultDir + "\\" + "speed.txt", avgSpeed);
+			// printSpeedFinal(resultDir + "\\" + "speedSum.txt", speedSum);
+
 		}
 		else 
+			cout << "before printErrorFinal" << endl;
 			printErrorFinal(resultDir + "\\" + "result.txt", numErrorSumsAll, distErrorSumsAll, numQueries, numDatasets);
-		
+			cout << "finished printErrorFinal" << endl;
+
+		break;
 		//printErrorFinal(resultDir + "\\" + "resultDijk.txt", numErrorSumsAllDijk, distErrorSumsAllDijk, numQueries, numDatasets);
 
 		//if (speedFlag) {}
@@ -1177,22 +1247,64 @@ void autoTest() {
 	//auto exe_time = duration.count();
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	
+	// log 저장될 위치
+
 	// menu
 	// 1 - 
 
-	cout << "menu\n";
-	cout << "0. auto test\n"; // data generation\n";
-	cout << "1. generate point sites\n";
-	cout << "2. read point sites\n";
-	cout << "3. read polytopes\n";
-	cout << "4. kNN query\n";
-	cout << "Enter: ";
-	int inVal; cin >> inVal;
+
+	auto argv2 = argv[2];
+
+	// cout << argc<< endl;	
+	int inVal = *(argv[1]) - '0'; // int(argv[1]);
+
+	// cout << inVal << endl;
+	// C:\Users\HWI\Documents\epsGraphTest
+	// Result
+
+	string dir = argv[2];
+
+	bool speedFlag = true;
+	if (string(argv[3]) == "F") speedFlag = false;
+	
+	//cout << boolalpha;
+	//cout << speedFlag << endl;
+	//cout << noboolalpha;
+
+	int firstDigit = *(argv[4]) - '0';
+
+	int secondDigit = *(argv[5]) - '0';
+
+	int useDataSetId = 10 * firstDigit + secondDigit;
+
+	string epsilonStr = argv[6];
+	double epsilon = stod(epsilonStr);
+
+	cout << "read arguments" << endl;
+	// cout << logDir << endl;
+
+	// return 0;
+	//cout << "menu\n";
+	//cout << "0. auto test\n"; // data generation\n";
+	//cout << "1. generate point sites\n";
+	//cout << "2. read point sites\n";
+	//cout << "3. read polytopes\n";
+	//cout << "4. kNN query\n";
+	//cout << "Enter: ";
+
+	//inVal = 0;
+	//dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
+	//speedFlag = true;
+	//useDataSetId = 0;
+
+	// int inVal; cin >> inVal;
 	switch (inVal) {
 		case 0:
-			autoTest();
+			
+			// return;
+			autoTest(dir, epsilon, speedFlag, useDataSetId);
 			break;
 		case 1:
 			// generatePoints();
@@ -1204,10 +1316,10 @@ int main() {
 			// readPolytopes();
 			break;
 		case 4:
-			
 			break;
 	}
 
+	cout << "escaped from switch statement";
 
 
 	// read input points

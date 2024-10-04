@@ -159,7 +159,7 @@ void data_generation(int dim, double u_bound, int halfplane_constraint, int num_
 
 // std::string config = ""
 
-void autoTest();
+void autoTest(string dir, double epsilon, bool speedFlag, int useDataSetId);
 
 vector<Point*> makePointSet(std::string dir);
 vector<Point> makePointSetNoPtr(std::string dir);
@@ -171,7 +171,8 @@ typedef pair<vector<Free_Point>, vector<double>> pVV;
 pair<double, double> printErrorDijk(Eps_Graph_nD& epsGraph, pVV& pr,
 	vector<pair<Free_Point, double>>& prDijk, Free_Point& q, int& k, string& dir);
 
-pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2,
+pair<double, double> printError(Eps_Graph_nD* epsGraph1, Eps_Graph_nD* epsGraph2,
+	int useDataSetId, 
 	pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir);
 // double printNeighborError(pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir);
 
