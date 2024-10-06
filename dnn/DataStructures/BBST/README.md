@@ -14,6 +14,7 @@ BBST has these elements:
 - std::multiset<T>::iterator it: store the iterator of this node.
 
 BBST supports these kinds of queries below.
+- bool isEmpty(): return true when the tree is empty
 - bool isLeftMost(SimpleBBSTNode<T> nt): return true when the node has the smallest value.
 - bool isRightMost(SimpleBBSTNode<T> nt): return true when the node has the largest value.
 - void insert(T t): insert a node storing value t into the tree.

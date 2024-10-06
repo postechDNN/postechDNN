@@ -15,9 +15,10 @@ Node has these elements:
 - Node* left_child: store a root of left subtree of this node. If there is no such node, store nullptr.
 - Node* right_child: store a root of right subtree of this node. If there is no such node, store nullptr.
 - Node* parent: store a parent node of this node. If there is no such node, store nullptr.
+- Node * pre: the previous node of the node in the tree.
+- Node * next: the next node of the node in the tree.
 
-RBTree supports these kinds of queries below.
-- bool isEmpty(void): return true when 
+RBTree supports these kinds of operations below.
 - void insert_bst(T key): insert a node storing value key into the tree.
 - void delete_bst(T key): delete the node storing value key into the tree.
 - Node<T>* search(T key): return the node storing value key.

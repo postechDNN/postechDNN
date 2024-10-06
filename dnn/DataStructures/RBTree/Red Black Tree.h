@@ -20,13 +20,13 @@ enum Op {
 
 template <typename T>
 struct Node {
-	T key;
-	Color color;
-	Node * parent;
-	Node * right_child;
-	Node * left_child;
-	Node * pre;
-	Node * next;
+	T key;//store a value with type T.
+	Color color;//store the color of the node(red, black or double_black)
+	Node * parent;//store a root of left subtree of this node. If there is no such node, store nullptr.
+	Node * right_child;//store a root of right subtree of this node. If there is no such node, store nullptr.
+	Node * left_child;//store a parent node of this node. If there is no such node, store nullptr.
+	Node * pre;//the previous node of the node in the tree.
+	Node * next;//the next node of the node in the tree.
 };
 
 template <typename T>
@@ -63,6 +63,8 @@ public:
 		delete head;
 		delete tail;
 	}
+
+    /*Insert a node storing value key into the tree.*/
 	void insert_bst(T key) {
 		Node<T> * node = new Node<T>;
 		node->color = red;
@@ -113,6 +115,8 @@ public:
 		}
 		rbt_size++;
 	}
+
+    /*Delete the node storing value key into the tree.*/
 	void delete_bst(T key) {
 		Node<T> * original = root;
 		Node<T> * actually = nullptr;
@@ -230,6 +234,7 @@ public:
 		if (rbt_size != 0)
 			rbt_size--;
 	}
+    /*Return the node storing value key.*/
 	Node<T> * search(T key) {
 		Node<T> * tmp = root;
 		while (tmp != leaf) {
@@ -393,6 +398,7 @@ public:
 	int size() {
 		return rbt_size;
 	}
+    /*Return the node storing the value same as key or the biggest value smaller than key.*/
 	Node<T> * find_same_or_biggest_small(T key) {
 		Node<T> * tmp = tail; //start from biggest
 		while (tmp->pre != nullptr && tmp->pre != head) {
@@ -402,6 +408,7 @@ public:
 		}
 		return nullptr;//all keys > input key
 	}
+    /*Return the node storing the value same as key or the smallest value bigger than key. */
 	Node<T> * find_same_or_smallest_big(T key) {
 		Node<T> * tmp = head; //start from smallest
 		while (tmp->next != nullptr && tmp->next != tail) {
