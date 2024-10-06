@@ -32,18 +32,18 @@ private:
 public:
 	TRIANGLE_TREE() {
 		tree_height = 0;
-		triangle_tree.push_back(map<int,TNODE>());
+		this->triangle_tree.push_back(map<int,TNODE>());
 	}
 	void add_layer() {
-		map<int,TNODE> new_layer(triangle_tree[tree_height]);
+		map<int,TNODE> new_layer(this->triangle_tree[tree_height]);
 		map<int, TNODE>::iterator it;
-		for (it = triangle_tree[tree_height].begin(); it != triangle_tree[tree_height].end();it++){
+		for (it = this->triangle_tree[tree_height].begin(); it != this->triangle_tree[tree_height].end();it++){
 			int t_num = it->first;
 			new_layer[t_num].clear_parents();
 			new_layer[t_num].add_parents(t_num);
 		}
 		tree_height++;
-		triangle_tree.push_back(new_layer);
+		this->triangle_tree.push_back(new_layer);
 	}
 	void delete_triangles(vector<int>& outer_poly) {
 		for (int i = 0; i < int(outer_poly.size()); i++)
@@ -51,16 +51,16 @@ public:
 	}
 	void delete_poly(int poly_num) {
 		std::map<int, TNODE>::iterator it;
-		it = triangle_tree[tree_height].find(poly_num);
-		if (it != triangle_tree[tree_height].end())
-			triangle_tree[tree_height].erase(it);
+		it = this->triangle_tree[tree_height].find(poly_num);
+		if (it != this->triangle_tree[tree_height].end())
+			this->triangle_tree[tree_height].erase(it);
 		return;
 	}
 	void push(int _t_num) {
-		triangle_tree[tree_height].insert(make_pair(_t_num,TNODE()));
+		this->triangle_tree[tree_height].insert(make_pair(_t_num,TNODE()));
 	}
 	void push(int _t_num,vector<int> parents) {
-		triangle_tree[tree_height].insert(make_pair(_t_num, TNODE(parents)));
+		this->triangle_tree[tree_height].insert(make_pair(_t_num, TNODE(parents)));
 	}
 	int get_current_height() {
 		return tree_height;
@@ -68,13 +68,13 @@ public:
 	vector<int> get_current_layer(int current_height) {
 		vector<int> ret;
 		map<int, TNODE>::iterator it;
-		for (it = triangle_tree[current_height].begin(); it != triangle_tree[current_height].end(); it++) {
+		for (it = this->triangle_tree[current_height].begin(); it != this->triangle_tree[current_height].end(); it++) {
 			ret.push_back(it->first);
 		}
 		return ret;
 	}
 	vector<int> get_parents(int current_height, int t_num) {
-		return triangle_tree[current_height][t_num].get_parents();
+		return this->triangle_tree[current_height][t_num].get_parents();
 	
 	}
 };

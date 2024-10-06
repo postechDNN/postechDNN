@@ -806,7 +806,7 @@ Hourglass concatenateOpenOpen(Hourglass& _left, Hourglass& _right)
 	int which_chain_to_test = 0;
 	bool found = false;
 	bool left = true;
-	Chain* chain_to_check;
+	Chain* chain_to_check = nullptr;
 
 	Chain* left_upper_chain;
 	Chain* left_lower_chain;

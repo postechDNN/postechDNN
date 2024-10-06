@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{cad913bc-870e-48b3-8ef2-f384c7f57340}</ProjectGuid>
+    <ProjectGuid>{8747F38B-3885-4A34-8616-C93DB331FDF7}</ProjectGuid>
     <RootNamespace>DNN</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
