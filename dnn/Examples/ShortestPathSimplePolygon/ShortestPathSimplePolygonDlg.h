@@ -13,6 +13,8 @@ class CDNNDemoDlg : public CDialogEx
 public:
 	CDNNDemoDlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
 
+	void clearEditBox();
+
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DNNDEMO_DIALOG };
@@ -45,9 +47,6 @@ public:
 	CButton m_button_add;
 	afx_msg void OnCbnSelchangeComboFunc();
 	afx_msg void OnBnClickedButtonAdd();
-	CEdit m_edit_qr1;
-	CEdit m_edit_qr2;
-	afx_msg void OnBnClickedButtonView();
 	CButton m_check_path;
 	afx_msg void OnBnClickedCheckPath();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
@@ -64,4 +63,6 @@ public:
 	CEdit m_edit_query_tx;
 	CEdit m_edit_query_ty;
 	CEdit m_edit_result_length;
+	CEdit m_edit_result_log;
+	CButton m_button_file;
 };

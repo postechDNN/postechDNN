@@ -13,6 +13,8 @@ public:
 	DNN_Util();
 	~DNN_Util();
 
+	void clearData();
+
 	// 1. input polygon and points
 	void addVertexPolygon(int x, int y);
 	void deleteVertexPolygon();

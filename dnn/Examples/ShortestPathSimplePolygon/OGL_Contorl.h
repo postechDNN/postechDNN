@@ -21,7 +21,7 @@ public:
 	void addVertex(int x, int y);
 
 	bool readPolygon(std::string fileName);
-	void addQueryPoint(double x, double y);
+	int addQueryPoint(double x, double y);
 
 protected:
 	HGLRC m_hRC;

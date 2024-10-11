@@ -83,6 +83,7 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_RESULT, m_edit_result);
 	DDX_Control(pDX, IDC_EDIT_KNN, m_edit_knn);
 	DDX_Control(pDX, IDC_BUTTON_KNN, m_button_knn);
+	DDX_Control(pDX, IDC_BUTTON_FILE, m_button_file);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -286,6 +287,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 	case 0: // Make input file
 		this->m_picture_opengl.setMode(2);
 		this->m_check_path.EnableWindow(false);
+		this->m_button_file.EnableWindow(false);
 		this->m_edit_filename.EnableWindow(false);
 		this->m_check_query1.SetCheck(true);
 
@@ -308,10 +310,15 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 			int ty = (rect.bottom + rect.top) / 2;
 			m_picture_opengl.setCamera(tx, ty, width, height);
 		}
+
+		this->m_picture_opengl.DDS.dnn_util.clearData();
+		Invalidate(TRUE);
+		UpdateWindow();
 		break;
 	case 1: // Query
 		this->m_picture_opengl.setMode(2);
 		this->m_check_path.EnableWindow(true);
+		this->m_button_file.EnableWindow(true);
 		this->m_edit_filename.EnableWindow(true);
 		this->m_check_query1.SetCheck(true);
 
@@ -322,6 +329,10 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_drawing_query.EnableWindow(true);
 		this->m_edit_knn.EnableWindow(true);
 		this->m_button_knn.EnableWindow(true);
+
+		this->m_picture_opengl.DDS.dnn_util.clearData();
+		Invalidate(TRUE);
+		UpdateWindow();
 		break;
 	default:
 		break;

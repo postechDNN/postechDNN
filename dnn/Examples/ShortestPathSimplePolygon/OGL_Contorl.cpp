@@ -216,8 +216,8 @@ void OGL_Contorl::OnPaint()
 
 	std::vector<std::pair<double, double>> queryPoints = this->DDS.spsp.getQueryPoints();
 	if (this->DDS.object2D.getDrawVertices()) {
-		::glColor3f(0.0f, 0.0f, 1.0f);
-		glPointSize(3.0f);
+		::glColor3f(1.0f, 0.0f, 0.0f);
+		glPointSize(5.0f);
 		glBegin(GL_POINTS);
 		for (int j = 0; j < queryPoints.size(); j++) {
 			OGL_Point p(queryPoints[j].first, queryPoints[j].second);
@@ -227,17 +227,19 @@ void OGL_Contorl::OnPaint()
 	}
 
 	if (queryPoints.size() > 1) {
-		std::vector<std::pair<double, double>> pathPoints = this->DDS.spsp.getStringPoints();
+		//std::vector<std::pair<double, double>> pathPoints = this->DDS.spsp.getStringPoints();
 		if (this->DDS.object2D.getDrawPath()) {
 			::glColor3f(0.0f, 1.0f, 1.0f);
 			glLineWidth(3.0f);
-			for (int j = 0; j < pathPoints.size()-1; j++) {
-				OGL_Point sp(pathPoints[j].first, pathPoints[j].second);
-				OGL_Point ep(pathPoints[j + 1].first, pathPoints[j + 1].second);
-				glBegin(GL_LINES);
-				glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
-				glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
-				glEnd();
+			if (!this->DDS.spsp.Strings.empty()) {
+				for (int j = 0; j < this->DDS.spsp.Strings.front().size() - 1; j++) {
+					OGL_Point sp(this->DDS.spsp.Strings.front()[j].first, this->DDS.spsp.Strings.front()[j].second);
+					OGL_Point ep(this->DDS.spsp.Strings.front()[j + 1].first, this->DDS.spsp.Strings.front()[j + 1].second);
+					glBegin(GL_LINES);
+					glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
+					glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
+					glEnd();
+				}
 			}
 		}
 	}
@@ -245,8 +247,6 @@ void OGL_Contorl::OnPaint()
 	::glPopMatrix();
 	::glFinish();
 	if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
-
-		
 }
 
 void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
@@ -364,7 +364,7 @@ bool OGL_Contorl::readPolygon(std::string fileName) {
 	}
 }
 
-void OGL_Contorl::addQueryPoint(double x, double y) {
+int OGL_Contorl::addQueryPoint(double x, double y) {
 	int ax, ay;
 	double normTrans[3];
 	double normMul[3];
@@ -376,7 +376,7 @@ void OGL_Contorl::addQueryPoint(double x, double y) {
 	ay = y * normMul[1];
 	ay = ay + normTrans[1];
 
-	this->DDS.spsp.addQueryPoint(ax, ay);
+	return this->DDS.spsp.addQueryPoint(ax, ay);
 	Invalidate(TRUE);
 	UpdateWindow();
 }

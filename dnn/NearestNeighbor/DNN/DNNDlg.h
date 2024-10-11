@@ -68,4 +68,5 @@ public:
 	CEdit m_edit_knn;
 	CButton m_button_knn;
 	afx_msg void OnBnClickedButtonKnn();
+	CButton m_button_file;
 };

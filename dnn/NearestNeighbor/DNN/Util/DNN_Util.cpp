@@ -283,6 +283,35 @@ DNN_Util::~DNN_Util() {
 
 }
 
+void DNN_Util::clearData() {
+	polygon_list = vector<vector<int>>();
+	diagonal_list = vector<Edge>();
+	outer_diagonal_list = vector<Edge>();
+	selected_triangle = vector<int>();
+	outer_edge_list = vector<Edge>();
+	sequence_diagonal = vector<int>();
+	null_edge_list = vector<Edge*>();
+	init_hourglass_val();
+
+	input_polygon.clear();
+	point_list.clear();
+	polygon_boundary.clear();
+	outer_polygon_list.clear();
+	selected_triangle = vector<int>();
+	sequence_diagonal = vector<int>();
+	test_points.clear();
+	
+	this->polygonInputDone = false;
+	this->points_set.clear();
+	for (size_t i = 0; i < this->Strings.size(); i++) {
+		this->Strings[i].clear();
+	}
+	this->Strings.clear();
+
+	id_num = 0;
+	common_edge = NULL;
+}
+
 void DNN_Util::addVertexPolygon(int x, int y) {
 	Point new_point(x, y);
 	input_polygon.push_back(new_point);
@@ -311,7 +340,9 @@ int DNN_Util::addPoint(int x, int y) {
 
 	Point new_point(-1, x, y);
 	int test_tri = point_state.find_triangle(new_point);
-	if (test_tri < (int)polygon_list.size() && test_tri != -1) {
+
+	//if (test_tri < (int)polygon_list.size() && test_tri != -1) {
+	if (test_tri < (int)polygon_list.size()) {
 		this->points_set.push_back(std::make_pair(x, y));
 		//test_points.push_back(new_point);
 		//point_list.push_back(new_point);

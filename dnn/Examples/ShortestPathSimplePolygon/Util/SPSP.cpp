@@ -217,6 +217,36 @@ SPSP::SPSP() {
 	init_hourglass_val();
 }
 
+SPSP::~SPSP() {
+
+}
+
+void SPSP::clearData() {
+	polygon_list = vector<vector<int>>();
+	diagonal_list = vector<Edge>();
+	outer_diagonal_list = vector<Edge>();
+	selected_triangle = vector<int>();
+	outer_edge_list = vector<Edge>();
+	sequence_diagonal = vector<int>();
+	null_edge_list = vector<Edge*>();
+	init_hourglass_val();
+
+	input_polygon.clear();
+	point_list.clear();
+	polygon_boundary.clear();
+	outer_polygon_list.clear();
+	selected_triangle = vector<int>();
+	sequence_diagonal = vector<int>();
+	test_points.clear();
+	for (size_t i = 0; i < this->Strings.size(); i++) {
+		this->Strings[i].clear();
+	}
+	this->Strings.clear();
+
+	id_num = 0;
+	common_edge = NULL;
+}
+
 void SPSP::addVertex(int x, int y) {
 	Point new_point(x, y);
 	input_polygon.push_back(new_point);
@@ -301,16 +331,20 @@ void SPSP::preprocessing() {
 	while (point_state.step());
 }
 
-void SPSP::addQueryPoint(double x, double y) {
+int SPSP::addQueryPoint(double x, double y) {
 	Point p(-1, x, y);
 	int test_tri = point_state.find_triangle(p);
 	if (test_tri < (int)polygon_list.size() && (int)test_points.size() < 2) {
 		test_points.push_back(p);
 		point_list.push_back(p);
+		if (test_points.size() == 2) {
+			final_hour = find_shortest_path(test_points); // RETURNS SINGLE FINAL HOURGLASS FOR THE TWO POINTS IN THE INPUT VECTOR
+			// Save result 
+			this->Strings.push_back(this->getStringPoints());
+		}	
+		return 1;
 	}
-	if (test_points.size() == 2)
-		final_hour = find_shortest_path(test_points); // RETURNS SINGLE FINAL HOURGLASS FOR THE TWO POINTS IN THE INPUT VECTOR
-	
+	else return 0;
 }
 
 void SPSP::clearTestPoint() {
@@ -319,6 +353,10 @@ void SPSP::clearTestPoint() {
 	test_points = vector<Point>();
 	selected_triangle = vector<int>();
 	sequence_diagonal = vector<int>();
+	for (size_t i = 0; i < this->Strings.size(); i++) {
+		this->Strings[i].clear();
+	}
+	this->Strings.clear();
 }
 
 double SPSP::getPathLength() {
@@ -357,12 +395,20 @@ std::vector<std::pair<double, double>> SPSP::getPolygonPoints() {
 	return result;
 }
 
+int SPSP::getNumPolygonVertices() {
+	return input_polygon.size();
+}
+
 std::vector<std::pair<double, double>> SPSP::getQueryPoints() {
 	std::vector<std::pair<double, double>> result;
 	for (size_t i = 0; i < test_points.size(); i++) {
 		result.push_back(std::make_pair(test_points[i].get_x(), test_points[i].get_y()));
 	}
 	return result;
+}
+
+int SPSP::getNumQueryPoint() {
+	return test_points.size();
 }
 
 std::vector<std::pair<double, double>> SPSP::getPathPoints() {

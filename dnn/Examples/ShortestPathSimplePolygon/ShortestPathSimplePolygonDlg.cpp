@@ -61,6 +61,15 @@ CDNNDemoDlg::CDNNDemoDlg(CWnd* pParent /*=nullptr*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
+void CDNNDemoDlg::clearEditBox() {
+	this->m_edit_query_sx.SetWindowTextW(_T(""));
+	this->m_edit_query_sy.SetWindowTextW(_T(""));
+	this->m_edit_query_tx.SetWindowTextW(_T(""));
+	this->m_edit_query_ty.SetWindowTextW(_T(""));
+	this->m_edit_result_length.SetWindowTextW(_T(""));
+	this->m_edit_result_log.SetWindowTextW(_T(""));
+}
+
 void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -70,8 +79,6 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_VERTEX, m_check_vertex);
 	DDX_Control(pDX, IDC_CHECK_EDGE, m_check_edge);
 	DDX_Control(pDX, IDC_BUTTON_ADD, m_button_add);
-	DDX_Control(pDX, IDC_EDIT_QR1, m_edit_qr1);
-	DDX_Control(pDX, IDC_EDIT_QR2, m_edit_qr2);
 	DDX_Control(pDX, IDC_CHECK_PATH, m_check_path);
 	DDX_Control(pDX, IDC_BUTTON_SAVE, m_button_save);
 	DDX_Control(pDX, IDC_BUTTON_DELETE, m_button_delete);
@@ -82,6 +89,8 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_QUERY_TX, m_edit_query_tx);
 	DDX_Control(pDX, IDC_EDIT_QUERY_TY, m_edit_query_ty);
 	DDX_Control(pDX, IDC_EDIT_RESULT_LENGTH, m_edit_result_length);
+	DDX_Control(pDX, IDC_EDIT_RESULT_LOG, m_edit_result_log);
+	DDX_Control(pDX, IDC_BUTTON_FILE, m_button_file);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -226,16 +235,16 @@ void CDNNDemoDlg::OnBnClickedButtonFile()
 	CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
 
 	if (IDOK == dlg.DoModal()){
+		this->m_picture_opengl.DDS.spsp.clearData();
+		this->clearEditBox();
 		CString pathName = dlg.GetPathName();
 		MessageBox(pathName);
 		m_edit_filename.SetWindowTextW(pathName);
 		if (this->m_picture_opengl.readPolygon(std::string(CT2CA(pathName))) == false) {
 			MessageBox(_T("File Read Failure"), _T("Error"), MB_ICONHAND);
 		}
-		else {
-			Invalidate(TRUE);
-			UpdateWindow();
-		}
+		Invalidate(TRUE);
+		UpdateWindow();	
 	}
 }
 
@@ -282,6 +291,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 	switch (menu) {
 	case 0: // Add polygon
 		this->m_picture_opengl.setMode(2);
+		this->m_button_file.EnableWindow(false);
 		this->m_check_path.EnableWindow(false);
 		this->m_edit_filename.EnableWindow(false);
 		this->m_check_query1.SetCheck(true);
@@ -300,12 +310,23 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 			int ty = (rect.bottom + rect.top) / 2;
 			m_picture_opengl.setCamera(tx, ty, width, height);
 		}
+
+		this->m_picture_opengl.DDS.spsp.clearData();
+		this->clearEditBox();
+		Invalidate(TRUE);
+		UpdateWindow();
 		break;
 	case 1: // Query
 		this->m_picture_opengl.setMode(2);
+		this->m_button_file.EnableWindow(true);
 		this->m_check_path.EnableWindow(true);
 		this->m_check_query2.EnableWindow(true);
-		this->m_button_add.EnableWindow(true);
+		this->m_button_add.EnableWindow(false);
+
+		this->m_picture_opengl.DDS.spsp.clearData();
+		this->clearEditBox();
+		Invalidate(TRUE);
+		UpdateWindow();
 		break;
 	default:
 		break;
@@ -315,79 +336,56 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 
 void CDNNDemoDlg::OnBnClickedButtonAdd()
 {	
-	
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	AddDialog dlg(EADD, 3);
-	if (IDOK == dlg.DoModal()) {
-		this->m_picture_opengl.DDS.spsp.addQueryPoint(dlg.coordinate[0], dlg.coordinate[1]);
-		this->m_picture_opengl.DDS.spsp.addQueryPoint(dlg.coordinate[2], dlg.coordinate[3]);
-		CString temp;
-		temp.Format(_T("%lf"), dlg.coordinate[0]);
-		this->m_edit_query_sx.SetWindowTextW(temp);
-		temp.Format(_T("%lf"), dlg.coordinate[1]);
-		this->m_edit_query_sy.SetWindowTextW(temp);
-		temp.Format(_T("%lf"), dlg.coordinate[2]);
-		this->m_edit_query_tx.SetWindowTextW(temp);
-		temp.Format(_T("%lf"), dlg.coordinate[3]);
-		this->m_edit_query_ty.SetWindowTextW(temp);
-		temp.Format(_T("%lf"), this->m_picture_opengl.DDS.spsp.getPathLength());
-		this->m_edit_result_length.SetWindowTextW(temp);
-		Invalidate(TRUE);
-		UpdateWindow();
+	if (this->m_picture_opengl.DDS.spsp.getNumPolygonVertices() < 3) {
+		MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
 	}
-	
-	/*
-	int menu = this->m_combo_func.GetCurSel();
-	switch (menu) {
-	case 1: // 3D nearest neighbor
-		if (m_check_f1.GetCheck()) { // Add free point
-			if (m_check_noo1.GetCheck()) { // Add by manual
-				AddDialog dlg(EADD,3);
-				if (IDOK == dlg.DoModal()) {
-					CString keyValue = dlg.key;
-					double coordinate[3];
-					for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
-					//m_picture_opengl.DDS.add_fr(coordinate);
-					// keyValue와 좌표로 삽입을 수행하는 함수 호출
-					Invalidate(TRUE);
-					UpdateWindow();
-				}
+	else {
+		this->m_picture_opengl.DDS.spsp.clearTestPoint();
+		this->clearEditBox();
+		AddDialog dlg(EADD, 3);
+		if (IDOK == dlg.DoModal()) {
+			bool source = this->m_picture_opengl.DDS.spsp.addQueryPoint(dlg.coordinate[0], dlg.coordinate[1]);
+			bool target = this->m_picture_opengl.DDS.spsp.addQueryPoint(dlg.coordinate[2], dlg.coordinate[3]);
+			if (source == false && target == false) {
+				MessageBox(_T("Invalid source point and target point input."), _T("Error"), MB_ICONHAND);
 			}
-			else if (m_check_noo2.GetCheck()) { // Add by file
-				static TCHAR BASED_CODE szFilter[] = _T("입력 파일(*.in, *.txt) | *.IN;*.in;*.TXT;*.txt |모든파일(*.*)|*.*||");
-				CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
-				if (IDOK == dlg.DoModal()) {
-					CString pathName = dlg.GetPathName();
-					MessageBox(pathName);
-					//m_picture_opengl.DDS.add_fr(pathName);
-					// 아래 readDCEL처럼 add by file 함수 호출
-					// m_picture_opengl.readDCEL(path);
-					Invalidate(TRUE);
-				}
+			else if (source == false) {
+				MessageBox(_T("Invalid source point input."), _T("Error"), MB_ICONHAND);
 			}
-		} 
-		else if (m_check_f2.GetCheck()) { // Add polytope (Only add by file)
-			if (m_check_noo1.GetCheck()) {
-				MessageBox(_T("Polytope can only be inserted by file input"));
+			else if (target == false) {
+				MessageBox(_T("Invalid target point input."), _T("Error"), MB_ICONHAND);
 			}
 			else {
-				static TCHAR BASED_CODE szFilter[] = _T("입력 파일(*.in, *.txt) | *.IN;*.in;*.TXT;*.txt |모든파일(*.*)|*.*||");
-				CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
-				if (IDOK == dlg.DoModal()) {
-					CString pathName = dlg.GetPathName();
-					MessageBox(pathName);
-					//m_picture_opengl.DDS.add_poly(pathName);
-					// 아래 readDCEL처럼 add by file 함수 호출
-					// m_picture_opengl.readDCEL(path);
-					Invalidate(TRUE);
+				CString temp;
+				temp.Format(_T("%lf"), dlg.coordinate[0]);
+				this->m_edit_query_sx.SetWindowTextW(temp);
+				temp.Format(_T("%lf"), dlg.coordinate[1]);
+				this->m_edit_query_sy.SetWindowTextW(temp);
+				temp.Format(_T("%lf"), dlg.coordinate[2]);
+				this->m_edit_query_tx.SetWindowTextW(temp);
+				temp.Format(_T("%lf"), dlg.coordinate[3]);
+				this->m_edit_query_ty.SetWindowTextW(temp);
+				temp.Format(_T("%lf"), this->m_picture_opengl.DDS.spsp.getPathLength());
+				this->m_edit_result_length.SetWindowTextW(temp);
+
+				
+				if (!this->m_picture_opengl.DDS.spsp.Strings.empty()) {
+					CString result_log;
+					auto path_points = this->m_picture_opengl.DDS.spsp.Strings.front();
+					for (size_t i = 0; i < path_points.size(); i++) {
+						CString temp1, temp2;
+						temp1.Format(_T("%lf"), path_points[i].first);
+						temp2.Format(_T("%lf"), path_points[i].second);
+						result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
+					}
+					this->m_edit_result_log.SetWindowTextW(result_log);
 				}
+				
 			}
-		} 
-		break;
-	default:
-		break;
+			Invalidate(TRUE);
+			UpdateWindow();
+		}
 	}
-	*/
 }
 
 void CDNNDemoDlg::OnBnClickedCheckPath()
@@ -396,10 +394,10 @@ void CDNNDemoDlg::OnBnClickedCheckPath()
 	int menu = this->m_combo_func.GetCurSel();
 	switch (menu) {
 	case 0:
-		//this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
 		break;
 	case 1:
-		//this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
+		this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
 		break;
 	default:
 		break;
@@ -429,42 +427,66 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 			break;
 		case 1:
-			if (rect.left < point.x && point.x < rect.right &&
-				rect.top < point.y && point.y < rect.bottom) {
-				double width = (rect.right - rect.left) / 2;
-				double tx = (rect.right + rect.left) / 2;
-				double x = (double(point.x) - tx) / width;
+			if (this->m_picture_opengl.DDS.spsp.getNumPolygonVertices() < 3) {
+				MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
+			}
+			else {
+				if (rect.left < point.x && point.x < rect.right &&
+					rect.top < point.y && point.y < rect.bottom) {
+					double width = (rect.right - rect.left) / 2;
+					double tx = (rect.right + rect.left) / 2;
+					double x = (double(point.x) - tx) / width;
 
-				double height = (rect.bottom - rect.top) / 2;
-				double ty = (rect.bottom + rect.top) / 2;
-				int ygap = point.y - rect.top;
-				double y = rect.bottom - ygap;
-				y = (y - ty) / height;
+					double height = (rect.bottom - rect.top) / 2;
+					double ty = (rect.bottom + rect.top) / 2;
+					int ygap = point.y - rect.top;
+					double y = rect.bottom - ygap;
+					y = (y - ty) / height;
 
-				m_picture_opengl.addQueryPoint(x, y);
+					if (this->m_picture_opengl.DDS.spsp.getNumQueryPoint() == 2) {
+						this->m_picture_opengl.DDS.spsp.clearTestPoint();
+						this->clearEditBox();
+					}
 
-				std::vector<std::pair<double, double>> query_points = m_picture_opengl.DDS.spsp.getQueryPoints();
-				if (query_points.size() == 1) {
-					CString temp1, temp2;
-					temp1.Format(_T("%lf"), query_points[0].first);
-					this->m_edit_query_sx.SetWindowTextW(temp1);
-					temp2.Format(_T("%lf"), query_points[0].second);
-					this->m_edit_query_sy.SetWindowTextW(temp2);
+					if (m_picture_opengl.addQueryPoint(x, y)) {
+						std::vector<std::pair<double, double>> query_points = m_picture_opengl.DDS.spsp.getQueryPoints();
+						if (query_points.size() == 1) {
+							CString temp;
+							temp.Format(_T("%lf"), query_points[0].first);
+							this->m_edit_query_sx.SetWindowTextW(temp);
+							temp.Format(_T("%lf"), query_points[0].second);
+							this->m_edit_query_sy.SetWindowTextW(temp);
+						}
+						else if (query_points.size() == 2) {
+							CString temp;
+							temp.Format(_T("%lf"), query_points[1].first);
+							this->m_edit_query_tx.SetWindowTextW(temp);
+							temp.Format(_T("%lf"), query_points[1].second);
+							this->m_edit_query_ty.SetWindowTextW(temp);
+
+							temp.Format(_T("%lf"), this->m_picture_opengl.DDS.spsp.getPathLength());
+							this->m_edit_result_length.SetWindowTextW(temp);
+
+							if (!this->m_picture_opengl.DDS.spsp.Strings.empty()) {
+								CString result_log;
+								auto path_points = this->m_picture_opengl.DDS.spsp.Strings.front();
+								for (size_t i = 0; i < path_points.size(); i++) {
+									CString temp1, temp2;
+									temp1.Format(_T("%lf"), path_points[i].first);
+									temp2.Format(_T("%lf"), path_points[i].second);
+									result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
+								}
+								this->m_edit_result_log.SetWindowTextW(result_log);
+							}
+						}
+					}
+
+					else {
+						MessageBox(_T("Invalid query input."), _T("Error"), MB_ICONHAND);				
+					}
+					Invalidate(TRUE);
+					UpdateWindow();
 				}
-				else if (query_points.size() == 2) {
-					CString temp1, temp2;
-					temp1.Format(_T("%lf"), query_points[1].first);
-					this->m_edit_query_tx.SetWindowTextW(temp1);
-					temp2.Format(_T("%lf"), query_points[1].second);
-					this->m_edit_query_ty.SetWindowTextW(temp2);
-
-					CString temp3;
-					temp3.Format(_T("%lf"), this->m_picture_opengl.DDS.spsp.getPathLength());
-					this->m_edit_result_length.SetWindowTextW(temp3);
-				}
-
-				Invalidate(TRUE);
-				UpdateWindow();
 			}
 			break;
 		default:
@@ -478,15 +500,18 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 void CDNNDemoDlg::OnClickedButtonSave()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = m_combo_func.GetCurSel();
+	if (menu == 0 && this->m_picture_opengl.DDS.spsp.getNumPolygonVertices() < 3) {
+		MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
+	}
+
 	static TCHAR BASED_CODE szFilter[] = _T("입력 파일(*.in, *.txt) | *.IN;*.in;*.TXT;*.txt |모든파일(*.*)|*.*||");
 
 	CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
 	
 	if (IDOK == dlg.DoModal()) {
 		CString pathName = dlg.GetPathName();
-
-		
-		int menu = m_combo_func.GetCurSel();
+	
 		CString temp;
 		switch (menu) {
 		case 0: // input polygon
@@ -512,13 +537,15 @@ void CDNNDemoDlg::OnClickedButtonDelete()
 	switch (menu) {
 	case 0: // input polygon
 		this->m_picture_opengl.DDS.spsp.deleteVertex();
+		this->clearEditBox();
+		Invalidate(TRUE);
+		UpdateWindow();
 		break;
 	case 1: // query
 		this->m_picture_opengl.DDS.spsp.clearTestPoint();
-		this->m_edit_query_tx.SetWindowTextW(_T(""));
-		this->m_edit_query_ty.SetWindowTextW(_T(""));
-		this->m_edit_query_sx.SetWindowTextW(_T(""));
-		this->m_edit_query_sy.SetWindowTextW(_T(""));
+		this->clearEditBox();
+		Invalidate(TRUE);
+		UpdateWindow();
 		break;
 	default:
 		break;
@@ -535,20 +562,17 @@ void CDNNDemoDlg::OnBnClickedCheckQuery1()
 			this->m_check_query1.SetCheck(true);
 			this->m_check_query2.SetCheck(false);
 			this->m_picture_opengl.DDS.spsp.clearTestPoint();
-			this->m_edit_query_tx.SetWindowTextW(_T(""));
-			this->m_edit_query_ty.SetWindowTextW(_T(""));
-			this->m_edit_query_sx.SetWindowTextW(_T(""));
-			this->m_edit_query_sy.SetWindowTextW(_T(""));
+			this->clearEditBox();
 		}
 		else {
 			this->m_check_query1.SetCheck(false);
 			this->m_check_query2.SetCheck(true);
 			this->m_picture_opengl.DDS.spsp.clearTestPoint();
-			this->m_edit_query_tx.SetWindowTextW(_T(""));
-			this->m_edit_query_ty.SetWindowTextW(_T(""));
-			this->m_edit_query_sx.SetWindowTextW(_T(""));
-			this->m_edit_query_sy.SetWindowTextW(_T(""));
+			this->clearEditBox();
 		}
+	}
+	else {
+		this->m_check_query1.SetCheck(true);
 	}
 }
 
@@ -559,19 +583,16 @@ void CDNNDemoDlg::OnBnClickedCheckQuery2()
 	if (this->m_check_query2.GetCheck()) {
 		this->m_check_query1.SetCheck(false);
 		this->m_check_query2.SetCheck(true);
+		this->m_button_add.EnableWindow(true);
 		this->m_picture_opengl.DDS.spsp.clearTestPoint();
-		this->m_edit_query_tx.SetWindowTextW(_T(""));
-		this->m_edit_query_ty.SetWindowTextW(_T(""));
-		this->m_edit_query_sx.SetWindowTextW(_T(""));
-		this->m_edit_query_sy.SetWindowTextW(_T(""));
+		this->clearEditBox();
 	}
 	else {
 		this->m_check_query1.SetCheck(true);
 		this->m_check_query2.SetCheck(false);
+		this->m_button_add.EnableWindow(false);
 		this->m_picture_opengl.DDS.spsp.clearTestPoint();
-		this->m_edit_query_tx.SetWindowTextW(_T(""));
-		this->m_edit_query_ty.SetWindowTextW(_T(""));
-		this->m_edit_query_sx.SetWindowTextW(_T(""));
-		this->m_edit_query_sy.SetWindowTextW(_T(""));
+		this->clearEditBox();
 	}
 }
+
