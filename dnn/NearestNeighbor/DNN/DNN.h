@@ -1,68 +1,32 @@
+﻿
+// DNNDemo.h: PROJECT_NAME 애플리케이션에 대한 주 헤더 파일입니다.
+//
+
 #pragma once
-#include <vector>
-#include "../../Examples/ShortestPathSimplePolygon/Point.h"
+
+#ifndef __AFXWIN_H__
+	#error "PCH에 대해 이 파일을 포함하기 전에 'pch.h'를 포함합니다."
+#endif
+
+#include "resource.h"		// 주 기호입니다.
 
 
-class Environment {
+// CDNNDemoApp:
+// 이 클래스의 구현에 대해서는 DNNDemo.cpp을(를) 참조하세요.
+//
 
-	
-	public :
-		vector<Point> env;
+class CDNNDemoApp : public CWinApp
+{
+public:
+	CDNNDemoApp();
 
-		Environment(vector<Point>* inputEnv = NULL,bool Example=false) {
-			if (Example) {
+// 재정의입니다.
+public:
+	virtual BOOL InitInstance();
 
-			}
-			return;
-			if (inputEnv == NULL) return;
-			for (int i = 0; i < inputEnv->size(); i++) {
-				env.push_back((*inputEnv)[i]);
-			}
+// 구현입니다.
 
-		};
-
-		Environment(Environment* e) {
-			for (int i = 0; i < e->env.size(); i++) env.push_back(e->env[i]);
-		}
-
-	bool MoveEnv(int Num, const Point & p) {
-		if (env.size() < Num) return false;
-		env[Num] = p;
-		return true;
-	}
-
+	DECLARE_MESSAGE_MAP()
 };
 
-
-class DynamicNN {
-	vector <Point> plist;
-	Environment * env ;
-
-public :
-	DynamicNN(Environment* env = NULL, vector<Point>* pointSet = NULL);
-
-	void AddPoint(const Point& p) {
-		plist.push_back(p);
-	}
-
-	bool delPoint(int Num) {
-		if (plist.size() < Num) return false;
-		else plist.erase(plist.begin() + Num);
-	}
-
-	bool MoveEnv(int Num, const Point& p);
-
-	const vector<Point>& getPointList() {
-		return plist;
-	}
-
-	void KNNindex(Point& p, vector<int>* result, int k = 1);
-
-	void KNNpoint(Point& p, vector<Point> * result,int k = 1) {
-		vector<int> iresult;
-		KNNindex(p, &iresult , k);
-		for (int i = 0; i < k; i++)
-			result->push_back(plist[iresult[i]]);
-	}
-
-};
+extern CDNNDemoApp theApp;

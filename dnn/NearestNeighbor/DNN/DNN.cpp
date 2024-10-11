@@ -1,731 +1,92 @@
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <algorithm>
-#include "../../Examples/ShortestPathSimplePolygon/NODE.h"
-#include "../../Examples/ShortestPathSimplePolygon/Edge.h"
-#include "../../Examples/ShortestPathSimplePolygon/Point.h"
-#include "../../Examples/ShortestPathSimplePolygon/Tree.h"
-#include "../../Examples/ShortestPathSimplePolygon/VertexID.h"
-#include "../../Examples/ShortestPathSimplePolygon/PointS.h"
-#include "../../Examples/ShortestPathSimplePolygon/SNode.h"
-#include "../../Examples/ShortestPathSimplePolygon/polygon_operation.h"
-#include "../../Examples/ShortestPathSimplePolygon/polygon_decomposition.h"
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-#include <sstream>
-#include "../../Examples/ShortestPathSimplePolygon/hourglass_operation.h"
+﻿
+// DNNDemo.cpp: 애플리케이션에 대한 클래스 동작을 정의합니다.
+//
 
+#include "pch.h"
+#include "framework.h"
 #include "DNN.h"
+#include "DNNDlg.h"
 
-#define NULL_HELPER -1
-#define PI 3.1415926535897931
-using namespace std;
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
 
-int read_file(string filePath);
-void print_result(int argc, char **argv);
-void display();
-void reshape(int w, int h);
-vector<Point> test_points;
-vector<int> sequence_diagonal;
-int d_size;
-Hourglass final_hour;
-PointS point_state;
 
-Hourglass test_hourglass;
+// CDNNDemoApp
 
-////////////////////
-vector<Point> polygon_boundary;
-////////////////////
+BEGIN_MESSAGE_MAP(CDNNDemoApp, CWinApp)
+	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
+END_MESSAGE_MAP()
 
-Hourglass find_shortest_path(vector<Point> test_points);
 
-int w_h=800, w_w=800;
+// CDNNDemoApp 생성
 
-void construct_hourglasses() {
-	for (int i = 0; i < d_size; i++) {
-		for (int j = 0; j < d_size; j++) {
-			if (s_graph[i][j] == connected) {
-				construct_hourglass(i, j);
-			}
-		}
-	}
-}
-bool findPath(SNode * root, vector<SNode *> &path, SNode * k)
+CDNNDemoApp::CDNNDemoApp()
 {
-	// base case 
-	if (root == NULL) return false;
-	if (root == k)
-		return true;
-
-	// Store this node in path vector. The node will be removed if 
-	// not in path from root to k 
-	path.push_back(root);
-
-	// See if the k is same as root's key 
-
-	// Check if k is found in left or right sub-tree 
-	if ((root->get_left_children() && findPath(root->get_left_children(), path, k)) ||
-		(root->get_right_children() && findPath(root->get_right_children(), path, k)))
-		return true;
-
-	// If not present in subtree rooted with root, remove root from 
-	// path[] and return false 
-	path.pop_back();
-	return false;
+	// TODO: 여기에 생성 코드를 추가합니다.
+	// InitInstance에 모든 중요한 초기화 작업을 배치합니다.
 }
-//find triangle path
-bool findPath(Triangle * root, vector<Triangle *> &path, Triangle * k)
+
+
+// 유일한 CDNNDemoApp 개체입니다.
+
+CDNNDemoApp theApp;
+
+
+// CDNNDemoApp 초기화
+
+BOOL CDNNDemoApp::InitInstance()
 {
-	// base case 
-	if (root == NULL) return false;
-	path.push_back(root);
-	if (root == k)
-		return true;
-	bool * check = root->get_dual_check_children();
-	int * ad_tr = root->get_adjacent_triangles();
-	// Check if k is found in left or right sub-tree 
-	for (int i = 0; i < 3; i++) {
-		if (check[i]&&findPath(&t_list[ad_tr[i]],path,  k))
-			return true;
-	}
-	path.pop_back();
-	return false;
-}
-Triangle * find_common_triangle(Triangle *t1, Triangle *t2) {
-	vector<Triangle *> path1, path2;
-	if (!findPath(&t_list[t_head], path1, t1) || !findPath(&t_list[t_head], path2, t2))
-		return NULL;
+	CWinApp::InitInstance();
 
-	int i;
-	for (i = 0; i < (int)path1.size() && i < (int)path2.size(); i++)
-		if (path1[i] != path2[i])
-			break;
-	return path1[i - 1];
-}
-SNode * find_common_ancestor(int _t1, int _t2) {//input: triangle where the test_points are located
-	// to store paths to n1 and n2 from the root 
-	vector<SNode *> path1, path2;
 
-	// Find paths from root to n1 and root to n1. If either n1 or n2 
-	// is not present, return -1 
-	Triangle t1 = t_list[_t1], t2 = t_list[_t2];
-	SNode* s1 = t1.get_node(), * s2 = t2.get_node();
-	if (!findPath(s_head, path1, s1) || !findPath(s_head, path2, s2))
-		return NULL;
+	// 대화 상자에 셸 트리 뷰 또는
+	// 셸 목록 뷰 컨트롤이 포함되어 있는 경우 셸 관리자를 만듭니다.
+	CShellManager *pShellManager = new CShellManager;
 
-	/* Compare the paths to get the first different value */
-	int i;
-	for (i = 0; i < (int)path1.size() && i < (int)path2.size(); i++)
-		if (path1[i] != path2[i])
-			break;
-	SNode * common_ancestor = path1[i - 1];
+	// MFC 컨트롤의 테마를 사용하기 위해 "Windows 원형" 비주얼 관리자 활성화
+	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 
-	Triangle * common_low_triangle = find_common_triangle(&t_list[_t1], &t_list[_t2]);
-	bool check = false;
-	bool inclusive;
-	std::vector<SNode*>::reverse_iterator rit;
-	vector<Triangle *> dummy;
-	for (rit = path2.rbegin(); rit != path2.rend(); rit++) {
-		if (!check) {
-			inclusive = true;
-			int * t = edge_triangle[(*rit)->get_diagonal()];
-			for (int i = 0; i < 2; i++) {
-				if (t[i] != -1) {
-					//Triangle &target = t_list[t[i]];
-					bool b1 = findPath(&t_list[t[i]],dummy, &t_list[_t1]);
-					bool b2 = findPath(&t_list[t[i]],dummy,&t_list[_t2]);
-					if (((&t_list[t[i]])!=(&t_list[_t1]))&&((&t_list[t[i]]) != (&t_list[_t2]))&&(!b1 || b2) && (b1 || !b2) && (common_low_triangle != &t_list[t[i]]))
-						inclusive = false;
-				}
-			}
-			if(inclusive) sequence_diagonal.push_back((*rit)->get_diagonal());
-			if (common_ancestor == (*rit)) {
-				check = true;
-			}
-		}
-	}
+	// 표준 초기화
+	// 이들 기능을 사용하지 않고 최종 실행 파일의 크기를 줄이려면
+	// 아래에서 필요 없는 특정 초기화
+	// 루틴을 제거해야 합니다.
+	// 해당 설정이 저장된 레지스트리 키를 변경하십시오.
+	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은
+	// 적절한 내용으로 수정해야 합니다.
+	SetRegistryKey(_T("로컬 애플리케이션 마법사에서 생성된 애플리케이션"));
 
-	vector<SNode*>::iterator it;
-	check = false;
-	for (it = path1.begin(); it != path1.end(); it++) {
-		if (common_ancestor == *it) {
-			check++;
-		}
-		else if (check) {
-			inclusive = true;
-			int * t = edge_triangle[(*it)->get_diagonal()];
-			for (int i = 0; i < 2; i++) {
-				if (t[i] != -1) {
-					bool b1 = findPath(&t_list[t[i]], dummy, &t_list[_t1]);
-					bool b2 = findPath(&t_list[t[i]], dummy, &t_list[_t2]);
-					if (((&t_list[t[i]]) != (&t_list[_t1])) && ((&t_list[t[i]]) != (&t_list[_t2])) && (!b1 || b2) && (b1 || !b2) && (common_low_triangle != &t_list[t[i]]))
-						inclusive = false;
-				}
-			}
-			if(inclusive) sequence_diagonal.push_back((*it)->get_diagonal());
-		}
-	}
-	
-	return common_ancestor;
-}
-void free_data() {
-	for (int i = 0; i < v_num; i++) {
-		delete(edge_finder[i]);
-	}
-	delete(edge_finder);
-
-	for (int i = 0; i < (int)(diagonal_list.size()); i++) {
-		delete(edge_triangle[i]);
-		delete(s_graph[i]);
-	}
-	delete(s_graph);
-	delete(edge_triangle);
-
-	delete_snodes(s_head);
-
-	delete(t_list);
-}
-
-vector<Point> input_polygon;
-void white_page()
-{
-	glLoadIdentity();
-	gluOrtho2D(0, 800, 0, 800);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glLineWidth(5);
-	glPointSize(8.0f);
-	//glEnable(GL_POINT_SMOOTH);
-
-	glBegin(GL_POINTS);
-	glColor3f(1.0, float(0.7137), float(0.7568));
-	for (int i = 0; i < input_polygon.size(); i++)
+	CDNNDemoDlg dlg;
+	m_pMainWnd = &dlg;
+	INT_PTR nResponse = dlg.DoModal();
+	if (nResponse == IDOK)
 	{
-		glVertex3f(input_polygon[i].get_x(), input_polygon[i].get_y(), 0.0);
+		// TODO: 여기에 [확인]을 클릭하여 대화 상자가 없어질 때 처리할
+		//  코드를 배치합니다.
 	}
-	glEnd();
-	glBegin(GL_LINE_LOOP);
-	glColor3f(0.0, float(0.7137), float(0.7568));
-	for (int i = 0; i < input_polygon.size(); i++)
+	else if (nResponse == IDCANCEL)
 	{
-		glVertex3f(input_polygon[i].get_x(), input_polygon[i].get_y(), 0.0);
+		// TODO: 여기에 [취소]를 클릭하여 대화 상자가 없어질 때 처리할
+		//  코드를 배치합니다.
 	}
-	glEnd();
-
-
-	glutSwapBuffers();
-}
-void add_polygon_points(int button, int state, int x, int y)
-{
-	float fx = x;
-	float fy = 800-y;
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	else if (nResponse == -1)
 	{
-		Point new_point(fx, fy);
-		input_polygon.push_back(new_point);
-		glFlush();
+		TRACE(traceAppMsg, 0, "경고: 대화 상자를 만들지 못했으므로 애플리케이션이 예기치 않게 종료됩니다.\n");
+		TRACE(traceAppMsg, 0, "경고: 대화 상자에서 MFC 컨트롤을 사용하는 경우 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS를 수행할 수 없습니다.\n");
 	}
 
-	glutPostRedisplay();
-}
-void end_of_polygon(int key, int x, int y)
-{
-	if (key == GLUT_KEY_DOWN) //delete all the points
-		input_polygon.clear();
-	else if (key == GLUT_KEY_LEFT) //delete a single point
+	// 위에서 만든 셸 관리자를 삭제합니다.
+	if (pShellManager != nullptr)
 	{
-		if (!input_polygon.empty())
-			input_polygon.pop_back();
-	}
-	else if (key == GLUT_KEY_UP)//save!
-	{
-		string filePath = "input/new_input_please_save_separately.txt";
-
-		ofstream writeFile(filePath.data());
-		if (writeFile.is_open())
-		{
-			writeFile << input_polygon.size() << endl;
-			for (int i = 0; i < input_polygon.size(); i++)
-			{
-				writeFile << input_polygon[i].get_x() << " " << input_polygon[i].get_y() << endl;
-			}
-		}
-
-		exit(10);
+		delete pShellManager;
 	}
 
-	glutPostRedisplay();
-}
-void add_input_file(int argc, char **argv)
-{
-	glutInit(&argc, argv);
-	glutInitWindowPosition(100, 0);
-	glutInitWindowSize(800, 800);//â ũ�� ����
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutCreateWindow("Create New Input Polygon");
-	glutReshapeFunc(reshape);
-	
-	glutDisplayFunc(white_page);
-	glutMouseFunc(add_polygon_points);
-	glutSpecialFunc(end_of_polygon);
-	//glutKeyboardFunc(clear_test_points);
-	glutPostRedisplay();
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-	glutMainLoop();
-	
-	return;
-}
-void preprocess_polygon()
-{
-	vector<int> polygon = vector<int>(point_list.size());
+#if !defined(_AFXDLL) && !defined(_AFX_NO_MFC_CONTROLS_IN_DIALOGS)
+	ControlBarCleanUp();
+#endif
 
-	iota(polygon.begin(), polygon.end(), 0);
-	polygon_list.push_back(polygon);
-	make_big_triangle();
-
-	for (int i = 0; i < (int)point_list.size(); i++) {
-		outer_edge_list.push_back(Edge(i, (i + 1) % point_list.size()));
-	}
-	bool  inside = true;
-	vector<Edge> new_d_list(find_monotone_polygons(polygon_list));//divides P into smaller polygons(not necessarily triangles) -> ���� test point �� ����
-	diagonal_list.insert(diagonal_list.end(), new_d_list.begin(), new_d_list.end());
-	new_d_list = find_monotone_polygons(outer_polygon_list);
-	outer_diagonal_list.insert(outer_diagonal_list.end(), new_d_list.begin(), new_d_list.end());
-
-	new_d_list = triangulate_monotone_polygons(polygon_list);
-	diagonal_list.insert(diagonal_list.end(), new_d_list.begin(), new_d_list.end());
-	new_d_list = triangulate_monotone_polygons(outer_polygon_list);
-	outer_diagonal_list.insert(outer_diagonal_list.end(), new_d_list.begin(), new_d_list.end());
-
-	d_size = diagonal_list.size();
-	t_num = int(polygon_list.size());
-	dual_tree(v_num);
-
-	construct_hourglasses();
-
-	diagonal_list = vector<Edge>(diagonal_list.begin(), diagonal_list.begin() + d_size);
-	
-}
-//int main(int argc, char **argv) {
-
-void dnnEnvChange(vector<Point>& plist) {
-	polygon_list = vector<vector<int>>();
-	diagonal_list = vector<Edge>();
-	outer_diagonal_list = vector<Edge>();
-	selected_triangle = vector<int>();
-	outer_edge_list = vector<Edge>();
-	sequence_diagonal = vector<int>();
-	null_edge_list = vector<Edge*>();
-	init_hourglass_val();
-
-	point_list = vector<Point>();
-	polygon_boundary = vector<Point>();
-
-
-	int id = 0;
-	for (int id = 0; id < plist.size(); id++) {
-		Point p = Point(id, plist[id].get_x(), plist[id].get_y());
-		point_list.push_back(p);
-		polygon_boundary.push_back(p);
-	}
-	preprocess_polygon();
-	point_state = PointS();
-	while (point_state.step());
-}
-
-bool DynamicNN::MoveEnv(int Num, const Point& p) {
-	bool ck=env->MoveEnv(Num, p);
-	if(ck) dnnEnvChange(plist);
-	return ck;
-}
-
-void DynamicNN::KNNindex(Point& p, vector<int>* result, int k ) {
-	test_points.push_back(p);
-	point_list.push_back(p);
-
-
-	final_hour = find_shortest_path(test_points);
-
-	Edge * e = final_hour.get_edge_list();
-	
-	for (int i = 0; i < (int)test_points.size(); i++)
-		point_list.pop_back();
-	test_points = vector<Point>();
-	selected_triangle = vector<int>();
-	sequence_diagonal = vector<int>();
-	
-}
-
-DynamicNN::DynamicNN(Environment* env , vector<Point>* pointSet ) {
-	if (pointSet != NULL) {
-		for (int i = 0; i < pointSet->size(); i++)
-			plist.push_back((*pointSet)[i]);
-
-	}
-
-	if (env == NULL)
-		this->env = new Environment();
-	else this->env = new Environment(env);
-	dnnEnvChange(plist);
-
-}
-
-
-
-int DNN(){
-	polygon_list = vector<vector<int>>();
-	diagonal_list = vector<Edge>();
-	outer_diagonal_list = vector<Edge>();
-	selected_triangle = vector<int>();
-	outer_edge_list = vector<Edge>();
-	sequence_diagonal = vector<int>();
-	null_edge_list = vector<Edge *>();
-	init_hourglass_val();
-
-	int menu;
-	
-	int number = -1;
-
-	string filename;
-	stringstream s;
-
-	s << number;
-
-	filename = s.str();
-
-	filename = "input/input" + filename + ".txt";
-	if (read_file(filename) != -1) {
-
-		preprocess_polygon();
-		point_state = PointS();
-			
-		while (point_state.step());
-		//print_result(argc, argv);
-
-		return 0;
-	}
-
-}
-
-Hourglass find_shortest_path(vector<Point> test_points) //input : two test points , returns final hourglass(string) representing shortest path of the two points
-{
-	selected_triangle = vector<int>();
-	sequence_diagonal = vector<int>();
-	for (int i = 0; i < (int)test_points.size(); i++) {
-		int found_triangle = point_state.find_triangle(test_points[i]);
-		selected_triangle.push_back(found_triangle);
-	}
-	Hourglass final_hourglass;
-	if (selected_triangle[0] == selected_triangle[1]) {
-		final_hourglass.set_string(new String(point_list.size() - 1, point_list.size() - 2));
-		final_hourglass.set_first_edge(Edge(point_list.size() - 1));
-		final_hourglass.set_second_edge(Edge(point_list.size() - 2));
-		glutPostRedisplay();
-		return final_hourglass;
-	}
-	SNode * common_ancestor = find_common_ancestor(selected_triangle[0], selected_triangle[1]);
-	Hourglass origin, dest;
-
-	origin = construct_hourglass_point(point_list.size() - 1, sequence_diagonal.front());
-	dest = construct_hourglass_point(point_list.size() - 2, sequence_diagonal.back());
-	if (sequence_diagonal.size() == 1) {
-		final_hourglass = concatenate_hourglasses(origin, dest);
-	}
-	else if (sequence_diagonal.size() >= 2) {
-		int h_num = s_graph[sequence_diagonal[0]][sequence_diagonal[1]];
-		h_num = (h_num == -1) ? s_graph[sequence_diagonal[1]][sequence_diagonal[0]] : h_num;
-		final_hourglass = hourglass_list[h_num];
-
-		Hourglass temp;
-		for (int i = 2; i < (int)sequence_diagonal.size(); i++) {
-			int d_1 = sequence_diagonal[i - 1];
-			int d_2 = sequence_diagonal[i];
-			int h_num = s_graph[d_1][d_2];
-			h_num = (h_num == -1) ? s_graph[d_2][d_1] : h_num;
-			temp = hourglass_list[h_num];
-			final_hourglass = concatenate_hourglasses(temp, final_hourglass);
-		}
-		final_hourglass = concatenate_hourglasses(origin, final_hourglass);
-		final_hourglass = concatenate_hourglasses(final_hourglass, dest);
-	}
-	for (int i = 0; i<2; i++)
-		diagonal_list.pop_back();
-
-	return final_hourglass;
-}
-void add_test_point(int button, int state, int x, int y) {
-	if (state == GLUT_DOWN) {
-		
-		if (button == GLUT_LEFT_BUTTON) {
-			cout << x << "," << y << endl;
-			Point p(-1, x*(max_x - min_x) / w_w + min_x, (w_h - y)*(max_y - min_y) / w_h + min_y);
-			cout << "p : " << p.get_x() << "," << p.get_y() << endl;
-			int test_tri = point_state.find_triangle(p);
-			cout << "t_num" << test_tri << endl;
-
-			if (test_tri < (int)polygon_list.size() && (int)test_points.size()<2) {
-				test_points.push_back(p);
-				point_list.push_back(p); 
-			}
-
-			if (test_points.size() == 2)
-				final_hour = find_shortest_path(test_points); // RETURNS SINGLE FINAL HOURGLASS FOR THE TWO POINTS IN THE INPUT VECTOR
-
-			glutPostRedisplay();
-		}
-	}
-
-}
-void clear_test_points() {
-	for (int i = 0; i < (int)test_points.size(); i++)
-		point_list.pop_back();
-	test_points = vector<Point>();
-	selected_triangle = vector<int>();
-	sequence_diagonal = vector<int>();
-}
-void clear_test_points(unsigned char key, int x, int y) {
-	switch (key) {
-	case ' ':
-		clear_test_points();
-		break;
-	}
-	glutPostRedisplay();
-} 
-void print_result(int argc, char **argv) {
-
-	glutInit(&argc, argv);
-	glutInitWindowPosition(100, 0);
-	glutInitWindowSize(800, 800);//â ũ�� ����
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutCreateWindow("Shortest Path in a simple Polygon");
-	glutReshapeFunc(reshape);
-	glutDisplayFunc(display);
-	glutMouseFunc(add_test_point);
-	glutKeyboardFunc(clear_test_points);
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-	glutMainLoop();
-	free_data();
-	return;
-}
-void reshape(int w, int h) {
-	w_w = w;
-	w_h = h;
-	glViewport(0, 0, w, h);
-	glLoadIdentity();
-	gluOrtho2D(0, 100, 0, 100);
-}
-void display_point(Point p) {
-	glBegin(GL_POINTS); //starts drawing of points
-	glVertex2d(p.get_x(), p.get_y());
-	glEnd();
-	return;
-}
-void display_point(int p) {
-	glBegin(GL_POINTS); //starts drawing of points
-	glVertex2d(point_list[p].get_x(), point_list[p].get_y());
-	glEnd();
-	return;
-}
-void display_edge(int p1, int p2) {
-	glBegin(GL_LINES);
-	glVertex2d(point_list[p1].get_x(), point_list[p1].get_y());
-	glVertex2d(point_list[p2].get_x(), point_list[p2].get_y());
-	glEnd();
-	return;
-}
-void display_edge(Edge e) {
-	if(e.get_origin()!= -1)
-		display_edge(e.get_origin(), e.get_dest());
-	return;
-}
-void display_chain(Chain * chain) {
-	if (chain == NULL) return;
-	vector<int> p0_list = chain->get_point_list();
-	for (int p = 0; p < (int)p0_list.size(); p++) {
-		if (p == 0) {
-			display_point(p0_list[p]);
-		}
-		else {
-			display_edge(p0_list[p - 1], p0_list[p]);
-		}
-	}
-	return;
-}
-void display_string(String * s) {
-	display_chain(s->get_chain());
-	/*int c_num = s->get_children_number();
-	if (c_num == 0) {
-		display_chain(s->get_chain());
-	}
-	else {
-		if (c_num > 0) {
-			display_string(s->get_left_string());
-		}
-		if (c_num > 1) {
-			display_string(s->get_middle_string());
-		}
-		if (c_num > 2) {
-			display_string(s->get_right_string());
-		}
-	}*/
-	return;
-}
-void display() {
-
-	max_y = max_element(point_list.begin(), point_list.end() - 3 - test_points.size(), [](Point &a, Point &b) {return a.get_y() < b.get_y(); })->get_y();
-	min_y = max_element(point_list.begin(), point_list.end() - 3 - test_points.size(), [](Point &a, Point &b) {return a.get_y() > b.get_y(); })->get_y();
-	max_x = max_element(point_list.begin(), point_list.end() - 3 - test_points.size(), [](Point &a, Point &b) {return a.get_x() < b.get_x(); })->get_x();
-	min_x = max_element(point_list.begin(), point_list.end() - 3 - test_points.size(), [](Point &a, Point &b) {return a.get_x() > b.get_x(); })->get_x();
-
-	MAX_x = max_x;
-
-	glLoadIdentity();
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	gluOrtho2D(min_x, max_x, min_y, max_y);
-
-	
-	glLineWidth(8);
-	glPointSize(5.0f);
-	glEnable(GL_POINT_SMOOTH);
-
-	
-	glColor3f(1, float(0.7137), float(0.7568)); 
-
-	glBegin(GL_LINE_LOOP);
-	for (int i = 0; i < v_num; i++)
-	{
-		glVertex2d(point_list[i].get_x(), point_list[i].get_y());
-	}
-	glEnd();
-
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glBegin(GL_POINTS);
-	glVertex2d(point_list[0].get_x(), point_list[0].get_y());
-	glEnd();
-
-	glColor3f(0.5f, 0.7f, 0.30f);
-	glBegin(GL_POINTS);
-	for (int i = 1; i < v_num; i++)
-	{
-		glVertex2d(point_list[i].get_x(), point_list[i].get_y());
-	}
-	glEnd();
-
-	glLineWidth(3);//every diagonal
-	glColor3f(float(0.6), float(0.6), float(0.6));
-	for (int i = 0; i < (int)(diagonal_list.size()); i++) {;
-		display_edge(diagonal_list[i]);
-	}
-	
-	glColor3f(1.0f, 0.0f, 1.0f);
-	for (int i = 0; i < (int)sequence_diagonal.size(); i++) {
-		display_edge(diagonal_list[sequence_diagonal[i]]);
-	}
-	
-	glColor3d(0, 0.47, 0.43);
-	
-	for (int t = 0; t <(int)test_points.size(); t++) {
-		display_point(test_points[t]);
-	}
-	if (test_points.size() >= 2) {
-		glColor3f(0.0f, 1.0f, 0.0f);
-		Chain ** first_chain = final_hour.get_first_chain();
-		for (int i = 0; i < 2; i++) {
-			if (first_chain[i] == NULL) continue;
-			display_chain(first_chain[i]);
-		}
-
-		String * s = final_hour.get_string();
-		if (s != NULL) display_string(s);
-
-		Chain ** second_chain = final_hour.get_second_chain();
-		for (int i = 0; i < 2; i++) {
-			if (second_chain[i] == NULL) continue;
-			display_chain(second_chain[i]);
-		}
-
-		glColor3f(0.0f, 1.0f, 1.0f);
-		Edge * e_list = final_hour.get_edge_list();
-		for (int i = 0; i < 2; i++) {
-			display_edge(e_list[i]);
-		}
-	}
-	
-	glutSwapBuffers();
-	return;
-
-	/*glBegin(GL_LINE_LOOP);
-	for (int i = 0; i < 3; i++)
-	glVertex2d(point_list[bigT[i]].get_x(), point_list[bigT[i]].get_y());
-	glEnd();
-	*/
-
-	/*
-	for (int i = 0; i < (int)outer_diagonal_list.size(); i++) {
-	int origin = outer_diagonal_list[i].get_origin();
-	int dest = outer_diagonal_list[i].get_dest();
-	glBegin(GL_LINES);
-	glVertex2d(point_list[origin].get_x(), point_list[origin].get_y());
-	glVertex2d(point_list[dest].get_x(), point_list[dest].get_y());
-	glEnd();
-	}*/
-
-	/*glEnable(GL_POINT_SMOOTH);
-	glColor3d(0, 0.47, 0.43);
-	glBegin(GL_POINTS); //starts drawing of points
-	glVertex2d(test_points[t].get_x(), test_points[t].get_y());
-	glEnd();
-
-	glColor3d(0, 0, 1);
-	if (selected_triangle[t] == -1) {
-	continue;
-	}
-	else if (selected_triangle[t] >= t_num) {
-	glBegin(GL_LINE_LOOP);
-	for (int i = 0; i < 3; i++) {
-	Point p = point_list[outer_polygon_list[selected_triangle[t] - t_num][i]];
-	glVertex2d(p.get_x(), p.get_y());
-	}
-	glEnd();
-	}
-	else {
-	glBegin(GL_LINE_LOOP);
-	for (int i = 0; i < 3; i++) {
-	Point p = point_list[polygon_list[selected_triangle[t]][i]];
-	glVertex2d(p.get_x(), p.get_y());
-	}
-	glEnd();
-	}
-	*/
-
-}
-int read_file(const string filePath) {
-	ifstream openFile(filePath.data());
-	if (openFile.is_open()) {
-
-		openFile >> v_num;
-		point_list = vector<Point>();
-		point_list.reserve(v_num);
-
-		point_type x, y;
-		int id = 0;
-		while (openFile >> x >> y) {
-
-
-			Point p = Point(id, x, y);
-			point_list.push_back(p);
-			polygon_boundary.push_back(p);
-			id++;
-		}
-		openFile.close();
-	}
-	else {
-		cout << "No such file" << endl;
-		return -1;
-	}
-	return 1;
+	// 대화 상자가 닫혔으므로 응용 프로그램의 메시지 펌프를 시작하지 않고 응용 프로그램을 끝낼 수 있도록 FALSE를
+	// 반환합니다.
+	return FALSE;
 }
 
