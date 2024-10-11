@@ -138,7 +138,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,6 +155,7 @@
     <ClInclude Include="ap.h" />
     <ClInclude Include="data_generation_print.h" />
     <ClInclude Include="EpsGraphnD.h" />
+    <ClInclude Include="errorTest.h" />
     <ClInclude Include="linalg.h" />
     <ClInclude Include="optimization.h" />
     <ClInclude Include="Point.h" />
@@ -169,7 +170,9 @@
     <ClCompile Include="ap.cpp" />
     <ClCompile Include="data_generation_print.cpp" />
     <ClCompile Include="EpsGraphnD.cpp" />
+    <ClCompile Include="errorTest.cpp" />
     <ClCompile Include="linalg.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="optimization.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />

@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="헤더 파일\eigen">
+      <UniqueIdentifier>{029ed83d-0d60-420a-adc6-b759cb25e1bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\eigen">
+      <UniqueIdentifier>{d139b874-c124-40d3-b0b0-9b8ec93ef087}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EpsGraphnD.h">
@@ -22,24 +28,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Point.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="alglibinternal.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="alglibmisc.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ap.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="linalg.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="optimization.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="solvers.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
@@ -54,6 +42,27 @@
     <ClInclude Include="..\..\..\..\..\..\136297485147260925\include\dirent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="errorTest.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="alglibinternal.h">
+      <Filter>헤더 파일\eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="alglibmisc.h">
+      <Filter>헤더 파일\eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="ap.h">
+      <Filter>헤더 파일\eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="linalg.h">
+      <Filter>헤더 파일\eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="optimization.h">
+      <Filter>헤더 파일\eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="solvers.h">
+      <Filter>헤더 파일\eigen</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EpsGraphnD.cpp">
@@ -65,29 +74,35 @@
     <ClCompile Include="Polytope.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="alglibinternal.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="alglibmisc.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ap.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="linalg.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="optimization.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="solvers.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="..\data_generation\data_generation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="data_generation_print.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="errorTest.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="alglibinternal.cpp">
+      <Filter>소스 파일\eigen</Filter>
+    </ClCompile>
+    <ClCompile Include="alglibmisc.cpp">
+      <Filter>소스 파일\eigen</Filter>
+    </ClCompile>
+    <ClCompile Include="ap.cpp">
+      <Filter>소스 파일\eigen</Filter>
+    </ClCompile>
+    <ClCompile Include="linalg.cpp">
+      <Filter>소스 파일\eigen</Filter>
+    </ClCompile>
+    <ClCompile Include="optimization.cpp">
+      <Filter>소스 파일\eigen</Filter>
+    </ClCompile>
+    <ClCompile Include="solvers.cpp">
+      <Filter>소스 파일\eigen</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
