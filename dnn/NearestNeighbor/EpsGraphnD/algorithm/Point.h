@@ -38,8 +38,8 @@ public:
 	Point(std::vector<double>, bool);
 	Point(Point*);
 	~Point();
-	bool operator==(Point);
-	Point operator- (Point);
+	bool operator==(Point*);
+	Point operator- (Point*);
 	double getx(int);
 	void setx(int, double);
 	std::vector<double> getxs();
@@ -49,7 +49,7 @@ public:
 	//double getz(void);
 	//void setz(double);
 	int getsize();
-	double distance(Point);
+	double distance(Point*);
 	void print();
 	void print(std::string dir);
 };
@@ -80,9 +80,10 @@ public:
 
 public:
 	Grid_Point(int);
-	Grid_Point(std::vector<long long int>, Point, double, std::vector<long long int>);
+	Grid_Point(std::vector<long long int>, Point*, double, 
+		std::vector<long long int>);
 	// Grid_Point(int, int, int, double, double, double, double, int, int);
 };
 
-double distanceBtwFreePoints(Free_Point p1, Free_Point p2);
-double distanceBtwGPandFP(Grid_Point p1, Free_Point p2);
+double distanceBtwFreePoints(Free_Point* p1, Free_Point* p2);
+double distanceBtwGPandFP(Grid_Point* p1, Free_Point* p2);

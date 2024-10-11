@@ -32,15 +32,15 @@ public: // variables
 	//long long int x_num, y_num, z_num;
 	int ord_pol;
 
-	Point upper_left;
+	Point* upper_left;
 	// int row_num, col_num, layer_num; // (# of points in the eps_graph) = (row_num) * (col_num) * (layer_num) // index는 0부터 n-1까지
 
-	vector<Grid_Point> grid; // Grid edges
-	list<Free_Point> fr_pts; // 초기화할 때 이미 anchor를 시키므로, add_freept에서도 anchor시키는 부분이 포함돼야 함.
-	// vector<Free_Point> freePointsVec;
+	vector<Grid_Point*> grid; // Grid edges
+	list<Free_Point*> fr_pts; // 초기화할 때 이미 anchor를 시키므로, add_freept에서도 anchor시키는 부분이 포함돼야 함.
+	// vector<Free_Point*> fr_pts;
 
 	// vector<vector<Polytope>> pols; // Set of polytope
-	vector<Polytope> pols;
+	vector<Polytope*> pols;
 
 	vector<int> dist;	// BFS distance
 	vector<bool> visited;
@@ -49,13 +49,13 @@ public: // variables
 
 public:	// functions
 	
-
 	Eps_Graph_nD(int); // , string printDir);
-	Eps_Graph_nD(int, list<Free_Point>, vector<Polytope>, double, string printDir); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
+	Eps_Graph_nD(int, list<Free_Point*>, vector<Polytope*>, double, string printDir); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
+	// Eps_Graph_nD(int, list<Free_Point>, vector<Polytope>, double, string printDir); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	// Eps_Graph_nD(int, list<Free_Point>, vector<vector<Polytope>>, double); // lexicographic order로 정렬한 뒤 binary search로 insertion/deletion 구현할 것까지는 없을 듯(arbitrary order)
 	void init_grid(string printDir);
 	// Grid_Point get_gridpt(indices);
-	Grid_Point get_gridpt(vector<long long int>);
+	Grid_Point* get_gridpt(vector<long long int>&);
 
 	// long long int ind2num(indices);
 	long long int ind2num(vector<long long int>);
@@ -64,34 +64,36 @@ public:	// functions
 	vector<long long int> num2ind(long long int);
 
 	// void add_edge(indices, indices); // add grid edges
-	void add_edge(vector<long long int>, vector<long long int>);
-	void delete_edge(vector<long long int>, vector<long long int>);
+	void add_edge(vector<long long int>&, vector<long long int>&);
+	void delete_edge(vector<long long int>&, vector<long long int>&);
 	// void delete_edge(indices, indices);
 	//bool cmpNadd(indices, int);
-	bool cmpNadd(vector<long long int>&, int);
-	bool cmpNadd_SinPol(vector<long long int>, int, int);
+	bool cmpNadd(vector<long long int>&, int&);
+	bool cmpNadd_SinPol(vector<long long int>&, int&, int&);
 	// bool cmpNadd_SinPol(indices, int, int);
 
 	void add_freepts(Free_Point*);
-	void add_freepts(vector<Free_Point> p_vec);
-	void delete_freept(int);
+	void add_freepts(vector<Free_Point*> p_vec);
+	void delete_freept(int&);
 
-	bool get_step_comb(vector<int>, int, int, int, vector<long long int>, Free_Point&);
-	void anchor(Free_Point&);	// 중간에 있으면 왼쪽, 위로 가도록
-	void query_anchor(Grid_Point&);
+	bool get_step_comb(vector<int>&, int, int, int&, 
+		vector<long long int>&, Free_Point*);
 
-	void add_pol(Polytope);
+	void anchor(Free_Point*);	// 중간에 있으면 왼쪽, 위로 가도록
+	void query_anchor(Grid_Point*);
+
+	void add_pol(Polytope*);
 	void delete_pol(int);
-	std::vector<vector<long long int>> eff_region(Polytope);
+	std::vector<vector<long long int>> eff_region(Polytope*);
 	// indices* eff_region(Polytope); // effective region of the given polygon. In other words, the rectangular range for checking grid edges again
 
 	// vector<Free_Point> kNN(Free_Point, int); // kNN point query
 	// vector<pair<Free_Point, double>> kNN(Free_Point, int);
-	pair<vector<Free_Point>, vector<double>> kNN(Free_Point, int, string dir);
+	pair<vector<Free_Point*>, vector<double>> kNN(Free_Point*, int, string dir);
 
-	vector<edge> path_kNN(Free_Point, int); // kNN point query
+	vector<edge*> path_kNN(Free_Point*, int); // kNN point query
 	//pair<vector<Point>, vector<double>> Dijkstra(int, vector<Point>, vector<vector<double>>);
-	vector<pair<Free_Point, double>> Dijkstra(Free_Point, int);
+	vector<pair<Point*, double>> Dijkstra(Free_Point*, int&);
 
 	void print_grid();
 	void print_encl();
@@ -99,19 +101,20 @@ public:	// functions
 	//void print_edges();
 	void print_anchor();
 	//void print_dist();
-	void print_kNN(Free_Point, int);
+	void print_kNN(Free_Point*, int);
 
-	Free_Point get_free_point(int);
-	list<Free_Point> get_free_points();
+	Free_Point* get_free_point(int&);
+	list<Free_Point*> get_free_points();
+	// vector<Free_Point*> get_free_points();
 
 	// vector<vector<Polytope>> get_Polytope();
-	vector<Polytope > get_Polytope();
+	vector<Polytope*> get_Polytopes();
 
-	vector<Grid_Point> get_grid();
-	vector<edge> get_path(Free_Point, int);
+	vector<Grid_Point*> get_grid();
+	vector<edge*> get_path(Free_Point*, int);
 	//vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
 	//vector<vector<pair<double, int>>> Visibility_polygon(Free_Point);
-	vector<pair<Point, double>>* Visibility_polygon(Free_Point qry);
+	vector<pair<Point*, double>>* Visibility_polygon(Free_Point* qry);
 	// vector<vector<pair<double, int>>> Visibility_polygon2(Free_Point);
 	//void export_json();
 

@@ -295,9 +295,9 @@ bool simplex::intersect(Grid_Point* p, Grid_Point* q) {
 
 bool simplex::In(Point* p, Point* q) {
 	for (auto vert : vertices) {
-		if (*p == *vert) {
+		if (p == vert) {
 			for (auto vert2 : vertices) {
-				if (*q == *vert2) {
+				if (q == vert2) {
 					return true;
 				}
 			}

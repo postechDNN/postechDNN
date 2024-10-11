@@ -166,14 +166,14 @@ vector<Point> makePointSetNoPtr(std::string dir);
 vector<Free_Point*> makeFreePointSet(std::string dir);
 vector<Free_Point> makeFreePointSetNoPtr(std::string dir);
 
-typedef pair<vector<Free_Point>, vector<double>> pVV;
+typedef pair<vector<Free_Point*>, vector<double>> pVV;
 
 pair<double, double> printErrorDijk(Eps_Graph_nD& epsGraph, pVV& pr,
-	vector<pair<Free_Point, double>>& prDijk, Free_Point& q, int& k, string& dir);
+	vector<pair<Free_Point*, double>>& prDijk, Free_Point& q, int& k, string& dir);
 
 pair<double, double> printError(Eps_Graph_nD* epsGraph1, Eps_Graph_nD* epsGraph2,
 	int useDataSetId, 
-	pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir);
+	pVV& pr1, pVV& pr2, Free_Point* q, int& k, string& dir);
 // double printNeighborError(pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir);
 
 // void printSpeedTemp(string dir, int id, long long time);

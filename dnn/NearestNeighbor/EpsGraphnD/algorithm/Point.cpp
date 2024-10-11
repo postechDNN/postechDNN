@@ -39,19 +39,19 @@ Point::Point(Point* _p) {
 }
 Point::~Point() {}
 
-bool Point::operator==(Point _p) {
+bool Point::operator==(Point* _p) {
 	for (int i=0;i<this->n;i++){
-		if (std::abs(this->xs[i] - _p.getx(i)) > ERR) return false;
+		if (std::abs(this->xs[i] - _p->getx(i)) > ERR) return false;
 	}
 	return true;
 }
 
-Point Point::operator- (Point _p) {
+Point Point::operator- (Point* _p) {
 	int _n = this->n;
 	std::vector<double> v;
 	v = std::vector<double>(_n, 0.);
 	for (int i=0;i<this->n;i++){
-		v[i] = this->xs[i] - _p.getx(i);
+		v[i] = this->xs[i] - _p->getx(i);
 	}
 	Point p(this->xs = v);
 	return p;
@@ -78,10 +78,10 @@ int Point::getsize() {
 }
 
 
-double Point::distance(Point _p) {
+double Point::distance(Point* _p) {
 	double a = 0;
 	for (int i=0;i<this->n;i++){
-		a += pow(this->xs[i] - _p.getx(i), 2);
+		a += pow(this->xs[i] - _p->getx(i), 2);
 	}
 	return sqrt(a);
 }
@@ -116,18 +116,18 @@ void Point::print(std::string dir) {
 	fout.close();
 }
 
-double distanceBtwFreePoints(Free_Point p1, Free_Point p2) {
+double distanceBtwFreePoints(Free_Point* p1, Free_Point* p2) {
 	double a = 0;
-	for (int i = 0; i < p1.xs.size(); i++) {
-		a += pow(p1.xs[i] - p2.getx(i), 2);
+	for (int i = 0; i < p1->xs.size(); i++) {
+		a += pow(p1->xs[i] - p2->getx(i), 2);
 	}
 	return sqrt(a);
 }
 
-double distanceBtwGPandFP(Grid_Point p1, Free_Point p2) {
+double distanceBtwGPandFP(Grid_Point* p1, Free_Point* p2) {
 	double a = 0;
-	for (int i = 0; i < p1.xs.size(); i++) {
-		a += pow(p1.xs[i] - p2.getx(i), 2);
+	for (int i = 0; i < p1->xs.size(); i++) {
+		a += pow(p1->xs[i] - p2->getx(i), 2);
 	}
 	return sqrt(a);
 }
@@ -155,23 +155,27 @@ void Free_Point::set_maxmin() {
 	}
 }
 
-Grid_Point::Grid_Point(int n) : Point(n) { ind = std::vector<long long int>(n,-1); num = -1; ip_u = std::vector<bool>(n,false); ip_d = std::vector<bool>(n, false); encl = -1; }
+Grid_Point::Grid_Point(int n) : Point(n) { ind = std::vector<long long int>(n,-1); num = -1; 
+	ip_u = std::vector<bool>(n,false); ip_d = std::vector<bool>(n, false); encl = -1; }
 
-Grid_Point::Grid_Point(std::vector<long long int> _ind, Point _upper_left, double _eps, std::vector<long long int> _xs)
+Grid_Point::Grid_Point(std::vector<long long int> _ind, Point* _upper_left, 
+	double _eps, std::vector<long long int> _xs)
 {
-	n = _upper_left.n;
+	n = _upper_left->n;
 	ind = _ind;
 	xs = std::vector<double>(n, 0);
 	for (int i = 0; i < n;i++) {
-		xs[i] = _upper_left.xs[i] + ind[i] * _eps;
+		xs[i] = _upper_left->xs[i] + ind[i] * _eps;
 	}
 	num = 0;
+
 	long long int mult = 1;
 	for (int i = 0; i < n;i++) {
 		//add num!!!!!!!!!
 		num += mult * _ind[n - 1 - i];
 		mult *= _xs[n - 1 - i];
 	}
+
 	encl = -1;
 	ip_u = std::vector<bool>(n, false);
 	ip_d = std::vector<bool>(n, false);
