@@ -1,5 +1,6 @@
 #pragma once
 #include "LOS.h"
+#include <utility>
 using namespace std;
 
 LINE* minSumLine;
@@ -38,6 +39,8 @@ public:
 	void compute_min_line(void);
 	void compute_min_max(void);
 	void compute_min_sum(void);
+	std::pair<int, int> compute_minmax_idx(void);
+	std::pair<int, int> compute_minsum_idx(void);
 };
 
 //sorts from small -> big
@@ -656,4 +659,54 @@ void EVENTS::compute_min_line(void)
 			}
 		}
 	}
+}
+
+std::pair<int,int> EVENTS::compute_minmax_idx()
+{
+	double minMax = std::numeric_limits<double>::infinity();
+	std::pair<int, int> result;
+	result.first = -1;
+	result.second = -1;
+	for (int i = 0; i < Queue.size(); i++)
+	{
+		for (int j = 0; j < Queue[i].size(); j++)
+		{
+			LINE* line = Queue[i][j];
+
+			double tempMax = max(line->getLength(0), line->getLength(1));
+
+			if (tempMax < minMax)
+			{
+				result.first = i;
+				result.second = j;
+				minMax = tempMax;
+			}
+		}
+	}
+	return result;
+}
+
+std::pair<int, int> EVENTS::compute_minsum_idx()
+{
+	double minSum = std::numeric_limits<double>::infinity();
+	std::pair<int, int> result;
+	result.first = -1;
+	result.second = -1;
+	for (int i = 0; i < Queue.size(); i++)
+	{
+		for (int j = 0; j < Queue[i].size(); j++)
+		{
+			LINE* line = Queue[i][j];
+
+			double tempSum = line->getLength();
+
+			if (tempSum < minSum)
+			{
+				result.first = i;
+				result.second = j;
+				minSum = tempSum;
+			}
+		}
+	}
+	return result;
 }

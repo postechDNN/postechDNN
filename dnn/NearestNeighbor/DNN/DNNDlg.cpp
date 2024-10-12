@@ -254,7 +254,7 @@ void CDNNDemoDlg::OnBnClickedCheckVertex()
 		this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
 		break;
 	case 1:
-		this->m_picture_opengl.setDrawObject(3, VERTEX, m_check_vertex.GetCheck());
+		this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
 		break;
 	default:
 		break;
@@ -271,7 +271,7 @@ void CDNNDemoDlg::OnBnClickedCheckEdge()
 		this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
 		break;
 	case 1:
-		this->m_picture_opengl.setDrawObject(3, EDGE, m_check_edge.GetCheck());
+		this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
 		break;
 	default:
 		break;
@@ -424,7 +424,7 @@ void CDNNDemoDlg::OnBnClickedCheckPath()
 		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
 		break;
 	case 1:
-		this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
+		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
 		break;
 	default:
 		break;

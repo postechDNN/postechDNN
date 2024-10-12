@@ -4,8 +4,8 @@
 
 #include "pch.h"
 #include "framework.h"
-#include "ShortestPathSimplePolygon.h"
-#include "ShortestPathSimplePolygonDlg.h"
+#include "ShortestVisibilityPath.h"
+#include "ShortestVisibilityPathDlg.h"
 #include "AddDialog.h"
 #include "afxdialogex.h"
 
@@ -70,6 +70,65 @@ void CDNNDemoDlg::clearEditBox() {
 	this->m_edit_result_log.SetWindowTextW(_T(""));
 }
 
+void CDNNDemoDlg::printLogEditBox() {
+	CString temp;
+	temp.Format(_T("%lf"), this->m_picture_opengl.DDS.svp.getPathLength());
+	this->m_edit_result_length.SetWindowTextW(temp);
+
+	if (this->m_picture_opengl.DDS.svp.getMode() == 0) {
+		CString result_log;
+		temp.Format(_T("%lf"), this->m_picture_opengl.DDS.svp.getSourcePathLength());
+		result_log += _T("Source point path length: ") + temp + _T("\r\n");
+		if (this->m_picture_opengl.DDS.svp.minmaxStrings.size() > 0) {
+			auto path_points = this->m_picture_opengl.DDS.svp.minmaxStrings[0];
+			for (size_t i = 0; i < path_points.size(); i++) {
+				CString temp1, temp2;
+				temp1.Format(_T("%lf"), path_points[i].first);
+				temp2.Format(_T("%lf"), path_points[i].second);
+				result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
+			}
+		}
+		temp.Format(_T("%lf"), this->m_picture_opengl.DDS.svp.getTargetPathLength());
+		result_log += _T("Target point path length: ") + temp + _T("\r\n");
+		if (this->m_picture_opengl.DDS.svp.minmaxStrings.size() > 1) {
+			auto path_points = this->m_picture_opengl.DDS.svp.minmaxStrings[1];
+			for (size_t i = 0; i < path_points.size(); i++) {
+				CString temp1, temp2;
+				temp1.Format(_T("%lf"), path_points[i].first);
+				temp2.Format(_T("%lf"), path_points[i].second);
+				result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
+			}
+		}
+		this->m_edit_result_log.SetWindowTextW(result_log);
+	}
+	else {
+		CString result_log;
+		temp.Format(_T("%lf"), this->m_picture_opengl.DDS.svp.getSourcePathLength());
+		result_log += _T("Source point path length: ") + temp + _T("\r\n");
+		if (this->m_picture_opengl.DDS.svp.minsumStrings.size() > 0) {
+			auto path_points = this->m_picture_opengl.DDS.svp.minsumStrings[0];
+			for (size_t i = 0; i < path_points.size(); i++) {
+				CString temp1, temp2;
+				temp1.Format(_T("%lf"), path_points[i].first);
+				temp2.Format(_T("%lf"), path_points[i].second);
+				result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
+			}
+		}
+		temp.Format(_T("%lf"), this->m_picture_opengl.DDS.svp.getTargetPathLength());
+		result_log += _T("Target point path length: ") + temp + _T("\r\n");
+		if (this->m_picture_opengl.DDS.svp.minsumStrings.size() > 1) {
+			auto path_points = this->m_picture_opengl.DDS.svp.minsumStrings[1];
+			for (size_t i = 0; i < path_points.size(); i++) {
+				CString temp1, temp2;
+				temp1.Format(_T("%lf"), path_points[i].first);
+				temp2.Format(_T("%lf"), path_points[i].second);
+				result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
+			}
+		}
+		this->m_edit_result_log.SetWindowTextW(result_log);
+	}
+}
+
 void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -78,8 +137,9 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_FILENAME, m_edit_filename);
 	DDX_Control(pDX, IDC_CHECK_VERTEX, m_check_vertex);
 	DDX_Control(pDX, IDC_CHECK_EDGE, m_check_edge);
-	DDX_Control(pDX, IDC_BUTTON_ADD, m_button_add);
 	DDX_Control(pDX, IDC_CHECK_PATH, m_check_path);
+	DDX_Control(pDX, IDC_CHECK_LINE, m_check_line);
+	DDX_Control(pDX, IDC_BUTTON_ADD, m_button_add);
 	DDX_Control(pDX, IDC_BUTTON_SAVE, m_button_save);
 	DDX_Control(pDX, IDC_BUTTON_DELETE, m_button_delete);
 	DDX_Control(pDX, IDC_CHECK_QUERY1, m_check_query1);
@@ -91,6 +151,9 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_RESULT_LENGTH, m_edit_result_length);
 	DDX_Control(pDX, IDC_EDIT_RESULT_LOG, m_edit_result_log);
 	DDX_Control(pDX, IDC_BUTTON_FILE, m_button_file);
+	DDX_Control(pDX, IDC_CHECK_QUERY_MINMAX, m_check_query_minmax);
+	DDX_Control(pDX, IDC_CHECK_QUERY_MINSUM, m_check_query_minsum);
+	DDX_Control(pDX, IDC_STATIC_LEGNTH_TEXT, m_static_length_text);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -101,14 +164,17 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_FILE, &CDNNDemoDlg::OnBnClickedButtonFile)
 	ON_BN_CLICKED(IDC_CHECK_VERTEX, &CDNNDemoDlg::OnBnClickedCheckVertex)
 	ON_BN_CLICKED(IDC_CHECK_EDGE, &CDNNDemoDlg::OnBnClickedCheckEdge)
+	ON_BN_CLICKED(IDC_CHECK_PATH, &CDNNDemoDlg::OnBnClickedCheckPath)
+	ON_BN_CLICKED(IDC_CHECK_LINE, &CDNNDemoDlg::OnBnClickedCheckLine)
 	ON_CBN_SELCHANGE(IDC_COMBO_FUNC, &CDNNDemoDlg::OnCbnSelchangeComboFunc)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CDNNDemoDlg::OnBnClickedButtonAdd)
-	ON_BN_CLICKED(IDC_CHECK_PATH, &CDNNDemoDlg::OnBnClickedCheckPath)
 	ON_WM_LBUTTONDOWN()
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CDNNDemoDlg::OnClickedButtonSave)
 	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CDNNDemoDlg::OnClickedButtonDelete)
 	ON_BN_CLICKED(IDC_CHECK_QUERY1, &CDNNDemoDlg::OnBnClickedCheckQuery1)
 	ON_BN_CLICKED(IDC_CHECK_QUERY2, &CDNNDemoDlg::OnBnClickedCheckQuery2)
+	ON_BN_CLICKED(IDC_CHECK_QUERY_MINMAX, &CDNNDemoDlg::OnBnClickedCheckQueryMinmax)
+	ON_BN_CLICKED(IDC_CHECK_QUERY_MINSUM, &CDNNDemoDlg::OnBnClickedCheckQueryMinsum)
 END_MESSAGE_MAP()
 
 
@@ -153,13 +219,15 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	// Initialize Check boxes
 	m_check_vertex.SetCheck(true);
 	m_check_edge.SetCheck(true);
-	m_check_path.SetCheck(true);
+	m_check_path.SetCheck(false);
+	m_check_line.SetCheck(false);
 	m_check_query1.SetCheck(true);
 
 	// Initialize rendering object
 	this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, LINE, m_check_line.GetCheck());
 	//this->EnableWindow(true);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -235,7 +303,7 @@ void CDNNDemoDlg::OnBnClickedButtonFile()
 	CFileDialog dlg(TRUE, _T("*.IN"), _T("in"), OFN_HIDEREADONLY, szFilter);
 
 	if (IDOK == dlg.DoModal()){
-		this->m_picture_opengl.DDS.spsp.clearData();
+		this->m_picture_opengl.DDS.svp.clearData();
 		this->clearEditBox();
 		CString pathName = dlg.GetPathName();
 		MessageBox(pathName);
@@ -283,6 +351,38 @@ void CDNNDemoDlg::OnBnClickedCheckEdge()
 	}
 }
 
+void CDNNDemoDlg::OnBnClickedCheckPath()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
+		break;
+	default:
+		break;
+	}
+}
+
+void CDNNDemoDlg::OnBnClickedCheckLine()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, LINE, m_check_path.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(2, LINE, m_check_path.GetCheck());
+		break;
+	default:
+		break;
+	}
+}
+
 
 void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 {
@@ -293,11 +393,14 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_picture_opengl.setMode(2);
 		this->m_button_file.EnableWindow(false);
 		this->m_check_path.EnableWindow(false);
+		this->m_check_line.EnableWindow(false);
 		this->m_edit_filename.EnableWindow(false);
 		this->m_check_query1.SetCheck(true);
 		this->m_check_query2.SetCheck(false);
 		this->m_check_query2.EnableWindow(false);
 		this->m_button_add.EnableWindow(false);
+		this->m_check_query_minmax.EnableWindow(false);
+		this->m_check_query_minsum.EnableWindow(false);
 
 		//Set opengl camera
 		RECT rect;
@@ -311,7 +414,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 			m_picture_opengl.setCamera(tx, ty, width, height);
 		}
 
-		this->m_picture_opengl.DDS.spsp.clearData();
+		this->m_picture_opengl.DDS.svp.clearData();
 		this->clearEditBox();
 		Invalidate(TRUE);
 		UpdateWindow();
@@ -319,11 +422,21 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 	case 1: // Query
 		this->m_picture_opengl.setMode(2);
 		this->m_button_file.EnableWindow(true);
+		this->m_check_path.SetCheck(true);
+		this->m_check_line.SetCheck(false);
 		this->m_check_path.EnableWindow(true);
+		this->m_check_line.EnableWindow(true);
+		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
+		this->m_picture_opengl.setDrawObject(2, LINE, m_check_line.GetCheck());
 		this->m_check_query2.EnableWindow(true);
 		this->m_button_add.EnableWindow(false);
+		this->m_check_query_minmax.SetCheck(true);
+		this->m_picture_opengl.DDS.svp.setMode(0);
+		SetDlgItemText(IDC_STATIC_LEGNTH_TEXT, _T("Max length of Paths"));
+		this->m_check_query_minmax.EnableWindow(true);
+		this->m_check_query_minsum.EnableWindow(true);
 
-		this->m_picture_opengl.DDS.spsp.clearData();
+		this->m_picture_opengl.DDS.svp.clearData();
 		this->clearEditBox();
 		Invalidate(TRUE);
 		UpdateWindow();
@@ -336,16 +449,16 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 
 void CDNNDemoDlg::OnBnClickedButtonAdd()
 {	
-	if (this->m_picture_opengl.DDS.spsp.getNumPolygonVertices() < 3) {
+	if (this->m_picture_opengl.DDS.svp.getNumPolygonVertices() < 3) {
 		MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
 	}
 	else {
-		this->m_picture_opengl.DDS.spsp.clearTestPoint();
+		this->m_picture_opengl.DDS.svp.clearTestPoint();
 		this->clearEditBox();
 		AddDialog dlg(EADD, 3);
 		if (IDOK == dlg.DoModal()) {
-			bool source = this->m_picture_opengl.DDS.spsp.addQueryPoint(dlg.coordinate[0], dlg.coordinate[1]);
-			bool target = this->m_picture_opengl.DDS.spsp.addQueryPoint(dlg.coordinate[2], dlg.coordinate[3]);
+			bool source = this->m_picture_opengl.DDS.svp.addQueryPoint(dlg.coordinate[0], dlg.coordinate[1]);
+			bool target = this->m_picture_opengl.DDS.svp.addQueryPoint(dlg.coordinate[2], dlg.coordinate[3]);
 			if (source == false && target == false) {
 				MessageBox(_T("Invalid source point and target point input."), _T("Error"), MB_ICONHAND);
 			}
@@ -365,42 +478,12 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 				this->m_edit_query_tx.SetWindowTextW(temp);
 				temp.Format(_T("%lf"), dlg.coordinate[3]);
 				this->m_edit_query_ty.SetWindowTextW(temp);
-				temp.Format(_T("%lf"), this->m_picture_opengl.DDS.spsp.getPathLength());
-				this->m_edit_result_length.SetWindowTextW(temp);
-
 				
-				if (!this->m_picture_opengl.DDS.spsp.Strings.empty()) {
-					CString result_log;
-					auto path_points = this->m_picture_opengl.DDS.spsp.Strings.front();
-					for (size_t i = 0; i < path_points.size(); i++) {
-						CString temp1, temp2;
-						temp1.Format(_T("%lf"), path_points[i].first);
-						temp2.Format(_T("%lf"), path_points[i].second);
-						result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
-					}
-					this->m_edit_result_log.SetWindowTextW(result_log);
-				}
-				
+				this->printLogEditBox();				
 			}
 			Invalidate(TRUE);
 			UpdateWindow();
 		}
-	}
-}
-
-void CDNNDemoDlg::OnBnClickedCheckPath()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	int menu = this->m_combo_func.GetCurSel();
-	switch (menu) {
-	case 0:
-		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
-		break;
-	case 1:
-		this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
-		break;
-	default:
-		break;
 	}
 }
 
@@ -427,7 +510,7 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 			break;
 		case 1:
-			if (this->m_picture_opengl.DDS.spsp.getNumPolygonVertices() < 3) {
+			if (this->m_picture_opengl.DDS.svp.getNumPolygonVertices() < 3) {
 				MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
 			}
 			else {
@@ -443,13 +526,13 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 					double y = rect.bottom - ygap;
 					y = (y - ty) / height;
 
-					if (this->m_picture_opengl.DDS.spsp.getNumQueryPoint() == 2) {
-						this->m_picture_opengl.DDS.spsp.clearTestPoint();
+					if (this->m_picture_opengl.DDS.svp.getNumQueryPoint() == 2) {
+						this->m_picture_opengl.DDS.svp.clearTestPoint();
 						this->clearEditBox();
 					}
 
 					if (m_picture_opengl.addQueryPoint(x, y)) {
-						std::vector<std::pair<double, double>> query_points = m_picture_opengl.DDS.spsp.getQueryPoints();
+						std::vector<std::pair<double, double>> query_points = m_picture_opengl.DDS.svp.getQueryPoints();
 						if (query_points.size() == 1) {
 							CString temp;
 							temp.Format(_T("%lf"), query_points[0].first);
@@ -464,20 +547,7 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 							temp.Format(_T("%lf"), query_points[1].second);
 							this->m_edit_query_ty.SetWindowTextW(temp);
 
-							temp.Format(_T("%lf"), this->m_picture_opengl.DDS.spsp.getPathLength());
-							this->m_edit_result_length.SetWindowTextW(temp);
-
-							if (!this->m_picture_opengl.DDS.spsp.Strings.empty()) {
-								CString result_log;
-								auto path_points = this->m_picture_opengl.DDS.spsp.Strings.front();
-								for (size_t i = 0; i < path_points.size(); i++) {
-									CString temp1, temp2;
-									temp1.Format(_T("%lf"), path_points[i].first);
-									temp2.Format(_T("%lf"), path_points[i].second);
-									result_log += temp1 + _T(' ') + temp2 + _T("\r\n");
-								}
-								this->m_edit_result_log.SetWindowTextW(result_log);
-							}
+							this->printLogEditBox();							
 						}
 					}
 
@@ -501,7 +571,7 @@ void CDNNDemoDlg::OnClickedButtonSave()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int menu = m_combo_func.GetCurSel();
-	if (menu == 0 && this->m_picture_opengl.DDS.spsp.getNumPolygonVertices() < 3) {
+	if (menu == 0 && this->m_picture_opengl.DDS.svp.getNumPolygonVertices() < 3) {
 		MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
 	}
 
@@ -515,11 +585,11 @@ void CDNNDemoDlg::OnClickedButtonSave()
 		CString temp;
 		switch (menu) {
 		case 0: // input polygon
-			m_picture_opengl.DDS.spsp.printInputPolygon(std::string(CT2CA(pathName)));
+			m_picture_opengl.DDS.svp.printInputPolygon(std::string(CT2CA(pathName)));
 			break;
 		case 1: // query
 			// Query time
-			m_picture_opengl.DDS.spsp.printQuery(std::string(CT2CA(pathName)));
+			m_picture_opengl.DDS.svp.printQuery(std::string(CT2CA(pathName)));
 			//temp.Format(_T("%d"), m_picture_opengl.DDS.get_execution_time());
 			//m_edit_qr2.SetWindowTextW(temp);
 			break;
@@ -536,13 +606,13 @@ void CDNNDemoDlg::OnClickedButtonDelete()
 	int menu = m_combo_func.GetCurSel();
 	switch (menu) {
 	case 0: // input polygon
-		this->m_picture_opengl.DDS.spsp.deleteVertex();
+		this->m_picture_opengl.DDS.svp.deleteVertex();
 		this->clearEditBox();
 		Invalidate(TRUE);
 		UpdateWindow();
 		break;
 	case 1: // query
-		this->m_picture_opengl.DDS.spsp.clearTestPoint();
+		this->m_picture_opengl.DDS.svp.clearTestPoint();
 		this->clearEditBox();
 		Invalidate(TRUE);
 		UpdateWindow();
@@ -561,13 +631,13 @@ void CDNNDemoDlg::OnBnClickedCheckQuery1()
 		if (this->m_check_query1.GetCheck()) {
 			this->m_check_query1.SetCheck(true);
 			this->m_check_query2.SetCheck(false);
-			this->m_picture_opengl.DDS.spsp.clearTestPoint();
+			this->m_picture_opengl.DDS.svp.clearTestPoint();
 			this->clearEditBox();
 		}
 		else {
 			this->m_check_query1.SetCheck(false);
 			this->m_check_query2.SetCheck(true);
-			this->m_picture_opengl.DDS.spsp.clearTestPoint();
+			this->m_picture_opengl.DDS.svp.clearTestPoint();
 			this->clearEditBox();
 		}
 	}
@@ -584,15 +654,56 @@ void CDNNDemoDlg::OnBnClickedCheckQuery2()
 		this->m_check_query1.SetCheck(false);
 		this->m_check_query2.SetCheck(true);
 		this->m_button_add.EnableWindow(true);
-		this->m_picture_opengl.DDS.spsp.clearTestPoint();
+		this->m_picture_opengl.DDS.svp.clearTestPoint();
 		this->clearEditBox();
 	}
 	else {
 		this->m_check_query1.SetCheck(true);
 		this->m_check_query2.SetCheck(false);
 		this->m_button_add.EnableWindow(false);
-		this->m_picture_opengl.DDS.spsp.clearTestPoint();
+		this->m_picture_opengl.DDS.svp.clearTestPoint();
 		this->clearEditBox();
 	}
+}
+
+
+
+void CDNNDemoDlg::OnBnClickedCheckQueryMinmax()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (this->m_check_query_minmax.GetCheck()) {
+		this->m_check_query_minsum.SetCheck(false);
+		this->m_picture_opengl.DDS.svp.setMode(0);
+		SetDlgItemText(IDC_STATIC_LEGNTH_TEXT, _T("Max length of Paths"));
+		this->printLogEditBox();
+	}
+	else {
+		this->m_check_query_minsum.SetCheck(true);
+		this->m_picture_opengl.DDS.svp.setMode(1);
+		SetDlgItemText(IDC_STATIC_LEGNTH_TEXT, _T("Sum length of Paths"));
+		this->printLogEditBox();
+	}
+	Invalidate(TRUE);
+	UpdateWindow();
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckQueryMinsum()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (this->m_check_query_minsum.GetCheck()) {
+		this->m_check_query_minmax.SetCheck(false);
+		this->m_picture_opengl.DDS.svp.setMode(1);
+		SetDlgItemText(IDC_STATIC_LEGNTH_TEXT, _T("Sum length of Paths"));
+		this->printLogEditBox();
+	}
+	else {
+		this->m_check_query_minmax.SetCheck(true);
+		this->m_picture_opengl.DDS.svp.setMode(0);
+		SetDlgItemText(IDC_STATIC_LEGNTH_TEXT, _T("Max length of Paths"));
+		this->printLogEditBox();
+	}
+	Invalidate(TRUE);
+	UpdateWindow();
 }
 
