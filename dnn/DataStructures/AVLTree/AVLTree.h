@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 //operater =, < and == must be defined for type T.
-template <typename T>
+template <typename T, typename Comp = std::less<T>()>
 struct AVLTreeNode {
 	AVLTreeNode();
 	~AVLTreeNode();
@@ -14,53 +14,53 @@ struct AVLTreeNode {
 	AVLTreeNode *l, *r, *p; // l stores left child, r stores right child, p stores parent. Initialized as nullptr
 };
 
-template <typename T>
+template <typename T, typename Comp = std::less<T>()>
 class AVLTree {
 private:
-	AVLTreeNode<T>* root;
+	AVLTreeNode<T, Comp>* root;
 	//need to update size
-	void LRotate(AVLTreeNode<T>*); // perform L rotate from subtree
-	void RRotate(AVLTreeNode<T>*); // perform R rotate from subtree
-	void balance(AVLTreeNode<T>*); // balance the subtree
-	void calRank(AVLTreeNode<T>*); // calculate rank for each subtrees
+	void LRotate(AVLTreeNode<T, Comp>*); // perform L rotate from subtree
+	void RRotate(AVLTreeNode<T, Comp>*); // perform R rotate from subtree
+	void balance(AVLTreeNode<T, Comp>*); // balance the subtree
+	void calRank(AVLTreeNode<T, Comp>*); // calculate rank for each subtrees
 public:
 	AVLTree();
 	~AVLTree();
 	int size();
 	bool isEmpty();
 	void insert(T);
-	void insert(AVLTreeNode<T>*);
-	AVLTreeNode<T>* getRoot();
-	AVLTreeNode<T>* getLeftNode(T);
-	AVLTreeNode<T>* getRightNode(T);
-	AVLTreeNode<T>* pop();
-	AVLTreeNode<T>* pop(T);
-	AVLTreeNode<T>* getkthNode(int k);
-	AVLTreeNode<T>* successorNode(AVLTreeNode<T>* v);
-	AVLTreeNode<T>* predecessorNode(AVLTreeNode<T>* v);
-	AVLTreeNode<T>* minSubtree(AVLTreeNode<T>* v);
-	AVLTreeNode<T>* maxSubtree(AVLTreeNode<T>* v);
+	void insert(AVLTreeNode<T, Comp>*);
+	AVLTreeNode<T, Comp>* getRoot();
+	AVLTreeNode<T, Comp>* getLeftNode(T);
+	AVLTreeNode<T, Comp>* getRightNode(T);
+	AVLTreeNode<T, Comp>* pop();
+	AVLTreeNode<T, Comp>* pop(T);
+	AVLTreeNode<T, Comp>* getkthNode(int k);
+	AVLTreeNode<T, Comp>* successorNode(AVLTreeNode<T, Comp>* v);
+	AVLTreeNode<T, Comp>* predecessorNode(AVLTreeNode<T, Comp>* v);
+	AVLTreeNode<T, Comp>* minSubtree(AVLTreeNode<T, Comp>* v);
+	AVLTreeNode<T, Comp>* maxSubtree(AVLTreeNode<T, Comp>* v);
 };
 
-template <typename T>
-AVLTreeNode<T>::AVLTreeNode() {
+template <typename T, typename Comp>
+AVLTreeNode<T, Comp>::AVLTreeNode() {
 	this->l = nullptr;
 	this->r = nullptr;
 	this->p = nullptr;
 	this->rank = 0;
 }
 
-template <typename T>
-AVLTreeNode<T>::~AVLTreeNode() {
+template <typename T, typename Comp>
+AVLTreeNode<T, Comp>::~AVLTreeNode() {
 	if (this->l)
 		delete(this->l);
 	if (this->r)
 		delete(this->r);
 }
 
-template <typename T>
-void AVLTree<T>::LRotate(AVLTreeNode<T>* n) {
-	AVLTreeNode<T>* temp;
+template <typename T, typename Comp>
+void AVLTree<T, Comp>::LRotate(AVLTreeNode<T, Comp>* n) {
+	AVLTreeNode<T, Comp>* temp;
 	int tempsize = n->size;
 	if (n == this->root)
 		this->root = n->l;
@@ -87,9 +87,9 @@ void AVLTree<T>::LRotate(AVLTreeNode<T>* n) {
 	}
 }
 
-template <typename T>
-void AVLTree<T>::RRotate(AVLTreeNode<T>* n) {
-	AVLTreeNode<T>* temp;
+template <typename T, typename Comp>
+void AVLTree<T, Comp>::RRotate(AVLTreeNode<T, Comp>* n) {
+	AVLTreeNode<T, Comp>* temp;
 	int tempsize = n->size;
 	if (n == this->root)
 		this->root = n->r;
@@ -116,8 +116,8 @@ void AVLTree<T>::RRotate(AVLTreeNode<T>* n) {
 	}
 }
 
-template <typename T>
-void AVLTree<T>::balance(AVLTreeNode<T>* n) {
+template <typename T, typename Comp>
+void AVLTree<T, Comp>::balance(AVLTreeNode<T, Comp>* n) {
 	if ((!n->r&&n->l&&n->l->rank == 1) || (n->l&&n->r&&n->l->rank - n->r->rank == 2)) {
 		if (!n->l->l || (n->l->r && n->l->r->rank > n->l->l->rank))
 			RRotate(n->l);
@@ -132,8 +132,8 @@ void AVLTree<T>::balance(AVLTreeNode<T>* n) {
 	}
 }
 
-template <typename T>
-void AVLTree<T>::calRank(AVLTreeNode<T>* n) {
+template <typename T, typename Comp>
+void AVLTree<T, Comp>::calRank(AVLTreeNode<T, Comp>* n) {
 	if (n->l&&n->r)
 		n->rank = std::max(n->l->rank, n->r->rank) + 1;
 	else if (n->l)
@@ -144,46 +144,46 @@ void AVLTree<T>::calRank(AVLTreeNode<T>* n) {
 		n->rank = 0;
 }
 
-template <typename T>
-AVLTree<T>::AVLTree() {
+template <typename T, typename Comp>
+AVLTree<T, Comp>::AVLTree() {
 	this->root = nullptr;
 }
 
-template <typename T>
-AVLTree<T>::~AVLTree() {
+template <typename T, typename Comp>
+AVLTree<T, Comp>::~AVLTree() {
 	if (this->root)
 		delete(this->root);
 }
 
-template <typename T>
-bool AVLTree<T>::isEmpty() {
+template <typename T, typename Comp>
+bool AVLTree<T, Comp>::isEmpty() {
 	return !this->root;
 }
 
-template <typename T>
-int AVLTree<T>::size() {
+template <typename T, typename Comp>
+int AVLTree<T, Comp>::size() {
 	return this->root->size;
 }
 
-template <typename T>
-void AVLTree<T>::insert(T v) {
-	AVLTreeNode<T>* newnode = new AVLTreeNode<T>();
+template <typename T, typename Comp>
+void AVLTree<T, Comp>::insert(T v) {
+	AVLTreeNode<T, Comp>* newnode = new AVLTreeNode<T, Comp>();
 	newnode->value = v;
 	newnode->size = 1;
 	this->insert(newnode);
 }
 
-template <typename T>
-void AVLTree<T>::insert(AVLTreeNode<T>* newnode) {
+template <typename T, typename Comp>
+void AVLTree<T, Comp>::insert(AVLTreeNode<T, Comp>* newnode) {
 	if (isEmpty()) {
 		this->root = newnode;
 		newnode->p = nullptr;
 		return;
 	}
-	AVLTreeNode<T>* temp = this->root;
+	AVLTreeNode<T, Comp>* temp = this->root;
 	while (true) {
 		temp->size++;
-		if (temp->value < newnode->value) {
+		if (Comp(temp->value,newnode->value)) {
 			if (!temp->r) {
 				temp->r = newnode;
 				newnode->p = temp;
@@ -214,19 +214,19 @@ void AVLTree<T>::insert(AVLTreeNode<T>* newnode) {
 	}
 }
 
-template <typename T>
-AVLTreeNode<T>* AVLTree<T>::getRoot() {
+template <typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::getRoot() {
 	return this->root;
 }
 
-template <typename T>
-AVLTreeNode<T>* AVLTree<T>::getLeftNode(T v) {
+template <typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::getLeftNode(T v) {
 	if (!this->root)
 		return nullptr;
-	AVLTreeNode<T>* temp = this->root;
-	AVLTreeNode<T>* localMax = nullptr;
+	AVLTreeNode<T, Comp>* temp = this->root;
+	AVLTreeNode<T, Comp>* localMax = nullptr;
 	while (true) {
-		if (temp->value < v) {
+		if (Comp(temp->value,v)) {
 			localMax = temp;
 			if (!temp->r)
 				return temp;
@@ -240,14 +240,14 @@ AVLTreeNode<T>* AVLTree<T>::getLeftNode(T v) {
 	}
 }
 
-template <typename T>
-AVLTreeNode<T>* AVLTree<T>::getRightNode(T v) {
+template <typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::getRightNode(T v) {
 	if (!this->root)
 		return nullptr;
-	AVLTreeNode<T>* temp = this->root;
-	AVLTreeNode<T>* localMin = nullptr;
+	AVLTreeNode<T, Comp>* temp = this->root;
+	AVLTreeNode<T, Comp>* localMin = nullptr;
 	while (true) {
-		if (v < temp->value) {
+		if (Comp(v,temp->value)) {
 			localMin = temp;
 			if (!temp->l)
 				return temp;
@@ -261,11 +261,11 @@ AVLTreeNode<T>* AVLTree<T>::getRightNode(T v) {
 	}
 }
 
-template <typename T>
-AVLTreeNode<T>* AVLTree<T>::pop() {
+template <typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::pop() {
 	if (!this->root)
 		return nullptr;
-	AVLTreeNode<T>* temp = this->root;
+	AVLTreeNode<T, Comp>* temp = this->root;
 	while (temp->l) {
 		temp->size--;
 		temp = temp->l;
@@ -279,7 +279,7 @@ AVLTreeNode<T>* AVLTree<T>::pop() {
 	temp->p->l = temp->r;
 	if (temp->r)
 		temp->r->p = temp->p;
-	AVLTreeNode<T>* newtemp = temp->p;
+	AVLTreeNode<T, Comp>* newtemp = temp->p;
 	calRank(newtemp);
 	balance(newtemp);
 	while (newtemp != this->root) {
@@ -291,16 +291,16 @@ AVLTreeNode<T>* AVLTree<T>::pop() {
 }
 
 
-template <typename T>
-AVLTreeNode<T>* AVLTree<T>::pop(T v) {
+template <typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::pop(T v) {
 	if (!this->root)
 		return nullptr;
 	//else if (this->size() == 1 && this->root->value == v){
-	//	AVLTreeNode<T>* tmp = this->root;
+	//	AVLTreeNode<T, Comp>* tmp = this->root;
 	//	this->root = nullptr;
 	//	return tmp;
 	//}
-	AVLTreeNode<T>* temp = this->root;
+	AVLTreeNode<T, Comp>* temp = this->root;
 	while (true) {
 		if (temp->value == v) {
 			temp->size--;
@@ -317,7 +317,7 @@ AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 					temp->p->l = temp->r;
 				else
 					temp->p->r = temp->r;
-				AVLTreeNode<T>* newtemp = temp->p;
+				AVLTreeNode<T, Comp>* newtemp = temp->p;
 				calRank(newtemp);
 				balance(newtemp);  
 				while (newtemp != this->root) {
@@ -338,7 +338,7 @@ AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 					temp->p->l = temp->l;
 				else
 					temp->p->r = temp->l;
-				AVLTreeNode<T>* newtemp = temp->p;
+				AVLTreeNode<T, Comp>* newtemp = temp->p;
 				calRank(newtemp);
 				balance(newtemp);
 				while (newtemp != this->root) {
@@ -349,7 +349,7 @@ AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 				return temp;
 			}
 			else {
-				AVLTreeNode<T>* stemp = temp->l;
+				AVLTreeNode<T, Comp>* stemp = temp->l;
 				stemp->size--;
 				while (stemp->r) {
 					stemp = stemp->r;
@@ -361,7 +361,7 @@ AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 					stemp->p->l = stemp->l;
 				if (stemp->l)
 					stemp->l->p = stemp->p;
-				AVLTreeNode<T>* newtemp = stemp->p;
+				AVLTreeNode<T, Comp>* newtemp = stemp->p;
 				calRank(newtemp);
 				balance(newtemp);
 				while (newtemp != temp) {
@@ -401,7 +401,7 @@ AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 				return temp;
 			}
 		}
-		else if (temp->value < v) {
+		else if (Comp(temp->value,v)) {
 			if (!temp->r) {
 				while (temp != this->root) {
 					temp = temp->p;
@@ -426,10 +426,10 @@ AVLTreeNode<T>* AVLTree<T>::pop(T v) {
 	}
 }
 
-template<typename T>
-AVLTreeNode<T>* AVLTree<T>::getkthNode(int k)
+template<typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::getkthNode(int k)
 {
-	AVLTreeNode<T>* temp = root;
+	AVLTreeNode<T, Comp>* temp = root;
 	int psize = temp->size;
 	while (true)
 	{
@@ -452,27 +452,27 @@ AVLTreeNode<T>* AVLTree<T>::getkthNode(int k)
 	}
 }
 
-template<typename T>
-AVLTreeNode<T>* AVLTree<T>::minSubtree(AVLTreeNode<T>* v){
+template<typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::minSubtree(AVLTreeNode<T, Comp>* v){
 	if(v == nullptr) return nullptr;
-	AVLTreeNode<T>* ret = v;
+	AVLTreeNode<T, Comp>* ret = v;
 	while(ret->l)
 		ret = ret->l;
 	return ret;
 }
 
-template<typename T>
-AVLTreeNode<T>* AVLTree<T>::maxSubtree(AVLTreeNode<T>* v){
+template<typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::maxSubtree(AVLTreeNode<T, Comp>* v){
 	if(v == nullptr) return nullptr;
-	AVLTreeNode<T>* ret = v;
+	AVLTreeNode<T, Comp>* ret = v;
 	while(ret->r)
 		ret = ret->r;
 	return ret;
 }
 
 //return the successor of the node v
-template<typename T>
-AVLTreeNode<T>* AVLTree<T>::successorNode(AVLTreeNode<T>* v){
+template<typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::successorNode(AVLTreeNode<T, Comp>* v){
 	if(v->r){
 		return minSubtree(v->r);
 	}
@@ -485,8 +485,8 @@ AVLTreeNode<T>* AVLTree<T>::successorNode(AVLTreeNode<T>* v){
 	}
 }
 
-template<typename T>
-AVLTreeNode<T>* AVLTree<T>::predecessorNode(AVLTreeNode<T>* v){
+template<typename T, typename Comp>
+AVLTreeNode<T, Comp>* AVLTree<T, Comp>::predecessorNode(AVLTreeNode<T, Comp>* v){
 	if(v->l){
 		return maxSubtree(v->l);
 	}
