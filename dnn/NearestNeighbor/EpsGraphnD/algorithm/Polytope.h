@@ -20,6 +20,7 @@ public:
 	bool intersect(Grid_Point* p, Grid_Point* q);
 	bool In(Point* p, Point* q);
 	bool isIn(Point* p);
+	bool isIn(MatrixXd X);
 };
 
 class Polytope {

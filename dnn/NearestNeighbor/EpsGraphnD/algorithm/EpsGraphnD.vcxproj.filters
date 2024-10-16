@@ -65,9 +65,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EpsGraphnD.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Point.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -78,9 +75,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="data_generation_print.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="errorTest.cpp">
@@ -103,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="solvers.cpp">
       <Filter>소스 파일\eigen</Filter>
+    </ClCompile>
+    <ClCompile Include="EpsGraphnD.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
