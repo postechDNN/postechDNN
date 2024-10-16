@@ -4,8 +4,8 @@
 
 #include "pch.h"
 #include "framework.h"
-#include "DNN.h"
-#include "DNNDlg.h"
+#include "HNN.h"
+#include "HNNDlg.h"
 #include "AddDialog.h"
 #include "afxdialogex.h"
 
@@ -61,29 +61,50 @@ CDNNDemoDlg::CDNNDemoDlg(CWnd* pParent /*=nullptr*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
+void CDNNDemoDlg::printLogEditBox() {
+	int resultSize = this->m_picture_opengl.HDS.getQueryResultSize();
+	CString resultLog;
+	for (int i = 0; i < resultSize; i++) {
+		CString temp1, temp2;
+		temp1.Format(_T("%d"), i);
+		resultLog += temp1 + _T("-th neighbor: (");
+		std::pair<double, double> neighbor = this->m_picture_opengl.HDS.getQueryResultNeighbor(i);
+		temp1.Format(_T("%lf"), neighbor.first);
+		temp2.Format(_T("%lf"), neighbor.second);
+		resultLog += temp1 + _T(", ") + temp2 + _T(")\r\n Geodesic distance: ");
+		temp1.Format(_T("%lf"), this->m_picture_opengl.HDS.getQueryResultDist(i));
+		resultLog += temp1 + _T("\r\n");
+	}
+	this->m_edit_result.SetWindowTextW(resultLog);
+}
+
 void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_OPENGL, m_picture_opengl);
 	DDX_Control(pDX, IDC_COMBO_FUNC, m_combo_func);
 	DDX_Control(pDX, IDC_EDIT_FILENAME, m_edit_filename);
-	DDX_Control(pDX, IDC_CHECK_VERTEX, m_check_vertex);
-	DDX_Control(pDX, IDC_CHECK_EDGE, m_check_edge);
-	DDX_Control(pDX, IDC_BUTTON_ADD, m_button_add);
+	DDX_Control(pDX, IDC_BUTTON_FILE, m_button_file);
+	//DDX_Control(pDX, IDC_CHECK_VERTEX, m_check_vertex);
+	//DDX_Control(pDX, IDC_CHECK_EDGE, m_check_edge);
+	DDX_Control(pDX, IDC_CHECK_POINTS, m_check_points);
+	DDX_Control(pDX, IDC_CHECK_QUERY, m_check_query);
 	DDX_Control(pDX, IDC_CHECK_PATH, m_check_path);
+	DDX_Control(pDX, IDC_BUTTON_ADD, m_button_add);
 	DDX_Control(pDX, IDC_BUTTON_SAVE, m_button_save);
 	DDX_Control(pDX, IDC_BUTTON_DELETE, m_button_delete);
 	DDX_Control(pDX, IDC_CHECK_QUERY1, m_check_query1);
 	DDX_Control(pDX, IDC_CHECK_QUERY2, m_check_query2);
 	DDX_Control(pDX, IDC_EDIT_QUERY_SX, m_edit_query_sx);
 	DDX_Control(pDX, IDC_EDIT_QUERY_SY, m_edit_query_sy);
-	DDX_Control(pDX, IDC_CHECK_DRAWING_POLYGON, m_check_drawing_polygon);
+	//DDX_Control(pDX, IDC_CHECK_DRAWING_POLYGON, m_check_drawing_polygon);
 	DDX_Control(pDX, IDC_CHECK_DRAWING_POINT, m_check_drawing_point);
 	DDX_Control(pDX, IDC_CHECK_DRAWING_QUERY, m_check_drawing_query);
 	DDX_Control(pDX, IDC_EDIT_RESULT, m_edit_result);
 	DDX_Control(pDX, IDC_EDIT_KNN, m_edit_knn);
 	DDX_Control(pDX, IDC_BUTTON_KNN, m_button_knn);
-	DDX_Control(pDX, IDC_BUTTON_FILE, m_button_file);
+	DDX_Control(pDX, IDC_EDIT_EPSILON, m_edit_epsilon);
+	DDX_Control(pDX, IDC_BUTTON_EPSILON, m_button_epsilon);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -92,20 +113,22 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDCANCEL, &CDNNDemoDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDC_BUTTON_FILE, &CDNNDemoDlg::OnBnClickedButtonFile)
-	ON_BN_CLICKED(IDC_CHECK_VERTEX, &CDNNDemoDlg::OnBnClickedCheckVertex)
-	ON_BN_CLICKED(IDC_CHECK_EDGE, &CDNNDemoDlg::OnBnClickedCheckEdge)
+	//ON_BN_CLICKED(IDC_CHECK_VERTEX, &CDNNDemoDlg::OnBnClickedCheckVertex)
+	//ON_BN_CLICKED(IDC_CHECK_EDGE, &CDNNDemoDlg::OnBnClickedCheckEdge)
+	ON_BN_CLICKED(IDC_CHECK_POINTS, &CDNNDemoDlg::OnBnClickedCheckPoints)
+	ON_BN_CLICKED(IDC_CHECK_QUERY, &CDNNDemoDlg::OnBnClickedCheckQuery)
+	ON_BN_CLICKED(IDC_CHECK_PATH, &CDNNDemoDlg::OnBnClickedCheckPath)
 	ON_CBN_SELCHANGE(IDC_COMBO_FUNC, &CDNNDemoDlg::OnCbnSelchangeComboFunc)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CDNNDemoDlg::OnBnClickedButtonAdd)
-	ON_BN_CLICKED(IDC_CHECK_PATH, &CDNNDemoDlg::OnBnClickedCheckPath)
 	ON_WM_LBUTTONDOWN()
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CDNNDemoDlg::OnClickedButtonSave)
 	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CDNNDemoDlg::OnClickedButtonDelete)
 	ON_BN_CLICKED(IDC_CHECK_QUERY1, &CDNNDemoDlg::OnBnClickedCheckQuery1)
 	ON_BN_CLICKED(IDC_CHECK_QUERY2, &CDNNDemoDlg::OnBnClickedCheckQuery2)
-	ON_BN_CLICKED(IDC_CHECK_DRAWING_POLYGON, &CDNNDemoDlg::OnBnClickedCheckDrawingPolygon)
 	ON_BN_CLICKED(IDC_CHECK_DRAWING_POINT, &CDNNDemoDlg::OnBnClickedCheckDrawingPoint)
 	ON_BN_CLICKED(IDC_CHECK_DRAWING_QUERY, &CDNNDemoDlg::OnBnClickedCheckDrawingQuery)
 	ON_BN_CLICKED(IDC_BUTTON_KNN, &CDNNDemoDlg::OnBnClickedButtonKnn)
+	ON_BN_CLICKED(IDC_BUTTON_EPSILON, &CDNNDemoDlg::OnBnClickedButtonEpsilon)
 END_MESSAGE_MAP()
 
 
@@ -148,16 +171,21 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	//m_combo_func.AddString(_T("추가메뉴"));
 
 	// Initialize Check boxes
-	m_check_vertex.SetCheck(true);
-	m_check_edge.SetCheck(true);
+	//m_check_vertex.SetCheck(true);
+	//m_check_edge.SetCheck(true);
+	m_check_points.SetCheck(true);
+	m_check_query.SetCheck(true);
 	m_check_path.SetCheck(true);
 	m_check_query1.SetCheck(true);
 	m_button_add.EnableWindow(false);
 	m_edit_knn.SetWindowTextW(_T("1"));
+	m_edit_epsilon.SetWindowTextW(_T("0.05"));
 
 	// Initialize rendering object
-	this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
-	this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
+	//this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
+	//this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, POINTSET, m_check_points.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, QUERY, m_check_query.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
 	//this->EnableWindow(true);
 
@@ -245,7 +273,7 @@ void CDNNDemoDlg::OnBnClickedButtonFile()
 	}
 }
 
-
+/*
 void CDNNDemoDlg::OnBnClickedCheckVertex()
 {
 	int menu = this->m_combo_func.GetCurSel();
@@ -259,9 +287,7 @@ void CDNNDemoDlg::OnBnClickedCheckVertex()
 	default:
 		break;
 	}
-	
 }
-
 
 void CDNNDemoDlg::OnBnClickedCheckEdge()
 {
@@ -278,61 +304,18 @@ void CDNNDemoDlg::OnBnClickedCheckEdge()
 	}
 }
 
+*/
 
-void CDNNDemoDlg::OnCbnSelchangeComboFunc()
+void CDNNDemoDlg::OnBnClickedCheckPoints()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int menu = this->m_combo_func.GetCurSel();
 	switch (menu) {
-	case 0: // Make input file
-		this->m_picture_opengl.setMode(2);
-		this->m_check_path.EnableWindow(false);
-		this->m_button_file.EnableWindow(false);
-		this->m_edit_filename.EnableWindow(false);
-		this->m_check_query1.SetCheck(true);
-
-		this->m_check_drawing_polygon.SetCheck(true);
-		this->m_check_drawing_polygon.EnableWindow(true);
-		this->m_check_drawing_point.SetCheck(false);
-		this->m_check_drawing_query.SetCheck(false);
-		this->m_check_drawing_query.EnableWindow(false);
-		this->m_edit_knn.EnableWindow(false);
-		this->m_button_knn.EnableWindow(false);
-
-		//Set opengl camera
-		RECT rect;
-		GetDlgItem(IDC_OPENGL)->GetWindowRect(&rect);
-		ScreenToClient(&rect);
-		{
-			int width = (rect.right - rect.left) / 2;
-			int height = (rect.bottom - rect.top) / 2;
-			int tx = (rect.right + rect.left) / 2;
-			int ty = (rect.bottom + rect.top) / 2;
-			m_picture_opengl.setCamera(tx, ty, width, height);
-		}
-
-		this->m_picture_opengl.DDS.dnn_util.clearData();
-		Invalidate(TRUE);
-		UpdateWindow();
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, POINTSET, m_check_path.GetCheck());
 		break;
-	case 1: // Query
-		this->m_picture_opengl.setMode(2);
-		this->m_check_path.EnableWindow(true);
-		this->m_button_file.EnableWindow(true);
-		this->m_edit_filename.EnableWindow(true);
-		this->m_check_query1.SetCheck(true);
-
-		this->m_check_drawing_polygon.SetCheck(true);
-		this->m_check_drawing_polygon.EnableWindow(false);
-		this->m_check_drawing_point.SetCheck(false);
-		this->m_check_drawing_query.SetCheck(true);
-		this->m_check_drawing_query.EnableWindow(true);
-		this->m_edit_knn.EnableWindow(true);
-		this->m_button_knn.EnableWindow(true);
-
-		this->m_picture_opengl.DDS.dnn_util.clearData();
-		Invalidate(TRUE);
-		UpdateWindow();
+	case 1:
+		this->m_picture_opengl.setDrawObject(2, POINTSET, m_check_path.GetCheck());
 		break;
 	default:
 		break;
@@ -340,79 +323,19 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 }
 
 
-void CDNNDemoDlg::OnBnClickedButtonAdd()
-{	
+void CDNNDemoDlg::OnBnClickedCheckQuery()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int menu = this->m_combo_func.GetCurSel();
-	if (menu != LB_ERR) {
-		if (menu == 1 && this->m_picture_opengl.DDS.dnn_util.getNumPolygonVertices() < 3) {
-			MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
-		}
-		AddDialog dlg(EADD, 3);
-		if (IDOK == dlg.DoModal()) {
-			if (this->m_check_drawing_polygon.GetCheck()) {
-				this->m_picture_opengl.DDS.dnn_util.addVertexPolygon(dlg.coordinate[0], dlg.coordinate[1]);
-				CString temp;
-				temp.Format(_T("%lf"), dlg.coordinate[0]);
-				this->m_edit_query_sx.SetWindowTextW(temp);
-				temp.Format(_T("%lf"), dlg.coordinate[1]);
-				this->m_edit_query_sy.SetWindowTextW(temp);
-			}
-			else if (this->m_check_drawing_point.GetCheck()) {
-				if (this->m_picture_opengl.DDS.dnn_util.getNumPolygonVertices() < 3) {
-					MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
-				}
-				else {
-					if (this->m_picture_opengl.DDS.dnn_util.addPoint(dlg.coordinate[0], dlg.coordinate[1])) {
-						CString temp;
-						temp.Format(_T("%lf"), dlg.coordinate[0]);
-						this->m_edit_query_sx.SetWindowTextW(temp);
-						temp.Format(_T("%lf"), dlg.coordinate[1]);
-						this->m_edit_query_sy.SetWindowTextW(temp);			
-					}
-					else {
-						MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
-					}
-					if (menu == 0 && this->m_picture_opengl.DDS.dnn_util.polygonInputDone) {
-						this->m_check_drawing_polygon.EnableWindow(false);
-						this->m_check_drawing_point.SetCheck(true);
-					}
-				}
-				
-			}
-			else if (this->m_check_drawing_query.GetCheck()) {
-				if (this->m_picture_opengl.DDS.dnn_util.addQueryPoint(dlg.coordinate[0], dlg.coordinate[1])) {
-					CString temp;
-					temp.Format(_T("%lf"), dlg.coordinate[0]);
-					this->m_edit_query_sx.SetWindowTextW(temp);
-					temp.Format(_T("%lf"), dlg.coordinate[1]);
-					this->m_edit_query_sy.SetWindowTextW(temp);
-
-					std::vector<std::pair<double, double>> input_points = this->m_picture_opengl.DDS.dnn_util.getInputPoints();
-					std::vector<std::pair<double, int>> result = this->m_picture_opengl.DDS.dnn_util.getQueryResult();
-					int idx = result.size();
-					int knn = this->m_picture_opengl.DDS.dnn_util.knn;
-					if (idx > knn) idx = knn;
-					CString resultLog;
-					for (int i = 0; i < idx; i++) {
-						CString temp1, temp2;
-						temp1.Format(_T("%d"), i);
-						resultLog += temp1 + _T("-th neighbor: (");
-						temp1.Format(_T("%lf"), input_points[i].first);
-						temp2.Format(_T("%lf"), input_points[i].second);
-						resultLog += temp1 + _T(", ") + temp2 + _T(") / distance: ");
-						temp1.Format(_T("%lf"), result[i].first);
-						resultLog += temp1 + _T("\r\n");
-					}
-					this->m_edit_result.SetWindowTextW(resultLog);
-				}
-				else {
-					MessageBox(_T("Query input failed."), _T("Error"), MB_ICONHAND);
-				}
-			}
-			
-			Invalidate(TRUE);
-			UpdateWindow();
-		}
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, QUERY, m_check_path.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(2, QUERY, m_check_path.GetCheck());
+		break;
+	default:
+		break;
 	}
 }
 
@@ -428,6 +351,117 @@ void CDNNDemoDlg::OnBnClickedCheckPath()
 		break;
 	default:
 		break;
+	}
+}
+
+void CDNNDemoDlg::OnCbnSelchangeComboFunc()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0: // Make input file
+		this->m_picture_opengl.setMode(2);
+		this->m_check_query.EnableWindow(false);
+		this->m_check_path.EnableWindow(false);
+		this->m_button_file.EnableWindow(false);
+		this->m_edit_filename.EnableWindow(false);
+		this->m_check_query1.SetCheck(true);
+
+		//this->m_check_drawing_polygon.SetCheck(true);
+		//this->m_check_drawing_polygon.EnableWindow(true);
+		this->m_check_drawing_point.SetCheck(true);
+		this->m_check_drawing_query.SetCheck(false);
+		this->m_check_drawing_query.EnableWindow(false);
+		this->m_edit_knn.EnableWindow(false);
+		this->m_button_knn.EnableWindow(false);
+		this->m_edit_epsilon.EnableWindow(false);
+		this->m_button_epsilon.EnableWindow(false);
+
+		//Set opengl camera
+		RECT rect;
+		GetDlgItem(IDC_OPENGL)->GetWindowRect(&rect);
+		ScreenToClient(&rect);
+		{
+			int width = (rect.right - rect.left) / 2;
+			int height = (rect.bottom - rect.top) / 2;
+			int tx = (rect.right + rect.left) / 2;
+			int ty = (rect.bottom + rect.top) / 2;
+			m_picture_opengl.setCamera(tx, ty, width, height);
+		}
+
+		this->m_picture_opengl.HDS.clearData();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	case 1: // Query
+		this->m_picture_opengl.setMode(2);
+		this->m_check_query.EnableWindow(true);
+		this->m_check_path.EnableWindow(true);
+		this->m_button_file.EnableWindow(true);
+		this->m_edit_filename.EnableWindow(true);
+		this->m_check_query1.SetCheck(true);
+
+		//this->m_check_drawing_polygon.SetCheck(true);
+		//this->m_check_drawing_polygon.EnableWindow(false);
+		this->m_check_drawing_point.SetCheck(false);
+		this->m_check_drawing_query.SetCheck(true);
+		this->m_check_drawing_query.EnableWindow(true);
+		this->m_edit_knn.EnableWindow(true);
+		this->m_button_knn.EnableWindow(true);
+		this->m_edit_epsilon.EnableWindow(true);
+		this->m_button_epsilon.EnableWindow(true);
+
+		this->m_picture_opengl.HDS.clearData();
+		Invalidate(TRUE);
+		UpdateWindow();
+		break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedButtonAdd()
+{	
+	int menu = this->m_combo_func.GetCurSel();
+	if (menu != LB_ERR) {
+		/*
+		if (menu == 1 && this->m_picture_opengl.DDS.dnn_util.getNumPolygonVertices() < 3) {
+			MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
+		}
+		*/
+		AddDialog dlg(EADD, 3);
+		if (IDOK == dlg.DoModal()) {
+			if (this->m_check_drawing_point.GetCheck()) {
+				if (this->m_picture_opengl.addPoint(dlg.coordinate[0], dlg.coordinate[1])) {
+					CString temp;
+					temp.Format(_T("%lf"), dlg.coordinate[0]);
+					this->m_edit_query_sx.SetWindowTextW(temp);
+					temp.Format(_T("%lf"), dlg.coordinate[1]);
+					this->m_edit_query_sy.SetWindowTextW(temp);			
+				}
+				else {
+					MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
+				}			
+			}
+			else if (this->m_check_drawing_query.GetCheck()) {
+				if (this->m_picture_opengl.addQueryPoint(dlg.coordinate[0], dlg.coordinate[1])) {
+					CString temp;
+					temp.Format(_T("%lf"), dlg.coordinate[0]);
+					this->m_edit_query_sx.SetWindowTextW(temp);
+					temp.Format(_T("%lf"), dlg.coordinate[1]);
+					this->m_edit_query_sy.SetWindowTextW(temp);
+
+					this->printLogEditBox();
+				}
+				else {
+					MessageBox(_T("Query input failed."), _T("Error"), MB_ICONHAND);
+				}
+			}
+			
+			Invalidate(TRUE);
+			UpdateWindow();
+		}
 	}
 }
 
@@ -447,31 +481,15 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 				int x = point.x;
 				int ygap = point.y - rect.top;
 				int y = rect.bottom - ygap;
-				if (this->m_check_drawing_polygon.GetCheck()) {
-					this->m_picture_opengl.addVertexPolygon(x, y);
+				if (this->m_picture_opengl.addPoint(x, y)) {
 					CString temp;
 					temp.Format(_T("%d"), x);
 					this->m_edit_query_sx.SetWindowTextW(temp);
 					temp.Format(_T("%d"), y);
-					this->m_edit_query_sy.SetWindowTextW(temp);
-
+					this->m_edit_query_sy.SetWindowTextW(temp);						
 				}
-				else if (this->m_check_drawing_point.GetCheck()) {
-					if (this->m_picture_opengl.addPoint(x, y)) {
-						CString temp;
-						temp.Format(_T("%d"), x);
-						this->m_edit_query_sx.SetWindowTextW(temp);
-						temp.Format(_T("%d"), y);
-						this->m_edit_query_sy.SetWindowTextW(temp);
-						
-					}
-					else {
-						MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
-					}
-					if (this->m_picture_opengl.DDS.dnn_util.polygonInputDone) {
-						this->m_check_drawing_polygon.EnableWindow(false);
-						this->m_check_drawing_point.SetCheck(true);
-					}
+				else {
+					MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
 				}				
 				Invalidate(TRUE);
 				UpdateWindow();
@@ -479,71 +497,50 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 			break;
 		case 1:
-			if (this->m_picture_opengl.DDS.dnn_util.getNumPolygonVertices() < 3) {
-				MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
-			}
-			else {
-				if (rect.left < point.x && point.x < rect.right &&
-					rect.top < point.y && point.y < rect.bottom) {
-					double width = (rect.right - rect.left) / 2;
-					double tx = (rect.right + rect.left) / 2;
-					double x = (double(point.x) - tx) / width;
+			if (rect.left < point.x && point.x < rect.right &&
+				rect.top < point.y && point.y < rect.bottom) {
+				double width = (rect.right - rect.left) / 2;
+				double tx = (rect.right + rect.left) / 2;
+				double x = (double(point.x) - tx) / width;
 
-					double height = (rect.bottom - rect.top) / 2;
-					double ty = (rect.bottom + rect.top) / 2;
-					int ygap = point.y - rect.top;
-					double y = rect.bottom - ygap;
-					y = (y - ty) / height;
+				double height = (rect.bottom - rect.top) / 2;
+				double ty = (rect.bottom + rect.top) / 2;
+				int ygap = point.y - rect.top;
+				double y = rect.bottom - ygap;
+				y = (y - ty) / height;
 
 
-					if (this->m_check_drawing_point.GetCheck()) {
-						if (m_picture_opengl.addPointAlign(x, y)) {
-							CString temp;
-							std::pair<double, double> point_coord = m_picture_opengl.DDS.dnn_util.getInputPointsBack();
-							temp.Format(_T("%lf"), point_coord.first);
-							this->m_edit_query_sx.SetWindowTextW(temp);
-							temp.Format(_T("%lf"), point_coord.second);
-							this->m_edit_query_sy.SetWindowTextW(temp);
-						}
-						else {
-							MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
-						}			
+				if (this->m_check_drawing_point.GetCheck()) {
+					if (m_picture_opengl.addPointAlign(x, y)) {
+						CString temp;
+						std::pair<double, double> point_coord = this->m_picture_opengl.HDS.getInputPoint(this->m_picture_opengl.HDS.getInputPointsSize()-1);
+						temp.Format(_T("%lf"), point_coord.first);
+						this->m_edit_query_sx.SetWindowTextW(temp);
+						temp.Format(_T("%lf"), point_coord.second);
+						this->m_edit_query_sy.SetWindowTextW(temp);
 					}
-					else if (this->m_check_drawing_query.GetCheck()) {
-						if (m_picture_opengl.addQueryPoint(x, y)) {
-							std::vector<std::pair<double, double>> query_points = m_picture_opengl.DDS.dnn_util.getQueryPoint();
-							CString temp;
-							temp.Format(_T("%lf"), query_points[0].first);
-							this->m_edit_query_sx.SetWindowTextW(temp);
-							temp.Format(_T("%lf"), query_points[0].second);
-							this->m_edit_query_sy.SetWindowTextW(temp);
-
-							std::vector<std::pair<double, double>> input_points = this->m_picture_opengl.DDS.dnn_util.getInputPoints();
-							std::vector<std::pair<double, int>> result = this->m_picture_opengl.DDS.dnn_util.getQueryResult();
-							int idx = result.size();
-							int knn = this->m_picture_opengl.DDS.dnn_util.knn;
-							if (idx > knn) idx = knn;
-							CString resultLog;
-							for (int i = 0; i < idx; i++) {
-								CString temp1, temp2;
-								temp1.Format(_T("%d"), i);
-								resultLog += temp1 + _T("-th neighbor: (");
-								temp1.Format(_T("%lf"), input_points[i].first);
-								temp2.Format(_T("%lf"), input_points[i].second);
-								resultLog += temp1 + _T(", ") + temp2 + _T(")\r\n Geodesic distance: ");
-								temp1.Format(_T("%lf"), result[i].first);
-								resultLog += temp1 + _T("\r\n");
-							}
-							this->m_edit_result.SetWindowTextW(resultLog);
-						}
-						else {
-							MessageBox(_T("Query input failed."), _T("Error"), MB_ICONHAND);
-						}
-					}
-					Invalidate(TRUE);
-					UpdateWindow();
+					else {
+						MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
+					}			
 				}
+				else if (this->m_check_drawing_query.GetCheck()) {
+					if (m_picture_opengl.addQueryPointAlign(x, y)) {
+						std::pair<double, double> query_point = this->m_picture_opengl.HDS.getQueryPoint();
+						CString temp;
+						temp.Format(_T("%lf"), query_point.first);
+						this->m_edit_query_sx.SetWindowTextW(temp);
+						temp.Format(_T("%lf"), query_point.second);
+						this->m_edit_query_sy.SetWindowTextW(temp);
+						this->printLogEditBox();
+					}
+					else {
+						MessageBox(_T("Query input failed."), _T("Error"), MB_ICONHAND);
+					}
+				}
+				Invalidate(TRUE);
+				UpdateWindow();
 			}
+			
 			break;
 		default:
 			break;
@@ -561,17 +558,25 @@ void CDNNDemoDlg::OnClickedButtonSave()
 
 	if (IDOK == dlg.DoModal()) {
 		CString pathName = dlg.GetPathName();
-
-
 		int menu = m_combo_func.GetCurSel();
 		CString temp;
 		switch (menu) {
-		case 0: // input polygon
-			m_picture_opengl.DDS.dnn_util.printInputData(std::string(CT2CA(pathName)));
+		case 0: // input
+			if (m_picture_opengl.HDS.printInputData(std::string(CT2CA(pathName)))) {
+				MessageBox(_T("Printing input file Done."), _T("Error"), MB_ICONINFORMATION);
+			}
+			else {
+				MessageBox(_T("Printing input file failed."), _T("Error"), MB_ICONHAND);
+			}
 			break;
 		case 1: // query
 			// Query time
-			m_picture_opengl.DDS.dnn_util.printQuery(std::string(CT2CA(pathName)));
+			if (m_picture_opengl.HDS.printQueryResult(std::string(CT2CA(pathName)))) {
+				MessageBox(_T("Printing query result Done."), _T("Error"), MB_ICONINFORMATION);
+			}
+			else {
+				MessageBox(_T("Printing query result failed."), _T("Error"), MB_ICONHAND);
+			}
 			break;
 		default:
 			break;
@@ -584,35 +589,26 @@ void CDNNDemoDlg::OnClickedButtonDelete()
 {
 	int menu = m_combo_func.GetCurSel();
 	switch (menu) {
-	case 0: // input polygon
-		if (this->m_check_drawing_polygon.GetCheck()) {
-			this->m_picture_opengl.DDS.dnn_util.deleteVertexPolygon();
-		}
-		else if (this->m_check_drawing_point.GetCheck()) {
-			this->m_picture_opengl.DDS.dnn_util.deletePoint();
-		}
+	case 0: // input
+		this->m_picture_opengl.HDS.deletePoint();
 		this->m_edit_query_sx.SetWindowTextW(_T(""));
 		this->m_edit_query_sy.SetWindowTextW(_T(""));
-		Invalidate(TRUE);
-		UpdateWindow();
 		break;
 	case 1: // query
 		if (this->m_check_drawing_point.GetCheck()) {
-			this->m_picture_opengl.DDS.dnn_util.deletePoint();
+			this->m_picture_opengl.HDS.deletePoint();
 		}
 		else if (this->m_check_drawing_query.GetCheck()) {
-			this->m_picture_opengl.DDS.dnn_util.deleteQueryPoint();
-			//TODO: delete button for query
-			//this->m_picture_opengl.DDS.dnn_util.deletePoint();
+			this->m_picture_opengl.HDS.deleteQueryPoint();
 		}
 		this->m_edit_query_sx.SetWindowTextW(_T(""));
 		this->m_edit_query_sy.SetWindowTextW(_T(""));
-		Invalidate(TRUE);
-		UpdateWindow();
 		break;
 	default:
 		break;
 	}
+	Invalidate(TRUE);
+	UpdateWindow();
 }
 
 
@@ -656,67 +652,20 @@ void CDNNDemoDlg::OnBnClickedCheckQuery2()
 	}
 }
 
-
-void CDNNDemoDlg::OnBnClickedCheckDrawingPolygon()
-{
-	if (this->m_check_drawing_polygon.GetCheck() == true) {
-		if (this->m_picture_opengl.DDS.dnn_util.polygonInputDone) {
-			MessageBox(_T("Unable to add a vertex after adding point."), _T("Error"), MB_ICONHAND);
-			this->m_check_drawing_polygon.SetCheck(false);
-		}
-		else {
-			this->m_check_drawing_point.SetCheck(false);
-		}
-	}
-	else {
-		if (this->m_picture_opengl.DDS.dnn_util.getNumPolygonVertices() < 3) {
-			MessageBox(_T("The number of vertices is less than 3."), _T("Error"), MB_ICONHAND);
-			this->m_check_drawing_polygon.SetCheck(true);
-		}
-		else {
-			this->m_check_drawing_point.SetCheck(true);
-		}
-	}
-}
-
-
 void CDNNDemoDlg::OnBnClickedCheckDrawingPoint()
 {
 	int menu = m_combo_func.GetCurSel();
 	switch (menu) {
 	case 0:
-		if (this->m_check_drawing_point.GetCheck() == true) {
-			if (this->m_picture_opengl.DDS.dnn_util.getNumPolygonVertices() < 3) {
-				MessageBox(_T("Invalid polygon input."), _T("Error"), MB_ICONHAND);
-				this->m_check_drawing_point.SetCheck(false);
-			}
-			else {
-				this->m_check_drawing_polygon.SetCheck(false);
-			}
-		}
-		else {
-			if (this->m_picture_opengl.DDS.dnn_util.polygonInputDone) {
-				MessageBox(_T("Unable to add a vertex after adding point."), _T("Error"), MB_ICONHAND);
-				this->m_check_drawing_point.SetCheck(true);
-			}
-			else {
-				this->m_check_drawing_polygon.SetCheck(true);
-			}
-		}
+		this->m_check_drawing_point.SetCheck(true);
 		break;
 	case 1:	
 		if (this->m_check_drawing_point.GetCheck() == true) {
-			this->m_picture_opengl.DDS.dnn_util.deleteQueryPoint();
+			this->m_picture_opengl.HDS.deleteQueryPoint();
 			this->m_check_drawing_query.SetCheck(false);
 		}
 		else {
-			if (this->m_picture_opengl.DDS.dnn_util.getNumInputPoints() < 1) {
-				MessageBox(_T("There are no input points."), _T("Error"), MB_ICONHAND);
-				this->m_check_drawing_point.SetCheck(true);
-			}
-			else {
-				this->m_check_drawing_query.SetCheck(true);
-			}
+			this->m_check_drawing_query.SetCheck(true);
 		}	
 		break;
 	default:
@@ -728,7 +677,7 @@ void CDNNDemoDlg::OnBnClickedCheckDrawingPoint()
 void CDNNDemoDlg::OnBnClickedCheckDrawingQuery()
 {
 	if (this->m_check_drawing_query.GetCheck() == true) {
-		if (this->m_picture_opengl.DDS.dnn_util.getNumInputPoints() < 1) {
+		if (this->m_picture_opengl.HDS.getInputPointsSize() < 1) {
 			MessageBox(_T("There are no input points."), _T("Error"), MB_ICONHAND);
 			this->m_check_drawing_query.SetCheck(false);
 		}
@@ -737,7 +686,7 @@ void CDNNDemoDlg::OnBnClickedCheckDrawingQuery()
 		}
 	}
 	else {
-		this->m_picture_opengl.DDS.dnn_util.deleteQueryPoint();
+		this->m_picture_opengl.HDS.deleteQueryPoint();
 		this->m_check_drawing_point.SetCheck(true);
 	}
 }
@@ -756,9 +705,30 @@ void CDNNDemoDlg::OnBnClickedButtonKnn()
 		}
 	}
 	if (isInt) {
-		this->m_picture_opengl.DDS.dnn_util.knn = _ttoi(text);
+		this->m_picture_opengl.HDS.setKNN(_ttoi(text));
 	}
 	else {
 		MessageBox(_T("Enter an integer."), _T("Error"), MB_ICONHAND);
+	}
+}
+
+void CDNNDemoDlg::OnBnClickedButtonEpsilon()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString text;
+	this->m_edit_epsilon.GetWindowTextW(text);
+	bool isInt = true;
+	for (size_t i = 0; i < text.GetLength(); i++) {
+		if (('0' > text[i] || '9' < text[i]) && '.' != text[i]) {
+			isInt = false;
+			break;
+		}
+	}
+	if (isInt) {
+		this->m_picture_opengl.HDS.setEpsilon(_wtof(text));
+	}
+	else {
+		MessageBox(_T("Enter an real value."), _T("Error"), MB_ICONHAND);
 	}
 }

@@ -71,8 +71,10 @@ public:
 		//calculate bounds
 		Point bounds[2];
 		for (size_t d = 0; d < dim; ++d) {
-			bounds[0][d] = std::numeric_limits<double>::max();
-			bounds[1][d] = -std::numeric_limits<double>::max();
+			//bounds[0][d] = std::numeric_limits<double>::max();
+			//bounds[1][d] = -std::numeric_limits<double>::max();
+			bounds[0][d] = -std::numeric_limits<double>::lowest();
+			bounds[1][d] = std::numeric_limits<double>::lowest();
 		}
 
 		for (size_t d = 0; d < dim; ++d) {
@@ -134,7 +136,8 @@ public:
 					++itor;
 				}
 
-				qr.insert(itor, std::make_pair<Point*, double>((Point*)(node->pt), (double)dist));
+				//qr.insert(itor, std::make_pair<Point*, double>((Point*)(node->pt), (double)dist));
+				qr.insert(itor, std::make_pair(node->pt, dist));
 
 				if (qr.size() > k) qr.pop_back();
 
@@ -142,8 +145,9 @@ public:
 			else {
 
 				//find k-th distance
-				double kth_dist = qr.size() < k ? std::numeric_limits<double>::max() : qr.back().second;
-
+				//double kth_dist = qr.size() < k ? std::numeric_limits<double>::max() : qr.back().second;
+				double kth_dist = qr.size() < k ? -std::numeric_limits<double>::lowest() : qr.back().second;
+				
 				//stop searching, all further nodes farther away than k-th value
 				if (kth_dist <= (1.0 + eps) * node_dist) {
 					break;
@@ -282,7 +286,9 @@ private:
 	double min_pt_dist_to_node(const Point& pt, Node* node)
 	{
 		bool inside = true;
-		double min_dist = std::numeric_limits<double>::max();
+		//double min_dist = std::numeric_limits<double>::max();
+		double min_dist = -std::numeric_limits<double>::lowest();
+		
 		for (size_t d = 0; d < dim; ++d) {
 
 			double dist = min_dist;
