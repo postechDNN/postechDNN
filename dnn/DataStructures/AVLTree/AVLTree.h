@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-//operater =, < and == must be defined for type T.
+//operater = and == must be defined for type T if a comparison function is not given. 
 template <typename T, typename Comp = std::less<T>()>
 struct AVLTreeNode {
 	AVLTreeNode();
