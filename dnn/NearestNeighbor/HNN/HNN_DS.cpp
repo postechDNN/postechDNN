@@ -41,25 +41,36 @@ int HNN_DS::insertPoint(double x, double y) {
 }
 
 void HNN_DS::deletePoint() {
-	this->InputPoints.pop_back();
+	if (!this->InputPoints.empty()) {
+		this->InputPoints.pop_back();
+	}
 }
 
 int HNN_DS::inputQueryPoint(double x, double y) {
-	this->clearData();
+	this->deleteQueryPoint();
 	this->queryPoint = new HNN_Point(x, y);
 	this->preprocessing();
 	return 1;
 }
 
 void HNN_DS::deleteQueryPoint() {
-	this->clearData();
+	if (this->queryPoint != nullptr) {
+		delete this->queryPoint;
+	}
+	if (this->myd != nullptr) {
+		delete this->myd;
+	}
+	this->queryResult.clear();
 }
 
 void HNN_DS::clearData() {
 	if (this->queryPoint != nullptr) {
 		delete this->queryPoint;
 	}
-	delete this->myd;
+	if (this->myd != nullptr) {
+		delete this->myd;
+	}
+	this->InputPoints.clear();
 	this->queryResult.clear();
 }
 

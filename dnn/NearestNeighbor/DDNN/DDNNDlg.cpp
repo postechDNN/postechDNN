@@ -4,8 +4,8 @@
 
 #include "pch.h"
 #include "framework.h"
-#include "HNN.h"
-#include "HNNDlg.h"
+#include "DDNN.h"
+#include "DDNNDlg.h"
 #include "AddDialog.h"
 #include "afxdialogex.h"
 
@@ -62,17 +62,17 @@ CDNNDemoDlg::CDNNDemoDlg(CWnd* pParent /*=nullptr*/)
 }
 
 void CDNNDemoDlg::printLogEditBox() {
-	int resultSize = this->m_picture_opengl.HDS.getQueryResultSize();
+	int resultSize = this->m_picture_opengl.DDDS.getQueryResultSize();
 	CString resultLog;
 	for (int i = 0; i < resultSize; i++) {
 		CString temp1, temp2;
 		temp1.Format(_T("%d"), i);
 		resultLog += temp1 + _T("-th neighbor: (");
-		std::pair<double, double> neighbor = this->m_picture_opengl.HDS.getQueryResultNeighbor(i);
+		std::pair<double, double> neighbor = this->m_picture_opengl.DDDS.getQueryResultNeighbor(i);
 		temp1.Format(_T("%lf"), neighbor.first);
 		temp2.Format(_T("%lf"), neighbor.second);
 		resultLog += temp1 + _T(", ") + temp2 + _T(")\r\n Geodesic distance: ");
-		temp1.Format(_T("%lf"), this->m_picture_opengl.HDS.getQueryResultDist(i));
+		temp1.Format(_T("%lf"), this->m_picture_opengl.DDDS.getQueryResultDist(i));
 		resultLog += temp1 + _T("\r\n");
 	}
 	this->m_edit_result.SetWindowTextW(resultLog);
@@ -103,8 +103,8 @@ void CDNNDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_RESULT, m_edit_result);
 	DDX_Control(pDX, IDC_EDIT_KNN, m_edit_knn);
 	DDX_Control(pDX, IDC_BUTTON_KNN, m_button_knn);
-	DDX_Control(pDX, IDC_EDIT_EPSILON, m_edit_epsilon);
-	DDX_Control(pDX, IDC_BUTTON_EPSILON, m_button_epsilon);
+	DDX_Control(pDX, IDC_CHECK_CVM_INPUT, m_check_cvm_input);
+	DDX_Control(pDX, IDC_CHECK_CVM_RESULT, m_check_cvm_result);
 }
 
 BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
@@ -128,7 +128,9 @@ BEGIN_MESSAGE_MAP(CDNNDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_DRAWING_POINT, &CDNNDemoDlg::OnBnClickedCheckDrawingPoint)
 	ON_BN_CLICKED(IDC_CHECK_DRAWING_QUERY, &CDNNDemoDlg::OnBnClickedCheckDrawingQuery)
 	ON_BN_CLICKED(IDC_BUTTON_KNN, &CDNNDemoDlg::OnBnClickedButtonKnn)
-	ON_BN_CLICKED(IDC_BUTTON_EPSILON, &CDNNDemoDlg::OnBnClickedButtonEpsilon)
+	//ON_BN_CLICKED(IDC_BUTTON_EPSILON, &CDNNDemoDlg::OnBnClickedButtonEpsilon)
+	ON_BN_CLICKED(IDC_CHECK_CVM_INPUT, &CDNNDemoDlg::OnBnClickedCheckCvmInput)
+	ON_BN_CLICKED(IDC_CHECK_CVM_RESULT, &CDNNDemoDlg::OnBnClickedCheckCvmResult)
 END_MESSAGE_MAP()
 
 
@@ -166,20 +168,22 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
 	// Initialize Func Combo
-	m_combo_func.AddString(_T("1. Make input file (Make a set of points)"));
+	m_combo_func.AddString(_T("1. Make input file (Make a convex distance metric)"));
 	m_combo_func.AddString(_T("2. Test the input file (Dynamic Nearest Neighbor)"));
 	//m_combo_func.AddString(_T("추가메뉴"));
 
 	// Initialize Check boxes
 	//m_check_vertex.SetCheck(true);
 	//m_check_edge.SetCheck(true);
+	m_check_cvm_input.SetCheck(true);
+	m_check_cvm_result.SetCheck(true);
 	m_check_points.SetCheck(true);
 	m_check_query.SetCheck(true);
 	m_check_path.SetCheck(true);
 	m_check_query1.SetCheck(true);
 	m_button_add.EnableWindow(false);
 	m_edit_knn.SetWindowTextW(_T("1"));
-	m_edit_epsilon.SetWindowTextW(_T("0.05"));
+	//m_edit_epsilon.SetWindowTextW(_T("0.05"));
 
 	// Initialize rendering object
 	//this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
@@ -187,6 +191,8 @@ BOOL CDNNDemoDlg::OnInitDialog()
 	this->m_picture_opengl.setDrawObject(2, POINTSET, m_check_points.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, QUERY, m_check_query.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, CVM_INPUT_SEQ, m_check_path.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, CVM_RESULT, m_check_path.GetCheck());
 	//this->EnableWindow(true);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -374,8 +380,8 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_drawing_query.EnableWindow(false);
 		this->m_edit_knn.EnableWindow(false);
 		this->m_button_knn.EnableWindow(false);
-		this->m_edit_epsilon.EnableWindow(false);
-		this->m_button_epsilon.EnableWindow(false);
+		//this->m_edit_epsilon.EnableWindow(false);
+		//this->m_button_epsilon.EnableWindow(false);
 
 		//Set opengl camera
 		RECT rect;
@@ -389,7 +395,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 			m_picture_opengl.setCamera(tx, ty, width, height);
 		}
 
-		this->m_picture_opengl.HDS.clearData();
+		this->m_picture_opengl.DDDS.clearData();
 		Invalidate(TRUE);
 		UpdateWindow();
 		break;
@@ -408,10 +414,10 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_drawing_query.EnableWindow(true);
 		this->m_edit_knn.EnableWindow(true);
 		this->m_button_knn.EnableWindow(true);
-		this->m_edit_epsilon.EnableWindow(true);
-		this->m_button_epsilon.EnableWindow(true);
+		//this->m_edit_epsilon.EnableWindow(true);
+		//this->m_button_epsilon.EnableWindow(true);
 
-		this->m_picture_opengl.HDS.clearData();
+		this->m_picture_opengl.DDDS.clearData();
 		Invalidate(TRUE);
 		UpdateWindow();
 		break;
@@ -433,16 +439,30 @@ void CDNNDemoDlg::OnBnClickedButtonAdd()
 		AddDialog dlg(EADD, 3);
 		if (IDOK == dlg.DoModal()) {
 			if (this->m_check_drawing_point.GetCheck()) {
-				if (this->m_picture_opengl.addPoint(dlg.coordinate[0], dlg.coordinate[1])) {
-					CString temp;
-					temp.Format(_T("%lf"), dlg.coordinate[0]);
-					this->m_edit_query_sx.SetWindowTextW(temp);
-					temp.Format(_T("%lf"), dlg.coordinate[1]);
-					this->m_edit_query_sy.SetWindowTextW(temp);			
+				if (menu == 0) {
+					if (this->m_picture_opengl.addConvexDistPoint(dlg.coordinate[0], dlg.coordinate[1])) {
+						CString temp;
+						temp.Format(_T("%lf"), dlg.coordinate[0]);
+						this->m_edit_query_sx.SetWindowTextW(temp);
+						temp.Format(_T("%lf"), dlg.coordinate[1]);
+						this->m_edit_query_sy.SetWindowTextW(temp);
+					}
+					else {
+						MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
+					}
 				}
-				else {
-					MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
-				}			
+				else if (menu == 1) {
+					if (this->m_picture_opengl.addPoint(dlg.coordinate[0], dlg.coordinate[1])) {
+						CString temp;
+						temp.Format(_T("%lf"), dlg.coordinate[0]);
+						this->m_edit_query_sx.SetWindowTextW(temp);
+						temp.Format(_T("%lf"), dlg.coordinate[1]);
+						this->m_edit_query_sy.SetWindowTextW(temp);
+					}
+					else {
+						MessageBox(_T("Point input failed."), _T("Error"), MB_ICONHAND);
+					}
+				}				
 			}
 			else if (this->m_check_drawing_query.GetCheck()) {
 				if (this->m_picture_opengl.addQueryPoint(dlg.coordinate[0], dlg.coordinate[1])) {
@@ -481,7 +501,7 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 				int x = point.x;
 				int ygap = point.y - rect.top;
 				int y = rect.bottom - ygap;
-				if (this->m_picture_opengl.addPoint(x, y)) {
+				if (this->m_picture_opengl.addConvexDistPoint(x, y)) {
 					CString temp;
 					temp.Format(_T("%d"), x);
 					this->m_edit_query_sx.SetWindowTextW(temp);
@@ -513,7 +533,7 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 				if (this->m_check_drawing_point.GetCheck()) {
 					if (m_picture_opengl.addPointAlign(x, y)) {
 						CString temp;
-						std::pair<double, double> point_coord = this->m_picture_opengl.HDS.getInputPoint(this->m_picture_opengl.HDS.getInputPointsSize()-1);
+						std::pair<double, double> point_coord = this->m_picture_opengl.DDDS.getInputPoint(this->m_picture_opengl.DDDS.getInputPointsSize()-1);
 						temp.Format(_T("%lf"), point_coord.first);
 						this->m_edit_query_sx.SetWindowTextW(temp);
 						temp.Format(_T("%lf"), point_coord.second);
@@ -525,7 +545,7 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 				}
 				else if (this->m_check_drawing_query.GetCheck()) {
 					if (m_picture_opengl.addQueryPointAlign(x, y)) {
-						std::pair<double, double> query_point = this->m_picture_opengl.HDS.getQueryPoint();
+						std::pair<double, double> query_point = this->m_picture_opengl.DDDS.getQueryPoint();
 						CString temp;
 						temp.Format(_T("%lf"), query_point.first);
 						this->m_edit_query_sx.SetWindowTextW(temp);
@@ -562,7 +582,7 @@ void CDNNDemoDlg::OnClickedButtonSave()
 		CString temp;
 		switch (menu) {
 		case 0: // input
-			if (m_picture_opengl.HDS.printInputData(std::string(CT2CA(pathName)))) {
+			if (m_picture_opengl.DDDS.printInputData(std::string(CT2CA(pathName)))) {
 				MessageBox(_T("Printing input file Done."), _T("Error"), MB_ICONINFORMATION);
 			}
 			else {
@@ -571,7 +591,7 @@ void CDNNDemoDlg::OnClickedButtonSave()
 			break;
 		case 1: // query
 			// Query time
-			if (m_picture_opengl.HDS.printQueryResult(std::string(CT2CA(pathName)))) {
+			if (m_picture_opengl.DDDS.printQueryResult(std::string(CT2CA(pathName)))) {
 				MessageBox(_T("Printing query result Done."), _T("Error"), MB_ICONINFORMATION);
 			}
 			else {
@@ -590,16 +610,16 @@ void CDNNDemoDlg::OnClickedButtonDelete()
 	int menu = m_combo_func.GetCurSel();
 	switch (menu) {
 	case 0: // input
-		this->m_picture_opengl.HDS.deletePoint();
+		this->m_picture_opengl.DDDS.deleteConvexDistPoint();
 		this->m_edit_query_sx.SetWindowTextW(_T(""));
 		this->m_edit_query_sy.SetWindowTextW(_T(""));
 		break;
 	case 1: // query
 		if (this->m_check_drawing_point.GetCheck()) {
-			this->m_picture_opengl.HDS.deletePoint();
+			this->m_picture_opengl.DDDS.deletePoint();
 		}
 		else if (this->m_check_drawing_query.GetCheck()) {
-			this->m_picture_opengl.HDS.deleteQueryPoint();
+			this->m_picture_opengl.DDDS.deleteQueryPoint();
 		}
 		this->m_edit_query_sx.SetWindowTextW(_T(""));
 		this->m_edit_query_sy.SetWindowTextW(_T(""));
@@ -661,7 +681,7 @@ void CDNNDemoDlg::OnBnClickedCheckDrawingPoint()
 		break;
 	case 1:	
 		if (this->m_check_drawing_point.GetCheck() == true) {
-			this->m_picture_opengl.HDS.deleteQueryPoint();
+			this->m_picture_opengl.DDDS.deleteQueryPoint();
 			this->m_check_drawing_query.SetCheck(false);
 		}
 		else {
@@ -677,7 +697,7 @@ void CDNNDemoDlg::OnBnClickedCheckDrawingPoint()
 void CDNNDemoDlg::OnBnClickedCheckDrawingQuery()
 {
 	if (this->m_check_drawing_query.GetCheck() == true) {
-		if (this->m_picture_opengl.HDS.getInputPointsSize() < 1) {
+		if (this->m_picture_opengl.DDDS.getInputPointsSize() < 1) {
 			MessageBox(_T("There are no input points."), _T("Error"), MB_ICONHAND);
 			this->m_check_drawing_query.SetCheck(false);
 		}
@@ -686,7 +706,7 @@ void CDNNDemoDlg::OnBnClickedCheckDrawingQuery()
 		}
 	}
 	else {
-		this->m_picture_opengl.HDS.deleteQueryPoint();
+		this->m_picture_opengl.DDDS.deleteQueryPoint();
 		this->m_check_drawing_point.SetCheck(true);
 	}
 }
@@ -705,30 +725,43 @@ void CDNNDemoDlg::OnBnClickedButtonKnn()
 		}
 	}
 	if (isInt) {
-		this->m_picture_opengl.HDS.setKNN(_ttoi(text));
+		this->m_picture_opengl.DDDS.setKNN(_ttoi(text));
 	}
 	else {
 		MessageBox(_T("Enter an integer."), _T("Error"), MB_ICONHAND);
 	}
 }
 
-void CDNNDemoDlg::OnBnClickedButtonEpsilon()
+
+void CDNNDemoDlg::OnBnClickedCheckCvmInput()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, CVM_INPUT_SEQ, m_check_cvm_input.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(2, CVM_INPUT_SEQ, m_check_cvm_input.GetCheck());
+		break;
+	default:
+		break;
+	}
+}
+
+
+void CDNNDemoDlg::OnBnClickedCheckCvmResult()
+{
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	CString text;
-	this->m_edit_epsilon.GetWindowTextW(text);
-	bool isInt = true;
-	for (size_t i = 0; i < text.GetLength(); i++) {
-		if (('0' > text[i] || '9' < text[i]) && '.' != text[i]) {
-			isInt = false;
-			break;
-		}
-	}
-	if (isInt) {
-		this->m_picture_opengl.HDS.setEpsilon(_wtof(text));
-	}
-	else {
-		MessageBox(_T("Enter an real value."), _T("Error"), MB_ICONHAND);
+	int menu = this->m_combo_func.GetCurSel();
+	switch (menu) {
+	case 0:
+		this->m_picture_opengl.setDrawObject(2, CVM_RESULT, m_check_cvm_result.GetCheck());
+		break;
+	case 1:
+		this->m_picture_opengl.setDrawObject(2, CVM_RESULT, m_check_cvm_result.GetCheck());
+		break;
+	default:
+		break;
 	}
 }

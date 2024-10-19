@@ -1,250 +1,92 @@
-#include <GL/glfw3.h>
-#include <GL/freeglut.h>
-#include "DD.h"
+﻿
+// DNNDemo.cpp: 애플리케이션에 대한 클래스 동작을 정의합니다.
+//
+
+#include "pch.h"
+#include "framework.h"
+#include "DDNN.h"
+#include "DDNNDlg.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
 
 
-enum InputMod {defualt,Distance,Insert,Delete,Query};
-InputMod NowMod = defualt;
-std::vector<ConvexDistPoint> cond;
-std::vector<ConvexDistPoint> InputPoints;
+// CDNNDemoApp
 
-int k_value = 3;
-ConvexDistPoint QueryPoint(-1,-1);
-std::vector<int> NNPoints;
-
-ConvexDistance* myd;
-int MenuCentorX = 700;
-int MenuCentorY = 500;
-int MenuH = 100;
-int MenuW = 100;
-int MenuScaleX = 50;
-int MenuScaleY = 50;
+BEGIN_MESSAGE_MAP(CDNNDemoApp, CWinApp)
+	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
+END_MESSAGE_MAP()
 
 
-void reshape(int w, int h) {
-	//w_w = w;
-	//w_h = h;
-	glViewport(0, 0, w, h);
-	glLoadIdentity();
-	gluOrtho2D(0, 800, 0, 600);
-}
+// CDNNDemoApp 생성
 
-void display() {
-	glLoadIdentity();
-	gluOrtho2D(0, 800, 0, 600);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	//gluOrtho2D(min_x, max_x, min_y, max_y);
-
-
-	glLineWidth(8);
-	glPointSize(5.0f);
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glEnable(GL_POINT_SMOOTH);
-
-
-
-
-	//boundary for distance function
-	glBegin(GL_LINE_LOOP);
-	glVertex2d(MenuCentorX + MenuW, MenuCentorY + MenuH);
-	glVertex2d(MenuCentorX + MenuW, MenuCentorY - MenuH);
-	glVertex2d(MenuCentorX - MenuW, MenuCentorY - MenuH);
-	glVertex2d(MenuCentorX - MenuW, MenuCentorY + MenuH);
-	glEnd();
-	//
-	glBegin(GL_POINTS);
-		glVertex2d(MenuCentorX , MenuCentorY );
-	glEnd();
-	//
-
-
-	int ModPosStartX = 630;
-	int ModPosStartY = 370;
-	//print about mod
-	glRasterPos2d(ModPosStartX, ModPosStartY);
-	const char* modst="defualt";
-	switch (NowMod) {
-	case Distance :
-		modst = "DIST";
-		break;
-	case Insert :
-		modst = "INSERT";
-		break;
-	case Query :
-		modst = "Query";
-		break;
-	}
-	int ModLen = strlen(modst);
-	for (unsigned int i = 0; i < ModLen; i++)
-		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, modst[i]);
-	//about number of k
-
-	char theK[4] = "k=3";
-	glRasterPos2d(ModPosStartX+120, ModPosStartY);
-	theK[2] = k_value + '0';
-	for (unsigned int i = 0; i < 3; i++)
-		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, theK[i]);
-
-
-	if (NowMod == Distance) {
-		if (!cond.empty()) {
-			glBegin(GL_POINTS);
-			glVertex2d(MenuCentorX, MenuCentorY);
-			glEnd();
-		}
-
-
-		glBegin(GL_LINES);
-		for (unsigned int i = 0; i +1< cond.size(); i++){
-			glVertex2d(MenuCentorX + MenuScaleX * cond[i].pos[0], MenuCentorY + MenuScaleY * cond[i].pos[1]);
-			glVertex2d(MenuCentorX + MenuScaleX * cond[i+1].pos[0], MenuCentorY + MenuScaleY * cond[i+1].pos[1]);
-		}
-		glEnd();
-	}
-	else {
-		glBegin(GL_LINE_LOOP);
-		for (unsigned int i = 0; i < myd->distPolygon.size(); i++)
-			glVertex2d(MenuCentorX + MenuScaleX * myd->distPolygon[i].pos[0], MenuCentorY + MenuScaleY * myd->distPolygon[i].pos[1]);
-		glEnd();
-	}
-
-	//print input point
-	for(unsigned int i=0;i< InputPoints.size();i++){
-		
-		if (NowMod == Query && QueryPoint.pos[0] > 0 && QueryPoint.pos[1] > 0 && NNPoints[i]==1) {
-			glColor3f(0.0f, 1.0f, 0.0f);
-		}
-		else glColor3f(0.0f, 0.0f, 0.0f);
-		glBegin(GL_POINTS);
-		glVertex2d(InputPoints[i].pos[0], InputPoints[i].pos[1]);
-		glEnd();
-	}
-
-	glColor3f(0.0f, 0.0f, 0.0f);
-	if (NowMod == Query && QueryPoint.pos[0] > 0 && QueryPoint.pos[1] > 0) {
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glBegin(GL_POINTS);
-		glVertex2d(QueryPoint.pos[0], QueryPoint.pos[1]);
-		glEnd();
-	}
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glutSwapBuffers();
-	return;
-
-}
-
-void DDNN(ConvexDistPoint Qp) {
-	std::vector<std::pair<double, int> > pointlist;
-	for (unsigned int i = 0; i < InputPoints.size(); i++)
-		pointlist.push_back(std::make_pair(myd->GetDist(InputPoints[i], Qp), i));
-	std::sort(pointlist.begin(), pointlist.end());
-	NNPoints.resize(pointlist.size());
-	for (unsigned int i = 0; i < NNPoints.size(); i++)
-		NNPoints[i] = 0;
-
-	for (unsigned int i = 0; i < pointlist.size() && i < k_value; i++) {
-		NNPoints[pointlist[i].second] = 1;
-	}
-
-}
-
-void AddPoint(int button, int state, int x, int y) {
-	if (state == GLUT_DOWN) {
-		if (button == GLUT_LEFT_BUTTON) {
-			if (NowMod == Distance) {
-				y = 600 - y;
-				if (MenuCentorX - MenuW <= x && x <= MenuCentorX + MenuW && MenuCentorY - MenuH <= y && y <= MenuCentorY + MenuH) {
-					cond.push_back(ConvexDistPoint(((double)(x - MenuCentorX))/MenuScaleX, ((double)(y - MenuCentorY)) / MenuScaleY));
-				}
-			}
-			else if (NowMod == Insert) {
-				InputPoints.push_back(ConvexDistPoint(x, 600-y));
-			}
-			else if (NowMod == Query) {
-				DDNN(ConvexDistPoint(x, 600 - y));
-				QueryPoint = ConvexDistPoint(x, 600 - y);
-
-			}
-
-		}
-
-	}
-	
+CDNNDemoApp::CDNNDemoApp()
+{
+	// TODO: 여기에 생성 코드를 추가합니다.
+	// InitInstance에 모든 중요한 초기화 작업을 배치합니다.
 }
 
 
-void ModChange(unsigned char key, int x, int y) {
-	if (NowMod == Distance) {
-		delete myd;
-		myd = new ConvexDistance(cond);
+// 유일한 CDNNDemoApp 개체입니다.
 
-		switch (key) {
-			case 'i':
-			case 'I':
-				NowMod = Insert;
-				break;
-			case 'q':
-			case 'Q':
-				QueryPoint = ConvexDistPoint(-1, -1);
-				NowMod = Query;
-				break;
-			case 'd':
-			case 'D':
-				NowMod = defualt;
-				break;
-		}
-		
+CDNNDemoApp theApp;
+
+
+// CDNNDemoApp 초기화
+
+BOOL CDNNDemoApp::InitInstance()
+{
+	CWinApp::InitInstance();
+
+
+	// 대화 상자에 셸 트리 뷰 또는
+	// 셸 목록 뷰 컨트롤이 포함되어 있는 경우 셸 관리자를 만듭니다.
+	CShellManager *pShellManager = new CShellManager;
+
+	// MFC 컨트롤의 테마를 사용하기 위해 "Windows 원형" 비주얼 관리자 활성화
+	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+
+	// 표준 초기화
+	// 이들 기능을 사용하지 않고 최종 실행 파일의 크기를 줄이려면
+	// 아래에서 필요 없는 특정 초기화
+	// 루틴을 제거해야 합니다.
+	// 해당 설정이 저장된 레지스트리 키를 변경하십시오.
+	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은
+	// 적절한 내용으로 수정해야 합니다.
+	SetRegistryKey(_T("로컬 애플리케이션 마법사에서 생성된 애플리케이션"));
+
+	CDNNDemoDlg dlg;
+	m_pMainWnd = &dlg;
+	INT_PTR nResponse = dlg.DoModal();
+	if (nResponse == IDOK)
+	{
+		// TODO: 여기에 [확인]을 클릭하여 대화 상자가 없어질 때 처리할
+		//  코드를 배치합니다.
 	}
-	else {
-		switch (key) {
-		case 'i':
-		case 'I':
-			NowMod = Insert;
-			break;
-		case 'q':
-		case 'Q':
-			QueryPoint = ConvexDistPoint(-1, -1);
-			NowMod = Query;
-			break;
-		case 'd':
-		case 'D':
-			if(!cond.empty()) cond.clear();
-			NowMod = Distance;
-			break;
-		}
+	else if (nResponse == IDCANCEL)
+	{
+		// TODO: 여기에 [취소]를 클릭하여 대화 상자가 없어질 때 처리할
+		//  코드를 배치합니다.
+	}
+	else if (nResponse == -1)
+	{
+		TRACE(traceAppMsg, 0, "경고: 대화 상자를 만들지 못했으므로 애플리케이션이 예기치 않게 종료됩니다.\n");
+		TRACE(traceAppMsg, 0, "경고: 대화 상자에서 MFC 컨트롤을 사용하는 경우 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS를 수행할 수 없습니다.\n");
 	}
 
-	if (key >= '1' && key <= '9') {
-		k_value = key - '0';
+	// 위에서 만든 셸 관리자를 삭제합니다.
+	if (pShellManager != nullptr)
+	{
+		delete pShellManager;
 	}
 
-	glutPostRedisplay();
-}
+#if !defined(_AFXDLL) && !defined(_AFX_NO_MFC_CONTROLS_IN_DIALOGS)
+	ControlBarCleanUp();
+#endif
 
-
-
-int main(int argc,char ** argv) {
-	
-	cond.push_back(ConvexDistPoint(1, 1));
-	cond.push_back(ConvexDistPoint(1, -1));
-	cond.push_back(ConvexDistPoint(-1, -1));
-	cond.push_back(ConvexDistPoint(-1, 1));
-	myd=new ConvexDistance(cond);
-
-	glutInit(&argc, argv);
-	glutInitWindowPosition(100, 0);
-	glutInitWindowSize(800, 600);//â ũ�� ����
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutCreateWindow("Dynamic Distance Nearest neighbor");
-	glutReshapeFunc(reshape);
-	glutDisplayFunc(display);
-	glutMouseFunc(AddPoint);
-	glutKeyboardFunc(ModChange);
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-	glutMainLoop();
-
-	return 0;
-
+	// 대화 상자가 닫혔으므로 응용 프로그램의 메시지 펌프를 시작하지 않고 응용 프로그램을 끝낼 수 있도록 FALSE를
+	// 반환합니다.
+	return FALSE;
 }
 

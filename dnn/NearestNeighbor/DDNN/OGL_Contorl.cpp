@@ -2,7 +2,7 @@
 //
 
 #include "pch.h"
-#include "HNN.h"
+#include "DDNN.h"
 #include "OGL_Contorl.h"
 
 #include <GL/gl.h> 
@@ -171,7 +171,7 @@ void OGL_Contorl::OnPaint()
 	double normTrans[3];
 	double normMul[3];
 
-	this->HDS.object2D.getNorm(normTrans, normMul, 2);
+	this->DDDS.object2D.getNorm(normTrans, normMul, 2);
 
 	::glPushMatrix();
 	::glColor3f(0.0f, 1.0f, 0.0f);
@@ -180,7 +180,7 @@ void OGL_Contorl::OnPaint()
 	//std::vector<std::pair<double, double>> inputPolygon = this->DDS.dnn_util.getPolygonVertices();
 
 	/*
-	if (this->HDS.object2D.getDrawFaces()) {
+	if (this->DDDS.object2D.getDrawFaces()) {
 		::glColor3f(0.5f, 0.5f, 0.5f);
 		glBegin(GL_POLYGON);
 		glPolygonMode(GL_FRONT,GL_FILL);
@@ -192,53 +192,88 @@ void OGL_Contorl::OnPaint()
 	}
 	*/
 
-	/*
-	if (this->HDS.object2D.getDrawEdges()) {
-		::glColor3f(1.0f, 1.0f, 1.0f);
-		glLineWidth(3.0f);
-		for (int j = 0; j < inputPolygon.size(); j++) {
-			OGL_Point sp(inputPolygon[j].first, inputPolygon[j].second);
-			OGL_Point ep(inputPolygon[(j+1)% inputPolygon.size()].first, inputPolygon[(j + 1) % inputPolygon.size()].second);
-			glBegin(GL_LINES);
-			glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
-			glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
-			glEnd();
-		}
-	}
-	*/
-
-	/*
-	if (this->DDS.object2D.getDrawVertices()) {
-		::glColor3f(0.0f, 1.0f, 0.0f);
+	if (this->DDDS.object2D.getDrawObject(CVM_INPUT_SEQ)) {
+		int convexDistPointsSize = this->DDDS.getConvexDistPointsSize();
+		::glColor3f(0.5f, 1.0f, 0.5f);
 		glPointSize(3.0f);
 		glBegin(GL_POINTS);
-		for (int j = 0; j < inputPolygon.size(); j++) {
-			OGL_Point p(inputPolygon[j].first, inputPolygon[j].second);
+		for (int j = 0; j < convexDistPointsSize; j++) {
+			std::pair<double, double> pt = this->DDDS.getconvexDistPoint(j);
+			OGL_Point p(pt.first, pt.second);
 			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
 		}
 		glEnd();
-	}
-	*/
 
-	int inputPointsSize = this->HDS.getInputPointsSize();
-	if (this->HDS.object2D.getDrawObject(POINTSET)) {
+		::glColor3f(0.5f, 0.5f, 0.5f);
+		glPointSize(1.0f);
+		glBegin(GL_LINES);
+		for (int j = 0; j < convexDistPointsSize - 1; j++) {
+			std::pair<double, double> pt1 = this->DDDS.getconvexDistPoint(j);
+			std::pair<double, double> pt2 = this->DDDS.getconvexDistPoint(j+1);
+			OGL_Point p1(pt1.first, pt1.second);
+			OGL_Point p2(pt2.first, pt2.second);
+			glVertex2d((p1.getX() - normTrans[0]) / normMul[0], (p1.getY() - normTrans[1]) / normMul[1]);
+			glVertex2d((p2.getX() - normTrans[0]) / normMul[0], (p2.getY() - normTrans[1]) / normMul[1]);
+		}
+		glEnd();
+	}
+	
+	if (this->DDDS.object2D.getDrawObject(CVM_RESULT)) {
+		int convexDistPointsResultSize = this->DDDS.getConvexDistResultSize();
+		::glColor3f(0.5f, 1.0f, 0.5f);
+		glPointSize(3.0f);
+		glBegin(GL_POINTS);
+		for (int j = 0; j < convexDistPointsResultSize; j++) {
+			std::pair<double, double> pt = this->DDDS.getconvexDistResultPoint(j);
+			OGL_Point p(pt.first, pt.second);
+			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+		}
+		glEnd();
+
+		::glColor3f(1.0f, 0.5f, 0.0f);
+		glPointSize(2.5f);
+		glBegin(GL_LINE_LOOP);
+		for (int j = 0; j < convexDistPointsResultSize; j++) {
+			std::pair<double, double> pt1 = this->DDDS.getconvexDistResultPoint(j);
+			OGL_Point p1(pt1.first, pt1.second);
+			glVertex2d((p1.getX() - normTrans[0]) / normMul[0], (p1.getY() - normTrans[1]) / normMul[1]);
+		}
+		glEnd();
+	}
+
+	int inputPointsSize = this->DDDS.getInputPointsSize();
+	if (this->DDDS.object2D.getDrawObject(POINTSET)) {
 		::glColor3f(1.0f, 1.0f, 1.0f);
-		glPointSize(5.0f);
+		glLineWidth(3.0f);
 		glBegin(GL_POINTS);
 		for (int j = 0; j < inputPointsSize; j++) {
-			std::pair<double, double> pt = this->HDS.getInputPoint(j);
+			std::pair<double, double> pt = this->DDDS.getInputPoint(j);
 			OGL_Point p(pt.first, pt.second);
 			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
 		}
 		glEnd();
 	}
 
-	if (this->HDS.object2D.getDrawObject(PATH)) {
-		if (this->HDS.isQueryPointInserted()) {
-			std::pair<double, double> qpt = this->HDS.getQueryPoint();
-			int query_size = this->HDS.getQueryResultSize();
+
+	if (this->DDDS.object2D.getDrawObject(QUERY)) {
+		::glColor3f(0.0f, 0.0f, 1.0f);
+		glPointSize(5.0f);
+		glBegin(GL_POINTS);
+		int query_size = this->DDDS.getQueryResultSize();
+		for (int j = 0; j < query_size; j++) {
+			std::pair<double, double> qrpt = this->DDDS.getQueryResultNeighbor(j);
+			OGL_Point p(qrpt.first, qrpt.second);
+			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+		}
+		glEnd();
+	}
+
+	if (this->DDDS.object2D.getDrawObject(PATH)) {
+		if (this->DDDS.isQueryPointInserted()) {
+			std::pair<double, double> qpt = this->DDDS.getQueryPoint();
+			int query_size = this->DDDS.getQueryResultSize();
 			for (int i = 0; i < query_size; i++) {
-				std::pair<double, double> qrpt = this->HDS.getQueryResultNeighbor(i);
+				std::pair<double, double> qrpt = this->DDDS.getQueryResultNeighbor(i);
 				::glColor3f(0.0f, 1.0f, 1.0f);
 				glLineWidth(3.0f);
 				OGL_Point sp(qpt.first, qpt.second);
@@ -251,25 +286,10 @@ void OGL_Contorl::OnPaint()
 		}
 	}
 
-	if (this->HDS.object2D.getDrawObject(QUERY)) {
-		if (this->HDS.isQueryPointInserted()) {
-			int query_size = this->HDS.getQueryResultSize();
-			::glColor3f(0.0f, 1.0f, 0.0f);
-			glPointSize(5.0f);
-			glBegin(GL_POINTS);
-			for (int i = 0; i < query_size; i++) {
-				std::pair<double, double> qrpt = this->HDS.getQueryResultNeighbor(i);
-				OGL_Point ep(qrpt.first, qrpt.second);
-				glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
-			}
-			glEnd();
-		}
-	}
-
-	if (this->HDS.object2D.getDrawObject(QUERY)) {
-		if (this->HDS.isQueryPointInserted()) {
-			std::pair<double, double> qpt = this->HDS.getQueryPoint();
-			::glColor3f(1.0f, 0.0f, 0.0f);
+	if (this->DDDS.object2D.getDrawObject(QUERY)) {
+		if (this->DDDS.isQueryPointInserted()) {
+			std::pair<double, double> qpt = this->DDDS.getQueryPoint();
+			::glColor3f(1.0f, 1.0f, 1.0f);
 			glPointSize(5.0f);
 			glBegin(GL_POINTS);
 			OGL_Point p(qpt.first, qpt.second);
@@ -287,11 +307,13 @@ void OGL_Contorl::OnPaint()
 
 void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
 	if (m == 2) {
-		this->HDS.object2D.setDrawObject(o, b);
+		this->DDDS.object2D.setDrawObject(o, b);
 	}
 	else if (m == 3) {
-		//this->HDS.object3D.setDrawObject(o, b);
+		//this->DDDS.object3D.setDrawObject(o, b);
 	}
+	Invalidate(TRUE);
+	UpdateWindow();
 }
 
 void OGL_Contorl::updateVectors() {
@@ -339,18 +361,18 @@ void OGL_Contorl::updateVectors() {
 }
 
 void OGL_Contorl::setCamera(int tx, int ty, int width, int height) {
-	this->HDS.object2D.setNorm(tx, ty, width, height);
+	this->DDDS.object2D.setNorm(tx, ty, width, height);
 }
 
-int OGL_Contorl::addPoint(double x, double y) {
-	return this->HDS.insertPoint(x, y);
+int OGL_Contorl::addConvexDistPoint(double x, double y) {
+	return this->DDDS.insertConvexDistPoint(x, y);
 }
 
-int OGL_Contorl::addPointAlign(double x, double y) {
+int OGL_Contorl::addConvexDistPointAlign(double x, double y) {
 	int ax, ay;
 	double normTrans[3];
 	double normMul[3];
-	this->HDS.object2D.getNorm(normTrans, normMul, 2);
+	this->DDDS.object2D.getNorm(normTrans, normMul, 2);
 
 
 	ax = x * normMul[0];
@@ -358,25 +380,44 @@ int OGL_Contorl::addPointAlign(double x, double y) {
 	ay = y * normMul[1];
 	ay = ay + normTrans[1];
 
-	return this->HDS.insertPoint(ax, ay);
+	return this->DDDS.insertConvexDistPoint(ax, ay);
+}
+
+int OGL_Contorl::addPoint(double x, double y) {
+	return this->DDDS.insertPoint(x, y);
+}
+
+int OGL_Contorl::addPointAlign(double x, double y) {
+	int ax, ay;
+	double normTrans[3];
+	double normMul[3];
+	this->DDDS.object2D.getNorm(normTrans, normMul, 2);
+
+
+	ax = x * normMul[0];
+	ax = ax + normTrans[0];
+	ay = y * normMul[1];
+	ay = ay + normTrans[1];
+
+	return this->DDDS.insertPoint(ax, ay);
 }
 
 bool OGL_Contorl::readInputData(std::string fileName) {
-	int readResult = this->HDS.readInputData(fileName);
+	int readResult = this->DDDS.readInputData(fileName);
 	if (readResult == 0) {
 		return false;
 	}
 	else {
-		int inputSize = this->HDS.getInputPointsSize();
+		int inputSize = this->DDDS.getConvexDistPointsSize();
 		double minx = 0, maxx = 0, miny = 0, maxy = 0;
 		if (inputSize > 0) {
-			minx = this->HDS.getInputPoint(0).first;
-			maxx = this->HDS.getInputPoint(0).first;
-			miny = this->HDS.getInputPoint(0).second;
-			maxy = this->HDS.getInputPoint(0).second;
+			minx = this->DDDS.getconvexDistPoint(0).first;
+			maxx = this->DDDS.getconvexDistPoint(0).first;
+			miny = this->DDDS.getconvexDistPoint(0).second;
+			maxy = this->DDDS.getconvexDistPoint(0).second;
 		}
 		for (int i = 1; i < inputSize; i++) {
-			auto pt = this->HDS.getInputPoint(i);
+			auto pt = this->DDDS.getconvexDistPoint(i);
 			if (minx > pt.first) minx = pt.first;
 			if (maxx < pt.first) maxx = pt.first;
 			if (miny > pt.second) miny = pt.second;
@@ -390,7 +431,7 @@ bool OGL_Contorl::readInputData(std::string fileName) {
 		int ty = (maxy + miny) / 2;
 		int height = (maxy - miny) / 2;
 		height = height * 1.1;
-		this->HDS.object2D.setNorm(tx, ty, width, height);
+		this->DDDS.object2D.setNorm(tx, ty, width, height);
 
 		Invalidate(TRUE);
 		UpdateWindow();
@@ -399,14 +440,14 @@ bool OGL_Contorl::readInputData(std::string fileName) {
 }
 
 int OGL_Contorl::addQueryPoint(double x, double y) {
-	return this->HDS.inputQueryPoint(x, y);
+	return this->DDDS.inputQueryPoint(x, y);
 }
 
 int OGL_Contorl::addQueryPointAlign(double x, double y) {
 	int ax, ay;
 	double normTrans[3];
 	double normMul[3];
-	this->HDS.object2D.getNorm(normTrans, normMul, 2);
+	this->DDDS.object2D.getNorm(normTrans, normMul, 2);
 
 
 	ax = x * normMul[0];
@@ -414,6 +455,6 @@ int OGL_Contorl::addQueryPointAlign(double x, double y) {
 	ay = y * normMul[1];
 	ay = ay + normTrans[1];
 
-	return this->HDS.inputQueryPoint(ax, ay);
+	return this->DDDS.inputQueryPoint(ax, ay);
 }
 
