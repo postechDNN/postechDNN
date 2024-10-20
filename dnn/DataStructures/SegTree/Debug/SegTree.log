@@ -1,0 +1,3 @@
+﻿  SegmentTree.cpp
+C:\Users\tkeom\Desktop\postechDNN\dnn\DataStructures\SegTree\SegmentTree.cpp(4,19): warning C4101: 't' :참조되지 않은 지역 변수입니다.
+  SegTree.vcxproj -> C:\Users\tkeom\Desktop\postechDNN\dnn\Debug\SegTree.exe

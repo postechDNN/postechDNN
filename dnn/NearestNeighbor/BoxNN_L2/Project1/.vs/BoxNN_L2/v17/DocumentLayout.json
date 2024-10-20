@@ -1,0 +1,144 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\point.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|solutionrelative:point.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Space.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|solutionrelative:Space.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Space.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|solutionrelative:Space.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\point.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|solutionrelative:point.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Box.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|solutionrelative:Box.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Box.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{225F86DF-1077-4440-B318-3E86087BA85D}|BoxNN_L2.vcxproj|solutionrelative:Box.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Box.h",
+              "DocumentMoniker": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Box.h",
+              "RelativeDocumentMoniker": "Box.h",
+              "ToolTip": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Box.h",
+              "RelativeToolTip": "Box.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-10-20T06:51:52.318Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "point.h",
+              "DocumentMoniker": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\point.h",
+              "RelativeDocumentMoniker": "point.h",
+              "ToolTip": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\point.h",
+              "RelativeToolTip": "point.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-10-20T06:51:52.317Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Space.h",
+              "DocumentMoniker": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Space.h",
+              "RelativeDocumentMoniker": "Space.h",
+              "ToolTip": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Space.h",
+              "RelativeToolTip": "Space.h",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAswBIAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-10-20T06:51:52.313Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Space.cpp",
+              "DocumentMoniker": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Space.cpp",
+              "RelativeDocumentMoniker": "Space.cpp",
+              "ToolTip": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Space.cpp",
+              "RelativeToolTip": "Space.cpp",
+              "ViewState": "AgIAADABAAAAAAAAAAAQwEwBAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-20T06:51:52.189Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "point.cpp",
+              "DocumentMoniker": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\point.cpp",
+              "RelativeDocumentMoniker": "point.cpp",
+              "ToolTip": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\point.cpp",
+              "RelativeToolTip": "point.cpp",
+              "ViewState": "AgIAACMAAAAAAAAAAAAuwAwAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-20T06:51:52.315Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\main.cpp",
+              "RelativeDocumentMoniker": "main.cpp",
+              "ToolTip": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\main.cpp",
+              "RelativeToolTip": "main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-20T06:51:52.316Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Box.cpp",
+              "DocumentMoniker": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Box.cpp",
+              "RelativeDocumentMoniker": "Box.cpp",
+              "ToolTip": "C:\\Users\\tkeom\\Desktop\\postechDNN\\dnn\\NearestNeighbor\\BoxNN_L2\\Project1\\Box.cpp",
+              "RelativeToolTip": "Box.cpp",
+              "ViewState": "AgIAABkAAAAAAAAAAAAkwCYAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-20T06:51:52.32Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

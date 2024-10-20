@@ -11,16 +11,14 @@ int main() {
 	Box test(3, { 0,0,0 }, { 1,1,1 });
 	vector<Box> boxes;
 	boxes.push_back(test);
+	Point e1({ -0.5,-0.5,-0.5 });
+	Point e2({ -1.,-1.,-1. });
+	vector<Point> points;
+	points.push_back(e1);
+	points.push_back(e2);
 	vector<double> temp = { 3.0, 3.0, 3.0 };
 	Point a(temp);
-	vector<Point> points;
-	points.push_back(a);
-	Point e1({-0.5,-0.5,-0.5});
-	Point e2({3,3,3});
-	cout << test.intersect(e1, e2)<<endl;
-	//Space space(3, points, boxes);
-
-
-
+	Space space(3, points, boxes, 0.1);
+	space.print_knn(a, 1);
 	return 0;
 }

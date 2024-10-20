@@ -1,15 +1,15 @@
 
 #include "Space.h"
 #include "Box.h"
+#include <limits>
+#include <queue>
 
-Space::Space(int n, vector<Point> vert, vector<Box> boxes) {
-    this->d = n;
-    this->vertices = vert;
-    this->Boxes = boxes;
-    cal_rmin();
-    this->rmin = 0.1;
-    gen_SteinerPoint();
-    
+template<typename T>
+std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items);
+
+Space::Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes, double _epsilon) {
+    this->epsilon = _epsilon;
+    set_Space(_d, _sites, _Boxes);
 }
 /*
 
@@ -30,22 +30,32 @@ Space::Space(const Space& p)
 Space::~Space(){
 }
 
-void  Space::set_Space(int, vector<Point>, vector<Box>) {
-
+void  Space::set_Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes) {
+    this->d = _d;
+    this->sites = _sites;
+    this->vertices = _sites;
+    this->Boxes = _Boxes;
+    cal_rmin();
+    for (auto& b : Boxes) {
+        std::vector<std::vector<double>> gen;
+        for (size_t i = 0; i < d; i++) {
+            gen.push_back({b.min[i],b.max[i]});
+        }
+        auto verts = Cartesian_Product(gen);
+        for (auto& v : verts) {
+            vertices.push_back(Point(v));
+        }
+    }
+    auto steiners = gen_SteinerPoint();
+    vertices.insert(vertices.end(), steiners.begin(), steiners.end());
+    visibility_graph();
 }
 
 
 template<typename T>
-std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items, int a, int b) {
+std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items) {
     
-    std::vector<std::vector<double>> new_items;
-    for (int i = 0; i < items.size(); ++i) {
-        if (i != a && i != b) {
-            new_items.push_back(items[i]);
-        }
-    }
-
-    int length = new_items.size();
+    int length = items.size();
     std::vector<int> indexes(length, 0);
 
     std::vector<std::vector<double>> result;
@@ -53,14 +63,14 @@ std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>&
     while (true) {
         std::vector<double> arr(length);
         for (int i = 0; i < length; i++) {
-            arr[i] = new_items[i][indexes[i]];
+            arr[i] = items[i][indexes[i]];
         }
         result.push_back(arr);
 
         int row = length - 1;
         indexes[row]++;
 
-        while (indexes[row] == new_items[row].size()) {
+        while (indexes[row] == items[row].size()) {
             if (row == 0)
                 return result;
             indexes[row] = 0;
@@ -72,15 +82,15 @@ std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>&
 
 
 //std::vector<std::pair<double, double>>Space:: Combination(int d) {
-std::vector<std::pair<double, double>> Space:: Combination() {
+std::vector<std::pair<int,int>> Space:: Combination() {
 
-    std::vector<vector<double>> combinations;//���� ouput�� index�� �����ϴ� �迭
+    std::vector<vector<int>> combinations;//���� ouput�� index�� �����ϴ� �迭
 
     std::vector<bool> v(this->d);
     std::fill(v.end() - 2, v.end(), true);
 
     do {
-        vector<double> temp;
+        vector<int> temp;
         for (auto i = 0; i < d; ++i) {
             if (v[i]) {
                 //combinations.push_back({ i + 1, i + 2 });//ũ�Ⱑ 2�̱� ������, dC2��
@@ -89,7 +99,7 @@ std::vector<std::pair<double, double>> Space:: Combination() {
         }
         combinations.push_back(temp);
     } while (std::next_permutation(v.begin(), v.end()));
-    std::vector<std::pair<double, double>> comb;
+    std::vector<std::pair<int,int>> comb;
     for (auto &c : combinations) {
         comb.emplace_back(c[0], c[1]);
     }
@@ -97,16 +107,15 @@ std::vector<std::pair<double, double>> Space:: Combination() {
 
 };
 
-std::vector<std::vector<double>> Space::gen_SteinerPoint() {
+std::vector<Point> Space::gen_SteinerPoint() {
 
-    std::cout << "1" << endl;
     std::vector<std::pair<int, int>> combination = this->Combination();
     
     // 
     std::vector<std::vector<double>> answer_1;
 
     // 최종 정답
-    std::vector<std::vector<double>> answer_3;
+    std::vector<Point> answer_3;
 
     for (auto box : Boxes) {
         std::vector<std::vector<double> > Range = box.generate_epsilon(this->rmin, this->epsilon);
@@ -121,7 +130,13 @@ std::vector<std::vector<double>> Space::gen_SteinerPoint() {
             int a = space.first;
             int b = space.second;
 
-            std::vector<std::vector<double>> answer = Cartesian_Product(fixed_Range, a, b);
+            std::vector<std::vector<double>> new_Range;
+            for (int i = 0; i < fixed_Range.size(); ++i) {
+                if (i != a && i != b) {
+                    new_Range.push_back(fixed_Range[i]);
+                }
+            }
+            std::vector<std::vector<double>> answer = Cartesian_Product(new_Range);
             //.insert(answer_1.end(), answer.begin(), answer.end());
 
             //double min_a = box.min[a];
@@ -144,16 +159,12 @@ std::vector<std::vector<double>> Space::gen_SteinerPoint() {
                    
                     answer_1[i].insert(answer_1[i].begin()+a, k[0]);
                     answer_1[i].insert(answer_1[i].begin()+b, k[1]);
-                    answer_3.push_back(answer_1[i]);
-
+                    answer_3.push_back(Point(answer_1[i]));
                 }
-
             }
         }
     }
-    
     return answer_3;
-
 };
 
 
@@ -242,8 +253,7 @@ void Space::cal_rmin() {
 
 
     double rmin = *std::min_element(results.begin(), results.end());
-
-    cout << "rmin: " << rmin << endl;
+    this->rmin = rmin;
 };
 
 void Space::visibility_graph() {
@@ -255,129 +265,97 @@ void Space::visibility_graph() {
             for (auto box : this->Boxes) {
                 if (box.intersect(vertices[i], vertices[j])) { intersect = true; break; }
             }
-            if (intersect) { break; }
+            if (intersect) { continue; }
             temp.push_back(make_pair(j,vertices[i].dist(vertices[j])));
         }
         this->adj_list.push_back(temp);
     }   
 };
 
-void Space::add_Box(Box) {
-
+void Space::add_Box(Box b) {
+    this->Boxes.push_back(b);
+    this->set_Space(d, sites, Boxes);
 }
-void Space::del_Box(int) {
 
+void Space::del_Box(int i) {
+    this->Boxes.erase(Boxes.begin() + i);
+    this->set_Space(d, sites, Boxes);
 }
-void Space::add_vert(Point) {
 
+void Space::add_vert(Point p) {
+    this->sites.push_back(p);
+    this->set_Space(d, sites, Boxes);
 }
-void Space::del_vert(int) {
 
+void Space::del_vert(int i) {
+    this->sites.erase(sites.begin() + i);
+    this->set_Space(d, sites, Boxes);
 }
+
 void Space::Dijkstra(Point query) {
-
-}
-void Space::print_knn(int) {
-
-}
-
-
-//v.insert(it + 2, v2.begin(), v2.end());
-//front���� end �ٲٸ� ok
-//for (int i = 0; i < space.size(); i++) {
-//answer.insert(answer.begin() + a, temp_1.begin(), temp_1.end());
-//answer.insert(answer.begin() + b, temp_1.end(), temp_1.end() + 1);
-//std::vector<std::vector<double>> answer = Cartesian_Product(Range);
-//answer.insert(answer.begin(), Range.begin(), Range.end());
-//return answer;
-
-/*
-//std::vector<std::vector<int>> answer = MyProduct(variableVectors);
-std::vector<std::vector<double>> Space::gen_SteinerPoint() {
-    cout << "1" << endl;
-    std::vector<std::pair<double, double>> combination=this->Combination();
-
-    cout << "1" << endl;
-    for (auto box : Boxes) {
-        std::vector<std::vector<double> > Range = box.generate_epsilon(this->rmin, this->epsilon);
-
-        for (auto space : combination) {
-            int a = space.first - 1;
-            int b = space.second - 1;
-            double min_a = Range[a].front()-1;
-            double min_b = Range[b].front()-1;
-            vector<double> temp_1 = { min_a, min_b };
-
-            Range.erase(Range.begin()+a-1);
-            Range.erase(Range.begin()+b-1);
-
-            std::vector<std::vector<double>> answer = Cartesian_Product(Range);
-
-
-            Range.insert(Range.begin() + a-1, temp_1.begin()-1, temp_1.end()-1);
-            Range.insert(Range.begin() + b-1, temp_1.end()-1, temp_1.end());
-            return answer;
-
-        };
-
-    };
-
-};
-
-
-vector<vector<double>> Space::deep_copy() {
-
-    Box b(3, { 0,0,0 }, {1,1,1});
-    vector<vector<double>> vec =b.generate_epsilon(this->rmin, this->epsilon);
-    vector<vector<double>> new_range;
-
-    vector<double> arr;
-    int NS = d;
-    double* new_range = (double*)calloc(NS, sizeof(double));
-
-        for (int i = 0; i < d; i++) {
-
-            std::copy(Range.begin(), Range.end(), std::back_inserter(y));
-
-            new_range.push_back(arr);
-        };
-
-
-}
-
-*/
-
-/*
-    int length = items.size();
-std::vector<int> indexes(length, 0);
-
-std::vector<std::vector<T>> result;
-
-while (true) {
-    std::vector<T> arr(length);
-    for (int i = 0; i < length; ++i) {
-        arr[i] = items[i][indexes[i]];
+    
+    if (vertices.size() < adj_list.size())
+        adj_list.pop_back();
+    //calculate distance from the query point to the visible points from the query point
+    vector<pair<long long int, double>> temp;
+    int i = vertices.size();
+    for (long long int j = 0; j < size(this->vertices); j++) {
+        bool intersect = false;
+        for (auto box : this->Boxes) {
+            if (box.intersect(query, vertices[j])) { intersect = true; break; }
+        }
+        if (intersect) { continue; }
+        temp.push_back(make_pair(j, query.dist(vertices[j])));
+        adj_list[j].push_back(make_pair(i, query.dist(vertices[j])));
     }
-    result.push_back(arr);
+    this->adj_list.push_back(temp);
+    
+    //Performing Dijkstra algorithm
+    visited.assign(adj_list.size(), false);
+    dists.assign(adj_list.size(), std::numeric_limits<double>::max());
+    dists.back() = 0;
+    std::priority_queue<std::pair<double, int>, std::vector<std::pair<double, int>>, greater<std::pair<double, int>>> que = {};
+    que.emplace(0., vertices.size());
+    while (!que.empty()) {
+        if (visited[que.top().second] == true) {
+            que.pop();
+            continue;
+        }
+        std::pair<double, int> temp = que.top();
+        que.pop();
+        visited[temp.second] = true;
+        for (auto& v : this->adj_list[temp.second]) {
+            if (dists[temp.second] + v.second < dists[v.first]) {
+                dists[v.first] = dists[temp.second] + v.second;
+                que.emplace(dists[v.first], v.first);
+            }
+        }
+    }
+}
 
-    int row = length - 1;
-    indexes[row]++;
+bool comp(std::pair<double, Point> a, std::pair<double, Point> b) {
+    return a.first < b.first;
+}
 
-    while (indexes[row] == items[row].size()) {
-        if (row == 0)
-            return result;
-        indexes[row] = 0;
-        row--;
-        indexes[row]++;
-
-
-
-                    //std::vector<double> temp_1 = { min_a, min_b };
-
-            // Remove Range[a] and Range[b]
-            //fixed_Range.erase(fixed_Range.begin() + a);
-            //fixed_Range.erase(fixed_Range.begin() + b);
-
-            // Calculate Cartesian Product for newRang
-
-*/
+void Space::print_knn(Point query, int k) {
+    Dijkstra(query);
+    std::vector<std::pair<double, Point>> results;
+    for (size_t i = 0; i < sites.size(); i++) {
+        results.emplace_back(dists[i], sites[i]);
+    }
+    sort(results.begin(), results.end(), comp);
+    
+    cout << "Query point: ";
+    for (size_t i = 0; i < this->d; i++) {
+        cout << query.getx(i) << " ";
+    }
+    cout << endl;
+    for (size_t i = 0; i < k; i++) {
+        cout << "Point " << i << ": ";
+        for (size_t j = 0; j < this->d; j++) {
+            cout << results[i].second.getx(j) << " ";
+        }
+        cout << endl;
+        cout << "Dist: " << results[i].first << endl;
+    }
+}
