@@ -11,21 +11,6 @@ Space::Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes, doubl
     this->epsilon = _epsilon;
     set_Space(_d, _sites, _Boxes);
 }
-/*
-
-
-Space::Space(const Space& p)
-{
-    this->d=p.d;
-    this->vertices = p.vert;
-    this->Boxes = p.boxes;
-    cal_rmin();
-    this->rmin = 0.1;
-    gen_SteinerPoint();
-}
-
-
-*/
 
 Space::~Space(){
 }
@@ -337,7 +322,7 @@ bool comp(std::pair<double, Point> a, std::pair<double, Point> b) {
     return a.first < b.first;
 }
 
-void Space::print_knn(Point query, int k) {
+void Space::knn(Point query, int k) {
     Dijkstra(query);
     std::vector<std::pair<double, Point>> results;
     for (size_t i = 0; i < sites.size(); i++) {

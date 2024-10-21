@@ -19,6 +19,6 @@ int main() {
 	vector<double> temp = { 3.0, 3.0, 3.0 };
 	Point a(temp);
 	Space space(3, points, boxes, 0.1);
-	space.print_knn(a, 1);
+	space.knn(a, 1);
 	return 0;
 }

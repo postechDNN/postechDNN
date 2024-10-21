@@ -28,7 +28,7 @@ public:
     void add_vert(Point);
     void del_vert(int);
     void Dijkstra(Point);
-    void print_knn(Point, int);
+    void knn(Point, int);
 
 private:
     vector<Point> vertices; // Input points + Box vertices + Steiner points
