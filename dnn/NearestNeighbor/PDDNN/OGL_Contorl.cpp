@@ -2,7 +2,7 @@
 //
 
 #include "pch.h"
-#include "DNN.h"
+#include "PDDNN.h"
 #include "OGL_Contorl.h"
 
 #include <GL/gl.h> 
@@ -171,15 +171,14 @@ void OGL_Contorl::OnPaint()
 	double normTrans[3];
 	double normMul[3];
 
-	this->DDS.object2D.getNorm(normTrans, normMul, 2);
+	this->PDDS.object2D.getNorm(normTrans, normMul, 2);
 
 	::glPushMatrix();
 	::glColor3f(0.0f, 1.0f, 0.0f);
 	glColor3d(1.0, 0.0, 0.0);
 
-	std::vector<std::pair<double, double>> inputPolygon = this->DDS.dnn_util.getPolygonVertices();
-
-	if (this->DDS.object2D.getDrawFaces()) {
+	/*
+	if (this->PDDS.object2D.getDrawFaces()) {
 		::glColor3f(0.5f, 0.5f, 0.5f);
 		glBegin(GL_POLYGON);
 		glPolygonMode(GL_FRONT,GL_FILL);
@@ -189,72 +188,98 @@ void OGL_Contorl::OnPaint()
 		}
 		glEnd();
 	}
+	*/
 
-	if (this->DDS.object2D.getDrawEdges()) {
+	// Obstacle temp
+	if (this->PDDS.object2D.getDrawObject(EDGE)) {
+		::glColor3f(0.5f, 0.5f, 0.5f);
+		glLineWidth(3.0f);
+		glBegin(GL_LINE_LOOP);
+		for (int j = 0; j < this->PDDS.getObstacleTempSize(); j++) {
+			auto pt = this->PDDS.getObstacleTempVertex(j);
+			OGL_Point p(pt.first, pt.second);
+			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+		}
+		glEnd();
+		
+	}
+	if (this->PDDS.object2D.getDrawObject(VERTEX)) {
+		::glColor3f(0.0f, 0.0f, 0.5f);
+		glPointSize(3.0f);
+		glBegin(GL_POINTS);
+		for (int j = 0; j < this->PDDS.getObstacleTempSize(); j++) {
+			auto pt = this->PDDS.getObstacleTempVertex(j);
+			OGL_Point p(pt.first, pt.second);
+			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+		}
+		glEnd();
+	}
+
+	// Polygonal domain edges
+	if (this->PDDS.object2D.getDrawObject(EDGE)) {
 		::glColor3f(1.0f, 1.0f, 1.0f);
 		glLineWidth(3.0f);
-		for (int j = 0; j < inputPolygon.size(); j++) {
-			OGL_Point sp(inputPolygon[j].first, inputPolygon[j].second);
-			OGL_Point ep(inputPolygon[(j+1)% inputPolygon.size()].first, inputPolygon[(j + 1) % inputPolygon.size()].second);
-			glBegin(GL_LINES);
-			glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
-			glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
+		for (int i = 0; i < this->PDDS.getObstaclesNum(); i++) {
+			glBegin(GL_LINE_LOOP);
+			for (int j = 0; j < this->PDDS.getObstacleSize(i); j++) {
+				auto pt = this->PDDS.getObstacleVertex(i, j);
+				OGL_Point p(pt.first, pt.second);
+				glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+			}
 			glEnd();
 		}
 	}
 
-	if (this->DDS.object2D.getDrawVertices()) {
-		::glColor3f(0.0f, 1.0f, 0.0f);
+	// Polygonal domain vertices
+	if (this->PDDS.object2D.getDrawObject(VERTEX)) {
+		::glColor3f(0.0f, 0.0f, 1.0f);
 		glPointSize(3.0f);
 		glBegin(GL_POINTS);
-		for (int j = 0; j < inputPolygon.size(); j++) {
-			OGL_Point p(inputPolygon[j].first, inputPolygon[j].second);
-			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+		for (int i = 0; i < this->PDDS.getObstaclesNum(); i++) {
+			for (int j = 0; j < this->PDDS.getObstacleSize(i); j++) {
+				auto pt = this->PDDS.getObstacleVertex(i, j);
+				OGL_Point p(pt.first, pt.second);
+				glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+			}
 		}
 		glEnd();
 	}
 
-	std::vector<std::pair<double, double>> inputPoints = this->DDS.dnn_util.getInputPoints();
-	if (this->DDS.object2D.getDrawVertices()) {
+	// input points
+	if (this->PDDS.object2D.getDrawObject(POINTSET)) {
 		::glColor3f(1.0f, 1.0f, 1.0f);
 		glPointSize(5.0f);
 		glBegin(GL_POINTS);
-		for (int j = 0; j < inputPoints.size(); j++) {
-			OGL_Point p(inputPoints[j].first, inputPoints[j].second);
+		for (int i = 0; i < this->PDDS.getInputPointsSize(); i++) {
+			auto pt = this->PDDS.getInputPoint(i);
+			OGL_Point p(pt.first, pt.second);
 			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
 		}
 		glEnd();
 	}
-
-	if (this->DDS.dnn_util.getNumQueryPoint() > 0) {
-		if (this->DDS.object2D.getDrawPath()) {
-			std::vector<std::pair<double, int>> query_result = this->DDS.dnn_util.getQueryResult();
-			int idx = query_result.size();
-			if (idx > this->DDS.dnn_util.knn) idx = this->DDS.dnn_util.knn;
-			for (int i = 0; i < idx; i++) {
-				auto pathPoints = this->DDS.dnn_util.Strings[query_result[i].second];
-				for (int j = 0; j < pathPoints.size() - 1; j++) {
-					::glColor3f(0.0f, 1.0f, 1.0f);
-					glLineWidth(3.0f);
-					OGL_Point sp(pathPoints[j].first, pathPoints[j].second);
-					OGL_Point ep(pathPoints[j + 1].first, pathPoints[j + 1].second);
-					glBegin(GL_LINES);
-					glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
-					glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
-					glEnd();
-				}
-			}
-		}
-	}
-
-	if (this->DDS.dnn_util.getNumQueryPoint() > 0) {
-		std::vector<std::pair<double, double>> queryPoints = this->DDS.dnn_util.getQueryPoint();
-		::glColor3f(1.0f, 0.0f, 0.0f);
+	// query result
+	if (this->PDDS.object2D.getDrawObject(QUERY)) {
+		::glColor3f(0.0f, 1.0f, 0.0f);
 		glPointSize(5.0f);
 		glBegin(GL_POINTS);
-		OGL_Point p(queryPoints.front().first, queryPoints.front().second);
-		glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+		for (int i = 0; i < this->PDDS.getQueryResultSize(); i++) {
+			auto pt = this->PDDS.getQueryResultCoord(i);
+			OGL_Point p(pt.first, pt.second);
+			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+		}
 		glEnd();
+	}
+	// query point
+	if (this->PDDS.object2D.getDrawObject(QUERY)) {
+		if (this->PDDS.isQueryInserted()) {
+			auto pt = this->PDDS.getQueryPoint();
+			::glColor3f(1.0f, 0.0f, 0.0f);
+			glPointSize(5.0f);
+			glBegin(GL_POINTS);
+			OGL_Point p(pt.first, pt.second);
+			glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);		
+			glEnd();
+		}
 	}
 
 	::glPopMatrix();
@@ -265,26 +290,11 @@ void OGL_Contorl::OnPaint()
 }
 
 void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
-	if (m == 2 || m==3) {
-		switch (o) {
-		case 0:
-			this->DDS.object2D.setDrawVertices(b);
-			//this->DDS.object3D.setDrawVertices(b);
-			break;
-		case 1:
-			this->DDS.object2D.setDrawEdges(b);
-			//this->DDS.object3D.setDrawEdges(b);
-			break;
-		case 2:
-			this->DDS.object2D.setDrawFaces(b);
-			//this->DDS.object3D.setDrawFaces(b);
-			break;
-		case 3:
-			this->DDS.object2D.setDrawPath(b);
-			//this->DDS.object3D.setDrawPath(b);
-		default:
-			break;
-		}
+	if (m == 2) {
+		this->PDDS.object2D.setDrawObject(o, b);
+	}
+	else if (m == 3) {
+		//this->PDDS.object3D.setDrawObject(o, b);
 	}
 }
 
@@ -333,26 +343,22 @@ void OGL_Contorl::updateVectors() {
 }
 
 void OGL_Contorl::setCamera(int tx, int ty, int width, int height) {
-	this->DDS.object2D.setNorm(tx, ty, width, height);
+	this->PDDS.object2D.setNorm(tx, ty, width, height);
 }
 
-void OGL_Contorl::addVertexPolygon(int x, int y) {
-	this->DDS.dnn_util.addVertexPolygon(x, y);
-	//Invalidate(TRUE);
-	//UpdateWindow();
+void OGL_Contorl::addVertexPolygon(double x, double y) {
+	this->PDDS.insertObstacleVertex(x,y);
 }
 
-int OGL_Contorl::addPoint(int x, int y) {
-	return this->DDS.dnn_util.addPoint(x, y);
-	//Invalidate(TRUE);
-	//UpdateWindow();
+int OGL_Contorl::addPoint(double x, double y) {
+	return this->PDDS.insertInputPoint(x, y);
 }
 
 int OGL_Contorl::addPointAlign(double x, double y) {
 	int ax, ay;
 	double normTrans[3];
 	double normMul[3];
-	this->DDS.object2D.getNorm(normTrans, normMul, 2);
+	this->PDDS.object2D.getNorm(normTrans, normMul, 2);
 
 
 	ax = x * normMul[0];
@@ -360,29 +366,57 @@ int OGL_Contorl::addPointAlign(double x, double y) {
 	ay = y * normMul[1];
 	ay = ay + normTrans[1];
 
-	return this->DDS.dnn_util.addPoint(ax, ay);
+	return this->PDDS.insertInputPoint(ax, ay);
+}
+
+int OGL_Contorl::dynamicAddPoint(double x, double y) {
+	return this->PDDS.dynamicInsertInputPoint(x, y);
+}
+
+int OGL_Contorl::dynamicAddPointAlign(double x, double y) {
+	int ax, ay;
+	double normTrans[3];
+	double normMul[3];
+	this->PDDS.object2D.getNorm(normTrans, normMul, 2);
+
+
+	ax = x * normMul[0];
+	ax = ax + normTrans[0];
+	ay = y * normMul[1];
+	ay = ay + normTrans[1];
+
+	return this->PDDS.dynamicInsertInputPoint(ax, ay);
 }
 
 bool OGL_Contorl::readInputData(std::string fileName) {
-	int readResult = this->DDS.dnn_util.readInputData(fileName);
+	int readResult = this->PDDS.readInputData(fileName);
 	if (readResult == 0) {
 		return false;
 	}
 	else {
-		std::vector<std::pair<double, double>> polygon_vertices = this->DDS.dnn_util.getPolygonVertices();
-		double minx = 0, maxx = 0, miny = 0, maxy = 0;
-		if (polygon_vertices.empty() == false) {
-			minx = polygon_vertices.front().first;
-			maxx = polygon_vertices.front().first;
-			miny = polygon_vertices.front().second;
-			maxy = polygon_vertices.front().second;
+		double maxx = std::numeric_limits<double>::lowest();
+		double minx = -maxx;
+		double maxy = std::numeric_limits<double>::lowest();
+		double miny = -maxy;
+
+		for (int i = 0; i < this->PDDS.getObstaclesNum(); i++) {
+			for (int j = 0; j < this->PDDS.getObstacleSize(i); j++) {
+				auto pt = this->PDDS.getObstacleVertex(i, j);
+				if (minx > pt.first) minx = pt.first;
+				if (maxx < pt.first) maxx = pt.first;
+				if (miny > pt.second) miny = pt.second;
+				if (maxy < pt.second) maxy = pt.second;
+			}
 		}
-		for (size_t i = 1; i < polygon_vertices.size(); i++) {
-			if (minx > polygon_vertices[i].first) minx = polygon_vertices[i].first;
-			if (maxx < polygon_vertices[i].first) maxx = polygon_vertices[i].first;
-			if (miny > polygon_vertices[i].second) miny = polygon_vertices[i].second;
-			if (maxy < polygon_vertices[i].second) maxy = polygon_vertices[i].second;
+
+		for (int i = 0; i < this->PDDS.getInputPointsSize(); i++) {
+			auto pt = this->PDDS.getInputPoint(i);
+			if (minx > pt.first) minx = pt.first;
+			if (maxx < pt.first) maxx = pt.first;
+			if (miny > pt.second) miny = pt.second;
+			if (maxy < pt.second) maxy = pt.second;
 		}
+
 		int tx = (maxx + minx) / 2;
 
 		int width = (maxx - minx) / 2;
@@ -391,7 +425,7 @@ bool OGL_Contorl::readInputData(std::string fileName) {
 		int ty = (maxy + miny) / 2;
 		int height = (maxy - miny) / 2;
 		height = height * 1.1;
-		this->DDS.object2D.setNorm(tx, ty, width, height);
+		this->PDDS.object2D.setNorm(tx, ty, width, height);
 
 		Invalidate(TRUE);
 		UpdateWindow();
@@ -400,14 +434,15 @@ bool OGL_Contorl::readInputData(std::string fileName) {
 }
 
 int OGL_Contorl::addQueryPoint(double x, double y) {
-	return this->DDS.dnn_util.addQueryPoint(x, y);
+	return this->PDDS.insertQueryPoint(x, y);
 }
+
 
 int OGL_Contorl::addQueryPointAlign(double x, double y) {
 	int ax, ay;
 	double normTrans[3];
 	double normMul[3];
-	this->DDS.object2D.getNorm(normTrans, normMul, 2);
+	this->PDDS.object2D.getNorm(normTrans, normMul, 2);
 
 
 	ax = x * normMul[0];
@@ -415,6 +450,6 @@ int OGL_Contorl::addQueryPointAlign(double x, double y) {
 	ay = y * normMul[1];
 	ay = ay + normTrans[1];
 
-	return this->DDS.dnn_util.addQueryPoint(ax, ay);
+	return this->PDDS.insertQueryPoint(ax, ay);
 }
 

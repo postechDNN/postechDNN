@@ -1,7 +1,7 @@
 #pragma once
-#include "../../DataStructures/DCEL/PolygonalDomain.h"
-#include "../../DataStructures/DCEL/Point.h"
-#include "../../DataStructures/DCEL/SimplePolygon.h"
+#include "../../../DataStructures/DCEL/PolygonalDomain.h"
+#include "../../../DataStructures/DCEL/Point.h"
+#include "../../../DataStructures/DCEL/SimplePolygon.h"
 #include "PDNode.h"
 #include <vector>
 

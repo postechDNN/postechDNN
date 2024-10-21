@@ -3,9 +3,7 @@
 
 // OGL_Contorl
 
-#include "DNN_DS.h"
-
-enum OBJECT { VERTEX, EDGE, FACE, PATH };
+#include "PDDNN_DS.h"
 
 class OGL_Contorl : public CStatic
 {
@@ -18,9 +16,11 @@ public:
 
 	void setCamera(int tx, int ty, int width, int height);
 
-	void addVertexPolygon(int x, int y);
-	int addPoint(int x, int y);
+	void addVertexPolygon(double x, double y);
+	int addPoint(double x, double y);
 	int addPointAlign(double x, double y);
+	int dynamicAddPoint(double x, double y);
+	int dynamicAddPointAlign(double x, double y);
 	bool readInputData(std::string fileName);
 	int addQueryPoint(double x, double y);
 	int addQueryPointAlign(double x, double y);
@@ -40,7 +40,7 @@ public:
 	void setDrawObject(int m, OBJECT o, bool b);
 	void updateVectors(); // update up vector and 
 
-	DNN_DS DDS;
+	PDDNN_DS PDDS;
 
 	double view[3][3]; // opengl view eye[3] center[3] up[3]
 	double vectors[3][3]; // up[3] left[3] right[3]
