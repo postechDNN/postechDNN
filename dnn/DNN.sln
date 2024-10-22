@@ -55,7 +55,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PDDNN", "NearestNeighbor\PD
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EpsGraph_Demo", "Examples\EpsGraph_Demo\DNNDemo.vcxproj", "{8747F38B-3885-4A34-8616-C93DB331FDF7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "L1NNS_Demo", "Examples\N1NNS_Demo\L1NNS.vcxproj", "{352CE719-1B52-48D4-97B5-54BF45849DE4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "L1NNS_Demo", "Examples\L1NNS_Demo\L1NNS.vcxproj", "{352CE719-1B52-48D4-97B5-54BF45849DE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
