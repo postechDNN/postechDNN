@@ -70,6 +70,8 @@ private:
 	std::vector<ConvexDistPoint> convexDistPoints;
 	std::vector<ConvexDistPoint> convexDistResult;
 
+	std::vector<ConvexDistPoint> boundingBox;
+
 	std::vector<ConvexDistPoint> InputPoints;
 	ConvexDistPoint* queryPoint;
 	ConvexDistance* myd;

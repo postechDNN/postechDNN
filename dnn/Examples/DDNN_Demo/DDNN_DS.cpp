@@ -3,6 +3,7 @@
 
 #include "../Util/DD.h"
 
+#include <limits>
 #include <fstream>
 #include <windows.h>
 #include <chrono>
@@ -19,6 +20,11 @@ DDNN_DS::DDNN_DS() {
 	//this->epsilon = 0.05;
 	this->myd = nullptr;
 	this->queryPoint = nullptr;
+	
+	this->boundingBox.push_back(ConvexDistPoint(-std::numeric_limits<double>::lowest(), -std::numeric_limits<double>::lowest()));
+	this->boundingBox.push_back(ConvexDistPoint(-std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest()));
+	this->boundingBox.push_back(ConvexDistPoint(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest()));
+	this->boundingBox.push_back(ConvexDistPoint(std::numeric_limits<double>::lowest(), -std::numeric_limits<double>::lowest()));
 }
 
 DDNN_DS::~DDNN_DS() {
@@ -107,7 +113,14 @@ void DDNN_DS::preprocessingConvexDist() {
 		this->myd = nullptr;
 	}
 	this->convexDistResult.clear();
-	myd = new ConvexDistance(this->convexDistPoints);
+	std::vector<ConvexDistPoint> dp;
+	for (auto p : this->boundingBox) {
+		dp.push_back(p);
+	}
+	for (auto p : this->convexDistPoints) {
+		dp.push_back(p);
+	}
+	myd = new ConvexDistance(dp);
 	for (int i = 0; i < myd->distPolygon.size(); i++) {
 		this->convexDistResult.push_back(myd->distPolygon[i]);
 	}
