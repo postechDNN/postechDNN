@@ -204,8 +204,8 @@ void OGL_Contorl::OnPaint()
 		
 	}
 	if (this->PDDS.object2D.getDrawObject(VERTEX)) {
-		::glColor3f(0.0f, 0.0f, 0.5f);
-		glPointSize(3.0f);
+		::glColor3f(3.0f, 3.0f, 0.75f);
+		glPointSize(5.0f);
 		glBegin(GL_POINTS);
 		for (int j = 0; j < this->PDDS.getObstacleTempSize(); j++) {
 			auto pt = this->PDDS.getObstacleTempVertex(j);

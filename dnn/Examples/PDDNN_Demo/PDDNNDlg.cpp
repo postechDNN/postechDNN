@@ -796,5 +796,7 @@ void CDNNDemoDlg::OnBnClickedButtonNextObstacle()
 	if (!this->m_picture_opengl.PDDS.makeObstacle()) {
 		MessageBox(_T("Invalid obstacle input."), _T("Error"), MB_ICONHAND);
 	}
+	Invalidate(TRUE);
+	UpdateWindow();
 }
 

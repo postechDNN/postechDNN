@@ -27,16 +27,36 @@
     <ClCompile Include="OGL_Contorl.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DataStructures\DCEL\DCEL.cpp" />
-    <ClCompile Include="..\..\DataStructures\DCEL\Edge.cpp" />
-    <ClCompile Include="..\..\DataStructures\DCEL\Point.cpp" />
-    <ClCompile Include="..\..\DataStructures\DCEL\PolygonalDomain.cpp" />
-    <ClCompile Include="..\..\DataStructures\DCEL\SimplePolygon.cpp" />
-    <ClCompile Include="PDDNN.cpp" />
-    <ClCompile Include="PDDNNDlg.cpp" />
-    <ClCompile Include="PDDNN_DS.cpp" />
-    <ClCompile Include="Util\PDGraph.cpp" />
-    <ClCompile Include="Util\PDNode.cpp" />
+    <ClCompile Include="..\..\DataStructures\DCEL\SimplePolygon.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\PDGraph.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\PDNode.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DataStructures\DCEL\Point.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DataStructures\DCEL\PolygonalDomain.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DataStructures\DCEL\Edge.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DataStructures\DCEL\DCEL.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="PDDNNDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PDDNN_DS.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PDDNN.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -60,19 +80,35 @@
     <ClInclude Include="OGL_Contorl.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="PDDNN.h" />
-    <ClInclude Include="PDDNNDlg.h" />
-    <ClInclude Include="PDDNN_DS.h" />
-    <ClInclude Include="Util\PDgraph.h" />
-    <ClInclude Include="Util\PDNode.h" />
+    <ClInclude Include="Util\PDgraph.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\PDNode.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="PDDNNDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PDDNN_DS.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PDDNN.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="PDDNN.rc" />
+    <None Include="res\PDDNN.rc2">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\PDDNN.ico" />
+    <Image Include="res\PDDNN.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\PDDNN.rc2" />
+    <ResourceCompile Include="PDDNN.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
