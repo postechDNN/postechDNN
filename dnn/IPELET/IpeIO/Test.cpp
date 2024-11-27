@@ -32,20 +32,32 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 	IPEIO points;
 	IPEIO polys;
 	IPEIO segs;
+
+	//updated
+	IPEIO polyls;
+	IPEIO splines;
+	vector<const SubPath*> pl_tmp;
+	vector<CurveSegment> spl_tmp;
 	
 	points.set_color("red");
 	polys.set_color(0,255,0);
 	segs.set_color(0,0,255);
+	polyls.set_color("gray");
+	splines.set_color("violet");
 
 	segs.set_arrow(false);
 	segs.set_dash(3);
 	segs.set_pen(3);
 
 	polys.set_pen(2);
+	polyls.set_pen(3);
 
 	Get_polygons(data,helper,sp_tmp);
 	Get_points(data,helper,p_tmp);
 	Get_segments(data,helper,true,cs_tmp);
+	Get_splines(data,helper,spl_tmp);
+	Get_polylines(data,helper,pl_tmp);
+
 	int i=0;
 	for (auto pt:p_tmp){
 		pt.x+=dis(gen);
@@ -66,7 +78,7 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 		}
 		polys.set_fill("blue",i%2);
 		i+=1;
-		polys.Draw_polygon(data,helper,new_poly,true);
+		polys.Draw_poly(data,helper,new_poly,true);
 	}
 	for(auto seg:cs_tmp){
 		Curve *c = new Curve;
@@ -82,6 +94,28 @@ bool IO_Test_Ipelet::run(int, IpeletData *data, IpeletHelper *helper)
 			segs.Draw_segment(data,helper,c->segment(i));
 		}
 	}
+	for(auto spl:spl_tmp){
+		Curve *c = new Curve;
+		vector<Vector> spline;
+		for(int i=0;i<spl.countCP();i++){
+			Vector tmp1 = spl.cp(i);
+			tmp1.x+=1;
+			tmp1.y+=1;
+			spline.push_back(tmp1);
+		}
+		splines.Draw_spline(data,helper,spline);
+	}
+	for(auto pl:pl_tmp){
+		auto pl_v = SubPath2Vec(pl,false);
+		std::vector<Vector> new_pl;
+		for (auto v:pl_v){
+			v.x+=1;
+			v.y+=1;
+			new_pl.push_back(v);
+		}
+		polyls.Draw_poly(data,helper,new_pl,false);
+	}
+
 	return true;
 }
 
