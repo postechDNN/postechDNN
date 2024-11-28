@@ -1,52 +1,306 @@
 #include "WF_propagation.h"
 #include "WC_region.h"
+#include "Hyperbola.h"
 
 
 WF_propagation::WF_propagation(Vertex* s, CS_Free& cs) : src(src), cs_free(cs){
-    
+    return;
 }
 
 WF_propagation::~WF_propagation(){
-    ;
+    return;
 }
 
-IOEdgesContainers WF_propagation::compute_input_e(HEdge *e){
-    // TODO
-    WC_region_free wc_region(this->cs_free,e);
-    // Use WC_region.h
-}
-IOEdgesContainers WF_propagation::compute_output_e(HEdge *e){
-    // TODO
-    WC_region_free wc_region(this->cs_free,e);
-    // Use WC_region.h
+IOEdgesContainers WF_propagation::compute_input_e(HEdge* e) {
+    WC_region_free wc_region(this->cs_free, e);
+    IOEdgesContainers ret;
+
+    ret.e = e;
+    ret.hedges = wc_region.boundary;
+    ret.in_out = 0;
+
+    return ret;
 }
 
-std::vector<APX_wavefront> WF_propagation::compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts){
-    // TODO
+IOEdgesContainers WF_propagation::compute_output_e(HEdge* e) {
+    IOEdgesContainers ret;
+    WC_region_free wc_region(this->cs_free, e);
+    std::unordered_map<std::string, HEdge_Type> edge_types = this->cs_free.getEdge_types();
+
+    ret.e = e;
+    ret.hedges = wc_region.boundary;
+    ret.in_out = 1;
+
+
+    for (HEdge* f : this->cs_free.getDCEL()->getHedges()) {
+        if (edge_types[f->getKey()] == HE_TRP) {
+            IOEdgesContainers input = compute_input_e(f);
+
+            bool flag = false;
+            for (HEdge* x : input) {
+                if (!(x->getKey().compare(e->getKey()))) {
+                    ret.hedges.push_back(f);
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (flag) {
+                continue;
+            }
+        }
+    }
+
+    return ret;
+}
+
+std::vector<std::vector<APX_wavefront>> split_APX_wavefront(std::vector<APX_wavefront>& wavefronts){
+    std::vector<std::vector<APX_wavefront>> ret;
+    return ret;
+}
+
+void WF_propagation::mark(WF_generator* v, Face * face){
+    this->marked_cells.at(face).push_back(*v);
+    return;
+}
+
+Point compute_bisector_and_edge_intersection(WF_generator a, WF_generator b, HEdge* e){
+    // a,b의 weighted distance가 동일한 bisector를 hyperbola로 구현: h
+    Hyperbola h(a.src->getPoint(), b.src->getPoint(), a.weight, b.weight);
+    return h.intersectionPoints(e)[0];
+}
+
+APX_wavefront WF_propagation::compute_apx_wavefront(HEdge* e, std::vector<APX_wavefront>& wavefronts){
     // marking rule for generators (Rule 2, 3, 4)
+
+
+    APX_wavefront left, right;
+    APX_wavefront res = wavefronts[0]; 
+
+    for (auto g:wavefronts){
+        
+        // Decide which one is left 
+        bool repeat = true; 
+
+        while(repeat){
+            std::pair<WF_generator, WF_generator> temp_a = res.compute_claim_range(e, 0);
+            std::pair<WF_generator, WF_generator> temp_b = res.compute_claim_range(e, res.get_generators().size()-1);
+
+            if (temp_a.first.src->getPoint().getx() - temp_b.first.src->getPoint().getx() < 0){
+                left = res;
+                right = g;
+            }  
+            else{
+                left = g;
+                right = res;
+            }
+
+            // Compute the two points to compare
+            WF_generator a = *(left.get_generators().end());
+            std::pair<WF_generator, WF_generator> a_claim = left.compute_claim_range(e, a);
+            WF_generator g_a = a_claim.second;
+
+            WF_generator b = *(right.get_generators().begin());
+            std::pair<WF_generator, WF_generator> b_claim = right.compute_claim_range(e, b);
+            WF_generator g_b = b_claim.first;
+
+            Point x = compute_bisector_and_edge_intersection(a, b, e); 
+
+            // [Marking Rule 3(b)] Mark v in both the cells that have e as an edge if v participates in a bisector event detected during the computaiton of W(e, f)
+            WF_generator* g_list[2] = {&a, &b};
+            Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
+            for (auto temp_g : g_list){
+                for (auto temp_f: f_list){
+                    mark(temp_g, temp_f);
+                }
+
+            }
+
+            // If x is left to p_a, then delete a from W(left, e)
+            if (x.getx() < g_a.src->getPoint().getx()){
+                std::remove(left.get_generators().begin(), left.get_generators().end(), a);
+            }
+            // If x is right to p_b, then delete b from W(right, e)
+            else if (x.getx() > g_b.src->getPoint().getx()){
+                std::remove(right.get_generators().begin(), right.get_generators().end(), b);
+            }
+            else{
+                repeat = false;
+                res.get_generators().insert(res.get_generators().begin(), left.get_generators().begin(), left.get_generators().end()); 
+                res.get_generators().insert(res.get_generators().end(), right.get_generators().begin(), right.get_generators().end());
+            }
+
+        }
+        
+
+        // [Marking Rule 2] If v claims an endpoint e in W(e), mark v in all cells incident to the claimed endpoint.
+        
+        std::pair<WF_generator, WF_generator> claim_range = res.compute_claim_range(e, 0);
+        WF_generator temp_g = claim_range.first;
+
+        if (temp_g.src->getPoint() == (e->getOrigin()->getPoint()) || temp_g.src->getPoint() == (e-> getTwin() ->getOrigin()->getPoint())){
+            Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
+            for (auto temp_f: f_list){
+                mark(&temp_g, temp_f); // Mark
+            }
+
+        }
+        claim_range = res.compute_claim_range(e, res.get_generators().size()-1);
+        WF_generator temp_h = claim_range.second;
+
+        if (temp_h.src->getPoint() == (e->getOrigin()->getPoint()) || temp_h.src->getPoint() == (e-> getTwin() ->getOrigin()->getPoint())){
+            Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
+            for (auto temp_f: f_list){
+                mark(&temp_h, temp_f); // Mark
+            }
+
+        }
+
+        // [Marking Rule 4] If v claims part of an opaque edge when it is propagated from an edge e toward output(e), mark v in both cells with e on their boundary. 
+        for(WF_generator temp_g: res.get_generators()){
+            Face* f_list[2] = {e->getIncidentFace(), e->getTwin()->getIncidentFace()};
+            for (auto temp_f: f_list){
+                mark(&temp_g, temp_f); // Mark
+            }
+
+        }
+
+
+
+
+
+
+        
+    }
+
+    return res;
 }
 
 void WF_propagation::update_covertime_of_edge(HEdge *e, double t){
-    // TODO
+    auto it = covertime_of_edges.find(e);
+    if (it != covertime_of_edges.end()) {
+        CoverTime &target = it->second;
+        if (target.t > t) {
+            target.t = t;
+            CoverTime temp(e, t);
+            covertime_pq.push(temp);
+        }
+    } else {
+        // Exception
+        CoverTime newCoverTime(e, t);
+        covertime_of_edges.insert(std::make_pair(e, newCoverTime));
+        covertime_pq.push(newCoverTime);
+    }
 }
 
 
 CoverTime WF_propagation::get_covertime_of_edge(HEdge *e){
-    // TODO
+    auto it = covertime_of_edges.find(e);
+    if (it != covertime_of_edges.end()) {
+        return it->second;
+    } else {
+        // Exception
+        return CoverTime(e, std::numeric_limits<double>::max());
+    }
 }
 
 
-std::vector<APX_wavefront> WF_propagation::get_apx_wavefront_of_edge(HEdge *e){
-    // TODO
+APX_wavefront WF_propagation::get_apx_wavefront_of_edge(HEdge *e){
+    return this->wavefronts.at(e);
 }
-void WF_propagation::set_apx_wavefront_of_edge(HEdge *e){
-    // TODO
+
+int WF_propagation::ccw(int x1, int y1, int x2, int y2, int x3, int y3){
+    int cross_product = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1);
+
+    if (cross_product > 0){
+        return 1;
+    }
+    else if (cross_product < 0){
+        return -1;
+    }
+    else{
+        return 0;
+    }
 }
-void WF_propagation::compute_dist_to_endpoints(HEdge *, std::vector<APX_wavefront>&){
-    // TODO
+
+Point WF_propagation::compute_weighted_dist_point(int idx1, int idx2, int idx3, HEdge *e){
+    // idx1, idx2, idx3로 각 vertex 가져오고(CS_Free, subdiv), p1, p2, p3으로 Point 할당
+    
+    DCEL* dcel = cs_free.getDCEL();
+    std::vector<Vertex*> verlist = dcel->getVertices();
+
+    Vertex* v1 = verlist[idx1];
+    Vertex* v2 = verlist[idx2];
+    Vertex* v3 = verlist[idx3];
+
+    Point p1 = v1->getPoint();
+    Point p2 = v2->getPoint();
+    Point p3 = v3->getPoint();
+
+    // p1, p2, p3를 x좌표 기준으로 정렬
+    std::vector<Point> points = { p1, p2, p3 };
+    std::sort(points.begin(), points.end(), [](const Point& a, const Point& b) {
+        return a.getx() < b.getx();
+    });
+    Point sorted_p1 = points[0];
+    Point sorted_p2 = points[1];
+    Point sorted_p3 = points[2];
+
+    // p1, p2 / p2, p3 각각에 대해 weighted distance가 동일한 bisector 구하기
+
+    // p1, p2 weighted distance가 동일한 bisector를 hyperbola로 구현: h1
+    Hyperbola h1(p1, p2, p1.weight, p2.weight);
+
+    // p2, p3 weighted distance가 동일한 bisector를 hyperbola로 구현: h2
+    Hyperbola h2(p2, p3, p2.weight, p3.weight);
+
+
+
+    // h1과 h2 사이의 교점 중 e를 기준으로 p1, p2, p3와 반대방향에 존재하는 교점을 Point로 바꾸기
+    std::vector<Point> intersections = h1.intersectionPoints(h2);
+    Point answer;
+
+    // 반대방향 존재 확인을 두 선분(e, intersection 중 1개와 p1)이 교차하는지 확인해서 판단
+    if (intersections.size() < 2) {
+        answer = intersections[0];
+    } else {
+        Point eStart = e->getOrigin()->getPoint(); // 1
+        Point eEnd = e->getNext()->getOrigin()->getPoint(); // 2
+
+        Point iStart = p1; // 3
+        Point iEnd = intersections[0]; // 4
+
+        double flag1 = ccw(eStart.getx(), eStart.gety(), eEnd.getx(), eEnd.gety(), iStart.getx(), iStart.gety()) * ccw(eStart.getx(), eStart.gety(), eEnd.getx(), eEnd.gety(), iEnd.getx(), iEnd.gety());
+        double flag2 = ccw(iStart.getx(), iStart.gety(), iEnd.getx(), iEnd.gety(), eStart.getx(), eStart.gety()) * ccw(iStart.getx(), iStart.gety(), iEnd.getx(), iEnd.gety(), eEnd.getx(), eEnd.gety());
+
+        if (flag1 < 0 && flag2 < 0) {
+            answer = intersections[0];
+        } else {
+            answer = intersections[1];
+        }
+    }
+    return answer;
 }
-double WF_propagation::compute_endpoint_engulf_time(HEdge*, std::vector<APX_wavefront>&){
-    // TODO
+
+
+void WF_propagation::compute_dist_to_endpoints(HEdge *e, APX_wavefront& wf){
+    double ret = 0;
+    for (auto g:wf.wavefront) {
+        double dist = g.weight + std::max(g.src->distance(e->getOrigin()->getPoint()),g.src->distance(e->getNext()->getOrigin()->getPoint()));
+        if (ret < dist)
+            ret = dist;
+    }
+    this->covertime_of_edges[e].update(ret);
+}
+double WF_propagation::compute_endpoint_engulf_time(HEdge *e, APX_wavefront& wf){
+    double ret = std::numeric_limits<double>::max();
+    for (auto g:wf.wavefront) {
+        double dist = g.weight + std::min(g.src->distance(e->getOrigin()->getPoint()),g.src->distance(e->getNext()->getOrigin()->getPoint()));
+        if (ret > dist)
+            ret = dist;
+    }
+
+    return ret;
 }
 
 void WF_propagation::mark_generator_to_cell(Face *f, WF_generator generator){
@@ -68,7 +322,7 @@ void WF_propagation::propagate(){
         double t = covertime_e.t; // The time at which the wavefront reaches this edge
 
 
-        /*  TODO
+        /*  
             Implement the marking rule for generators (Rule 1)
             - Let v be an endpoint of e
             - If v is a generator, mark v in the faces incident to v
@@ -89,14 +343,14 @@ void WF_propagation::propagate(){
             if (covertime_f.t > covertime_e.t) continue;
 
             // Get the approximate wavefront associated with edge f
-            std::vector<APX_wavefront> apx_wavefront_of_f = this->get_apx_wavefront_of_edge(f);
+            APX_wavefront apx_wavefront_of_f = this->get_apx_wavefront_of_edge(f);
 
             // Append these wavefronts to the list of wavefronts contributing to edge e
-            apx_wavefronts.insert(apx_wavefronts.end(), apx_wavefront_of_f.begin(), apx_wavefront_of_f.end());
+            apx_wavefronts.push_back(apx_wavefront_of_f);
         }
 
         // Compute the approximate wavefront at edge e based on the contributing wavefronts from input edges
-        std::vector<APX_wavefront> apx_wavefront_of_e =  this->compute_apx_wavefront(e, apx_wavefronts);
+        APX_wavefront apx_wavefront_of_e =  this->compute_apx_wavefront(e, apx_wavefronts);
         
         // Compute the exact distance from the source to each endpoint of edge e
         this->compute_dist_to_endpoints(e, apx_wavefront_of_e);
@@ -115,4 +369,8 @@ void WF_propagation::propagate(){
         // Remove the processed edge from the priority queue
         this->covertime_pq.pop();
     }
+}
+
+std::vector<WF_generator> WF_propagation::getMarked_cells(Face* f) {
+    return this->marked_cells[f];
 }

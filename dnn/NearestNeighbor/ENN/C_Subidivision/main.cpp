@@ -5,6 +5,7 @@
 #include "Testcode/test_csdiv_pts/test_csdiv_pts.h"
 #include "CS_Free.h"
 #include "WF_propagation.h"
+#include "SPM.h"
 
 int main(){
     //test_csdiv_pts();
@@ -21,6 +22,11 @@ int main(){
     Vertex srcV(src);
     std::cout << "Wave front propagation start\n";
     WF_propagation wf_propagation(&srcV, cs_free);
+    std::cout << "Wave front propagation done\n";
+
+
+    std::cout << "Wave front propagation start\n";
+    SPM spm(&srcV, wf_propagation, cs_free, obstacles);
     std::cout << "Wave front propagation done\n";
 
     return 0;
