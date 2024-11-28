@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../C_Subidivision/DCEL/polygon.h"
-#include "../C_Subidivision/DCEL/point.h"
-#include "../C_Subidivision/DCEL/Vector.h"
+#include "../ENN/C_Subidivision/DCEL/polygon.h"
+#include "../ENN/C_Subidivision/DCEL/point.h"
+#include "../ENN/C_Subidivision/DCEL/Vector.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>

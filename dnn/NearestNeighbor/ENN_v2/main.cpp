@@ -1,5 +1,4 @@
-#include "../C_Subidivision/DCEL/DCEL.h"
-#include "../C_Subidivision/DCEL/Polygon.h"
+#include "../ENN/C_Subidivision/DCEL/Polygon.h"
 #include "Space.h"
 #include <iostream>
 #include <fstream>
@@ -19,8 +18,6 @@ int main(){
     std::cout << "Construct the conforming subdivision of free space done\n";
     Space s(srcs, obstacles);
     s.Dijkstra(q);
-    std::cout << "Wave front propagation start\n";
-    std::cout << "Wave front propagation done\n";
 
     return 0;
 }
