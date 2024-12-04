@@ -7,8 +7,8 @@ class Vector : public Point{
 public:
 	Vector();
 	Vector(double x, double y);
-	Vector(Point& );
-	Vector(Point& , Point&);
+	Vector(const Point& );
+	Vector(const Point& , const Point&);
 	~Vector();
 	bool operator==(Vector& );
 	Vector operator/(double );

@@ -13,12 +13,12 @@ Vector::Vector() {
 
 Vector::Vector(double x, double y): Point(x,y){};
 
-Vector::Vector(Point& _p){
+Vector::Vector(const Point& _p){
 	this->x = _p.getx();
 	this->y = _p.gety();
 }
 
-Vector::Vector(Point& _origin, Point& _dest) {
+Vector::Vector(const Point& _origin, const Point& _dest) {
 	this->x = _dest.getx() - _origin.getx();
 	this->y = _dest.gety() - _origin.gety();
 	

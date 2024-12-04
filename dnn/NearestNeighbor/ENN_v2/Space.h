@@ -14,6 +14,7 @@ using namespace std;
 class Arrangement : public DCEL {
 protected:
     std::map<std::string, int> he_ver_map; //key of HEdge -> index in vertices
+    std::vector<Vertex*> start_verts;
     void make_Rectangle(double, double);
 public: 
     Arrangement():DCEL() {};
