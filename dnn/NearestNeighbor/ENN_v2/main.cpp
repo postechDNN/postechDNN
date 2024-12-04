@@ -18,6 +18,6 @@ int main(){
     std::cout << "Construct the conforming subdivision of free space done\n";
     Space s(srcs, obstacles);
     s.Dijkstra(q);
-
+    Arrangement arr(1,srcs);
     return 0;
 }

@@ -1,6 +1,6 @@
 #include "Point.h"
 #include <cmath>
-#define ERR 1e-6
+
 
 //this class defines a point in 2D space
 

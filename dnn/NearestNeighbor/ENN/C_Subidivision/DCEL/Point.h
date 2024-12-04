@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 //this class defines a point in 2D space
+constexpr double ERR = 1e-6;
 
 //can use double
 class Point {
