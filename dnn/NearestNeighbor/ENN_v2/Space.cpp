@@ -1,8 +1,9 @@
 #include "Space.h"
 #include <limits>
 #include <queue>
+#include <tuple>
 
-Arrangement::Arrangement(int num_srcs, vector<Point> vertices):DCEL() {
+Arrangement::Arrangement(const vector<Point>& vertices):DCEL() {
     double x_max = 0;
     double y_max = 0;
     for (size_t i = 0; i < vertices.size(); i++) {
@@ -26,6 +27,7 @@ Arrangement::Arrangement(int num_srcs, vector<Point> vertices):DCEL() {
         Face* temp_f = this->faces["f_1"];
         //Get start point
         HEdge* temp_he = temp_f->getInners()[0];
+        if (a < 0) temp_he = temp_he->getNext();
         Edge* p = nullptr;
         do {
             temp_he = temp_he->getNext();
@@ -174,17 +176,26 @@ void Arrangement::make_Rectangle(double x_max, double y_max) {
     }
 }
 
-Space::Space(vector<Point> _srcs, vector<SimplePolygon> _obstacles) {
+Space::Space(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles) {
     srcs = _srcs;
     obstacles = _obstacles;
-    
+    set_Space(_srcs, _obstacles);
 }
 
 Space::~Space(){
 }
 
-void  Space::set_Space(vector<Point>, vector<SimplePolygon>) {
-
+void  Space::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& _obstacles) {
+    srcs = _srcs;
+    obstacles = _obstacles;
+    vertices = srcs;
+    for (auto& po : obstacles) {
+        std::vector<Point> vs = po.getVertices();
+        vertices.insert(vertices.end(), vs.begin(), vs.end());
+    }
+    arr = Arrangement(vertices);
+    visibility_graph();
+    Dijkstra();
 }
 
 
@@ -193,6 +204,8 @@ void  Space::set_Space(vector<Point>, vector<SimplePolygon>) {
 
 
 void Space::visibility_graph() {
+    //Need to Implement using arrangement
+    /*
     vector<Point> vertices(this->srcs);
     for (auto& o : obstacles) {
         vertices.insert(vertices.end(), o.getVertices().begin(), o.getVertices().end());
@@ -214,7 +227,7 @@ void Space::visibility_graph() {
         this->adj_list.push_back(temp);
     }
     dists.assign(size(vertices), std::numeric_limits<double>::max());
-    visited.assign(size(vertices), false);
+    visited.assign(size(vertices), false);*/
 };
 
 
@@ -231,41 +244,37 @@ void Space::add_vert(Point) {
 void Space::del_vert(int) {
 
 }
-void Space::Dijkstra(Point query) {
-    dists.assign(size(dists), std::numeric_limits<double>::max());
-    visited.assign(size(visited), false);
-    std::priority_queue<std::pair<double, int>, std::vector<std::pair<double, int>>, greater<std::pair<double, int>>> que = {};
-    for (long long j = 0; j < size(vertices); j++) {
-        bool intersect = false;
-        for (auto& o : obstacles) {
-            auto edges = o.getEdges();
-            for (auto& e : edges) {
-                Edge e1 = Edge(query, vertices[j]);
-                if (e.crossing(e1, false) == nullptr || e == e1) {
-                    dists[j] = Vector(vertices[j], query).norm();
-                    que.emplace(dists[j], j);
-                }
-            }
-        }
+void Space::Dijkstra() {
+    //Modify code using fibonacci heap
+    dists.assign(vertices.size(), std::numeric_limits<double>::max());
+    visited.assign(vertices.size(), false);
+    near_src.assign(vertices.size(), -1);
+    std::priority_queue<std::tuple<double, int, int>, std::vector<std::tuple<double, int, int>>, greater<std::tuple<double, int, int>>> que = {};
+    for (long long j = 0; j < srcs.size(); j++) {
+        que.emplace(0,j,j);
+        near_src[j] = j;
     }
     while (!que.empty()) {
-        if (visited[que.top().second] == true) {
+        if (visited[get<1>(que.top())] == true) {
             que.pop();
             continue;
         }
-        std::pair<double, int> temp = que.top();
+        std::tuple<double, int, int> temp = que.top();
+        near_src[get<1>(temp)] = get<2>(temp);
         que.pop();
-        visited[temp.second] = true;
-        for (auto& v : this->adj_list[temp.second]) {
-            if (dists[temp.second] + v.second < dists[v.first]) {
-                dists[v.first] = dists[temp.second] + v.second;
-                que.emplace(dists[v.first],v.first);
+        visited[std::get<1>(temp)] = true;
+        for (auto& v : this->adj_list[std::get<1>(temp)]) {
+            if (dists[std::get<1>(temp)] + v.second < dists[v.first]) {
+                dists[v.first] = dists[std::get<1>(temp)] + v.second;
+                que.emplace(dists[v.first],v.first,near_src[get<1>(temp)]);
             }
         }
     }
 }
-void Space::print_knn(int k) {
-    k = min(k, int(size(srcs)));
+Point Space::query(Point query) {
+    //Need to Implement
 
+
+    return Point();
 }
 

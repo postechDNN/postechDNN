@@ -18,28 +18,26 @@ protected:
     void make_Rectangle(double, double);
 public: 
     Arrangement():DCEL() {};
-    Arrangement(int, vector<Point>);
-    
-
-
+    Arrangement(const vector<Point>&);
 };
 
 
 class Space {
 public:
-    vector<Point> srcs;
+    vector<Point> srcs; //Sources
     vector<SimplePolygon> obstacles; // Obstacles
-    vector<Point> vertices; // Input points + Obstacle Points
-    vector<double> dists;
+    vector<Point> vertices; // Sources + Obstacle Points
+    vector<double> dists; //distance from the nearest source
+    vector<int> near_src; //index of the nearest source
     vector<bool> visited;
     vector<vector<pair<long long, double>>> adj_list; // Adjacent list
-    Arrangement Arr;
+    Arrangement arr;
 
 public:
     // Setting
-    Space(vector<Point>, vector<SimplePolygon>);
+    Space(const vector<Point>&, const vector<SimplePolygon>&);
     ~Space();
-    void set_Space(vector<Point>, vector<SimplePolygon>);
+    void set_Space(const vector<Point>&, const vector<SimplePolygon>&);
 
 
     void visibility_graph();
@@ -49,6 +47,6 @@ public:
     void del_Polygon(int);
     void add_vert(Point);
     void del_vert(int);
-    void Dijkstra(Point query);
-    void print_knn(int);
+    void Dijkstra();
+    Point query(Point query);
 };
