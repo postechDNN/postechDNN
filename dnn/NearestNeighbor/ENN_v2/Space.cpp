@@ -2,6 +2,10 @@
 #include <limits>
 #include <queue>
 #include <tuple>
+#include <algorithm>
+#include <map>
+
+#define M_PI		3.14159265358979323846
 
 Arrangement::Arrangement(const vector<Point>& vertices):DCEL() {
     double x_max = 0;
@@ -204,6 +208,72 @@ void  Space::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& 
 
 
 void Space::visibility_graph() {
+    for (auto p: vertices) {
+        vector <Edge> E; // edge list
+        map<double, Edge> E_find;
+        for (auto simp : obstacles) {
+            for (auto edge : simp.getEdges()) {
+                double alpha1 = atan2(edge.gets().gety() - p.gety(), edge.gets().getx() - p.getx());
+                if (alpha1 < 0.)alpha1 += 2 * M_PI;
+                double alpha2 = atan2(edge.gett().gety() - p.gety(), edge.gett().getx() - p.getx());
+                if (alpha2 < 0.)alpha2 += 2 * M_PI;
+                E_find.insert({ alpha1, edge });
+                E_find.insert({ alpha2, edge });
+                if (alpha1 < alpha2) {
+                    Edge temp(edge.gett(), edge.gets());
+                    E.push_back(temp);
+                }
+                else {
+                    Edge temp(edge.gets(), edge.gett());
+                    E.push_back(temp);
+                }
+            }
+        }
+        map<double, Point> P; // Event list
+        for (auto q : vertices) {
+            double alpha = atan2(q.gety() - p.gety(), q.getx() - p.getx());
+            if (alpha < 0.)alpha += 2 * M_PI;
+            P.insert({ alpha, q });
+        }
+
+        map<double, Edge> S; // active edge list
+
+        // Set active edge for Horizontal line
+        for (auto q : vertices) {
+            Point x(q.getx() + INFINITY, q.gety());
+            Edge temp(q, x);
+            for (auto edge : E){
+                if (edge.crossing(temp, false) != nullptr) {
+                    double alpha = atan2(edge.gett().gety() - p.gety(), edge.gett().getx() - p.getx());
+                    if (alpha < 0.)alpha += 2 * M_PI;
+                    S.insert({ alpha, edge });
+                }
+            }
+        }
+
+        for (auto event = P.begin(); event != P.end(); ++event) {
+            Edge temp(p, event->second);
+            if (S.begin()->second.crossing(temp, false) != nullptr) {
+                // event vertex is visible from p
+            }
+
+            double alpha = atan2(event->second.gety() - p.gety(), event->second.getx() - p.getx());
+            if (alpha < 0.)alpha += 2 * M_PI;
+
+            // event vertex is the endpoint of an edge
+            if (S.find(alpha) != S.end()) {
+                S.erase(alpha);
+                continue;
+            }
+            
+            // event vertex is the startpoint of an edge
+            if (E_find.find(alpha) != E_find.end()) {
+                double alpha1 = atan2(E_find[alpha].gett().gety() - p.gety(), E_find[alpha].gett().getx() - p.getx());
+                if (alpha1 < 0.)alpha1 += 2 * M_PI;
+                S.insert({ alpha1, E_find[alpha1] });
+            }
+        }
+    }
     //Need to Implement using arrangement
     /*
     vector<Point> vertices(this->srcs);
