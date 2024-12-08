@@ -15,6 +15,7 @@ public:
 
 	SimplePolygon(std::vector<Point>& v,bool colinear = true);  //allow colinear edges
 	SimplePolygon(std::vector<Edge>& v);
+	SimplePolygon(const SimplePolygon &S);
 	~SimplePolygon();
 	int inPolygon(Point p);
 	std::vector<Point> getVertices();

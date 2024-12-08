@@ -1,4 +1,5 @@
 #include "Space.h"
+#include "AVLTreeList.h"
 #include <limits>
 #include <queue>
 #include <tuple>
@@ -6,6 +7,7 @@
 #include <map>
 
 #define M_PI		3.14159265358979323846
+#define EPS 0.001
 
 Arrangement::Arrangement(const vector<Point>& vertices):DCEL() {
     double x_max = 0;
@@ -180,9 +182,41 @@ void Arrangement::make_Rectangle(double x_max, double y_max) {
     }
 }
 
+
 Space::Space(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles) {
-    srcs = _srcs;
-    obstacles = _obstacles;
+    for (int i = 0; i < _srcs.size(); i++) {
+        srcs.push_back(_srcs[i]);
+        vertices.push_back(_srcs[i]);
+        srcs[i].index = i;
+        vertices[i].index = i;
+
+    }
+    for (int i = 0; i < _obstacles.size(); i++) {
+        srcs.push_back(_srcs[i]);
+        obstacles.push_back(_obstacles[i]);
+        obstacles[i].index = i;
+        
+        for (auto E : obstacles[i].getEdges()) {
+            Edge_S T = E;
+            T.poly = i;
+            edges.push_back(T);
+        }
+
+        for (auto V : obstacles[i].getVertices()) {
+            Point_S T = V;
+            T.poly = i;
+            T.index = vertices.size();
+            for (int j = 0; j < obstacles[i].getEdges().size(); j++) {
+                if (V == obstacles[i].getEdges()[j].gets()) { T.edge_s = j; }
+                else if (V == obstacles[i].getEdges()[j].gett()) { T.edge_t = j; }
+            }
+            vertices.push_back(T);
+        }
+    }
+    for (int i = 0; i < vertices.size(); i++) {
+        vector<pair<long long, double>>* temp = new vector<pair<long long, double>>;
+        adj_list.push_back(*temp);
+    }
     set_Space(_srcs, _obstacles);
 }
 
@@ -190,87 +224,92 @@ Space::~Space(){
 }
 
 void  Space::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& _obstacles) {
-    srcs = _srcs;
-    obstacles = _obstacles;
-    vertices = srcs;
-    for (auto& po : obstacles) {
-        std::vector<Point> vs = po.getVertices();
-        vertices.insert(vertices.end(), vs.begin(), vs.end());
-    }
-    arr = Arrangement(vertices);
+
+    //arr = Arrangement(vertices);
     visibility_graph();
     Dijkstra();
 }
 
-
-
-
-
-
 void Space::visibility_graph() {
-    for (auto p: vertices) {
-        vector <Edge> E; // edge list
-        map<double, Edge> E_find;
-        for (auto simp : obstacles) {
-            for (auto edge : simp.getEdges()) {
-                double alpha1 = atan2(edge.gets().gety() - p.gety(), edge.gets().getx() - p.getx());
-                if (alpha1 < 0.)alpha1 += 2 * M_PI;
-                double alpha2 = atan2(edge.gett().gety() - p.gety(), edge.gett().getx() - p.getx());
-                if (alpha2 < 0.)alpha2 += 2 * M_PI;
-                E_find.insert({ alpha1, edge });
-                E_find.insert({ alpha2, edge });
-                if (alpha1 < alpha2) {
-                    Edge temp(edge.gett(), edge.gets());
-                    E.push_back(temp);
-                }
-                else {
-                    Edge temp(edge.gets(), edge.gett());
-                    E.push_back(temp);
-                }
-            }
-        }
-        map<double, Point> P; // Event list
-        for (auto q : vertices) {
-            double alpha = atan2(q.gety() - p.gety(), q.getx() - p.getx());
+    for (int i = 0; i < vertices.size(); i++) {
+
+        map<double, Point_S> P; // Event list
+        for (int j = 0; j < vertices.size(); j++) {
+            double alpha = atan2(vertices[j].gety() - vertices[i].gety(), vertices[j].getx() - vertices[i].getx());
             if (alpha < 0.)alpha += 2 * M_PI;
-            P.insert({ alpha, q });
+            P.insert({ alpha, vertices[j] });
         }
 
-        map<double, Edge> S; // active edge list
+        AVLTreeList S; // active edge list
+        AVLTreeList Init;
 
         // Set active edge for Horizontal line
-        for (auto q : vertices) {
-            Point x(q.getx() + INFINITY, q.gety());
-            Edge temp(q, x);
-            for (auto edge : E){
-                if (edge.crossing(temp, false) != nullptr) {
-                    double alpha = atan2(edge.gett().gety() - p.gety(), edge.gett().getx() - p.getx());
-                    if (alpha < 0.)alpha += 2 * M_PI;
-                    S.insert({ alpha, edge });
-                }
+        Point x(vertices[i].getx() + 1/EPS, vertices[i].gety());
+        Edge temp(vertices[i], x);
+        for (auto edge : edges) {
+            if (edge.crossing(temp, false) != nullptr) {
+                Point T = edge.crossing(temp, false)->gets();
+                S.Insert(edge, vertices[i], x);
+                Init.Insert(edge, vertices[i], x);
             }
         }
 
         for (auto event = P.begin(); event != P.end(); ++event) {
-            Edge temp(p, event->second);
-            if (S.begin()->second.crossing(temp, false) != nullptr) {
+            if (event->second == vertices[i]) continue;
+
+            // two vertices are in the same polygon
+            if (vertices[i].poly >= 0 && vertices[i].poly == event->second.poly) {
+                Point p(vertices[i].getx() + (event->second.getx() - vertices[i].getx()) * EPS, vertices[i].gety() + (event->second.gety() - vertices[i].gety()) * EPS);
+                // two vertices are in the same edge
+                if (vertices[i].edge_s == event->second.edge_t || vertices[i].edge_t == event->second.edge_s) {
+                    adj_list[i].push_back({ event->second.index , vertices[i].distance(event->second) });
+                }
+                else if (!obstacles[vertices[i].poly].inPolygon(p)) {
+                    Edge temp(vertices[i], event->second);
+                    // event vertex is visible from p
+                    if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
+                        adj_list[i].push_back({ event->second.index , vertices[i].distance(event->second) });
+                    }
+                }
+            }
+            else {
+                Edge temp(vertices[i], event->second);
                 // event vertex is visible from p
+                if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
+                    adj_list[i].push_back({ event->second.index , vertices[i].distance(event->second) });
+                }
             }
 
-            double alpha = atan2(event->second.gety() - p.gety(), event->second.getx() - p.getx());
-            if (alpha < 0.)alpha += 2 * M_PI;
+            // event vertex is an edge
+            if (event->second.poly >= 0) {
 
-            // event vertex is the endpoint of an edge
-            if (S.find(alpha) != S.end()) {
-                S.erase(alpha);
-                continue;
-            }
-            
-            // event vertex is the startpoint of an edge
-            if (E_find.find(alpha) != E_find.end()) {
-                double alpha1 = atan2(E_find[alpha].gett().gety() - p.gety(), E_find[alpha].gett().getx() - p.getx());
+                Edge E1 = obstacles[event->second.poly].getEdges()[event->second.edge_s];
+                double alpha1 = atan2(E1.gets().gety() - vertices[i].gety(), E1.gets().getx() - vertices[i].getx());
                 if (alpha1 < 0.)alpha1 += 2 * M_PI;
-                S.insert({ alpha1, E_find[alpha1] });
+                double alpha2 = atan2(E1.gett().gety() - vertices[i].gety(), E1.gett().getx() - vertices[i].getx());
+                if (alpha2 < 0.)alpha2 += 2 * M_PI;
+
+                Edge E2 = obstacles[event->second.poly].getEdges()[event->second.edge_t];
+                double alpha3 = atan2(E2.gets().gety() - vertices[i].gety(), E2.gets().getx() - vertices[i].getx());
+                if (alpha3 < 0.)alpha3 += 2 * M_PI;
+                double alpha4 = atan2(E2.gett().gety() - vertices[i].gety(), E2.gett().getx() - vertices[i].getx());
+                if (alpha4 < 0.)alpha4 += 2 * M_PI;
+
+                bool check1 = Init.Search(E1, vertices[i], event->second);
+                bool check2 = Init.Search(E2, vertices[i], event->second);
+                if ((check1 && alpha1 + EPS < alpha2) || (!check1 && alpha1 > alpha2 + EPS)) {
+                    S.Delete(E1, vertices[i], event->second); // E1 Edge ends
+                }
+                if ((check2 && alpha3 > alpha4 + EPS) || (!check2 && alpha3 + EPS < alpha4)) {
+                    S.Delete(E2, vertices[i], event->second); // E2 Edge ends
+                }
+
+                if ((!check1 && alpha1 + EPS < alpha2) || (check1 && alpha1 > alpha2 + EPS)) {
+                    S.Insert(E1, vertices[i], event->second); // E1 Edge ends
+                }
+                if ((!check2 && alpha3 > alpha4 + EPS) || (check2 && alpha3 + EPS < alpha4)) {
+                    S.Insert(E2, vertices[i], event->second); // E2 Edge ends
+                }
             }
         }
     }
@@ -341,10 +380,83 @@ void Space::Dijkstra() {
         }
     }
 }
-Point Space::query(Point query) {
+pair<Point, double> Space::query(Point query) {
     //Need to Implement
+    Point Near;
+    double dist = INFINITY;
+
+    map<double, Point_S> P; // Event list
+    for (int j = 0; j < vertices.size(); j++) {
+        double alpha = atan2(vertices[j].gety() - query.gety(), vertices[j].getx() - query.getx());
+        if (alpha < 0.)alpha += 2 * M_PI;
+        P.insert({ alpha, vertices[j] });
+    }
+
+    AVLTreeList S; // active edge list
+    AVLTreeList Init;
+
+    // Set active edge for Horizontal line
+    Point x(query.getx() + 1 / EPS, query.gety());
+    Edge temp(query, x);
+    for (auto edge : edges) {
+        if (edge.crossing(temp, false) != nullptr) {
+            Point T = edge.crossing(temp, false)->gets();
+            S.Insert(edge, query, x);
+            Init.Insert(edge, query, x);
+        }
+    }
+
+    for (auto event = P.begin(); event != P.end(); ++event) {
+        if (event->second == query) continue;
 
 
-    return Point();
+        Edge temp(query, event->second);
+        // event vertex is visible from p
+        if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
+            double dist_temp = query.distance(event->second);
+            // event vertex is an edge
+            if (event->second.poly >= 0 && dist_temp < dist) {
+                Near = vertices[near_src[event->second.index]];
+                dist = dist_temp;
+            }
+            else if(dist_temp < dist){
+                Near = event->second;
+                dist = dist_temp;
+            }
+        }
+
+        // event vertex is an edge
+        if (event->second.poly >= 0) {
+
+            Edge E1 = obstacles[event->second.poly].getEdges()[event->second.edge_s];
+            double alpha1 = atan2(E1.gets().gety() - query.gety(), E1.gets().getx() - query.getx());
+            if (alpha1 < 0.)alpha1 += 2 * M_PI;
+            double alpha2 = atan2(E1.gett().gety() - query.gety(), E1.gett().getx() - query.getx());
+            if (alpha2 < 0.)alpha2 += 2 * M_PI;
+
+            Edge E2 = obstacles[event->second.poly].getEdges()[event->second.edge_t];
+            double alpha3 = atan2(E2.gets().gety() - query.gety(), E2.gets().getx() - query.getx());
+            if (alpha3 < 0.)alpha3 += 2 * M_PI;
+            double alpha4 = atan2(E2.gett().gety() - query.gety(), E2.gett().getx() - query.getx());
+            if (alpha4 < 0.)alpha4 += 2 * M_PI;
+
+            bool check1 = Init.Search(E1, query, event->second);
+            bool check2 = Init.Search(E2, query, event->second);
+            if ((check1 && alpha1 + EPS < alpha2) || (!check1 && alpha1 > alpha2 + EPS)) {
+                S.Delete(E1, query, event->second); // E1 Edge ends
+            }
+            if ((check2 && alpha3 > alpha4 + EPS) || (!check2 && alpha3 + EPS < alpha4)) {
+                S.Delete(E2, query, event->second); // E2 Edge ends
+            }
+
+            if ((!check1 && alpha1 + EPS < alpha2) || (check1 && alpha1 > alpha2 + EPS)) {
+                S.Insert(E1, query, event->second); // E1 Edge ends
+            }
+            if ((!check2 && alpha3 > alpha4 + EPS) || (check2 && alpha3 + EPS < alpha4)) {
+                S.Insert(E2, query, event->second); // E2 Edge ends
+            }
+        }
+    }
+
+    return { Near, dist };
 }
-

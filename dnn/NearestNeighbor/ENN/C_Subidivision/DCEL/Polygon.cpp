@@ -42,6 +42,12 @@ SimplePolygon::SimplePolygon(std::vector<Point>& v, bool colinear) {
 //Construct by using edges
 SimplePolygon::SimplePolygon(std::vector<Edge>& v) {}
 
+SimplePolygon::SimplePolygon(const SimplePolygon& S) {
+	n_vertices = S.n_vertices;
+	vertices = S.vertices;
+	edges = S.edges;
+}
+
 SimplePolygon::~SimplePolygon() {}
 
 //The point p is inside polygon return 1

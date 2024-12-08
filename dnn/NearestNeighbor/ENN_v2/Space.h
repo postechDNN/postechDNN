@@ -21,12 +21,39 @@ public:
     Arrangement(const vector<Point>&);
 };
 
+class SimplePolygon_S : public SimplePolygon {
+public:
+    int index;
+
+    SimplePolygon_S(const SimplePolygon& S):SimplePolygon(S) {};
+    ~SimplePolygon_S() {};
+};
+
+class Edge_S : public Edge {
+public:
+    int poly;
+
+    Edge_S(const Edge& E):Edge(E) {};
+    ~Edge_S() {};
+};
+
+class Point_S : public Point {
+public:
+    int index;
+    int edge_s = -1;
+    int edge_t = -1;
+    int poly = -1;
+
+    Point_S(const Point& E) :Point(E) {};
+    ~Point_S() {};
+};
 
 class Space {
 public:
-    vector<Point> srcs; //Sources
-    vector<SimplePolygon> obstacles; // Obstacles
-    vector<Point> vertices; // Sources + Obstacle Points
+    vector<Point_S> srcs; //Sources
+    vector<SimplePolygon_S> obstacles; // Obstacles
+    vector<Edge_S> edges; // Obstacles' edges
+    vector<Point_S> vertices; // Sources + Obstacle Points
     vector<double> dists; //distance from the nearest source
     vector<int> near_src; //index of the nearest source
     vector<bool> visited;
@@ -48,5 +75,6 @@ public:
     void add_vert(Point);
     void del_vert(int);
     void Dijkstra();
-    Point query(Point query);
+    pair<Point, double> query(Point query);
 };
+
