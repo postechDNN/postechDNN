@@ -74,7 +74,7 @@ public:
 
 	bool Is_empty();
 	Edge Search();
-	bool Search(Edge data, Point v1, Point v2);
+	bool Search(Edge data, Point v1);
 	bool Insert(Edge data, Point v1, Point v2);
 	bool Delete(Edge data, Point v1, Point v2);
 

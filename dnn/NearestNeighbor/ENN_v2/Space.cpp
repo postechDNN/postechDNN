@@ -3,6 +3,7 @@
 #include <limits>
 #include <queue>
 #include <tuple>
+#include <functional>
 #include <algorithm>
 #include <map>
 
@@ -192,7 +193,6 @@ Space::Space(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles
 
     }
     for (int i = 0; i < _obstacles.size(); i++) {
-        srcs.push_back(_srcs[i]);
         obstacles.push_back(_obstacles[i]);
         obstacles[i].index = i;
         
@@ -230,14 +230,23 @@ void  Space::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& 
     Dijkstra();
 }
 
+
+struct cmp {
+    bool operator()(pair<double, Point_S> a, pair<double, Point_S> b) {
+        return a.first > b.first;
+    }
+};
+
 void Space::visibility_graph() {
     for (int i = 0; i < vertices.size(); i++) {
 
-        map<double, Point_S> P; // Event list
+        priority_queue<pair<double, Point_S>, vector<pair<double, Point_S>>, cmp> P;
+        //map<double, Point_S> P; // Event list
         for (int j = 0; j < vertices.size(); j++) {
+            if (i == j) continue;
             double alpha = atan2(vertices[j].gety() - vertices[i].gety(), vertices[j].getx() - vertices[i].getx());
             if (alpha < 0.)alpha += 2 * M_PI;
-            P.insert({ alpha, vertices[j] });
+            P.emplace(alpha, vertices[j]);
         }
 
         AVLTreeList S; // active edge list
@@ -254,61 +263,64 @@ void Space::visibility_graph() {
             }
         }
 
-        for (auto event = P.begin(); event != P.end(); ++event) {
-            if (event->second == vertices[i]) continue;
+        while(!P.empty())
+        {
+            pair<double, Point_S> event = P.top();
+            P.pop();
+            if (event.second == vertices[i]) continue;
 
             // two vertices are in the same polygon
-            if (vertices[i].poly >= 0 && vertices[i].poly == event->second.poly) {
-                Point p(vertices[i].getx() + (event->second.getx() - vertices[i].getx()) * EPS, vertices[i].gety() + (event->second.gety() - vertices[i].gety()) * EPS);
+            if (vertices[i].poly >= 0 && vertices[i].poly == event.second.poly) {
+                Point p(vertices[i].getx() + (event.second.getx() - vertices[i].getx()) * EPS, vertices[i].gety() + (event.second.gety() - vertices[i].gety()) * EPS);
                 // two vertices are in the same edge
-                if (vertices[i].edge_s == event->second.edge_t || vertices[i].edge_t == event->second.edge_s) {
-                    adj_list[i].push_back({ event->second.index , vertices[i].distance(event->second) });
+                if (vertices[i].edge_s == event.second.edge_t || vertices[i].edge_t == event.second.edge_s) {
+                    adj_list[i].push_back({ event.second.index , vertices[i].distance(event.second) });
                 }
                 else if (!obstacles[vertices[i].poly].inPolygon(p)) {
-                    Edge temp(vertices[i], event->second);
+                    Edge temp(vertices[i], event.second);
                     // event vertex is visible from p
                     if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
-                        adj_list[i].push_back({ event->second.index , vertices[i].distance(event->second) });
+                        adj_list[i].push_back({ event.second.index , vertices[i].distance(event.second) });
                     }
                 }
             }
             else {
-                Edge temp(vertices[i], event->second);
+                Edge temp(vertices[i], event.second);
                 // event vertex is visible from p
                 if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
-                    adj_list[i].push_back({ event->second.index , vertices[i].distance(event->second) });
+                    adj_list[i].push_back({ event.second.index , vertices[i].distance(event.second) });
                 }
             }
 
             // event vertex is an edge
-            if (event->second.poly >= 0) {
+            if (event.second.poly >= 0) {
 
-                Edge E1 = obstacles[event->second.poly].getEdges()[event->second.edge_s];
+                Edge E1 = obstacles[event.second.poly].getEdges()[event.second.edge_s];
                 double alpha1 = atan2(E1.gets().gety() - vertices[i].gety(), E1.gets().getx() - vertices[i].getx());
                 if (alpha1 < 0.)alpha1 += 2 * M_PI;
                 double alpha2 = atan2(E1.gett().gety() - vertices[i].gety(), E1.gett().getx() - vertices[i].getx());
                 if (alpha2 < 0.)alpha2 += 2 * M_PI;
 
-                Edge E2 = obstacles[event->second.poly].getEdges()[event->second.edge_t];
+                Edge E2 = obstacles[event.second.poly].getEdges()[event.second.edge_t];
                 double alpha3 = atan2(E2.gets().gety() - vertices[i].gety(), E2.gets().getx() - vertices[i].getx());
                 if (alpha3 < 0.)alpha3 += 2 * M_PI;
                 double alpha4 = atan2(E2.gett().gety() - vertices[i].gety(), E2.gett().getx() - vertices[i].getx());
                 if (alpha4 < 0.)alpha4 += 2 * M_PI;
 
-                bool check1 = Init.Search(E1, vertices[i], event->second);
-                bool check2 = Init.Search(E2, vertices[i], event->second);
-                if ((check1 && alpha1 + EPS < alpha2) || (!check1 && alpha1 > alpha2 + EPS)) {
-                    S.Delete(E1, vertices[i], event->second); // E1 Edge ends
+                bool check1 = Init.Search(E1, vertices[i]);
+                bool check2 = Init.Search(E2, vertices[i]);
+                if (((check1 && alpha1 + EPS < alpha2) || (!check1 && alpha1 > alpha2 + EPS)) && alpha1 > EPS && alpha2 > EPS) {
+                    S.Delete(E1, vertices[i], event.second); // E1 Edge ends
                 }
-                if ((check2 && alpha3 > alpha4 + EPS) || (!check2 && alpha3 + EPS < alpha4)) {
-                    S.Delete(E2, vertices[i], event->second); // E2 Edge ends
+                if (((check2 && alpha3 > alpha4 + EPS) || (!check2 && alpha3 + EPS < alpha4)) && alpha3 > EPS && alpha4 > EPS) {
+                    S.Delete(E2, vertices[i], event.second); // E2 Edge ends
                 }
 
-                if ((!check1 && alpha1 + EPS < alpha2) || (check1 && alpha1 > alpha2 + EPS)) {
-                    S.Insert(E1, vertices[i], event->second); // E1 Edge ends
+                if (((!check1 && alpha1 + EPS < alpha2) || (check1 && alpha1 > alpha2 + EPS)) && alpha1 > EPS && alpha2 > EPS) {
+                    S.Insert(E1, vertices[i], event.second); // E1 Edge ends
                 }
-                if ((!check2 && alpha3 > alpha4 + EPS) || (check2 && alpha3 + EPS < alpha4)) {
-                    S.Insert(E2, vertices[i], event->second); // E2 Edge ends
+                if (((!check2 && alpha3 > alpha4 + EPS) || (check2 && alpha3 + EPS < alpha4)) && alpha3 > EPS && alpha4 > EPS) {
+                    S.Insert(E2, vertices[i], event.second); // E2 Edge ends
                 }
             }
         }
@@ -361,35 +373,37 @@ void Space::Dijkstra() {
     std::priority_queue<std::tuple<double, int, int>, std::vector<std::tuple<double, int, int>>, greater<std::tuple<double, int, int>>> que = {};
     for (long long j = 0; j < srcs.size(); j++) {
         que.emplace(0,j,j);
+        dists[j] = 0;
         near_src[j] = j;
     }
     while (!que.empty()) {
-        if (visited[get<1>(que.top())] == true) {
+        tuple<double, int, int> temp = que.top();
+        if (visited[get<2>(temp)] == true) {
             que.pop();
             continue;
         }
-        std::tuple<double, int, int> temp = que.top();
-        near_src[get<1>(temp)] = get<2>(temp);
+        //near_src[get<1>(temp)] = get<2>(temp);
         que.pop();
         visited[std::get<1>(temp)] = true;
         for (auto& v : this->adj_list[std::get<1>(temp)]) {
             if (dists[std::get<1>(temp)] + v.second < dists[v.first]) {
                 dists[v.first] = dists[std::get<1>(temp)] + v.second;
-                que.emplace(dists[v.first],v.first,near_src[get<1>(temp)]);
+                near_src[v.first] = get<2>(temp);
+                que.emplace(dists[v.first],v.first, near_src[v.first]);
             }
         }
     }
 }
 pair<Point, double> Space::query(Point query) {
-    //Need to Implement
     Point Near;
     double dist = INFINITY;
 
-    map<double, Point_S> P; // Event list
+    priority_queue<pair<double, Point_S>, vector<pair<double, Point_S>>, cmp> P;
+    //map<double, Point_S> P; // Event list
     for (int j = 0; j < vertices.size(); j++) {
         double alpha = atan2(vertices[j].gety() - query.gety(), vertices[j].getx() - query.getx());
         if (alpha < 0.)alpha += 2 * M_PI;
-        P.insert({ alpha, vertices[j] });
+        P.emplace( alpha, vertices[j] );
     }
 
     AVLTreeList S; // active edge list
@@ -406,54 +420,54 @@ pair<Point, double> Space::query(Point query) {
         }
     }
 
-    for (auto event = P.begin(); event != P.end(); ++event) {
-        if (event->second == query) continue;
+    while(!P.empty()) {
+        pair<double, Point_S> event = P.top();
+        P.pop();
 
-
-        Edge temp(query, event->second);
+        Edge temp(query, event.second);
         // event vertex is visible from p
         if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
-            double dist_temp = query.distance(event->second);
+            double dist_temp = query.distance(event.second);
             // event vertex is an edge
-            if (event->second.poly >= 0 && dist_temp < dist) {
-                Near = vertices[near_src[event->second.index]];
-                dist = dist_temp;
+            if (event.second.poly >= 0 && dist_temp + dists[event.second.index] < dist) {
+                Near = vertices[near_src[event.second.index]];
+                dist = dist_temp + dists[event.second.index];
             }
-            else if(dist_temp < dist){
-                Near = event->second;
+            else if (event.second.poly < 0 && dist_temp < dist) {
+                Near = event.second;
                 dist = dist_temp;
             }
         }
 
         // event vertex is an edge
-        if (event->second.poly >= 0) {
+        if (event.second.poly >= 0) {
 
-            Edge E1 = obstacles[event->second.poly].getEdges()[event->second.edge_s];
+            Edge E1 = obstacles[event.second.poly].getEdges()[event.second.edge_s];
             double alpha1 = atan2(E1.gets().gety() - query.gety(), E1.gets().getx() - query.getx());
             if (alpha1 < 0.)alpha1 += 2 * M_PI;
             double alpha2 = atan2(E1.gett().gety() - query.gety(), E1.gett().getx() - query.getx());
             if (alpha2 < 0.)alpha2 += 2 * M_PI;
 
-            Edge E2 = obstacles[event->second.poly].getEdges()[event->second.edge_t];
+            Edge E2 = obstacles[event.second.poly].getEdges()[event.second.edge_t];
             double alpha3 = atan2(E2.gets().gety() - query.gety(), E2.gets().getx() - query.getx());
             if (alpha3 < 0.)alpha3 += 2 * M_PI;
             double alpha4 = atan2(E2.gett().gety() - query.gety(), E2.gett().getx() - query.getx());
             if (alpha4 < 0.)alpha4 += 2 * M_PI;
 
-            bool check1 = Init.Search(E1, query, event->second);
-            bool check2 = Init.Search(E2, query, event->second);
-            if ((check1 && alpha1 + EPS < alpha2) || (!check1 && alpha1 > alpha2 + EPS)) {
-                S.Delete(E1, query, event->second); // E1 Edge ends
+            bool check1 = Init.Search(E1, query);
+            bool check2 = Init.Search(E2, query);
+            if (((check1 && alpha1 + EPS < alpha2) || (!check1 && alpha1 > alpha2 + EPS)) && alpha1 > EPS && alpha2 > EPS) {
+                S.Delete(E1, query, event.second); // E1 Edge ends
             }
-            if ((check2 && alpha3 > alpha4 + EPS) || (!check2 && alpha3 + EPS < alpha4)) {
-                S.Delete(E2, query, event->second); // E2 Edge ends
+            if (((check2 && alpha3 > alpha4 + EPS) || (!check2 && alpha3 + EPS < alpha4)) && alpha3 > EPS && alpha4 > EPS) {
+                S.Delete(E2, query, event.second); // E2 Edge ends
             }
 
-            if ((!check1 && alpha1 + EPS < alpha2) || (check1 && alpha1 > alpha2 + EPS)) {
-                S.Insert(E1, query, event->second); // E1 Edge ends
+            if (((!check1 && alpha1 + EPS < alpha2) || (check1 && alpha1 > alpha2 + EPS)) && alpha1 > EPS && alpha2 > EPS) {
+                S.Insert(E1, query, event.second); // E1 Edge ends
             }
-            if ((!check2 && alpha3 > alpha4 + EPS) || (check2 && alpha3 + EPS < alpha4)) {
-                S.Insert(E2, query, event->second); // E2 Edge ends
+            if (((!check2 && alpha3 > alpha4 + EPS) || (check2 && alpha3 + EPS < alpha4)) && alpha3 > EPS && alpha4 > EPS) {
+                S.Insert(E2, query, event.second); // E2 Edge ends
             }
         }
     }

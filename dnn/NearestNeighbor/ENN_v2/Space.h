@@ -32,7 +32,6 @@ public:
 class Edge_S : public Edge {
 public:
     int poly;
-
     Edge_S(const Edge& E):Edge(E) {};
     ~Edge_S() {};
 };

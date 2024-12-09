@@ -1,5 +1,6 @@
 #include "AVLTreeList.h"
 #include <algorithm>
+#include <math.h>
 
 #define EPS 0.001
 
@@ -26,14 +27,16 @@ Edge AVLTreeList::Search()
     return currentNode->data;
 }
 
-bool AVLTreeList::Search(Edge data, Point v1, Point v2)
+bool AVLTreeList::Search(Edge data, Point v1)
 {
     Node* parentNode = &root;	//지울노드가 맨처음 노드 일경우를 대비해서 가상노드 루트가 있다.
     Node* deleteNode = root.left;
     bool isLeft = true;
+    Point x(v1.getx() + 1 / EPS, v1.gety());
+    Edge E(v1, x);
+    bool right = true;
+    if (data.crossing(E, true) == nullptr) return false;
 
-    Point V(v1.getx() + (v2.getx() - v1.getx()) / EPS, v1.gety() + (v2.gety() - v1.gety()) / EPS);
-    Edge E(v1, V);
     double key = v1.distance(data.crossing(E, true)->gets());
 
     while (deleteNode != nullptr)	//지울 노드를 찾는 과정
@@ -44,11 +47,7 @@ bool AVLTreeList::Search(Edge data, Point v1, Point v2)
         stack.Push(parentNode);	//리밸런싱을 위해 저장
         parentNode = deleteNode;
 
-        if (deleteNode->data.crossing(E, true) == nullptr) {
-            deleteNode = nullptr;
-            break;
-        }
-        double del_key = v1.distance(deleteNode->data.crossing(E, true)->gets());
+        double del_key = v1.distance(deleteNode->data.crossing(E, true)->gets());;
 
         if (del_key <= key)
         {
@@ -74,13 +73,15 @@ bool AVLTreeList::Insert(Edge data, Point v1, Point v2)
     Node* parentNode = &root;
     Node* currentNode = root.left;
     bool isLeft = true;
-
-    Point V(v1.getx() + (v2.getx() - v1.getx()) / EPS, v1.gety() + (v2.gety() - v1.gety()) / EPS);
+    double x = v2.getx() - v1.getx();
+    double y = v2.gety() - v1.gety();
+    Point V(v1.getx() + (x * cos(EPS) - y * sin(EPS)) / EPS, v1.gety() + (x * sin(EPS) + y * cos(EPS)) / EPS);
     Edge E(v1, V);
     double key = v1.distance(data.crossing(E, true)->gets());
 
     while (currentNode != nullptr)		//(왼쪽 혹은 오른쪽 자식이 비어있는)부모 노드를 찾는 과정
     {
+
         double cur_key = v1.distance(currentNode->data.crossing(E, true)->gets());
         if (currentNode->data.gets() == data.gets() && currentNode->data.gett() == data.gett())
             return false;
@@ -117,7 +118,9 @@ bool AVLTreeList::Delete(Edge data, Point v1, Point v2)
     Node* deleteNode = root.left;
     bool isLeft = true;
 
-    Point V(v1.getx() + (v2.getx() - v1.getx()) / EPS, v1.gety() + (v2.gety() - v1.gety()) / EPS);
+    double x = v2.getx() - v1.getx();
+    double y = v2.gety() - v1.gety();
+    Point V(v1.getx() + (x * cos(-EPS) - y * sin(-EPS)) / EPS, v1.gety() + (x * sin(-EPS) + y * cos(-EPS)) / EPS);
     Edge E(v1, V);
     double key = v1.distance(data.crossing(E, true)->gets());
 
