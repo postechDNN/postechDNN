@@ -27,19 +27,22 @@ public:
     void del_Box(int);
     void add_vert(Point);
     void del_vert(int);
-    void Dijkstra(Point);
-    void knn(Point, int);
+    void Dijkstra();
+    pair<Point, double> query(Point);
+    //void knn(Point, int);
 
 private:
     vector<Point> vertices; // Input points + Box vertices + Steiner points
     vector<vector<pair<long long int, double>>> adj_list; // Adjacent list
+    vector<double> dists; //distance from the nearest source
+    vector<int> near_src; //index of the nearest source
     vector<bool> visited;
-    vector<double> dists;
     vector<pair<int,int>> Combination();
     vector<Point> gen_SteinerPoint();
     void cal_rmin();
 
     void visibility_graph();
+    
 
     
 };

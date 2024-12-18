@@ -3,6 +3,7 @@
 #include "Box.h"
 #include <limits>
 #include <queue>
+#include <tuple>
 
 template<typename T>
 std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items);
@@ -34,6 +35,7 @@ void  Space::set_Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Bo
     auto steiners = gen_SteinerPoint();
     vertices.insert(vertices.end(), steiners.begin(), steiners.end());
     visibility_graph();
+    Dijkstra();
 }
 
 
@@ -277,6 +279,37 @@ void Space::del_vert(int i) {
     this->set_Space(d, sites, Boxes);
 }
 
+void Space::Dijkstra() {
+    //Modify code using fibonacci heap
+    dists.assign(vertices.size(), std::numeric_limits<double>::max());
+    visited.assign(vertices.size(), false);
+    near_src.assign(vertices.size(), -1);
+    std::priority_queue<std::tuple<double, int, int>, std::vector<std::tuple<double, int, int>>, greater<std::tuple<double, int, int>>> que = {};
+    for (long long j = 0; j < sites.size(); j++) {
+        que.emplace(0, j, j);
+        dists[j] = 0;
+        near_src[j] = j;
+    }
+    while (!que.empty()) {
+        std::tuple<double, int, int> temp = que.top();
+        if (visited[get<2>(temp)] == true) {
+            que.pop();
+            continue;
+        }
+        //near_src[get<1>(temp)] = get<2>(temp);
+        que.pop();
+        visited[std::get<1>(temp)] = true;
+        for (auto& v : this->adj_list[std::get<1>(temp)]) {
+            if (dists[std::get<1>(temp)] + v.second < dists[v.first]) {
+                dists[v.first] = dists[std::get<1>(temp)] + v.second;
+                near_src[v.first] = get<2>(temp);
+                que.emplace(dists[v.first], v.first, near_src[v.first]);
+            }
+        }
+    }
+}
+
+/*
 void Space::Dijkstra(Point query) {
     
     if (vertices.size() < adj_list.size())
@@ -316,12 +349,22 @@ void Space::Dijkstra(Point query) {
             }
         }
     }
-}
+}*/
 
 bool comp(std::pair<double, Point> a, std::pair<double, Point> b) {
     return a.first < b.first;
 }
 
+pair<Point, double> query(Point query) {
+    Point Near;
+    double dist = INFINITY;
+    //TODO
+
+
+    return { Near, dist };
+}
+
+/*
 void Space::knn(Point query, int k) {
     Dijkstra(query);
     std::vector<std::pair<double, Point>> results;
@@ -343,4 +386,4 @@ void Space::knn(Point query, int k) {
         cout << endl;
         cout << "Dist: " << results[i].first << endl;
     }
-}
+}*/
