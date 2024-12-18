@@ -144,12 +144,15 @@ private:
 	double normTrans[3];
 	double normStrat[3];
 	bool drawVertices;
+	bool drawQuery;
 	bool drawEdges;
 	bool drawFaces;
 	bool drawPath;
 	std::vector<OGL_Vertex> vertices;
+	std::vector<OGL_Vertex> query;
 	std::vector<OGL_Edge> edges;
 	std::vector<OGL_Face> faces;
 	std::vector<OGL_Edge> path;
+
 };
 

@@ -234,6 +234,30 @@ void OGL_Contorl::OnPaint()
 			glEnd();
 		}
 
+		if (this->DDS.object2D.getDrawPath()) {
+			::glColor3f(0.0f, 0.0f, 1.0f);
+			glLineWidth(3.0f);
+			for (int i = 0; i < this->DDS.object2D.getPathNum(); i++) {
+				OGL_Point sp = this->DDS.object2D.getPath(i).getStartP();
+				OGL_Point ep = this->DDS.object2D.getPath(i).getEndP();
+				glBegin(GL_LINES);
+				glVertex2d((sp.getX() - normTrans[0]) / normMul[0], (sp.getY() - normTrans[1]) / normMul[1]);
+				glVertex2d((ep.getX() - normTrans[0]) / normMul[0], (ep.getY() - normTrans[1]) / normMul[1]);
+				glEnd();
+			}
+		}
+
+		if (this->DDS.object2D.getDrawPath()) {
+			::glColor3f(1.0f, 0.0f, 0.0f);
+			glPointSize(3.0f);
+			glBegin(GL_POINTS);
+			for (int i = 0; i < this->DDS.object2D.getQueryNum(); i++) {
+				OGL_Point p = this->DDS.object2D.getQuery(i).getPos();
+				glVertex2d((p.getX() - normTrans[0]) / normMul[0], (p.getY() - normTrans[1]) / normMul[1]);
+			}
+			glEnd();
+		}
+
 		::glPopMatrix();
 		::glFinish();
 		if (FALSE == ::SwapBuffers(m_pDC->GetSafeHdc())) {}
@@ -348,7 +372,10 @@ void OGL_Contorl::setDrawObject(int m, OBJECT o, bool b) {
 			this->DDS.object3D.setDrawFaces(b);
 			break;
 		case 3:
+			this->DDS.object2D.setDrawPath(b);
 			this->DDS.object3D.setDrawPath(b);
+		case 4:
+			this->DDS.object2D.setDrawQuery(b);
 		default:
 			break;
 		}

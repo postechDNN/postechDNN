@@ -140,7 +140,7 @@ void ENN_DS::readENN(CString path)
 	Point q(q_x, q_y);
 	OGL_Vertex query;
 	query.setPos(q_x, q_y);
-	v_temp.push_back(query);
+	object2D.addQuery(query);
 
 
 	Space s(points_temp, poly_temp);
@@ -157,7 +157,7 @@ void ENN_DS::readENN(CString path)
 	te.setStartP(a1);
 	te.setEndP(a2);
 	e_temp.push_back(te);
-	object2D.addEdge(te);
+	object2D.addPath(te);
 
 
 
@@ -166,9 +166,9 @@ void ENN_DS::readENN(CString path)
 	for (auto v : v_temp) {
 		object2D.addVertex(v);
 	}
-	for (auto e : e_temp) {
+	/*for (auto e : e_temp) {
 		object2D.addPath(e);
-	}
+	}*/
 	for (auto f : f_temp) {
 		for (int i = 0; i < f.getSize(); i++) {
 			OGL_Edge temp;

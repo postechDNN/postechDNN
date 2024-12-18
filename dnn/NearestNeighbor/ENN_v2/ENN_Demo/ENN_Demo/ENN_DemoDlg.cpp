@@ -159,11 +159,13 @@ BOOL CDNNDemoDlg::OnInitDialog()
 
 	// Initialize rendering object
 	this->m_picture_opengl.setDrawObject(2, VERTEX, m_check_vertex.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, QUERY, m_check_vertex.GetCheck());
 	this->m_picture_opengl.setDrawObject(3, VERTEX, m_check_vertex.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, EDGE, m_check_edge.GetCheck());
 	this->m_picture_opengl.setDrawObject(3, EDGE, m_check_edge.GetCheck());
 	this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
 	this->m_picture_opengl.setDrawObject(3, FACE, m_check_face.GetCheck());
+	this->m_picture_opengl.setDrawObject(2, PATH, m_check_path.GetCheck());
 	this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());
 	//this->EnableWindow(true);
 
@@ -341,7 +343,7 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		this->m_check_vertex.SetWindowTextW(_T("Vertex"));
 		this->m_check_edge.SetWindowTextW(_T("Edge"));
 		this->m_check_face.SetWindowTextW(_T("Face"));
-		this->m_check_path.EnableWindow(false);
+		this->m_check_path.EnableWindow(true);
 		this->m_check_f1.EnableWindow(false);
 		this->m_check_f2.EnableWindow(false);
 		this->m_check_noo1.EnableWindow(false);
@@ -662,7 +664,7 @@ void CDNNDemoDlg::OnBnClickedCheckPath()
 	int menu = this->m_combo_func.GetCurSel();
 	switch (menu) {
 	case 0:
-		//this->m_picture_opengl.setDrawObject(2, FACE, m_check_face.GetCheck());
+		this->m_picture_opengl.setDrawObject(2, PATH, m_check_face.GetCheck());
 		break;
 	case 1:
 		this->m_picture_opengl.setDrawObject(3, PATH, m_check_path.GetCheck());

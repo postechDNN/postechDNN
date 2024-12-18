@@ -187,6 +187,9 @@ void Object::total_clear() {
 int Object::getVerticsNum() {
 	return this->vertices.size();
 }
+int Object::getQueryNum() {
+	return this->query.size();
+}
 int Object::getEdgesNum() {
 	return this->edges.size();
 }
@@ -198,6 +201,9 @@ int Object::getPathNum() {
 }
 OGL_Vertex& Object::getVertex(int idx) {
 	return this->vertices[idx];
+}
+OGL_Vertex& Object::getQuery(int idx) {
+	return this->query[idx];
 }
 OGL_Edge& Object::getEdge(int idx) {
 	return this->edges[idx];
@@ -215,6 +221,15 @@ void Object::addVertex() {
 void Object::addVertex(OGL_Vertex v) {
 	this->vertices.push_back(v);
 }
+
+void Object::addQuery() {
+	OGL_Vertex v;
+	this->query.push_back(v);
+}
+void Object::addQuery(OGL_Vertex q) {
+	this->query.push_back(q);
+}
+
 void Object::addEdge() {
 	OGL_Edge e;
 	this->edges.push_back(e);
@@ -240,6 +255,9 @@ void Object::addPath(OGL_Edge e) {
 void Object::setDrawVertices(bool b) {
 	this->drawVertices = b;
 }
+void Object::setDrawQuery(bool b) {
+	this->drawQuery = b;
+}
 void Object::setDrawEdges(bool b) {
 	this->drawEdges = b;
 }
@@ -251,6 +269,9 @@ void Object::setDrawPath(bool b) {
 }
 bool Object::getDrawVertices() {
 	return this->drawVertices;
+}
+bool Object::getDrawQuery() {
+	return this->drawQuery;
 }
 bool Object::getDrawEdges() {
 	return this->drawEdges;
