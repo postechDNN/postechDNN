@@ -60,7 +60,8 @@ void OGL_Contorl::setMode(int m) {
 }
 
 void OGL_Contorl::readDCEL(CString path) {
-	this->DDS.object2D.readDCEL(path, 2);
+	this->DDS.readENN(path);
+	this->DDS.object2D.updateNorm(2);
 	Invalidate();
 }
 

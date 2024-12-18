@@ -530,12 +530,12 @@ void CDNNDemoDlg::OnBnClickedButtonQuery()
 	switch (menu) {
 	case 1:
 	{
-		AddDialog dlg(EQUERY, 3);
+		AddDialog dlg(EQUERY, 2);
 		if (IDOK == dlg.DoModal()) {
 
 			int knn = _ttoi(dlg.key);
-			double coordinate[3];
-			for (int i = 0; i < 3; i++) coordinate[i] = dlg.coordinate[i];
+			double coordinate[2];
+			for (int i = 0; i < 2; i++) coordinate[i] = dlg.coordinate[i];
 			m_picture_opengl.DDS.set_knn(coordinate, knn);
 			// k값과 좌표로 query를 수행하는 함수 호출
 

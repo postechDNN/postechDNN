@@ -85,136 +85,15 @@ void ENN_DS::set_knn(double coor[2], int knn)
 	knn = knn;
 }
 
-vector<OGL_Vertex> ENN_DS::get_fr(CString path)
-{
-	vector <OGL_Vertex> convert = {};
-	std::ifstream file(path);
-	int n_points, n_polygons;
-	file >> n_points >> n_polygons;
-	vector<Point> points_temp = {};
-	for (int i = 0; i < n_points; i++) {
-		double x, y;
-		file >> x >> y;
-		Point p(x, y);
-		OGL_Vertex tv;
-		tv.setPos(x, y);
-		convert.push_back(tv);
-		points_temp.push_back(p);
-	}
-
-	return convert;
-}
-
-vector<OGL_Edge> ENN_DS::do_knn(CString path)
-{
-	pair<Point, Point> temp = {};
-	vector <OGL_Edge> convert = {};
-	auto start = chrono::high_resolution_clock::now();
-
-	std::ifstream file(path);
-	int n_points, n_polygons;
-	file >> n_points >> n_polygons;
-	vector<Point> points_temp = {};
-	for (int i = 0; i < n_points; i++) {
-		double x, y;
-		file >> x >> y;
-		Point p(x, y);
-		points_temp.push_back(p);
-	}
-	vector<SimplePolygon> poly_temp = {};
-	for (int j = 0; j < n_polygons; j++) {
-		// EPS::Polytope temp;
-		file >> n_points;
-		for (int i = 0; i < n_points; i++) {
-			vector<Point> vertices;
-			for (int k = 0; k < 2; k++) {
-				double x, y;
-				file >> x >> y;
-				Point* p = new Point(x, y);
-				vertices.push_back(*p);
-			}
-			SimplePolygon* f = new SimplePolygon(vertices);
-			poly_temp.push_back(*f);
-		}
-	}
-
-	for (auto poly : poly_temp) {
-		SimplePolygon tf = poly;
-		OGL_Face addf;
-		for (auto p : tf.getVertices()) {
-			OGL_Point addp = { p.getx(), p.gety() };
-			addf.addPoint(addp);
-		}
-	}
-
-	Space s(points_temp, poly_temp);
-	pair<Point, double>answer = s.query(this->query);
-	temp = { answer.first, this->query };
-
-	auto stop = chrono::high_resolution_clock::now();
-	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-	exe_time = duration.count();
-
-	//for (auto e : temp) {
-	OGL_Edge te;
-	OGL_Point a1, a2;
-	a1 = { temp.first.getx(), temp.first.gety() };
-	a2 = { temp.second.getx(), temp.second.gety() };
-	te.setStartP(a1);
-	te.setEndP(a2);
-	convert.push_back(te);
-	//}
-	return convert;
-}
-
-vector<OGL_Face> ENN_DS::get_pol(CString path)
-{
-	vector <OGL_Face> convert = {};
-
-	object2D.total_clear();
-	std::ifstream file(path);
-	int n_points, n_polygons;
-	file >> n_points >> n_polygons;
-	vector<Point> points_temp = {};
-	for (int i = 0; i < n_points; i++) {
-		double x, y;
-		file >> x >> y;
-		Point p(x, y);
-		points_temp.push_back(p);
-	}
-	vector<SimplePolygon> poly_temp = {};
-	for (int j = 0; j < n_polygons; j++) {
-		// EPS::Polytope temp;
-		file >> n_points;
-		for (int i = 0; i < n_points; i++) {
-			vector<Point> vertices;
-			for (int k = 0; k < 2; k++) {
-				double x, y;
-				file >> x >> y;
-				Point* p = new Point(x, y);
-				vertices.push_back(*p);
-			}
-			SimplePolygon* f = new SimplePolygon(vertices);
-			poly_temp.push_back(*f);
-		}
-	}
-
-	for (auto poly : poly_temp) {
-		SimplePolygon tf = poly;
-		OGL_Face addf;
-		for (auto p : tf.getVertices()) {
-			OGL_Point addp = { p.getx(), p.gety() };
-			addf.addPoint(addp);
-		}
-		convert.push_back(addf);
-	}
-
-	return convert;
-}
 
 void ENN_DS::readENN(CString path)
 {
 	object2D.total_clear();
+
+	vector<OGL_Vertex> v_temp = {};
+	vector<OGL_Edge> e_temp = {};
+	vector<OGL_Face> f_temp = {};
+
 	std::ifstream file(path);
 	int n_points, n_polygons;
 	file >> n_points >> n_polygons;
@@ -223,48 +102,66 @@ void ENN_DS::readENN(CString path)
 		double x, y;
 		file >> x >> y;
 		Point p(x, y);
+		OGL_Vertex pts;
+		pts.setPos(x, y);
+		v_temp.push_back(pts);
 		points_temp.push_back(p);
 	}
 
+	int n_vertices;
 	vector<SimplePolygon> poly_temp = {};
 	for (int j = 0; j < n_polygons; j++) {
 		// EPS::Polytope temp;
-		file >> n_points;
-		for (int i = 0; i < n_points; i++) {
-			vector<Point> vertices;
-			for (int k = 0; k < 2; k++) {
-				double x, y;
-				file >> x >> y;
-				Point* p = new Point(x, y);
-				vertices.push_back(*p);
-			}
-			SimplePolygon* f = new SimplePolygon(vertices);
-			poly_temp.push_back(*f);
+		file >> n_vertices;
+		vector<Point> vertices;
+		vertices.clear();
+		for (int k = 0; k < n_vertices; k++) {
+			double x, y;
+			file >> x >> y;
+			Point p(x, y);
+			vertices.push_back(p);
 		}
+		SimplePolygon f(vertices);
+		poly_temp.push_back(f);
 	}
-	//EPS::Eps_Graph_3D grid(fr_temp, pol_temp, eps);
-	//this->Graph = &grid;
-	//for (auto p : store_add_pol) {
-	//	Graph->add_pol(p);
-	//}
-	////store_add_pol.clear();
-	//for (auto p : store_add_fr) {
-	//	Graph->add_freepts(&p);
-	//}
-	////Graph->add_freepts(store_add_fr);
-	////store_add_fr.clear();
-	//for (auto del : del_pol_key) {
-	//	Graph->delete_pol(del);
-	//}
-	////del_pol_key.clear();
-	//for (auto del : del_fr_key) {
-	//	Graph->delete_freept(del);
-	//}
-	////del_fr_key.clear();
 
-	vector<OGL_Vertex> v_temp = get_fr(path);
-	vector<OGL_Edge> e_temp = do_knn(path);
-	vector<OGL_Face> f_temp = get_pol(path);
+	for (auto poly : poly_temp) {
+		SimplePolygon tf = poly;
+		OGL_Face addf;
+		for (auto p : tf.getVertices()) {
+			OGL_Point addp = { p.getx(), p.gety() };
+			addf.addPoint(addp);
+		}
+		f_temp.push_back(addf);
+	}
+
+	double q_x, q_y;
+	file >> q_x >> q_y;
+	Point q(q_x, q_y);
+	OGL_Vertex query;
+	query.setPos(q_x, q_y);
+	v_temp.push_back(query);
+
+
+	Space s(points_temp, poly_temp);
+	pair<Point, double>answer = s.query(q);
+	pair<Point, Point> temp = {};
+	temp = { answer.first, q };
+
+	OGL_Edge te;
+	OGL_Point a1, a2;
+	a1.setX(temp.first.getx());
+	a1.setY(temp.first.gety());
+	a2.setX(temp.second.getx());
+	a2.setY(temp.second.gety());
+	te.setStartP(a1);
+	te.setEndP(a2);
+	e_temp.push_back(te);
+	object2D.addEdge(te);
+
+
+
+
 
 	for (auto v : v_temp) {
 		object2D.addVertex(v);
@@ -273,15 +170,15 @@ void ENN_DS::readENN(CString path)
 		object2D.addPath(e);
 	}
 	for (auto f : f_temp) {
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < f.getSize(); i++) {
 			OGL_Edge temp;
 			temp.isCustom = true;
 			temp.color[0] = 0.5f;
 			temp.color[1] = 0.5f;
 			temp.color[2] = 0.5f;
 			temp.width = 2.0f;
-			temp.setStartP(f.getPoint(i % 3));
-			temp.setEndP(f.getPoint((i + 1) % 3));
+			temp.setStartP(f.getPoint(i% f.getSize()));
+			temp.setEndP(f.getPoint((i + 1)% f.getSize()));
 			object2D.addEdge(temp);
 		}
 		object2D.addFace(f);

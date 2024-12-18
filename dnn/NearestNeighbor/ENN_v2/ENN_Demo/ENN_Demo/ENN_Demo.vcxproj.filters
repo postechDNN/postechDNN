@@ -132,4 +132,9 @@
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\..\..\..\testfile.txt">
+      <Filter>소스 파일</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
