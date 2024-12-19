@@ -19,6 +19,10 @@ int main() {
 	vector<double> temp = { 3.0, 3.0, 3.0 };
 	Point a(temp);
 	Space space(3, points, boxes, 0.1);
+
+	Point q({ 7., 2., 7. });
+	space.query(q);
+
 	//space.knn(a, 1);
 	return 0;
 }
