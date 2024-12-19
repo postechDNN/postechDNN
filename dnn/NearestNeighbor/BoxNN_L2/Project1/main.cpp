@@ -11,7 +11,8 @@ int main() {
 	vector<Box> boxes;
 	boxes.push_back(test);
 	Point e1({ 2.,2.,2. });
-	Point e2({ -1.,-1.,-1. });
+	//Point e2({ -1.,-1.,-1. });
+	Point e2({ 1.5,1.5,1.5 });
 	vector<Point> points;
 	points.push_back(e1);
 	points.push_back(e2);

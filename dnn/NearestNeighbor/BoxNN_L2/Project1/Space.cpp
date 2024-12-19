@@ -252,7 +252,7 @@ void Space::visibility_graph() {
             for (auto box : this->Boxes) {
                 if (box.intersect(vertices[i], vertices[j])) { intersect = true; break; }
             }
-            if (intersect) { continue; }
+            if (intersect || i == j) { continue; }
             temp.push_back(make_pair(j,vertices[i].dist(vertices[j])));
         }
         this->adj_list.push_back(temp);
@@ -292,12 +292,11 @@ void Space::Dijkstra() {
     }
     while (!que.empty()) {
         std::tuple<double, int, int> temp = que.top();
-        if (visited[get<2>(temp)] == true) {
-            que.pop();
+        que.pop();
+        if (visited[get<1>(temp)] == true) {
             continue;
         }
         //near_src[get<1>(temp)] = get<2>(temp);
-        que.pop();
         visited[std::get<1>(temp)] = true;
         for (auto& v : this->adj_list[std::get<1>(temp)]) {
             if (dists[std::get<1>(temp)] + v.second < dists[v.first]) {
@@ -355,7 +354,7 @@ bool comp(std::pair<double, Point> a, std::pair<double, Point> b) {
     return a.first < b.first;
 }
 
-pair<Point, double> query(Point query) {
+pair<Point, double> Space::query(Point query) {
     Point Near;
     double dist = INFINITY;
     //TODO

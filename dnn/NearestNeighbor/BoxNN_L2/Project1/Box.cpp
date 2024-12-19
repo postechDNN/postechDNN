@@ -42,7 +42,33 @@ bool Box::intersect(Point start, Point end) {
     for (int i = 0; i < this->d; i++) {
         if (start.getx(i) == this->min[i] && this->min[i] == end.getx(i)) { continue; }
         lambda = (this->min[i] - end.getx(i)) / (start.getx(i) - end.getx(i));
-        if (0 < lambda && lambda < 1) {
+        if (lambda == 0) {
+            // Vertex case 1
+            bool vertex1 = true;
+            double lambda_plus = lambda + 0.0001;
+            for (int j = 0; j < this->d; j++) {
+                double temp = lambda_plus * start.getx(j) + (1 - lambda_plus) * end.getx(j);
+                if (this->min[j] >= temp || this->max[j] <= temp) {
+                    vertex1 = false;
+                    break;
+                }
+            }
+            if (vertex1) { return true; }
+        }
+        else if (lambda == 1) {
+            // Vertex case 2
+            double lambda_minus = lambda - 0.0001;
+            bool vertex1 = true;
+            for (int j = 0; j < this->d; j++) {
+                double temp = lambda_minus * start.getx(j) + (1 - lambda_minus) * end.getx(j);
+                if (this->min[j] >= temp || this->max[j] <= temp) {
+                    vertex1 = false;
+                    break;
+                }
+            }
+            if (vertex1) { return true; }
+        }
+        else if (0 < lambda && lambda < 1) {
             // Edge case 1
             double lambda_minus = lambda - 0.0001;
             bool edge1 = true;
@@ -85,7 +111,33 @@ bool Box::intersect(Point start, Point end) {
     for (int i = 0; i < this->d; i++) {
         if (start.getx(i) == this->max[i] && this->max[i] == end.getx(i)) { continue; }
         lambda = (this->max[i] - end.getx(i)) / (start.getx(i) - end.getx(i));
-        if (0 < lambda && lambda < 1) {
+        if (lambda == 0) {
+            // Vertex case 1
+            bool vertex1 = true;
+            double lambda_plus = lambda + 0.0001;
+            for (int j = 0; j < this->d; j++) {
+                double temp = lambda_plus * start.getx(j) + (1 - lambda_plus) * end.getx(j);
+                if (this->min[j] >= temp || this->max[j] <= temp) {
+                    vertex1 = false;
+                    break;
+                }
+            }
+            if (vertex1) { return true; }
+        }
+        else if (lambda == 1) {
+            // Vertex case 2
+            double lambda_minus = lambda - 0.0001;
+            bool vertex1 = true;
+            for (int j = 0; j < this->d; j++) {
+                double temp = lambda_minus * start.getx(j) + (1 - lambda_minus) * end.getx(j);
+                if (this->min[j] >= temp || this->max[j] <= temp) {
+                    vertex1 = false;
+                    break;
+                }
+            }
+            if (vertex1) { return true; }
+        }
+        else if (0 < lambda && lambda < 1) {
             // Edge case 1
             double lambda_minus = lambda - 0.0001;
             bool edge1 = true;
