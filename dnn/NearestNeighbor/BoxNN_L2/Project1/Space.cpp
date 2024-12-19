@@ -292,7 +292,7 @@ void Space::Dijkstra() {
     }
     while (!que.empty()) {
         std::tuple<double, int, int> temp = que.top();
-        if (visited[get<2>(temp)] == true) {
+        if (visited[get<1>(temp)] == true) {
             que.pop();
             continue;
         }
@@ -355,11 +355,45 @@ bool comp(std::pair<double, Point> a, std::pair<double, Point> b) {
     return a.first < b.first;
 }
 
-pair<Point, double> query(Point query) {
+pair<Point, double> Space::query(Point query) {
     Point Near;
     double dist = INFINITY;
-    //TODO
 
+    for (int i = 0; i < vertices.size(); i ++){
+        bool check_intersect = false;
+
+        for (int j = 0; j < Boxes.size(); j ++){
+            check_intersect = Boxes[j].intersect(query, vertices[i]);
+            if (check_intersect == true){
+                break;
+            }
+        }
+
+        if (check_intersect == false){
+            double sum = 0.0;
+            double diff = 0.0;
+            double dist_temp = 0.0;
+
+            double dist_prev = dists[i];
+            Point near_temp = vertices[i];
+
+            for (int k = 0; k < d; k ++) {
+                double q_k = query.xs[k];
+                double v_k = vertices[i].xs[k];
+
+                diff = q_k - v_k;
+
+                sum += diff * diff;
+            }
+
+            dist_temp = dist_prev + sqrt(sum);
+
+            if (dist >= dist_temp){
+                dist = dist_temp;
+                Near = vertices[i];
+            }
+        }
+    }
 
     return { Near, dist };
 }
