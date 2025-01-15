@@ -252,7 +252,7 @@ void Eps_Graph_nD::anchor(Free_Point* p) { // cast anchor onto a grid point from
 
 	if (p->host != -1) {
 		int gs = grid.size();
-		assert(0 <= p.host && p.host < gs);
+		assert(0 <= p->host && p->host < gs);
 		for (vector<Free_Point*>::iterator it = grid[p->host]->anchored.begin(); 
 			it != grid[p->host]->anchored.end();) {
 
@@ -543,7 +543,7 @@ void Eps_Graph_nD::add_pol(Polytope* P) { // add a polygon to the set of obstacl
 	for (Grid_Point* gr_pt : grid) {
 		bool in = P->isIn(gr_pt);
 		if (in) {
-			assert(gr_pt.encl == -1);
+			assert(gr_pt->encl == -1);
 			gr_pt->encl = P->ord;
 			query_anchor(gr_pt);
 			vector<Free_Point*>().swap(gr_pt->anchored);
@@ -588,56 +588,56 @@ void Eps_Graph_nD::add_pol(Polytope* P) { // add a polygon to the set of obstacl
 // delete a polygon from O, specified by its index
 void Eps_Graph_nD::delete_pol(int ord) { 
 
-	bool check = true;
-	Polytope* P;
+	//bool check = true;
+	//Polytope* P;
 
 
-	//for (auto& nonconvexPol: pols) {
-	//	for (Polytope& p : nonconvexPol) {
+	////for (auto& nonconvexPol: pols) {
+	////	for (Polytope& p : nonconvexPol) {
 
-	for (auto& p : pols) {
-			if (p->ord == ord) {
-				P = p;
-				check = false;
-			}
-	}
+	//for (auto& p : pols) {
+	//		if (p->ord == ord) {
+	//			P = p;
+	//			check = false;
+	//		}
+	//}
 
-	if (check) { return; }
+	//if (check) { return; }
 
-	// release them free; for gridpoints that was enclosed by the polygon
-	for (Grid_Point* gr_pt : grid) {
-		if (gr_pt->encl == ord) {
-			gr_pt->encl = -1;
-		}
-	}
+	//// release them free; for gridpoints that was enclosed by the polygon
+	//for (Grid_Point* gr_pt : grid) {
+	//	if (gr_pt->encl == ord) {
+	//		gr_pt->encl = -1;
+	//	}
+	//}
 
-	vector<vector<long long int>> diagonal = eff_region(P);
-	long long int tot_d = 1;
-	for (int i = 0;i < n;i++) {
-		tot_d *= (diagonal[1][i] - diagonal[0][i]);
-	}
-	pols.erase(remove(pols.begin(), pols.end(), P));
+	//vector<vector<long long int>> diagonal = eff_region(P);
+	//long long int tot_d = 1;
+	//for (int i = 0;i < n;i++) {
+	//	tot_d *= (diagonal[1][i] - diagonal[0][i]);
+	//}
+	//pols.erase(remove(pols.begin(), pols.end(), P));
 
-	for (long long i = 0;i < tot_d;i++) {
-		vector<long long int> eff(n, 0);
-		for (int j = 0;j < n;j++) {
-			eff[j] = j % (diagonal[1][i] - diagonal[0][i]);
-			j = j / (diagonal[1][i] - diagonal[0][i]);
-		}
-		Grid_Point* cur = grid[ind2num(eff)];
-		for (int j = 0;j < n;j++) {
-			if (eff[j] != xs_num[j] - 1) {
-				if (!cmpNadd_SinPol(eff, j, P->ord)) {
-					vector<long long int> _eff(n, 0);
-					for (int k = 0;k < n;k++) {
-						if (j != k) _eff[k] = eff[k];
-						else _eff[k] = eff[k] + 1;
-					}
-					add_edge(eff, _eff);
-				}
-			}
-		}
-	}
+	//for (long long i = 0;i < tot_d;i++) {
+	//	vector<long long int> eff(n, 0);
+	//	for (int j = 0;j < n;j++) {
+	//		eff[j] = j % (diagonal[1][i] - diagonal[0][i]);
+	//		j = j / (diagonal[1][i] - diagonal[0][i]);
+	//	}
+	//	Grid_Point* cur = grid[ind2num(eff)];
+	//	for (int j = 0;j < n;j++) {
+	//		if (eff[j] != xs_num[j] - 1) {
+	//			if (!cmpNadd_SinPol(eff, j, P->ord)) {
+	//				vector<long long int> _eff(n, 0);
+	//				for (int k = 0;k < n;k++) {
+	//					if (j != k) _eff[k] = eff[k];
+	//					else _eff[k] = eff[k] + 1;
+	//				}
+	//				add_edge(eff, _eff);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 
@@ -691,7 +691,7 @@ pair<vector<Free_Point*>, vector<double>> Eps_Graph_nD::kNN(Free_Point* p, int k
 	for (Polytope* pol : pols) {
 	//for (auto& nonconvexPol : pols) {
 	//	for (auto& pol : nonconvexPol) {
-			assert(!pol->isIn(&p));
+			assert(!pol->isIn(p));
 	}
 
 	vector<Free_Point*> ret = {};
@@ -870,7 +870,7 @@ vector<edge*> Eps_Graph_nD::path_kNN(Free_Point* p, int k) { // returns k approx
 	//}
 
 	for (Polytope* pol : pols) {
-		assert(!pol->isIn(&p));
+		assert(!pol->isIn(p));
 	}
 
 	vector<edge*> path = {};

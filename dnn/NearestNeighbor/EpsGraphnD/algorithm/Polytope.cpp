@@ -509,34 +509,35 @@ bool simplex::isIn(Point* p) {
 	return true;
 }*/
 
-bool simplex::isIn(Point* p) {
-	MatrixXd T(d + 1, d + 1);
-	MatrixXd T_temp(d + 1, d + 1);
-	MatrixXd X(d, 1);
-	vector<double> tmp = p->getxs();
-	for (int j = 0; j < d; j++) {
-		X(j, 0) = tmp[j];
-	}
-	for (int i = 0; i < d + 1; i++) {
-		T(d, i) = 1;
-		T_temp(d, i) = 1;
-	}
-	T_temp.block(0, 0, d, d + 1) = A.block(0, 0, d, d + 1);
-	double T_det = T_temp.determinant();
-	for (int j = 0; j < d + 1; j++) {
-		if (j > 0) {
-			T.block(0, 0, d, j) = A.block(0, 0, d, j);
-		}
-		if (j < d) {
-			T.block(0, j + 1, d, d - j) = A.block(0, j + 1, d, d - j);
-		}
-		T.block(0, j, d, 1) = X;
-		if (T.determinant() * T_det < 0) {
-			return false;
-		}
-	}
-	return true;
-}
+//bool simplex::isIn(Point* p) {
+//	MatrixXd T(d + 1, d + 1);
+//	MatrixXd T_temp(d + 1, d + 1);
+//	MatrixXd X(d, 1);
+//	vector<double> tmp = p->getxs();
+//	for (int j = 0; j < d; j++) {
+//		X(j, 0) = tmp[j];
+//	}
+//	for (int i = 0; i < d + 1; i++) {
+//		T(d, i) = 1;
+//		T_temp(d, i) = 1;
+//	}
+//	T_temp.block(0, 0, d, d + 1) = A.block(0, 0, d, d + 1);
+//	double T_det = T_temp.determinant();
+//	for (int j = 0; j < d + 1; j++) {
+//		if (j > 0) {
+//			T.block(0, 0, d, j) = A.block(0, 0, d, j);
+//		}
+//		if (j < d) {
+//			T.block(0, j + 1, d, d - j) = A.block(0, j + 1, d, d - j);
+//		}
+//		T.block(0, j, d, 1) = X;
+//		if (T.determinant() * T_det < 0) {
+//			return false;
+//		}
+//	}
+//	return true;
+//}
+
 
 // Polytope Function
 Polytope::Polytope() {};
