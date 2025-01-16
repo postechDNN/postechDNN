@@ -5,6 +5,12 @@
 #include <random>
 #include <chrono>
 
+
+
+class quadTree {
+
+};
+
 using namespace std;
 // Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<vector<Polytope>> _NonconvexPols, double _eps) {
 Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point*> _fr_pts, vector<Polytope*> _NonconvexPols, 
@@ -22,27 +28,7 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point*> _fr_pts, vector<Polytope*> 
 	//for (auto NonconvexPol : _NonconvexPols) {
 	//	for (auto convexPol : NonconvexPol) {
 
-		for (Polytope* convexPol: pols) {
-			//pol.set_vertices_size();
-				convexPol->set_maxmin();
-				convexPol->ord = this->ord_pol;
-				this->ord_pol++;
-
-				for (int i = 0; i < n; i++) {
-					if (convexPol->xs_max[i] > this->xs_max[i]) 
-						{ this->xs_max[i] = convexPol->xs_max[i]; }
-					if (convexPol->xs_min[i] < this->xs_min[i]) 
-						{ this->xs_min[i] = convexPol->xs_min[i]; }
-				}
-
-		}
-		for (Free_Point* fr_pt : fr_pts) {
-			for (int i = 0; i < n; i++) {
-				if (fr_pt->xs[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt->xs[i]; }
-				if (fr_pt->xs[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt->xs[i]; }
-			}
-		}
-
+	computeMinMax();
 
 	// print 부분
 	ofstream fout;
@@ -85,6 +71,34 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point*> _fr_pts, vector<Polytope*> 
 	// print 부분
 
 	// cout << this->
+}
+
+void Eps_Graph_nD::computeMinMax() {
+
+	for (Polytope* convexPol : pols) {
+		//pol.set_vertices_size();
+		convexPol->set_maxmin();
+		convexPol->ord = this->ord_pol;
+		this->ord_pol++;
+
+		for (int i = 0; i < n; i++) {
+			if (convexPol->xs_max[i] > this->xs_max[i])
+			{
+				this->xs_max[i] = convexPol->xs_max[i];
+			}
+			if (convexPol->xs_min[i] < this->xs_min[i])
+			{
+				this->xs_min[i] = convexPol->xs_min[i];
+			}
+		}
+
+	}
+	for (Free_Point* fr_pt : fr_pts) {
+		for (int i = 0; i < n; i++) {
+			if (fr_pt->xs[i] > this->xs_max[i]) { this->xs_max[i] = fr_pt->xs[i]; }
+			if (fr_pt->xs[i] < this->xs_min[i]) { this->xs_min[i] = fr_pt->xs[i]; }
+		}
+	}
 }
 
 //cout << "---------------------" << endl;
