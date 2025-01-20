@@ -1,147 +1,132 @@
 #pragma once
-
 #include <algorithm>
 #include <vector>
+#include <utility>
+// #include <pair>
+// #include <tuple>
 #include "Point.h"
+
+// multilevel
 
 using namespace std;
 
 class sortByKthAxis {
 
-// variables
+	// variables
 public:
 	int axis;
 
-// methods
+	// methods
 public:
-	
+
 	sortByKthAxis(int k) : axis(k) {}
-	
+
 	bool operator()(Point* p1, Point* p2) {
 		return p1->xs[axis] < p2->xs[axis];
 	}
 
 };
 
-// corr
-typedef class KDtreeNode {
+double minCellSize(vector<pair<double, double>>& _boundingBox);
 
-// variables
+double myLog2(double num);
+
+// ex) 14 -> {1, 1, 1, 0}
+// need to test
+vector<int> dec2bin(int powerNum, int num);
+
+// need to test
+int bin2dec(vector<int> bin);
+
+// checks if two vectors are equal to each other
+// isEqual()
+
+typedef class kDQuadTreeNode {
+
+	// variables
 public:
-	Point* p;
-	// vector<Point*> points;
-	KDtreeNode* leftChild;
-	KDtreeNode* rightChild;
+	vector<pair<double, double>> boundingBox; // rectangular region
+	vector<kDQuadTreeNode*> childNodes;
+	// vector<Node*> incidentCells;
 
-// methods
+	// methods
 public:
-	KDtreeNode(){}
-	KDtreeNode(Point* _p, KDtreeNode* _leftChild, KDtreeNode* _rightChild) : p(_p), leftChild(_leftChild), rightChild(_rightChild) {}
-	// KDtreeNode(vector<Point*> points) {}
+	kDQuadTreeNode() { } // childNodes = {}; }
+	kDQuadTreeNode(vector<kDQuadTreeNode*> _childNodes) : childNodes(_childNodes) {}
 
-}KDN;
+}Node;
 
-class KDtree {
+typedef class kDQuadTreeLeafNode  : public kDQuadTreeNode {
 
-// variables
+	// variables
 public:
+	vector<Point*> points;
 
-// methods
-public:	
-	KDtree(){}
-	KDtree(vector<Point*> points, int dim, vector<double>& minVals, vector<double>& maxVals, double eps) {
-		// 0차원부터 (d-1)차원까지
-		int startDim = 0;
-		buildKDtree(points, dim, startDim, minVals, maxVals, eps);
-	}
+	// methods
+public:
+	// kDQuadTreeLeafNode() {}
+	kDQuadTreeLeafNode(vector<Point*> _points) : points(_points) {}
 
-	// void
+}LeafNode;
 
-	// partition the region into cubes, by recursive partitioning until the sidelength is not less then eps
-	// (1) rectangular box or (2) cube? for now, we use cubes.
-	// whichDim is between 0 and (dim-1). 
-	KDtreeNode* buildKDtree(vector<Point*> points, int dim, int whichDim, vector<double>& minVals, vector<double>& maxVals, double eps) {
-		
-		int sz = points.size();
+// checks if a point is contained in a bounding box (cell) 
+// binary.size() == boundingBox.size()
+bool isContained(Point* p, vector<pair<double, double>> boundingBox, vector<int> binary);
 
-		if (sz == 0) { return new KDtreeNode(nullptr, nullptr, nullptr); }
+class kDQuadTree {
 
-		else if (sz == 1) { return new KDtreeNode(points[0], nullptr, nullptr); }
+	// variables
+	public:
+		int dim; // dimension
+		// boundingBox
 
-		// 아래와 같이 정의하면 plotting 시, epsilon에 대해 continuous가 아닐텐데?
-		// else if ("side length of the cell is less then (eps) = (bounding box size) / 2 ^ (depth)") {}
-
-		else {  
-			sort(points.begin(), points.end(), sortByKthAxis(whichDim));
-			int midID = points.size() / 2;
-
-			vector<Point*> leftPoints = vectorSlice(points, 0, midID-1);
-			vector<Point*> rightPoints = vectorSlice(points, midID + 1, sz-1);
-
-			// axis cycles through all valid values
-			whichDim = (whichDim + 1) % dim;
-
-			return new KDtreeNode(points[midID], buildKDtree(leftPoints, dim, whichDim, minVals, maxVals, eps), buildKDtree(rightPoints, dim, whichDim, minVals, maxVals, eps));
+	// methods
+	public:
+		kDQuadTree(){}
+		kDQuadTree(vector<Point*> _points, int _dim, vector<pair<double, double >> _boundingBox, double _eps) {
+			build(_points, _dim, _boundingBox, _eps);
 		}
-	}
+			
+		// vector<Point*> points = 
+
+		Node* build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps) { // vector<Polytope*>
+			
+			// 구역 내에 point가 없으면 빈 노드를 반환
+			if (_points.empty()) {return new kDQuadTreeLeafNode({}); }
+
+			vector<Node*> childNodes;
+
+			// child nodes들 먼저 만듬
+			int powerNum = 1;
+			for (int j = 0; j < _dim; j++) { powerNum *= 2; }
+
+			for (int j = 0; j < powerNum; j++) {
+				Node* newNode = new Node;
+
+				vector<int> nowBinary = dec2bin(powerNum, j);
+
+				vector<Point*> nowCellPoints;
+				for (auto p : _points) if (isContained(p, _boundingBox, nowBinary)) nowCellPoints.push_back(p);
+
+				vector<pair<double, double>> newBoundingBox;
+
+				for (int axis = 0; axis < _dim; axis++) {
+
+					double axisMin = _boundingBox[axis].first;
+					double axisMax = _boundingBox[axis].second;
+					double axisMid = (axisMin + axisMax) / 2;
+
+					// 0 for the lower part, 1 for the upper part
+					if (nowBinary[axis] == 0) newBoundingBox.push_back(make_pair(axisMin, axisMid));
+					else newBoundingBox.push_back(make_pair(axisMid, axisMax));
+
+				}
+
+				 // 순서대로 잘 넣어야 함
+				childNodes.push_back(build(nowCellPoints, _dim, newBoundingBox, _eps));
+			}
+
+			return new Node(childNodes);
+		}
 
 };
-
-double distanceBetweenCenters(KDtreeNode* c1, KDtreeNode* c2);
-
-template <typename T>
-vector<T*> vectorSlice(vector<T*> inp, int a, int b);
-
-/*
-참고: https://en.wikipedia.org/wiki/K-d_tree
- 
-* function kdtree(list of points pointList, int depth)
-{
-	// Select axis based on depth so that axis cycles through all valid values
-	var int axis : = depth mod k;
-
-	// Sort point list and choose median as pivot element
-	select median by axis from pointList;
-
-	// Create node and construct subtree
-	node.location : = median;
-	node.leftChild : = kdtree(points in pointList before median, depth + 1);
-	node.rightChild : = kdtree(points in pointList after median, depth + 1);
-	return node;
-}
-
-https://www.geeksforgeeks.org/find-median-of-vector-elements-in-cpp/
-
-// C++ Program to calculate the median of a vector of
-// integers
-#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-// Function for calculating median
-double Median(vector<int> v, int n)
-{
-	// Sort the vector
-	sort(v.begin(), v.end());
-
-	// Check if the number of elements is odd
-	if (n % 2 != 0)
-		return (double)v[n / 2];
-
-	// If the number of elements is even, return the average
-	// of the two middle elements
-	return (double)(v[(n - 1) / 2] + v[n / 2]) / 2.0;
-}
-
-int main()
-{
-	// initializing vector
-	vector<int> v = { 5, 7, 4, 2, 6, 2, 8, 3 };
-	// finding size of vector
-	int N = v.size();
-	// print the median
-	cout << "Median = " << Median(v, N) << endl;
-	return 0;
-}
-*/

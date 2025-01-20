@@ -160,6 +160,8 @@
     <ClInclude Include="optimization.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Polytope.h" />
+    <ClInclude Include="KDtree.h" />
+    <ClInclude Include="quadtree.h" />
     <ClInclude Include="solvers.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -176,6 +178,8 @@
     <ClCompile Include="optimization.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />
+    <ClCompile Include="KDtree.cpp" />
+    <ClCompile Include="quadtree.cpp" />
     <ClCompile Include="solvers.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
