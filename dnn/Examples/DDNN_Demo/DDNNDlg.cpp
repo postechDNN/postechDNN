@@ -388,10 +388,17 @@ void CDNNDemoDlg::OnCbnSelchangeComboFunc()
 		GetDlgItem(IDC_OPENGL)->GetWindowRect(&rect);
 		ScreenToClient(&rect);
 		{
+			/*
 			int width = (rect.right - rect.left) / 2;
 			int height = (rect.bottom - rect.top) / 2;
 			int tx = (rect.right + rect.left) / 2;
 			int ty = (rect.bottom + rect.top) / 2;
+			m_picture_opengl.setCamera(tx, ty, width, height);
+			*/
+			int width = (rect.right - rect.left) / 2;
+			int height = (rect.bottom - rect.top) / 2;
+			int tx = 0;
+			int ty = 0;
 			m_picture_opengl.setCamera(tx, ty, width, height);
 		}
 
@@ -498,9 +505,24 @@ void CDNNDemoDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		case 0:
 			if (rect.left < point.x && point.x < rect.right &&
 				rect.top < point.y && point.y < rect.bottom) {
+				/*
 				int x = point.x;
 				int ygap = point.y - rect.top;
 				int y = rect.bottom - ygap;
+				*/
+				
+				double width = (rect.right - rect.left) / 2;
+				double tx = (rect.right + rect.left) / 2;
+				//double x = (double(point.x) - tx) / width;
+				double x = (double(point.x) - tx);
+
+				double height = (rect.bottom - rect.top) / 2;
+				double ty = (rect.bottom + rect.top) / 2;
+				int ygap = point.y - rect.top;
+				double y = rect.bottom - ygap;
+				//y = (y - ty) / height;
+				y = (y - ty);
+				
 				if (this->m_picture_opengl.addConvexDistPoint(x, y)) {
 					CString temp;
 					temp.Format(_T("%d"), x);
