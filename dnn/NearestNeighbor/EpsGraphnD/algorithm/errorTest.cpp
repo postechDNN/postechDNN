@@ -133,6 +133,21 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		std::cout << "finished reading inputs" << std::endl;
 
+		// ************** quadtree debug start
+
+		double val = 128.0;
+			// bounding box
+		vector<pair<double, double >> boundingBox;
+		for (int i = 0; i < dimension; i++) boundingBox.push_back(make_pair(-val, val));
+
+		std::vector<Point*> pts2 = makePointSet(pointsSpecificDir);
+		auto qT = new kDQuadTree(pts2, dimension, boundingBox, epsilon);
+		// buildEpsilonGraph(pts2);
+
+		exit(1);
+
+		// ************** quadtree debug end
+
 		// 준비된 free points와 polytopes 이용해 epsilon graph 생성
 
 		// Eps_Graph_nD epsGraph(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");

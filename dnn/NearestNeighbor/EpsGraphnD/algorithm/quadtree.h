@@ -5,6 +5,7 @@
 // #include <pair>
 // #include <tuple>
 #include "Point.h"
+#include <iostream>
 
 // multilevel
 
@@ -79,20 +80,26 @@ class kDQuadTree {
 	public:
 		int dim; // dimension
 		// boundingBox
+		Node* root;
 
 	// methods
 	public:
 		kDQuadTree(){}
-		kDQuadTree(vector<Point*> _points, int _dim, vector<pair<double, double >> _boundingBox, double _eps) {
-			build(_points, _dim, _boundingBox, _eps);
+		kDQuadTree(vector<Point*> _points, int _dim, vector<pair<double, double >> _boundingBox, double _eps) : dim(_dim) {
+			this->root = build(_points, _dim, _boundingBox, _eps, 0);
 		}
 			
 		// vector<Point*> points = 
 
-		Node* build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps) { // vector<Polytope*>
+		Node* build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth) { // vector<Polytope*>
 			
+			cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
+
+			int maxDepth = 2;
+
 			// 구역 내에 point가 없으면 빈 노드를 반환
-			if (_points.empty()) {return new kDQuadTreeLeafNode({}); }
+			if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
+			else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return nullptr; }
 
 			vector<Node*> childNodes;
 
@@ -101,7 +108,7 @@ class kDQuadTree {
 			for (int j = 0; j < _dim; j++) { powerNum *= 2; }
 
 			for (int j = 0; j < powerNum; j++) {
-				Node* newNode = new Node;
+				Node* newNode = new Node();
 
 				vector<int> nowBinary = dec2bin(powerNum, j);
 
@@ -123,10 +130,12 @@ class kDQuadTree {
 				}
 
 				 // 순서대로 잘 넣어야 함
-				childNodes.push_back(build(nowCellPoints, _dim, newBoundingBox, _eps));
+				childNodes.push_back(build(nowCellPoints, _dim, newBoundingBox, _eps, _depth+1));
 			}
 
 			return new Node(childNodes);
 		}
 
 };
+
+void buildEpsilonGraph();
