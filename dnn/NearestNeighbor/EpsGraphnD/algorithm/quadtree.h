@@ -181,4 +181,5 @@ class kDQuadTree {
 
 void buildEpsilonGraph();
 Node* PointLocation(Node* node, Point* point);
+Node* PointAdd(Node* node, Point* point, int maxDepth);
 Node* PointDel(Node* node, Point* point);
