@@ -6,6 +6,7 @@
 // #include <tuple>
 #include "Point.h"
 #include <iostream>
+#include <float.h>
 
 // multilevel
 
@@ -42,6 +43,10 @@ int bin2dec(vector<int> bin);
 // checks if two vectors are equal to each other
 // isEqual()
 
+// checks if a point is contained in a bounding box (cell) 
+// binary.size() == boundingBox.size()
+bool isContained(Point* p, vector<pair<double, double>> boundingBox, vector<int> binary);
+
 typedef class kDQuadTreeNode {
 
 	// variables
@@ -49,30 +54,37 @@ public:
 	vector<pair<double, double>> boundingBox; // rectangular region
 	vector<kDQuadTreeNode*> childNodes;
 	// vector<Node*> incidentCells;
+	vector<Point*> points; // ë¦¬í”„ ë…¸ë“œì¼ ê²½ìš°ë§Œ ìœ íš¨
+    bool isLeaf; // ë¦¬í”„ ë…¸ë“œ ì—¬ë¶€
+	kDQuadTreeNode* parent; // parent node
 
 	// methods
 public:
-	kDQuadTreeNode() { } // childNodes = {}; }
-	kDQuadTreeNode(vector<kDQuadTreeNode*> _childNodes) : childNodes(_childNodes) {}
+	// kDQuadTreeNode() { } // childNodes = {}; }
+	// kDQuadTreeNode(vector<kDQuadTreeNode*> _childNodes) : childNodes(_childNodes) {}
+	kDQuadTreeNode() : isLeaf(false), parent(nullptr) {}
+	kDQuadTreeNode(vector<kDQuadTreeNode*> _childNodes, kDQuadTreeNode* _parent = nullptr) 
+	: childNodes(_childNodes), isLeaf(false), parent(_parent) {}
+	kDQuadTreeNode(vector<Point*> _points, kDQuadTreeNode* _parent = nullptr) 
+	: points(_points), isLeaf(true), parent(_parent) {}
+
 
 }Node;
 
-typedef class kDQuadTreeLeafNode  : public kDQuadTreeNode {
+// typedef class kDQuadTreeLeafNode  : public kDQuadTreeNode {
 
-	// variables
-public:
-	vector<Point*> points;
+// 	// variables
+// public:
+// 	vector<Point*> points;
 
-	// methods
-public:
-	// kDQuadTreeLeafNode() {}
-	kDQuadTreeLeafNode(vector<Point*> _points) : points(_points) {}
+// 	// methods
+// public:
+// 	// kDQuadTreeLeafNode() {}
+// 	kDQuadTreeLeafNode(vector<Point*> _points) : points(_points) {}
 
-}LeafNode;
+// }LeafNode;
 
-// checks if a point is contained in a bounding box (cell) 
-// binary.size() == boundingBox.size()
-bool isContained(Point* p, vector<pair<double, double>> boundingBox, vector<int> binary);
+
 
 class kDQuadTree {
 
@@ -80,6 +92,7 @@ class kDQuadTree {
 	public:
 		int dim; // dimension
 		// boundingBox
+		// int maxDepth;
 		Node* root;
 
 	// methods
@@ -91,19 +104,44 @@ class kDQuadTree {
 			
 		// vector<Point*> points = 
 
-		Node* build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth) { // vector<Polytope*>
+		Node* build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, kDQuadTreeNode* parent = nullptr) { // vector<Polytope*>
 			
 			cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
 
 			int maxDepth = 2;
 
-			// ±¸¿ª ³»¿¡ point°¡ ¾øÀ¸¸é ºó ³ëµå¸¦ ¹İÈ¯
-			if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
-			else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return nullptr; }
+			// if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
+			// // else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return nullptr; }
+			// else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return new kDQuadTreeLeafNode(_points); }
+			// else if (_points.size() == 1) { cout << "Single point. return" << endl; return new kDQuadTreeLeafNode(_points); }
+
+			// í¬ì¸íŠ¸ê°€ ë¹„ì–´ ìˆìœ¼ë©´ ë¦¬í”„ ë…¸ë“œ ë°˜í™˜
+			if (_points.empty()) {
+				cout << "point set empty. return" << endl;
+				kDQuadTreeNode* leafNode = new kDQuadTreeNode(vector<Point*>{}, parent);
+				leafNode->isLeaf = true;
+				return leafNode;
+			}
+
+			// ìµœëŒ€ ê¹Šì´ ë„ë‹¬
+			else if (_depth == maxDepth) {
+				cout << "Reached max depth. return" << endl;
+				kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
+				leafNode->isLeaf = true;
+				return leafNode;
+			}
+
+			// í¬ì¸íŠ¸ê°€ í•˜ë‚˜ë§Œ ìˆìœ¼ë©´ ë¦¬í”„ ë…¸ë“œ ë°˜í™˜
+			if (_points.size() == 1) {
+				cout << "Single point. return" << endl;
+				kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
+				leafNode->isLeaf = true;
+				return leafNode;
+			}
 
 			vector<Node*> childNodes;
 
-			// child nodesµé ¸ÕÀú ¸¸µë
+			// child nodes ìƒì„±
 			int powerNum = 1;
 			for (int j = 0; j < _dim; j++) { powerNum *= 2; }
 
@@ -129,13 +167,18 @@ class kDQuadTree {
 
 				}
 
-				 // ¼ø¼­´ë·Î Àß ³Ö¾î¾ß ÇÔ
+				 // ì¬ê·€ì ìœ¼ë¡œ child node ìƒì„±
 				childNodes.push_back(build(nowCellPoints, _dim, newBoundingBox, _eps, _depth+1));
 			}
 
-			return new Node(childNodes);
+			kDQuadTreeNode* internalNode = new kDQuadTreeNode(childNodes, parent);
+    		internalNode->isLeaf = false;
+    		return internalNode;
+			// return new Node(childNodes);
 		}
 
 };
 
 void buildEpsilonGraph();
+Node* PointLocation(Node* node, Point* point);
+Node* PointDel(Node* node, Point* point);
