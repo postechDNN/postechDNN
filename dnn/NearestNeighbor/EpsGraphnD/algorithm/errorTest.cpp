@@ -2,6 +2,7 @@
 // #include <Eigen/Dense>
 #include "../Polytope.h"
 #include "fstream"
+#include "quadtree.h"
 // #include "filesystem"
 
 using namespace std;
@@ -140,7 +141,13 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		vector<pair<double, double >> boundingBox;
 		for (int i = 0; i < dimension; i++) boundingBox.push_back(make_pair(-val, val));
 
-		std::vector<Point*> pts2 = makePointSet(pointsSpecificDir);
+		// std::vector<Point*> pts2 = makePointSet(pointsSpecificDir);
+		// 현재는 10000개 포인트 중에서 맨 앞 100개만 확인
+		// auto slicedPoints = vector<Point*>(pts2.begin(), pts2.begin() + 100); 
+
+		vector<Point*> pts2;
+		for (int j = 0; j < 100; j++) pts2.push_back(generateRandomPoint(4, make_pair(-val, val)));
+		
 		auto qT = new kDQuadTree(pts2, dimension, boundingBox, epsilon);
 		// buildEpsilonGraph(pts2);
 

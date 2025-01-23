@@ -44,7 +44,8 @@ typedef class kDQuadTreeNode {
 
 	// variables
 public:
-	int numPointsSubtree; // number of points in the subtree rooted at this node
+	int numNodesSubtree; // number of nodes (not points) in the subtree rooted at this node
+
 	vector<pair<double, double>> boundingBox; // rectangular region
 	vector<kDQuadTreeNode*> childNodes;
 	// vector<Node*> incidentCells;
@@ -57,11 +58,11 @@ public:
 
 	// methods
 public:
-	kDQuadTreeNode() : isLeaf(false), parent(nullptr), numPointsSubtree(0) {} // 기본 생성자 - 사용 여부?
+	kDQuadTreeNode() : isLeaf(false), parent(nullptr), numNodesSubtree(0) {} // 기본 생성자 - 사용 여부?
 	kDQuadTreeNode(vector<kDQuadTreeNode*> _childNodes, kDQuadTreeNode* _parent = nullptr) // for internal node
-	: childNodes(_childNodes), isLeaf(false), parent(_parent), numPointsSubtree(1 + _childNodes.size()) {}
+	: childNodes(_childNodes), isLeaf(false), parent(_parent), numNodesSubtree(1 + _childNodes.size()) {}
 	kDQuadTreeNode(vector<Point*> _points, kDQuadTreeNode* _parent = nullptr) // for leaf node
-	: points(_points), isLeaf(true), parent(_parent) {}
+	: points(_points), isLeaf(true), parent(_parent), numNodesSubtree(1) {}
 
 
 }Node;
@@ -96,4 +97,8 @@ Node* deletePoint(Node* node, Point* point);
 // void spreadPoints(Node* node, int dim, int numPoints = numSpreadPoints);
 void spreadPoints(Node* node, int dim, int numPoints = 10);
 
-void constructGraph();
+void constructLocalGraph(Node* root, int dim);
+
+Point* generateRandomPoint(int dim, vector<pair<double, double>> boundingBox);
+
+Point* generateRandomPoint(int dim, pair<double, double> boundingBox);

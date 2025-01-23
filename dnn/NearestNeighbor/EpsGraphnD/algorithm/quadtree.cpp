@@ -77,7 +77,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 
 	cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
 
-	int maxDepth = 2;
+	int maxDepth = 3;
 
 	// debug
 	// if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
@@ -87,7 +87,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 
 	// 포인트가 비어 있으면 리프 노드 반환
 	if (_points.empty()) {
-		cout << "point set empty. return" << endl;
+		// cout << "point set empty. return" << endl;
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(vector<Point*>{}, parent);
 		leafNode->isLeaf = true;
 		return leafNode;
@@ -95,7 +95,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 
 	// 최대 깊이 도달
 	else if (_depth == maxDepth) {
-		cout << "Reached max depth. return" << endl;
+		// cout << "Reached max depth. return" << endl;
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
 		leafNode->isLeaf = true;
 		return leafNode;
@@ -103,7 +103,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 
 	// 포인트가 하나만 있으면 리프 노드 반환
 	if (_points.size() == 1) {
-		cout << "Single point. return" << endl;
+		// cout << "Single point. return" << endl;
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
 		leafNode->isLeaf = true;
 		return leafNode;
@@ -381,6 +381,13 @@ Point* generateRandomPoint(int dim, vector<pair<double, double>> boundingBox) {
 	return new Point(xs);
 }
 
+Point* generateRandomPoint(int dim, pair<double, double> boundingBox) {
+	vector<pair<double, double>> fullBoundingBox;
+
+	for (int i = 0; i < dim; i++) fullBoundingBox.push_back(boundingBox);
+
+	return generateRandomPoint(dim, fullBoundingBox);
+}
 
 // 현재는 cell 내부에 균일하게 뿌리기. vs 경계(cell edge)에다 뿌리기?
 void spreadPoints(Node* node, int dim, int numPoints) {
@@ -474,39 +481,37 @@ vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
 		pq.pop();
 		
 		ret.push_back(nowPair);
-
-		auto& nowPoint = nowPair.second;
-		for (auto n : nowPoint->neighbors) {
-			// key가 있으면
-			if (visited.contains(n)) {
-				dist[n] = dist[nowPoint] + distance(n, nowPoint);
-				
-			}
-			else {
-				
-			}
-
-			// find(visited[n] = false
-		}
-		
-		/*
-		dist[]
-
-		nowPair
-
-		
-
-		if ()
-
-		
-
 		numFind += 1;
 
 		if (numFind == k) return ret;
-		*/
+
+		auto& nowPoint = nowPair.second;
+		for (auto n : nowPoint->neighbors) {
+			
+			// 대신, 노드 n을 이미 방문한 경우는 continue로 넘어감
+
+			if (visited.contains(n)) continue;
+
+			// 노드 n을 방문하지는 않았지만, 거리는 계산된 적이 있으면
+			if (dist.contains(n)) {
+				double newDist = dist[nowPoint] + distance(n, nowPoint);
+				if (dist[n] > newDist) dist[n] = newDist;
+			}
+			// 거리 계산도 이루어지지 않았으면 map에 새로 추가
+			else {
+				dist[n] = dist[nowPoint] + distance(n, nowPoint);
+			}
+
+			// 위의 if-else 두 경우 모두에서, 큐에는 n까지의 최단거리 candidate을 넣음.
+			pq.push(make_pair(dist[n], n));
+
+		}
 	}
 
-	// need to fix
-	return {};
+}
 
+// 디버그용 함수
+// node를 루트로 하는 subtree의 사이즈를 출력
+void checkSubtreeSize(Node* node) {
+	
 }

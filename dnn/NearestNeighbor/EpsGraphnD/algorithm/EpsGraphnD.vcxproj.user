@@ -4,4 +4,8 @@
     <LocalDebuggerCommandArguments>0 C:/Users/HWI/Documents/epsGraphTest F 65.0 10 0</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>0 C:\epsGraphData\epsGraphTest F 30.0 10 0</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
