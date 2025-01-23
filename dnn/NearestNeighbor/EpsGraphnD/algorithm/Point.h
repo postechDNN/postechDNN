@@ -29,6 +29,8 @@ public:
 	bool is_Free_Point;
 	//double x, y, z;
 
+	// for quadtree-based kNN (as edge in the local graph)
+	std::vector<Point*> neighbors;
 
 public:
 	Point();
@@ -53,6 +55,8 @@ public:
 	double distance(Point*);
 	void print();
 	void print(std::string dir);
+
+
 };
 
 

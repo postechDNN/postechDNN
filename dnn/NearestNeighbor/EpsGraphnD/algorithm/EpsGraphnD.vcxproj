@@ -157,6 +157,7 @@
     <ClInclude Include="EpsGraphnD.h" />
     <ClInclude Include="errorTest.h" />
     <ClInclude Include="linalg.h" />
+    <ClInclude Include="Macro.h" />
     <ClInclude Include="optimization.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Polytope.h" />

@@ -1,4 +1,9 @@
+#include <queue>
+#include <random>
+#include <map>
+
 #include "quadtree.h"
+
 
 vector<int> dec2bin(int powerNum, int num) {
 	vector<int> ret;
@@ -32,6 +37,8 @@ int bin2dec(vector<int> bin) {
 		ret += bin[i] * factor;
 		factor *= 2;
 	}
+
+	return ret;
 }
 
 // minimum side length of the 
@@ -66,6 +73,80 @@ double myLog2(double num) {
 	return log(num) / log(2.0);
 }
 
+Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, kDQuadTreeNode* parent) { // vector<Polytope*>
+
+	cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
+
+	int maxDepth = 2;
+
+	// debug
+	// if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
+	// // else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return nullptr; }
+	// else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return new kDQuadTreeLeafNode(_points); }
+	// else if (_points.size() == 1) { cout << "Single point. return" << endl; return new kDQuadTreeLeafNode(_points); }
+
+	// 포인트가 비어 있으면 리프 노드 반환
+	if (_points.empty()) {
+		cout << "point set empty. return" << endl;
+		kDQuadTreeNode* leafNode = new kDQuadTreeNode(vector<Point*>{}, parent);
+		leafNode->isLeaf = true;
+		return leafNode;
+	}
+
+	// 최대 깊이 도달
+	else if (_depth == maxDepth) {
+		cout << "Reached max depth. return" << endl;
+		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
+		leafNode->isLeaf = true;
+		return leafNode;
+	}
+
+	// 포인트가 하나만 있으면 리프 노드 반환
+	if (_points.size() == 1) {
+		cout << "Single point. return" << endl;
+		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
+		leafNode->isLeaf = true;
+		return leafNode;
+	}
+
+	vector<Node*> childNodes;
+
+	// child nodes 생성
+	int powerNum = 1;
+	for (int j = 0; j < _dim; j++) { powerNum *= 2; }
+
+	for (int j = 0; j < powerNum; j++) {
+		Node* newNode = new Node();
+
+		vector<int> nowBinary = dec2bin(powerNum, j);
+
+		vector<Point*> nowCellPoints;
+		for (auto p : _points) if (isContained(p, _boundingBox, nowBinary)) nowCellPoints.push_back(p);
+
+		vector<pair<double, double>> newBoundingBox;
+
+		for (int axis = 0; axis < _dim; axis++) {
+
+			double axisMin = _boundingBox[axis].first;
+			double axisMax = _boundingBox[axis].second;
+			double axisMid = (axisMin + axisMax) / 2;
+
+			// 0 for the lower part, 1 for the upper part
+			if (nowBinary[axis] == 0) newBoundingBox.push_back(make_pair(axisMin, axisMid));
+			else newBoundingBox.push_back(make_pair(axisMid, axisMax));
+
+		}
+
+		// 재귀적으로 child node 생성
+		childNodes.push_back(build(nowCellPoints, _dim, newBoundingBox, _eps, _depth + 1));
+	}
+
+	kDQuadTreeNode* internalNode = new kDQuadTreeNode(childNodes, parent);
+	internalNode->isLeaf = false;
+	return internalNode;
+	// return new Node(childNodes);
+}
+
 void buildEpsilonGraph() {
 	// debug: check if some nodes are of depth 2, while others are of depth 1
 
@@ -97,6 +178,7 @@ void buildEpsilonGraph() {
 
 	auto qT = new kDQuadTree(points, 4, boundingBox, eps);
 
+	// debug
 	exit(1);
 
 }
@@ -106,7 +188,7 @@ void buildEpsilonGraph() {
 // input: Point 형식의 한 점
 // output: input point가 위치하는 leafnode 반환
 
-Node* PointLocation(Node* node, Point* point) {
+Node* pointLocation(Node* node, Point* point) {
     if (node == nullptr) {
         return nullptr; // 노드가 null인 경우 null 반환
     }
@@ -125,7 +207,7 @@ Node* PointLocation(Node* node, Point* point) {
 
             // 현재 점이 자식 노드의 영역에 포함되는지 확인
             if (isContained(point, child->boundingBox, binary)) {
-                return PointLocation(child, point); // 재귀적으로 탐색
+                return pointLocation(child, point); // 재귀적으로 탐색
             }
         }
     }
@@ -134,23 +216,21 @@ Node* PointLocation(Node* node, Point* point) {
     return nullptr;
 }
 
-
-
 // point 추가 함수 구현
 // 용도: quadtree에 Point 하나를 추가하고 바뀐 quadtree 반환
 // input: Point 형식의 한 점
 // output: Point 한 점을 추가한 quadtree
 
-Node* PointAdd(Node* node, Point* point, int maxDepth) {
+Node* addPoint(Node* node, Point* point, int maxDepth) {
 	// 예외) node나 point가 nullptr인 경우
     if (node == nullptr || point == nullptr) {
         return nullptr;
     }
 
-    // PointLocation을 사용하여 target leafnode 찾기
-    Node* targetNode = PointLocation(node, point);
+    // pointLocation을 사용하여 target leafnode 찾기
+    Node* targetNode = pointLocation(node, point);
 
-	// 예외) leafnode를 찾을 수 없는 경우 (PointLocation 결과가 nullptr인 경우)
+	// 예외) leafnode를 찾을 수 없는 경우 (pointLocation 결과가 nullptr인 경우)
 	// 새로 leafnode 만들기
 	// 근데 targetNode == nullptr일 경우가 거의 없을 듯?
     if (targetNode == nullptr) {
@@ -231,21 +311,19 @@ Node* PointAdd(Node* node, Point* point, int maxDepth) {
     return node;
 }
 
-
-
 // point 삭제 함수 구현
 // 용도: quadtree에 Point 하나를 삭제하고 바뀐 quadtree 반환
 // input: Point 형식의 한 점
 // output: Point 한 점을 삭제한 quadtree
 
-Node* PointDel(Node* node, Point* point) {
+Node* deletePoint(Node* node, Point* point) {
 	// 예외) node나 point가 nullptr인 경우
     if (node == nullptr || point == nullptr) {
         return node;
     }
 
-    // PointLocation을 사용하여 target leafnode 찾기
-    Node* targetNode = PointLocation(node, point);
+    // pointLocation을 사용하여 target leafnode 찾기
+    Node* targetNode = pointLocation(node, point);
 
 	// 예외) targetNode가 nullptr인 경우
     if (targetNode == nullptr) {
@@ -286,4 +364,149 @@ Node* PointDel(Node* node, Point* point) {
     }
 
     return node;
+}
+
+Point* generateRandomPoint(int dim, vector<pair<double, double>> boundingBox) {
+	random_device rd;
+	mt19937 mt(rd());
+
+	vector<double> xs;
+
+	for (auto& interval : boundingBox) {
+		uniform_real_distribution<double> uni(interval.first, interval.second);
+		xs.push_back(uni(mt));
+	}
+	// uniform_real_distribution(interval)  
+
+	return new Point(xs);
+}
+
+
+// 현재는 cell 내부에 균일하게 뿌리기. vs 경계(cell edge)에다 뿌리기?
+void spreadPoints(Node* node, int dim, int numPoints) {
+
+	int nowNum = 0;
+	while (nowNum < numPoints) {
+		Point* p = generateRandomPoint(dim, node->boundingBox);
+
+		// false 대신, "p가 input convex polytope 중 하나에 포함될 경우"로 수정 
+		if (false) continue;
+		else {node->spreadPoints.push_back(p); nowNum += 1;}
+	}
+
+}
+
+// spreadPoints
+
+void constructLocalGraph(Node* root, int dim) {
+	
+	// 큐가 빌 때까지
+	queue<Node*> Q;
+	while (!Q.empty()) {
+		Node* nowNode = Q.front();
+		Q.pop();
+
+		// 현재 노드에 local graph 점 추가
+		spreadPoints(nowNode, dim);
+
+		// 자식 노드 push
+		for (auto& child : nowNode->childNodes) Q.push(child);
+
+	}
+
+	while (!Q.empty()) {
+		Node* nowNode = Q.front();
+		Q.pop();
+
+		// 인접한 quadtree cell pair (c1, c2)에 해당하는 point set (P1, P2)
+		// each p1 \in P1, p2 \in P2에 대해 p1과 p2를 연결
+		for (auto& iNode : nowNode->incidentNodes) {
+			for (auto& p1 : nowNode->spreadPoints) {
+				for (auto& p2 : iNode->spreadPoints) {
+
+					// true 대신 polytope 조건 필요
+					if (true) {
+						p1->neighbors.push_back(p2);
+						// p1->neighbors.push_back(p1);
+					}
+
+				}
+			}
+		}
+
+		// 자식 노드 push
+		for (auto& child : nowNode->childNodes) Q.push(child);
+	}
+
+}
+
+// returns { (n_1, dist(query,  n_1)), ..., (n_k, dist(query,  n_k)) }
+vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
+	
+	vector<pair<double, Point*>> ret;
+
+	Node* startNode = pointLocation(root, query);
+
+	// 지금까지 찾은 neighbor 수
+	int numFind = 0;
+
+	// Dijkstra on the local graph
+	priority_queue<pair<double, Point*>> pq;
+
+	map<Point*, double> dist;
+	map<Point*, bool> visited;
+
+	visited[query] = false;
+	dist[query] = 0;
+
+	// startNode의 각 spreadPoint에서 쿼리 점까지 자동으로 연결
+	for (auto p : startNode->spreadPoints) {
+		pq.push(make_pair(distance(query, p), p));
+		visited[p] = false;
+		dist[query] = distance(query, p);
+	}
+
+	// point location의 결과 노드 v뿐만이 아니라,
+	// v + (v의 인접 노드)까지 모두 고려해야 하나?
+
+	while (!pq.empty()) {
+		auto& nowPair = pq.top();
+		pq.pop();
+		
+		ret.push_back(nowPair);
+
+		auto& nowPoint = nowPair.second;
+		for (auto n : nowPoint->neighbors) {
+			// key가 있으면
+			if (visited.contains(n)) {
+				dist[n] = dist[nowPoint] + distance(n, nowPoint);
+				
+			}
+			else {
+				
+			}
+
+			// find(visited[n] = false
+		}
+		
+		/*
+		dist[]
+
+		nowPair
+
+		
+
+		if ()
+
+		
+
+		numFind += 1;
+
+		if (numFind == k) return ret;
+		*/
+	}
+
+	// need to fix
+	return {};
+
 }
