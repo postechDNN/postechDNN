@@ -77,7 +77,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 
 	cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
 
-	int maxDepth = 3;
+	int maxDepth = 4;
 
 	// debug
 	// if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
@@ -90,6 +90,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		// cout << "point set empty. return" << endl;
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(vector<Point*>{}, parent);
 		leafNode->isLeaf = true;
+		leafNode->boundingBox = _boundingBox;
 		return leafNode;
 	}
 
@@ -98,6 +99,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		// cout << "Reached max depth. return" << endl;
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
 		leafNode->isLeaf = true;
+		leafNode->boundingBox = _boundingBox;
 		return leafNode;
 	}
 
@@ -106,6 +108,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		// cout << "Single point. return" << endl;
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
 		leafNode->isLeaf = true;
+		leafNode->boundingBox = _boundingBox;
 		return leafNode;
 	}
 
@@ -143,6 +146,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 
 	kDQuadTreeNode* internalNode = new kDQuadTreeNode(childNodes, parent);
 	internalNode->isLeaf = false;
+	internalNode->boundingBox = _boundingBox;
 	return internalNode;
 	// return new Node(childNodes);
 }
