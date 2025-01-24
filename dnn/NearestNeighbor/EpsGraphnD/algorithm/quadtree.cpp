@@ -257,7 +257,7 @@ Node* addPoint(Node* node, Point* point, int maxDepth) {
 	// 기본 박스는 128 size
 	// boundingbox 한 변 길이 확인해서 depth 계산할 수 있음
 	double cubeLen = abs(targetNode->boundingBox[0].second - targetNode->boundingBox[0].first);
-	double depth = (128 / cubeLen) - 1;
+	double depth = myLog2(128/cubeLen);
 	if (depth == maxDepth) {
 		return node;
 	}
