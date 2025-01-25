@@ -191,6 +191,14 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		outputTXT.close();
 
+		buildPointGraphOnQuadTree(qT);
+
+		//Point p(std::vector<double>({ 10.0, 10.0 }));
+		//Node* n = pointLocation(qT->root, &p);
+		//if (n != nullptr) {
+		//	std::cout << "hi\n";
+		//}
+
 		exit(1);
 
 		// ************** quadtree debug end

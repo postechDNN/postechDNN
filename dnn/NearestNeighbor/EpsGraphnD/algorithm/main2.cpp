@@ -40,7 +40,8 @@ int main(int argc, char* argv[]) {
 
 	// manual ют╥б
 	int inVal = 0;
-	string dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
+	// string dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
+	string dir = "C:\\epsGraphData\\epsGraphTest";
 	bool speedFlag = true;
 	int useDataSetId = 0;
 	double epsilon = 1;

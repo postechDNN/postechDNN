@@ -27,7 +27,7 @@ public:
 	int n;
 	std::vector<double> xs;
 
-	// bool isPolytopeVertex;
+	bool isPolytopeVertex;
 
 	// Polytope* pol;
 

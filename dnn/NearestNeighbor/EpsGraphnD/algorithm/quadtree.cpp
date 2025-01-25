@@ -239,7 +239,7 @@ Node* pointLocation(Node* node, Point* point) {
             vector<int> binary = dec2bin(node->childNodes.size(), i);
 
             // 현재 점이 자식 노드의 영역에 포함되는지 확인
-            if (isContained(point, child->boundingBox, binary)) {
+            if (isContained(point, node->boundingBox, binary)) {
                 return pointLocation(child, point); // 재귀적으로 탐색
             }
         }
@@ -541,6 +541,85 @@ vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
 		}
 	}
 
+}
+
+void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
+	std::vector<Node*> leafs;
+	double EPS = 0.001;
+
+	// std::cout << "buildPointGraphOnQuadTree Start\n";
+
+	std::queue<Node*> queue;
+	queue.push(quadtree->root);
+	while (!queue.empty()) {
+		Node* cur = queue.front();
+		queue.pop();
+
+		for (Node* child : cur->childNodes) {
+			queue.push(child);
+		}
+
+		if (cur->isLeaf) {
+			leafs.push_back(cur);
+		}
+	}
+
+	for (Node* leaf : leafs) {
+		std::vector<Node*> adjacentNodes;
+		vector<pair<double, double>> box = leaf->boundingBox;
+		double radius = std::abs((box[0].second - box[0].first) / 2.0);
+		std::vector<double> center;
+
+		// std::cout << "box\n";
+		for (std::pair<double, double> interval : box) {
+			center.push_back((interval.first + interval.second) / 2.0);
+
+			// std::cout << interval.first << ' ' << interval.second << '\n';
+		}
+
+		//std::cout << "center\n";
+		//for (double x : center) {
+		//	std::cout << x << ' ';
+		//}
+		//std::cout << '\n';
+
+		for (int i = 0; i < box.size(); i++) {
+			vector<double> pos1, pos2;
+			pos1 = pos2 = center;
+			pos1[i] += (radius + EPS);
+			pos2[i] -= (radius + EPS);
+			Point p1(pos1), p2(pos2);
+			Node* adj1 = pointLocation(quadtree->root, &p1);
+			Node* adj2 = pointLocation(quadtree->root, &p2);
+
+			if (adj1 != nullptr) {
+				adjacentNodes.push_back(adj1);
+			}
+			if (adj2 != nullptr) {
+				adjacentNodes.push_back(adj2);
+			}
+		}
+
+		for (Node* adj : adjacentNodes) {
+			//std::cout << "adj" << '\n';
+			//for (std::pair<double, double> interval : adj->boundingBox) {
+			//	std::cout << interval.first << ' ' << interval.second << '\n';
+			//}
+			for (Point* p1 : leaf->points) {
+				for (Point* p2 : adj->points) {
+					if (p1->isPolytopeVertex && !(p2->isPolytopeVertex)) { // p1만 polytope vertex
+						continue; // TODO
+					}
+					else if (!(p1->isPolytopeVertex) && p2->isPolytopeVertex) { // p2만 polytope vertex
+						continue; // TODO
+					}
+					else if (!(p1->isPolytopeVertex) && !(p2->isPolytopeVertex)) { // 둘 다 polytope vertex가 아님
+						continue; // TODO
+					}
+				}
+			}
+		}
+	}
 }
 
 // 디버그용 함수
