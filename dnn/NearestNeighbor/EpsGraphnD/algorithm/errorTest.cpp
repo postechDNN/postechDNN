@@ -2,6 +2,7 @@
 // #include <Eigen/Dense>
 #include "../Polytope.h"
 #include "fstream"
+#include "quadtree.h"
 // #include "filesystem"
 
 using namespace std;
@@ -21,7 +22,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 	// bool speedFlag = true;
 
-	int dimension = 4;
+	int dimension = 2;
 	// double epsilon = 200.;
 
 	std::cout << "epsilon: " << epsilon << std::endl;
@@ -132,6 +133,75 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		}
 
 		std::cout << "finished reading inputs" << std::endl;
+
+		// ************** quadtree debug start
+
+		double val = 128.0;
+			// bounding box
+		vector<pair<double, double >> boundingBox;
+		for (int i = 0; i < dimension; i++) boundingBox.push_back(make_pair(-val, val));
+
+		// std::vector<Point*> pts2 = makePointSet(pointsSpecificDir);
+		// 현재는 10000개 포인트 중에서 맨 앞 100개만 확인
+		// auto slicedPoints = vector<Point*>(pts2.begin(), pts2.begin() + 100); 
+
+		vector<Point*> pts2;
+		for (int j = 0; j < 100; j++) pts2.push_back(generateRandomPoint(dimension, make_pair(-val, val)));
+		
+		auto qT = new kDQuadTree(pts2, dimension, boundingBox, epsilon);
+		// buildEpsilonGraph(pts2);
+
+		// 파이썬에서 옮겨서 테스트 할 optput 생성
+
+		ofstream outputTXT("output.txt");
+		outputTXT.clear();
+
+		std::queue<Node*> q;
+		q.push(qT->root);
+		if (outputTXT.is_open()) {
+			while (!q.empty()) {
+				Node* cur = q.front();
+				q.pop();
+				std::cout << "size: " << (cur->boundingBox).size() << '\n';
+
+				outputTXT << "b\n";
+				for (pair<double, double> p : cur->boundingBox) {
+					outputTXT << p.first << " " << p.second << '\n';
+				}
+
+				if (cur->isLeaf) {
+					outputTXT << "p " << (cur->points).size() << '\n';
+					for (Point* p : cur->points) {
+						for (double x : p->getxs()) {
+							outputTXT << x << ' ';
+						}
+						outputTXT << '\n';
+					}
+				}
+				else {
+					for (Node* child : cur->childNodes) {
+						q.push(child);
+					}
+				}
+			}
+		}
+		else {
+			std::cout << "output.txt error!\n";
+		}
+
+		outputTXT.close();
+
+		buildPointGraphOnQuadTree(qT);
+
+		//Point p(std::vector<double>({ 10.0, 10.0 }));
+		//Node* n = pointLocation(qT->root, &p);
+		//if (n != nullptr) {
+		//	std::cout << "hi\n";
+		//}
+
+		exit(1);
+
+		// ************** quadtree debug end
 
 		// 준비된 free points와 polytopes 이용해 epsilon graph 생성
 

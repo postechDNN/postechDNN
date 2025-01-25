@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -157,9 +157,12 @@
     <ClInclude Include="EpsGraphnD.h" />
     <ClInclude Include="errorTest.h" />
     <ClInclude Include="linalg.h" />
+    <ClInclude Include="Macro.h" />
     <ClInclude Include="optimization.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Polytope.h" />
+    <ClInclude Include="KDtree.h" />
+    <ClInclude Include="quadtree.h" />
     <ClInclude Include="solvers.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -178,6 +181,8 @@
     <ClCompile Include="optimization.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />
+    <ClCompile Include="KDtree.cpp" />
+    <ClCompile Include="quadtree.cpp" />
     <ClCompile Include="solvers.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

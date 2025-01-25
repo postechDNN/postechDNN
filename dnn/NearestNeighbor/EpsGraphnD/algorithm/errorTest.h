@@ -5,6 +5,7 @@
 #include <filesystem>
 #include "../Polytope.h"
 #include "../data_generation/data_generation.h"
+#include "quadtree.h"
 
 
 void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId);

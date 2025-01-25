@@ -119,6 +119,8 @@ public:	// functions
 	//void export_json();
 
 	void checkMemory(string dir);
+
+	void computeMinMax();
 };
 
 // typedef Eps_Graph_nD EG;
