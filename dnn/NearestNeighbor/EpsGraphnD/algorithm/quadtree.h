@@ -44,13 +44,17 @@ typedef class kDQuadTreeNode {
 
 	// variables
 public:
+
 	int numNodesSubtree; // number of nodes (not points) in the subtree rooted at this node
 
 	vector<pair<double, double>> boundingBox; // rectangular region
 	vector<kDQuadTreeNode*> childNodes;
 	// vector<Node*> incidentCells;
 	vector<Point*> points; // 리프 노드일 경우만 유효
+
     bool isLeaf; // 리프 노드 여부
+	// bool isRoot; // 루트 노드 여부는 parent == nullptr인지를 통해서 확인 가능.
+
 	kDQuadTreeNode* parent; // parent node
 	vector<Point*> spreadPoints; // kNN을 위해 생성하는 local graph의 노드에 해당하는 점들
 
@@ -59,10 +63,14 @@ public:
 	// methods
 public:
 	kDQuadTreeNode() : isLeaf(false), parent(nullptr), numNodesSubtree(0) {} // 기본 생성자 - 사용 여부?
+
 	kDQuadTreeNode(vector<kDQuadTreeNode*> _childNodes, kDQuadTreeNode* _parent = nullptr) // for internal node
-	: childNodes(_childNodes), isLeaf(false), parent(_parent), numNodesSubtree(1 + _childNodes.size()) {}
+	: childNodes(_childNodes), isLeaf(false), parent(_parent), numNodesSubtree(0) {} // numNodesSubtree(1 + _childNodes.size())
+	
 	kDQuadTreeNode(vector<Point*> _points, kDQuadTreeNode* _parent = nullptr) // for leaf node
-	: points(_points), isLeaf(true), parent(_parent), numNodesSubtree(1) {}
+	: points(_points), isLeaf(true), parent(_parent), numNodesSubtree(0) {} // numNodesSubtree(1)
+
+	void updateNumNodesSubtree();
 
 
 }Node;

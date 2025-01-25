@@ -26,6 +26,11 @@ class Point {
 public:
 	int n;
 	std::vector<double> xs;
+
+	// bool isPolytopeVertex;
+
+	// Polytope* pol;
+
 	bool is_Free_Point;
 	//double x, y, z;
 

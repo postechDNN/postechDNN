@@ -5,6 +5,7 @@
 
 int main(int argc, char* argv[]) {
 
+	/*
 	// 아래 switch문 메뉴 선택
 	int inVal = std::stoi(argv[1]); // *(argv[1]) - '0';
 
@@ -27,6 +28,7 @@ int main(int argc, char* argv[]) {
 	int numPolytopes = std::stoi(argv[6]);
 
 	std::cout << "read arguments" << std::endl;
+	*/
 
 	//cout << "menu\n";
 	//cout << "0. auto test\n"; // data generation\n";
@@ -37,10 +39,11 @@ int main(int argc, char* argv[]) {
 	//cout << "Enter: ";
 
 	// manual 입력
-	//inVal = 0;
-	//dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
-	//speedFlag = true;
-	//useDataSetId = 0;
+	int inVal = 0;
+	string dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
+	bool speedFlag = true;
+	int useDataSetId = 0;
+	double epsilon = 1;
 
 	switch (inVal) {
 	case 0:

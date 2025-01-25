@@ -73,6 +73,18 @@ double myLog2(double num) {
 	return log(num) / log(2.0);
 }
 
+void kDQuadTreeNode::updateNumNodesSubtree() {
+	kDQuadTreeNode* nowNode = this;
+
+	while (true) {
+		nowNode->numNodesSubtree++;
+		
+		// if (nowNode->isRoot) break;
+		if (nowNode->parent == nullptr) break;
+		else nowNode = nowNode->parent;
+	}
+}
+
 Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, kDQuadTreeNode* parent) { // vector<Polytope*>
 
 	cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
@@ -91,6 +103,9 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(vector<Point*>{}, parent);
 		leafNode->isLeaf = true;
 		leafNode->boundingBox = _boundingBox;
+
+		leafNode->updateNumNodesSubtree();
+
 		return leafNode;
 	}
 
@@ -100,6 +115,9 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
 		leafNode->isLeaf = true;
 		leafNode->boundingBox = _boundingBox;
+
+		leafNode->updateNumNodesSubtree();
+
 		return leafNode;
 	}
 
@@ -109,8 +127,14 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
 		leafNode->isLeaf = true;
 		leafNode->boundingBox = _boundingBox;
+
+		leafNode->updateNumNodesSubtree();
+
 		return leafNode;
 	}
+
+	kDQuadTreeNode* internalNode = new kDQuadTreeNode;
+	internalNode->parent = parent;
 
 	vector<Node*> childNodes;
 
@@ -141,12 +165,17 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		}
 
 		// 재귀적으로 child node 생성
-		childNodes.push_back(build(nowCellPoints, _dim, newBoundingBox, _eps, _depth + 1));
+		childNodes.push_back(build(nowCellPoints, _dim, newBoundingBox, _eps, _depth + 1, internalNode));
 	}
 
-	kDQuadTreeNode* internalNode = new kDQuadTreeNode(childNodes, parent);
+	// kDQuadTreeNode* internalNode = new kDQuadTreeNode(childNodes, parent);
+	internalNode->childNodes = childNodes;
+	// for (auto& n : childNodes) n->parent = internalNode;
+
 	internalNode->isLeaf = false;
 	internalNode->boundingBox = _boundingBox;
+	// if (parent == nullptr) internalNode->isRoot = true;
+
 	return internalNode;
 	// return new Node(childNodes);
 }
