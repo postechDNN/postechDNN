@@ -168,11 +168,13 @@
     <ClCompile Include="alglibinternal.cpp" />
     <ClCompile Include="alglibmisc.cpp" />
     <ClCompile Include="ap.cpp" />
+    <ClCompile Include="CPolytope.cpp" />
+    <ClCompile Include="CPolytope.h" />
     <ClCompile Include="data_generation_print.cpp" />
     <ClCompile Include="EpsGraphnD.cpp" />
     <ClCompile Include="errorTest.cpp" />
     <ClCompile Include="linalg.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main2.cpp" />
     <ClCompile Include="optimization.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />

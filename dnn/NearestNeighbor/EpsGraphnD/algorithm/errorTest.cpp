@@ -8,7 +8,7 @@ using namespace std;
 
 void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId) {
 
-	bool checkMemory = true;
+	bool checkMemory = false;
 
 	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\accuracyError.txt");
 	//remove("C:\\Users\\HWI\\Documents\\epsGraphTestResult\\distanceError.txt");

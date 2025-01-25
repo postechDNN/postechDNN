@@ -1,0 +1,4 @@
+started checking encl
+finished checking encl
+time taken: 274 ms, or 0 s
+started adding grid edges

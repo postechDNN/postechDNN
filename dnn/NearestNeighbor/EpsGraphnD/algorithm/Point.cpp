@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 //this class defines a point in 2D space
 #define ERR 1e-6
@@ -44,6 +45,35 @@ bool Point::operator==(Point* _p) {
 		if (std::abs(this->xs[i] - _p->getx(i)) > ERR) return false;
 	}
 	return true;
+}
+
+Point Point::operator+(Point& op) {
+
+	std::vector<double> vals;
+	for (int i = 0; i < this->n; i++)
+		vals.push_back(this->xs[i] + op.xs[i]);
+	return Point(vals);
+}
+Point Point::operator/ (double c) {
+	std::vector<double> vals;
+	for (int i = 0; i < this->n; i++)
+		vals.push_back(this->xs[i] /c );
+	return Point(vals);
+
+}
+
+Point& Point::operator+=(Point& op) {
+	for (int i = 0; i < this->n; ++i) {
+		this->xs[i] += op.xs[i];
+	}
+	return *this;
+}
+
+Point& Point::operator/=(double c) {
+	for (int i = 0; i < this->n; ++i) {
+		this->xs[i] /= c;
+	}
+	return *this;
 }
 
 Point Point::operator- (Point* _p) {

@@ -31,13 +31,18 @@ public:
 
 public:
 	Point();
-	Point(int);
-	Point(int, bool);
+	explicit Point(int);
+	explicit Point(int, bool);
 	//Point(double, double, double);
 	Point(std::vector<double>);
 	Point(std::vector<double>, bool);
 	Point(Point*);
 	~Point();
+	Point operator+(Point&);
+	Point operator/ (double );	
+	Point& operator+=(Point&);
+	//Point& Point::operator+=(const Point& op)
+	Point& operator/=(double);
 	bool operator==(Point*);
 	Point operator- (Point*);
 	double getx(int);
