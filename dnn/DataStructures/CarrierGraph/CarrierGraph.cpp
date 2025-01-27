@@ -17,11 +17,21 @@ CarrierGraph::CarrierGraph(vector<Rect*> rset, vector<Point*> pset, Rect* bb, in
 		vlist.push_back(pset[i]);
 	}
 	bbox = bb;
+	vector<Point*> slist;
+	vector<Point*> tlist;
 	for (int i = 0; i < rset.size(); i++) {
-		elist.push_back(new Edge(rset[i]->getld(), rset[i]->getlu()));
-		elist.push_back(new Edge(rset[i]->getrd(), rset[i]->getru()));
-		elist.push_back(new Edge(rset[i]->getld(), rset[i]->getrd()));
-		elist.push_back(new Edge(rset[i]->getlu(), rset[i]->getru()));
+		elist.push_back(new Edge(*rset[i]->getld(), *rset[i]->getlu()));
+		slist.push_back(rset[i]->getld());
+		tlist.push_back(rset[i]->getlu());
+		elist.push_back(new Edge(*rset[i]->getrd(), *rset[i]->getru()));
+		slist.push_back(rset[i]->getrd());
+		tlist.push_back(rset[i]->getru());
+		elist.push_back(new Edge(*rset[i]->getld(), *rset[i]->getrd()));
+		slist.push_back(rset[i]->getld());
+		tlist.push_back(rset[i]->getrd());
+		elist.push_back(new Edge(*rset[i]->getlu(), *rset[i]->getru()));
+		slist.push_back(rset[i]->getlu());
+		tlist.push_back(rset[i]->getru());
 	}
 
 	switch (dir) {
@@ -38,8 +48,8 @@ CarrierGraph::CarrierGraph(vector<Rect*> rset, vector<Point*> pset, Rect* bb, in
 
 	adj = vector<vector<pair<int, double>>>(vcnt);
 	for (int i = 0; i < ecnt; i++) {
-		int u = vconnect[elist[i]->gets()];
-		int v = vconnect[elist[i]->gett()];
+		int u = vconnect[slist[i]];
+		int v = vconnect[tlist[i]];
 		double w = elist[i]->length();
 		adj[u].push_back(make_pair(v, w));
 		adj[v].push_back(make_pair(u, w));
@@ -185,10 +195,10 @@ void CarrierGraph::leftraydivide(Point *p) {
 	double x = p->getx();
 	double y = p->gety();
 	for (int i = 0; i < elist.size(); i++) {
-		double x1 = elist[i]->gets()->getx();
-		double y1 = elist[i]->gets()->gety();
-		double x2 = elist[i]->gett()->getx();
-		double y2 = elist[i]->gett()->gety();
+		double x1 = elist[i]->gets().getx();
+		double y1 = elist[i]->gets().gety();
+		double x2 = elist[i]->gett().getx();
+		double y2 = elist[i]->gett().gety();
 		if (ishit(y1, y, y2)) {
 			if (isclosest(most, x2, x)) {
 				most = x2;
@@ -198,11 +208,11 @@ void CarrierGraph::leftraydivide(Point *p) {
 	}
 	Point* newv = new Point(most, y);
 	vlist.push_back(newv);
-	elist.push_back(new Edge(newv, p));
+	elist.push_back(new Edge(*newv, *p));
 	if (index != BOUNDINGBOX) {
-		Point* temp = elist[index]->gett();
-		elist[index]->sett(newv);
-		elist.push_back(new Edge(newv, temp));
+		//Point* temp = &(elist[index]->gett());
+		elist[index]->sett(*newv);
+		elist.push_back(new Edge(*newv, elist[index]->gett()));
 	}
 }
 
@@ -212,10 +222,10 @@ void CarrierGraph::rightraydivide(Point *p) {
 	double x = p->getx();
 	double y = p->gety();
 	for (int i = 0; i < elist.size(); i++) {
-		double x1 = elist[i]->gets()->getx();
-		double y1 = elist[i]->gets()->gety();
-		double x2 = elist[i]->gett()->getx();
-		double y2 = elist[i]->gett()->gety();
+		double x1 = elist[i]->gets().getx();
+		double y1 = elist[i]->gets().gety();
+		double x2 = elist[i]->gett().getx();
+		double y2 = elist[i]->gett().gety();
 		if (ishit(y1, y, y2)) {
 			if (isclosest(x, x1, most)) {
 				most = x1;
@@ -225,11 +235,11 @@ void CarrierGraph::rightraydivide(Point *p) {
 	}
 	Point* newv = new Point(most, y);
 	vlist.push_back(newv);
-	elist.push_back(new Edge(p, newv));
+	elist.push_back(new Edge(*p, *newv));
 	if (index != BOUNDINGBOX) {
-		Point* temp = elist[index]->gett();
-		elist[index]->sett(newv);
-		elist.push_back(new Edge(newv, temp));
+		//Point* temp = &elist[index]->gett();
+		elist[index]->sett(*newv);
+		elist.push_back(new Edge(*newv, elist[index]->gett()));
 	}
 }
 
@@ -239,10 +249,10 @@ void CarrierGraph::upraydivide(Point *p) {
 	double x = p->getx();
 	double y = p->gety();
 	for (int i = 0; i < elist.size(); i++) {
-		double x1 = elist[i]->gets()->getx();
-		double y1 = elist[i]->gets()->gety();
-		double x2 = elist[i]->gett()->getx();
-		double y2 = elist[i]->gett()->gety();
+		double x1 = elist[i]->gets().getx();
+		double y1 = elist[i]->gets().gety();
+		double x2 = elist[i]->gett().getx();
+		double y2 = elist[i]->gett().gety();
 		if (ishit(x1, x, x2)) {
 			if (isclosest(y, y1, most)) {
 				most = y1;
@@ -252,11 +262,11 @@ void CarrierGraph::upraydivide(Point *p) {
 	}
 	Point* newv = new Point(x, most);
 	vlist.push_back(newv);
-	elist.push_back(new Edge(p, newv));
+	elist.push_back(new Edge(*p, *newv));
 	if (index != BOUNDINGBOX) {
-		Point* temp = elist[index]->gett();
-		elist[index]->sett(newv);
-		elist.push_back(new Edge(newv, temp));
+		//Point* temp = &elist[index]->gett();
+		elist[index]->sett(*newv);
+		elist.push_back(new Edge(*newv, elist[index]->gett()));
 	}
 }
 
@@ -266,10 +276,10 @@ void CarrierGraph::downraydivide(Point *p) {
 	double x = p->getx();
 	double y = p->gety();
 	for (int i = 0; i < elist.size(); i++) {
-		double x1 = elist[i]->gets()->getx();
-		double y1 = elist[i]->gets()->gety();
-		double x2 = elist[i]->gett()->getx();
-		double y2 = elist[i]->gett()->gety();
+		double x1 = elist[i]->gets().getx();
+		double y1 = elist[i]->gets().gety();
+		double x2 = elist[i]->gett().getx();
+		double y2 = elist[i]->gett().gety();
 		if (ishit(x1, x, x2)) {
 			if (isclosest(most, y2, y)) {
 				most = y2;
@@ -279,11 +289,11 @@ void CarrierGraph::downraydivide(Point *p) {
 	}
 	Point* newv = new Point(x, most);
 	vlist.push_back(newv);
-	elist.push_back(new Edge(newv, p));
+	elist.push_back(new Edge(*newv, *p));
 	if (index != BOUNDINGBOX) {
-		Point* temp = elist[index]->gett();
-		elist[index]->sett(newv);
-		elist.push_back(new Edge(newv, temp));
+		//Point* temp = &elist[index]->gett();
+		elist[index]->sett(*newv);
+		elist.push_back(new Edge(*newv, elist[index]->gett()));
 	}
 }
 

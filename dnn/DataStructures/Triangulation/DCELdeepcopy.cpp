@@ -51,7 +51,7 @@ class DCELdeepcopyContext{
 			auto it=vm.find(v);
 			if(it!=vm.end()) return it->second;
 			else {
-				vm[v]=new Vertex(v);
+				vm[v]=new Vertex(*v);
 				return vm[v];
 			}
 		}
@@ -80,7 +80,7 @@ class DCELdeepcopyContext{
 			
 			tf->setOuter(DCE(f->getOuter()));
 
-			for(auto it=f->getInners()->begin();it!=f->getInners()->end();it++){
+			for(auto it=f->getInners().begin();it!=f->getInners().end();it++){
 				te=*it;
 				do{
 					DCE(te);
@@ -106,26 +106,26 @@ DCELFaceMap * DCELdeepcopy(DCEL * o){
 
 	auto af= o->getFaces();
 	std::vector<Face*>* nfs =new std::vector<Face*>();
-	for(auto it=af->begin(); it!=af->end();it++){
+	for(auto it=af.begin(); it!=af.end();it++){
 		nfs->push_back(DC.DCF(*it));
 	}
-	o->setFaces(nfs);
+	o->setFaces(*nfs);
 
 
 	auto ae= o->getHedges();
 	std::vector<HEdge*>* nes =new std::vector<HEdge*>();
-	for(auto it=ae->begin(); it!=ae->end();it++){
+	for(auto it=ae.begin(); it!=ae.end();it++){
 		nes->push_back(DC.DCE(*it));
 	}
-	o->setHedges(nes);
+	o->setHedges(*nes);
 
 	
 	auto av= o->getVertices();
 	std::vector<Vertex*>* nvs =new std::vector<Vertex*>();
-	for(auto it=av->begin(); it!=av->end();it++){
+	for(auto it=av.begin(); it!=av.end();it++){
 		nvs->push_back(DC.find(*it));
 	}
-	o->setVertices(nvs);
+	o->setVertices(*nvs);
 	ret->map_result=DC.fm;
 	return ret;
 }
