@@ -7,6 +7,7 @@
 
 #include "Point.h"
 #include "Macro.h"
+#include "CPolytope.h"
 
 using namespace std;
 
@@ -81,14 +82,26 @@ class kDQuadTree {
 	public:
 		int dim; // dimension
 		Node* root;
+		vector<CPolytope*> pols;
 
 	// methods
 	public:
 		kDQuadTree(){}
-		kDQuadTree(vector<Point*> _points, int _dim, vector<pair<double, double >> _boundingBox, double _eps) : dim(_dim) {
+		kDQuadTree(vector<Point*> _points, vector<CPolytope*> _pols, int _dim, vector<pair<double, double >> _boundingBox, double _eps) : pols(_pols), dim(_dim) {
+			
+			// insert polytope vertices into _points
+			for (auto& pol : _pols) {
+				for (auto& v : pol->vertices) {
+					v.isPolytopeVertex = true;
+					_points.push_back(&v);
+				}
+			}
+
 			this->root = build(_points, _dim, _boundingBox, _eps, 0);
 		}
-			
+		
+		// CPolytope square2D(2, vertices2D, facets2D);
+
 		Node* build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, kDQuadTreeNode* parent = nullptr);
 		
 		vector<pair<double, Point*>> kNN(Point* query, int k);

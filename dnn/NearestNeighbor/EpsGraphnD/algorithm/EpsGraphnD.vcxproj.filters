@@ -63,6 +63,15 @@
     <ClInclude Include="solvers.h">
       <Filter>헤더 파일\eigen</Filter>
     </ClInclude>
+    <ClInclude Include="Macro.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="KDtree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Point.cpp">
@@ -108,6 +117,12 @@
       <Filter>헤더 파일</Filter>
     </ClCompile>
     <ClCompile Include="CPolytope.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="KDtree.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="quadtree.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

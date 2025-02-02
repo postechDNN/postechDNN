@@ -16,11 +16,13 @@ Point::Point(int _n) {
 	//this->x = 0.;
 	//this->y = 0.;
 	//this->z = 0.;
+	this->isPolytopeVertex = false;
 }
 Point::Point(int _n, bool isFreePoint) {
 	this->n = _n;
 	this->xs = std::vector<double>(_n, 0.);
 	this->is_Free_Point = isFreePoint;
+	this->isPolytopeVertex = false;
 }
 Point::Point(std::vector<double> _xs) {
 	this->xs = _xs;
@@ -28,15 +30,18 @@ Point::Point(std::vector<double> _xs) {
 	//this->x = _x;
 	//this->y = _y;
 	//this->z = _z;
+	this->isPolytopeVertex = false;
 }
 Point::Point(std::vector<double> _xs, bool isFreePoint) {
 	this->xs = _xs;
 	this->n = _xs.size();
 	this->is_Free_Point = isFreePoint;
+	this->isPolytopeVertex = false;
 }
 Point::Point(Point* _p) {
 	this->xs = _p->getxs();
 	this->n = this->xs.size();
+	this->isPolytopeVertex = false;
 }
 Point::~Point() {}
 

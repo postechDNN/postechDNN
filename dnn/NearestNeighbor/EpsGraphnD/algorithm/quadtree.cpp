@@ -547,6 +547,8 @@ void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 	std::vector<Node*> leafs;
 	double EPS = 0.001;
 
+	auto& pols = quadtree->pols;
+
 	// std::cout << "buildPointGraphOnQuadTree Start\n";
 
 	std::queue<Node*> queue;
@@ -600,6 +602,7 @@ void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 			}
 		}
 
+
 		for (Node* adj : adjacentNodes) {
 			//std::cout << "adj" << '\n';
 			//for (std::pair<double, double> interval : adj->boundingBox) {
@@ -607,15 +610,26 @@ void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 			//}
 			for (Point* p1 : leaf->points) {
 				for (Point* p2 : adj->points) {
-					if (p1->isPolytopeVertex && !(p2->isPolytopeVertex)) { // p1만 polytope vertex
-						continue; // TODO
+					for (auto& pol : pols) {
+						if (!pol->is_intersect(p1, p2)) {
+
+							p1->neighbors.push_back(p2);
+							p2->neighbors.push_back(p1);
+
+							/*
+							if (p1->isPolytopeVertex && !(p2->isPolytopeVertex)) { // p1만 polytope vertex
+							}
+							else if (!(p1->isPolytopeVertex) && p2->isPolytopeVertex) { // p2만 polytope vertex
+							}
+							else if (!(p1->isPolytopeVertex) && !(p2->isPolytopeVertex)) { // 둘 다 polytope vertex가 아님
+							}
+							else { // 둘 다 polytope vertex임
+								// if (isSameFacet(p1, p2)) { } // 같은 facet 위에 있는 경우만 연결?
+							}
+							*/
+						}
 					}
-					else if (!(p1->isPolytopeVertex) && p2->isPolytopeVertex) { // p2만 polytope vertex
-						continue; // TODO
-					}
-					else if (!(p1->isPolytopeVertex) && !(p2->isPolytopeVertex)) { // 둘 다 polytope vertex가 아님
-						continue; // TODO
-					}
+					
 				}
 			}
 		}
@@ -623,7 +637,8 @@ void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 }
 
 // 디버그용 함수
-// node를 루트로 하는 subtree의 사이즈를 출력
-void checkSubtreeSize(Node* node) {
+// node를 루트로 하는 그래프 G = (V, E)에 대하여, |V|와 |E|를 계산
+// 점 많이 찍을수록, or incidency를 결정하는 radius가 커질수록 |E|가 달라지는 것 확인
+void checkPointGraphSize(Node* node) {
 	
 }

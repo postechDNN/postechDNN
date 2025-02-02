@@ -148,10 +148,12 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		vector<Point*> pts2;
 		for (int j = 0; j < 100; j++) pts2.push_back(generateRandomPoint(dimension, make_pair(-val, val)));
 		
-		auto qT = new kDQuadTree(pts2, dimension, boundingBox, epsilon);
+		vector<CPolytope*> pols;
+		
+		auto qT = new kDQuadTree(pts2, pols, dimension, boundingBox, epsilon);
 		// buildEpsilonGraph(pts2);
 
-		// 파이썬에서 옮겨서 테스트 할 optput 생성
+		// 파이썬에서 옮겨서 테스트 할 output 생성
 
 		ofstream outputTXT("output.txt");
 		outputTXT.clear();
