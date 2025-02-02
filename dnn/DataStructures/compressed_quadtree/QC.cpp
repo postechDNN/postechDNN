@@ -64,12 +64,13 @@ int main(){
 	time_t st,et;
 	size_t n;	
 	size_t d=2;
-	scanf("%u",&n);	
+	cin >> n;	
 	Point* pt =new Point[n];
 	double* times = new double[n];
 	int* removed = new int[n];
 	for(int i=0;i<n;i++){
-		scanf("%lf %lf %lf",&pt[i][0],&pt[i][1],&(pt[i].speed));
+		cin >> pt[i][0] >> pt[i][1] >> pt[i].speed;
+		//scanf("%lf %lf %lf",&pt[i][0],&pt[i][1],&(pt[i].speed));
 		pt[i].id=i;
 	}
 	CompressedQuadtree<Point> CQ(d,pt,n);

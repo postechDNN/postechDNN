@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\DCEL">
+      <UniqueIdentifier>{858106c2-d2ba-43ea-87c2-2bc5c4ba376c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\CarrierGraph">
+      <UniqueIdentifier>{e300c92b-2fd6-42b0-96db-755af425a8b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\compressed_quadtree">
+      <UniqueIdentifier>{21c74167-05e3-4f0b-8267-cad9f876ed38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Triangulation">
+      <UniqueIdentifier>{dda7dcd0-8eef-4c18-9ee3-b73ad67dd47b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\AVLTree\AVLTree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BBST\SimpleBBST.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CarrierGraph\CarrierGraph.h">
+      <Filter>소스 파일\CarrierGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CarrierGraph\Rect.h">
+      <Filter>소스 파일\CarrierGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\AVLTree.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\DCEL.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\DCEL_IO.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\DCEL_operation.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\Edge.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\Graph.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\metrics.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\n_d_Point.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\Point.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\PolygonalDomain.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\SimplePolygon.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DCEL\Vector.h">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\compressed_quadtree\compressed_quadtree.h">
+      <Filter>소스 파일\compressed_quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RBTree\Red Black Tree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SegL1Voronoi\Data Structure.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SegTree\SegmentTree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Triangulation\DCELdeepcopy.h">
+      <Filter>소스 파일\Triangulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Triangulation\Triangulation.h">
+      <Filter>소스 파일\Triangulation</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\BBST\SimpleBBST.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CarrierGraph\CarrierGraph.cpp">
+      <Filter>소스 파일\CarrierGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CarrierGraph\Rect.cpp">
+      <Filter>소스 파일\CarrierGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\DCEL.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\DCEL_IO.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\DCEL_operation.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\Edge.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\metrics.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\n_d_Point.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\Point.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\PolygonalDomain.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\SimplePolygon.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DCEL\Vector.cpp">
+      <Filter>소스 파일\DCEL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\compressed_quadtree\QC.cpp">
+      <Filter>소스 파일\compressed_quadtree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SegL1Voronoi\Voronoi Diagram.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SegTree\SegmentTree.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Triangulation\DCELdeepcopy.cpp">
+      <Filter>소스 파일\Triangulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Triangulation\Triangulation.cpp">
+      <Filter>소스 파일\Triangulation</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
