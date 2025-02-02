@@ -9,9 +9,9 @@ In dynamic environments, users can insert/delete data and add conditions such as
 </p>
 
 ## Getting Started 
-Window 
-1. Get a code form [DNN git](https://github.com/icothos/DNN).
-2. Open the 'DNN.sln' with Visual studio to use library.
+Windows 
+1. Get the latest version of PostechDNN.zip from [DNN git](https://github.com/postechDNN/postechDNN/releases).
+2. See details in [wiki](https://github.com/postechDNN/postechDNN/wiki).
 
 ## Contribution
 Check the [Contribution.md](./Contributing.md) file.
