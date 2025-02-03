@@ -1,7 +1,8 @@
 # Doubly-Connected Edge List(DCEL)
 DCEL class is a class for a DCEL(doubly-connected edge list). DCEL stores pointers of its face, half-edge, vertex records in pointer of vector type.
 ## What is 'DCEL'?
-DCEL is a basic data structure to store geometric objects in 2D space. DCEL consists of several classes. Import **DCEL.h** to use this data structure. 
+DCEL is a basic data structure to store geometric objects in 2D space. DCEL consists of several classes.  
+Import **DCEL.h** to use this data structure. 
 
 ## Members
 |Protected Variables||

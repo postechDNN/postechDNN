@@ -6,6 +6,7 @@ There is no corresponding paper.
 ## What is 'RBTree'
 
 RBTree is a data structure which stores data with template type T for each node.  
+Import **RBTree.h** to use this data structure.  
 Operator '=', '<' and '==' must be defined for type T to support RBTree.  
 The datas are stored in increasing order.  
 RBTree has 'Node<T>' struct as its node.  

@@ -5,6 +5,8 @@ An original carrier graph is DAG (Directly Acyclic Graph), but present version r
 
 ## What is 'Carrier graph'
 
+Import **CarrierGraph.h** to use this data structure. 
+
 ## Dependencies in postechDNN
 DataStructures/DCEL/Edge.h
 

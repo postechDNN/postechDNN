@@ -4,7 +4,7 @@ This project is an implementation of a $L_1$ Voronoi diagram when the sites are 
 Papadopoulou & Lee. "The $L_\infty$ Voronoi diagram of segments and VLSI applications."
 
 ## What is 'SegL1Voronoi'
-
+Import **SegL1Voronoi.h** to use this data structure.  
 Voronoi has these elements:
 - vector<Site *> site_vector: The list of segment sites.
 - vector<Vertex *> vertex_vector: The list of vertices in the voronoi diagram.

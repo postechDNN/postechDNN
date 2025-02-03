@@ -5,6 +5,7 @@ There is no corresponding paper.
 
 ## What is 'SegmentTree'
 SegmentTree is implemented as a balanced binary tree. 
+Import **SegmentTree.h** to use this data structure.  
 SegmentTree has 'Node' struct as its node.  
 Node has these elements:
 - int a: store the value of the node.

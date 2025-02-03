@@ -6,6 +6,7 @@ There is no corresponding paper.
 ## What is 'AVLTree'
 
 AVLTree is a data structure which stores data with template type T for each node.  
+Import **AVLTree.h** to use this data structure.  
 Operator '=', '<' and '==' must be defined for type T to support AVLTree.  
 The datas are stored in increasing order.  
 AVLTree has 'AVLTreeNode<T>' struct as its node.  

@@ -6,6 +6,7 @@ There is no corresponding paper.
 ## What is 'BBST'
 
 BBST is a data structure which stores data with template type T for each node.  
+Import **SimpleBBST.h** to use this data structure. 
 Operator '=', '<' and '==' must be defined for type T to support BBST.  
 The datas are stored in increasing order.  
 BBST has 'SimpleBBSTNode<T>' struct as its node.  
