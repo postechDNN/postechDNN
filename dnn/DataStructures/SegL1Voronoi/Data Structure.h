@@ -160,11 +160,11 @@ public:
 	}
 };
 
-//site out ¶§ µÚ·Î ³ª°¡´Â 45 rayÀÇ °æ¿ì p_de / p_inÀÌ ¾Æ´Ñ,
-//ÀÚ±âÀÚ½Å lineÀÌ 2»çºÐ¸é¿¡ ÀÖ´Â °æ¿ì : ÀÚ±âÀÚ½Å line°ú site out ¶§ ³¡Á¡ÀÇ bisector == +1 ray (wavekind == pl)
-//										site out ¶§ ³¡Á¡°ú ³¡Á¡¿¡¼­ µÚ·Î ³ª°¡´Â ¼öÆò¼±ÀÇ bisector == -1 ray (wavekind == pl)
-//ÀÚ±âÀÚ½Å lineÀÌ 4»çºÐ¸é¿¡ ÀÖ´Â °æ¿ì :  ÀÚ±âÀÚ½Å line°ú site out ¶§ ³¡Á¡ÀÇ bisector == -1 ray (wavekind == pl)
-//										site out ¶§ ³¡Á¡°ú ³¡Á¡¿¡¼­ µÚ·Î ³ª°¡´Â ¼öÆò¼±ÀÇ bisector == +1 ray (wavekind == pl)
+//site out ï¿½ï¿½ ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 45 rayï¿½ï¿½ ï¿½ï¿½ï¿½ p_de / p_inï¿½ï¿½ ï¿½Æ´ï¿½,
+//ï¿½Ú±ï¿½ï¿½Ú½ï¿½ lineï¿½ï¿½ 2ï¿½ï¿½Ð¸é¿¡ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ : ï¿½Ú±ï¿½ï¿½Ú½ï¿½ lineï¿½ï¿½ site out ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ bisector == +1 ray (wavekind == pl)
+//										site out ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ bisector == -1 ray (wavekind == pl)
+//ï¿½Ú±ï¿½ï¿½Ú½ï¿½ lineï¿½ï¿½ 4ï¿½ï¿½Ð¸é¿¡ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ :  ï¿½Ú±ï¿½ï¿½Ú½ï¿½ lineï¿½ï¿½ site out ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ bisector == -1 ray (wavekind == pl)
+//										site out ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ bisector == +1 ray (wavekind == pl)
 enum WaveKind {
 	none_wave,
 	pp, //point_element1, point_element2
@@ -602,6 +602,13 @@ private:
 	//WaveFront wavefront;
 	priority_queue<Event, vector<Event>, greater<Event>> * EventQ;
 public:
+    Voronoi(vector<Site*> sv) {
+        site_vector = sv;
+		vertex_vector = vector<Vertex*>();
+		edge_vector = vector<Edge*>();
+		wavefrontptr = new WaveFront();
+		EventQ = new priority_queue<Event, vector<Event>, greater<vector<Event>::value_type>>;
+    }
 	Voronoi(vector<Site *> sv, vector<Vertex *> vv, vector<Edge *> ev) {
 		site_vector = sv;
 		vertex_vector = vv;
@@ -1084,7 +1091,7 @@ public:
 			wavefrontptr->delete_bst(tmp->next->key);
 
 
-		//vertex_vector.push_back(l_ptr);//site in pointµµ vertex vector¿¡ Ãß°¡??????????????????????
+		//vertex_vector.push_back(l_ptr);//site in pointï¿½ï¿½ vertex vectorï¿½ï¿½ ï¿½ß°ï¿½??????????????????????
 		//if (l_ptr->get_vertex().first != r_ptr->get_vertex().first)
 		//	vertex_vector.push_back(r_ptr);
 		//new wave by v1, v2
@@ -1568,7 +1575,7 @@ public:
 		wavefrontptr->predict_spike_event(new_wave, EventQ);
 	}
 	bool check_invalid_spike(Event &e) {
-		//spike event ¸¸µå´Â µÎ wave Áß ÇÏ³ª°¡ wavefront bst¿¡ ¾øÀ¸¸é invalid ->return true
+		//spike event ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ wave ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ wavefront bstï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ invalid ->return true
 		pair<Wave, Wave> spike_waves = e.get_spike_waves();
 		Wave spike_wave1 = spike_waves.first;
 		Wave spike_wave2 = spike_waves.second;
@@ -1756,7 +1763,7 @@ public:
 		WaveKind wk = none_wave;
 		PointKind pk = nothing;
 		if (a > 0) {
-			if (a == FLT_MAX) {//site_verÀÎ °æ¿ì
+			if (a == FLT_MAX) {//site_verï¿½ï¿½ ï¿½ï¿½ï¿½
 				a1 = 1; b1 = -1; c1 = site->get_r_endpoint().second;
 			}
 			else {
