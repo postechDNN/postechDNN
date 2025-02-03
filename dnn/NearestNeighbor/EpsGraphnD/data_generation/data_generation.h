@@ -5,6 +5,7 @@
 #include "../algorithm/Point.h"
 #include "../algorithm/Polytope.h"
 #include "../EpsGraphnD.h"
+#include "../CPolytope.h"
 
 // 2#include "data_generation_print.h"
 
@@ -150,6 +151,9 @@ void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bb
 
 // vector<Polytope*> dels2polytopes(int num_topes); 
 vector<Polytope*> dels2polytopes(string dir, int num_topes);
+
+// 파일 input을 통해, convex polytope을 만드는 함수
+CPolytope* dels2polytopes(string dir);
 
 vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, int dim, int num_points, int TYPE = 0);
 

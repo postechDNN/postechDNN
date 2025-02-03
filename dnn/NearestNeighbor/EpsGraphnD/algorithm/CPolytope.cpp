@@ -5,6 +5,7 @@
 #include <limits>
 #include "linalg.h"
 #include "solvers.h"
+#include <iomanip>
 
 HalfPlane::HalfPlane(int dim, bool is_boundary, double coeffs[]) {
 	this->dim = dim;
@@ -256,4 +257,39 @@ int CPolytope::is_in(Point p) {
 
 CPolytope:: ~CPolytope() {
     ;
+}
+
+// Function to print intersection results
+void test_intersection(CPolytope& polytope, Point p, Point q, int test_num) {
+	bool intersects = polytope.is_intersect(p, q);
+	std::cout << "Test Intersection " << test_num << ": ";
+	std::cout << "Line Segment [(";
+	for (int i = 0; i < p.getsize(); ++i) {
+		std::cout << p.getx(i);
+		if (i < p.getsize() - 1) std::cout << ", ";
+	}
+	std::cout << ") to (";
+	for (int i = 0; i < q.getsize(); ++i) {
+		std::cout << q.getx(i);
+		if (i < q.getsize() - 1) std::cout << ", ";
+	}
+	std::cout << ")] ";
+	if (intersects) {
+		std::cout << "intersects the polytope." << std::endl;
+	}
+	else {
+		std::cout << "does NOT intersect the polytope." << std::endl;
+	}
+}
+
+void print_halfplane(HalfPlane& hp, int dim) {
+	std::cout << "HalfPlane equation: ";
+	for (int i = 0; i < dim; ++i) {
+		std::cout << std::fixed << std::setprecision(3) << hp.getCoeff(i) << "x" << (i + 1) << " + ";
+	}
+	std::cout << hp.getCoeff(dim) << " <= 0";
+	if (hp.is_boundary) {
+		std::cout << " (Boundary)";
+	}
+	std::cout << std::endl;
 }

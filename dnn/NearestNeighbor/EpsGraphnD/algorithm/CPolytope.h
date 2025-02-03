@@ -33,3 +33,8 @@ public:
 	bool is_intersect(Point p, Point q);
 	~CPolytope();
 };
+
+// Function to print intersection results
+void test_intersection(CPolytope& polytope, Point p, Point q, int test_num);
+
+void print_halfplane(HalfPlane& hp, int dim);

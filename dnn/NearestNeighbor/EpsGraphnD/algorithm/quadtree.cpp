@@ -209,7 +209,9 @@ void buildEpsilonGraph() {
 
 	double eps = 64;
 
-	auto qT = new kDQuadTree(points, 4, boundingBox, eps);
+	vector<CPolytope*> pols;
+
+	auto qT = new kDQuadTree(points, pols, 4, boundingBox, eps);
 
 	// debug
 	exit(1);

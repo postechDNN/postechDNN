@@ -1,13 +1,13 @@
 #include <string>
 #include <iostream>
 #include "CPolytope.h"
+#include "errorTest.h"
 #include "Point.h"
 #include <vector>
 #include <iomanip>
 
 // #include "../data_generation/data_generation.h"
 
-/*
    int main(int argc, char* argv[]) {
     // 아래 switch문 메뉴 선택
     int inVal = std::stoi(argv[1]); // *(argv[1]) - '0';
@@ -57,44 +57,8 @@
     std::cout << "escaped from switch statement";
     return 0;
 }
-*/
 
-void print_halfplane(HalfPlane& hp, int dim) {
-    std::cout << "HalfPlane equation: ";
-    for (int i = 0; i < dim; ++i) {
-        std::cout << std::fixed << std::setprecision(3) << hp.getCoeff(i) << "x" << (i + 1) << " + ";
-    }
-    std::cout << hp.getCoeff(dim) << " <= 0";
-    if (hp.is_boundary) {
-        std::cout << " (Boundary)";
-    }
-    std::cout << std::endl;
-}
-
-// Function to print intersection results
-void test_intersection(CPolytope& polytope, Point p, Point q, int test_num) {
-    bool intersects = polytope.is_intersect(p, q);
-    std::cout << "Test Intersection " << test_num << ": ";
-    std::cout << "Line Segment [(";
-    for (int i = 0; i < p.getsize(); ++i) {
-        std::cout << p.getx(i);
-        if (i < p.getsize() - 1) std::cout << ", ";
-    }
-    std::cout << ") to (";
-    for (int i = 0; i < q.getsize(); ++i) {
-        std::cout << q.getx(i);
-        if (i < q.getsize() - 1) std::cout << ", ";
-    }
-    std::cout << ")] ";
-    if (intersects) {
-        std::cout << "intersects the polytope." << std::endl;
-    }
-    else {
-        std::cout << "does NOT intersect the polytope." << std::endl;
-    }
-}
-
-int main() {
+int main2() {
     // Existing Test Cases for HalfPlanes
     // ... [Your existing HalfPlane test cases here] ...
 

@@ -52,6 +52,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 	int curDataSetId = -1;
 
+	// 테스트케이스 5가지. (point 수, polytope 수)
 	std::vector<long long> speedSum = { 0, 0, 0, 0, 0 };
 	std::vector<double> avgSpeed = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
@@ -65,22 +66,16 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		curDataSetId++;
 		if (curDataSetId != useDataSetId) {
-			// cout << "not same " << curDataSetId << " " << useDataSetId << endl;
 			continue;
 		}
-		// else cout << "same " << curDataSetId;
-
-		// if (speedFlag) {}
-			// if (curDataSetId % 20 != 10) continue;
-			// if (curDataSetId % 20 != 0) continue;
-
-		// if (curDataSetId <= 5) continue;
-		// 폴더가 2개 있음. polytopes 그리고 points
 
 		fs::path dataDir = (*i00).path();
-		// string polytopesDirStr = dataDir.string() +  "\\polytopes";
-		// string pointsDirStr = dataDir.string() + "\\points";
 		fs::path polytopesDir(dataDir.string() + "\\polytopes");
+
+		// 각각의 polytope이 폴더 안에 있음
+		// ex) \\polytopes\\0\\ 니까 매 폴더마다 하나의 polytope,
+		// 해서 총 10개의 polytope 체크.
+		fs::directory_iterator iterTopes(polytopesDir);
 
 		std::vector<std::vector<Polytope*>> multiTopes;
 		// vector<Polytope*> singleTope
@@ -88,12 +83,6 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		// multiTopesNoPtr.assign(multiTopes.size(), {});
 
 		std::vector<Polytope*> multiTopesNoPtr;
-
-		// 각각의 polytope이 폴더 안에 있음
-		fs::directory_iterator iterTopes(polytopesDir);
-
-		// ex) \\polytopes\\0\\ 니까 매 폴더마다 하나의 polytope,
-		// 해서 총 10개의 polytope 체크.
 
 		std::cout << "before reading inputs" << std::endl;
 
