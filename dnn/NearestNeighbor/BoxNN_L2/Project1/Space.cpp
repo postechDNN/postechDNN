@@ -8,15 +8,15 @@
 template<typename T>
 std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items);
 
-Space::Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes, double _epsilon) {
+BoxGraphL2::BoxGraphL2(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes, double _epsilon) {
     this->epsilon = _epsilon;
     set_Space(_d, _sites, _Boxes);
 }
 
-Space::~Space(){
+BoxGraphL2::~BoxGraphL2(){
 }
 
-void  Space::set_Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes) {
+void  BoxGraphL2::set_Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes) {
     this->d = _d;
     this->sites = _sites;
     this->vertices = _sites;
@@ -69,7 +69,7 @@ std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>&
 
 
 //std::vector<std::pair<double, double>>Space:: Combination(int d) {
-std::vector<std::pair<int,int>> Space:: Combination() {
+std::vector<std::pair<int,int>> BoxGraphL2:: Combination() {
 
     std::vector<vector<int>> combinations;//���� ouput�� index�� �����ϴ� �迭
 
@@ -94,7 +94,7 @@ std::vector<std::pair<int,int>> Space:: Combination() {
 
 };
 
-std::vector<Point> Space::gen_SteinerPoint() {
+std::vector<Point> BoxGraphL2::gen_SteinerPoint() {
 
     std::vector<std::pair<int, int>> combination = this->Combination();
     
@@ -155,7 +155,7 @@ std::vector<Point> Space::gen_SteinerPoint() {
 };
 
 
-void Space::cal_rmin() {
+void BoxGraphL2::cal_rmin() {
     std::vector<double> results;
     double sum = 0.0;
     double diff;
@@ -243,7 +243,7 @@ void Space::cal_rmin() {
     this->rmin = rmin;
 };
 
-void Space::visibility_graph() {
+void BoxGraphL2::visibility_graph() {
     this->adj_list.clear();
     for (long long int i = 0; i < size(this->vertices); i++) {
         vector<pair<long long int, double>> temp;
@@ -259,27 +259,27 @@ void Space::visibility_graph() {
     }   
 };
 
-void Space::add_Box(Box b) {
+void BoxGraphL2::add_Box(Box b) {
     this->Boxes.push_back(b);
     this->set_Space(d, sites, Boxes);
 }
 
-void Space::del_Box(int i) {
+void BoxGraphL2::del_Box(int i) {
     this->Boxes.erase(Boxes.begin() + i);
     this->set_Space(d, sites, Boxes);
 }
 
-void Space::add_vert(Point p) {
+void BoxGraphL2::add_vert(Point p) {
     this->sites.push_back(p);
     this->set_Space(d, sites, Boxes);
 }
 
-void Space::del_vert(int i) {
+void BoxGraphL2::del_vert(int i) {
     this->sites.erase(sites.begin() + i);
     this->set_Space(d, sites, Boxes);
 }
 
-void Space::Dijkstra() {
+void BoxGraphL2::Dijkstra() {
     //Modify code using fibonacci heap
     dists.assign(vertices.size(), std::numeric_limits<double>::max());
     visited.assign(vertices.size(), false);
@@ -354,7 +354,7 @@ bool comp(std::pair<double, Point> a, std::pair<double, Point> b) {
     return a.first < b.first;
 }
 
-pair<Point, double> Space::query(Point query) {
+pair<Point, double> BoxGraphL2::query(Point query) {
     Point Near;
     double dist = INFINITY;
 

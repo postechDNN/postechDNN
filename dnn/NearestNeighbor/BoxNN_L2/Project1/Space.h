@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class Space {
+class BoxGraphL2 {
 public:
     int d; // dimension
     double epsilon;// approximation factor
@@ -18,8 +18,8 @@ public:
     vector<Box> Boxes; // Obstacles
     vector<Point> sites;
     // Initializing obstacle space
-    Space(int, vector<Point>&, vector<Box>&, double _epsilon);
-    ~Space();
+    BoxGraphL2(int, vector<Point>&, vector<Box>&, double _epsilon);
+    ~BoxGraphL2();
     void set_Space(int, vector<Point>&, vector<Box>&);
 
     // Function
