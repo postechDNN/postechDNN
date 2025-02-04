@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <math.h>
 
-#define EPS 0.001
+#define EPS 1e-4
 
 AVLTreeList::AVLTreeList()
 {

@@ -185,6 +185,17 @@ void Arrangement::make_Rectangle(double x_max, double y_max) {
 
 
 Space::Space(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles) {
+    set_Space(_srcs, _obstacles);
+}
+
+Space::~Space(){
+}
+
+void  Space::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& _obstacles) {
+    vertices.clear();
+    adj_list.clear();
+    srcs.clear();
+    obstacles.clear();
     for (int i = 0; i < _srcs.size(); i++) {
         srcs.push_back(_srcs[i]);
         vertices.push_back(_srcs[i]);
@@ -195,7 +206,7 @@ Space::Space(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles
     for (int i = 0; i < _obstacles.size(); i++) {
         obstacles.push_back(_obstacles[i]);
         obstacles[i].index = i;
-        
+
         for (auto E : obstacles[i].getEdges()) {
             Edge_S T = E;
             T.poly = i;
@@ -217,14 +228,6 @@ Space::Space(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles
         vector<pair<long long, double>>* temp = new vector<pair<long long, double>>;
         adj_list.push_back(*temp);
     }
-    set_Space(_srcs, _obstacles);
-}
-
-Space::~Space(){
-}
-
-void  Space::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& _obstacles) {
-
     //arr = Arrangement(vertices);
     visibility_graph();
     Dijkstra();
@@ -351,20 +354,58 @@ void Space::visibility_graph() {
     visited.assign(size(vertices), false);*/
 };
 
-
-void Space::add_Polygon(SimplePolygon) {
-
+void Space::add_Polygon(SimplePolygon poly) {
+    this->obstacles.push_back(poly);
+    std::vector<Point> _srcs;
+    std::vector<SimplePolygon> _obs;
+    for (size_t i = 0; i < this->srcs.size(); i++) {
+        _srcs.push_back(this->srcs[i]);
+    }
+    for (size_t i = 0; i < this->obstacles.size(); i++) {
+        _obs.push_back(this->obstacles[i]);
+    }
+    this->set_Space(_srcs, _obs);
 }
 
-void Space::del_Polygon(int) {
-
+void Space::del_Polygon(int i) {
+    this->obstacles.erase(obstacles.begin() + i);
+    std::vector<Point> _srcs;
+    std::vector<SimplePolygon> _obs;
+    for (size_t i = 0; i < this->srcs.size(); i++) {
+        _srcs.push_back(this->srcs[i]);
+    }
+    for (size_t i = 0; i < this->obstacles.size(); i++) {
+        _obs.push_back(this->obstacles[i]);
+    }
+    this->set_Space(_srcs, _obs);
 }
-void Space::add_vert(Point) {
 
+void Space::add_vert(Point p) {
+    this->srcs.push_back(p);
+    std::vector<Point> _srcs;
+    std::vector<SimplePolygon> _obs;
+    for (size_t i = 0; i < this->srcs.size(); i++) {
+        _srcs.push_back(this->srcs[i]);
+    }
+    for (size_t i = 0; i < this->obstacles.size(); i++) {
+        _obs.push_back(this->obstacles[i]);
+    }
+    this->set_Space(_srcs, _obs);
 }
-void Space::del_vert(int) {
 
+void Space::del_vert(int i) {
+    this->srcs.erase(srcs.begin() + i);
+    std::vector<Point> _srcs;
+    std::vector<SimplePolygon> _obs;
+    for (size_t i = 0; i < this->srcs.size(); i++) {
+        _srcs.push_back(this->srcs[i]);
+    }
+    for (size_t i = 0; i < this->obstacles.size(); i++) {
+        _obs.push_back(this->obstacles[i]);
+    }
+    this->set_Space(_srcs, _obs);
 }
+
 void Space::Dijkstra() {
     //Modify code using fibonacci heap
     dists.assign(vertices.size(), std::numeric_limits<double>::max());
