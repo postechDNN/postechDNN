@@ -920,72 +920,73 @@ vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 	return ret;
 }
 
-// 파일 input을 통해, convex polytope을 만드는 함수
-CPolytope* dels2polytopes(string dir) {
+// 파일 input을 통해, (하나의) convex polytope을 만드는 함수
+// dir의 예시: 
+CPolytope* dels2cpolytope(string dir, int dim) {
 
-	std::vector<string> filenames = { "" };
+	int dummy;
 
-	for (auto index : filenames) {
-		std::ifstream fin;
+	std::ifstream fin;
 
-		// string str = dir + "result" + index + ".txt";
-		string str = dir + "\\" + "points" + index + ".txt";
-		fin.open(str);
+	// point 정보 읽기 start
+	// string str = dir + "\\" + "points" + index + ".txt";
+	string str = dir + "\\" + "points.txt";
+	fin.open(str);
 
-		string s;
-		getline(fin, s);
-		int dim = stoi(s);
-		getline(fin, s);
-		int num_pts = stoi(s);
+	string s;
+	// 차원 입력
+	getline(fin, s);
+	// 점 개수 입력
+	getline(fin, s);
+	int num_pts = stoi(s);
 
-		std::vector<Point*> pts;
-		std::vector<double> vec(num_pts, 0.0);
-		double val;
+	// 포인트 읽어들이기
+	// std::vector<Point*> pts;
+	std::vector<Point> pts;
+	double val;
 
-		for (int i = 0; i < num_pts; i++) {
-			Point* pt = new Point(dim);
-			for (int j = 0; j < dim; j++) {
-				fin >> val;
-				pt->setx(j, val);
-			}
-			pts.push_back(pt);
+	for (int i = 0; i < num_pts; i++) {
+		// Point* pt = new Point(dim);
+		Point pt(dim);
+		for (int j = 0; j < dim; j++) {
+			fin >> val;
+			// pt->setx(j, val);
+			pt.setx(j, val);
+		}
+		pts.push_back(pt);
+	}
+
+	fin.close();
+	// point 정보 읽기 end
+
+	// facet 정보 읽기 start
+	std::vector< std::vector<int>> facets;
+
+	std::ifstream fin2;
+
+	// string str2 = dir + "\\" + "tets" + index + ".txt";
+	string str2 = dir + "\\" + "tets.txt";
+	fin.open(str2);
+
+	getline(fin, s);
+	// facet의 개수
+	int size = stoi(s);
+	for (int index = 0; index < size; index++) {
+		// 차원 정보 (필요 없는 정보)
+		fin >> dummy;
+
+		std::vector<int> facet;
+
+		for (int j = 0; j < dim + 1; j++) {
+			fin >> s;
+			facet.push_back(stoi(s));
 		}
 
-		fin.close();
+		facets.push_back(facet);
+	}
+	// facet 정보 읽기 end
 
-		Polytope* tope = new Polytope(dim);
-		tope->set_vertices(pts);
-
-		std::vector<simplex> sims;
-
-		// std::ifstream fin2(dir + "CH" + to_string(index));
-		string str2 = dir + "\\" + "tets" + index + ".txt";
-		std::ifstream fin2;
-
-		fin.open(str2);
-
-		getline(fin, s);
-		int size = stoi(s);
-		for (int index = 0; index < size; index++) {
-			fin >> dummy;
-			vector<Point*> vec;
-			for (int index2 = 0; index2 < dim + 1; index2++) {
-				fin >> s;
-				vec.push_back(pts[stoi(s)]);
-			}
-			auto sim = new simplex(dim, vec);
-			sims.push_back(*sim);
-		}
-
-		tope->set_simplices(sims);
-
-	return CPolytope();
-
-	// for (auto index : filenames) {}
-
-	// CPolytope(int dim, std::vector<Point>, std::vector< std::vector<int>>);
-
-	// CPolytope::CPolytope(int dim, std::vector<Point> vertices, std::vector< std::vector<int>> facets)
+	return new CPolytope(dim, pts, facets);
 }
 
 bool isNumeric(std::string const& str)

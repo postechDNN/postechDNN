@@ -130,6 +130,7 @@ int HalfPlane::is_in(Point& p)  {
     else
         return 0; // Boundary
 }
+
 CPolytope::CPolytope(int dim, std::vector<Point> vertices, std::vector< std::vector<int>> facets) {
     this->dim = dim;
 

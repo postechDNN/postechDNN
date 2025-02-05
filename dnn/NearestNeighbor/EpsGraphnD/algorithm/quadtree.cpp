@@ -87,9 +87,9 @@ void kDQuadTreeNode::updateNumNodesSubtree() {
 
 Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, kDQuadTreeNode* parent) { // vector<Polytope*>
 
-	cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
+	// cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
 
-	int maxDepth = 4;
+	int maxDepth = 12;
 
 	// debug
 	// if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }

@@ -77,12 +77,11 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		// 해서 총 10개의 polytope 체크.
 		fs::directory_iterator iterTopes(polytopesDir);
 
-		std::vector<std::vector<Polytope*>> multiTopes;
-		// vector<Polytope*> singleTope
-		// vector<vector<Polytope>> multiTopesNoPtr;
-		// multiTopesNoPtr.assign(multiTopes.size(), {});
+		// std::vector<std::vector<Polytope*>> multiTopes;
 
-		std::vector<Polytope*> multiTopesNoPtr;
+		// std::vector<Polytope*> multiTopesNoPtr;
+
+		std::vector<CPolytope*> Ctopes;
 
 		std::cout << "before reading inputs" << std::endl;
 
@@ -92,16 +91,18 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 			fs::path topeDir = (*i01).path();
 			// topeDir.string();
 
-			multiTopes.push_back(dels2polytopes(topeDir.string(), 1));
+			Ctopes.push_back(dels2cpolytope(topeDir.string(), 4));
+
+			// multiTopes.push_back(dels2polytopes(topeDir.string(), 1));
 		}
 
-		// multiTopes에서 multiTopesNoPtr로 변경
-		for (int j = 0; j < multiTopes.size(); j++) {
-			for (auto singleConvexTope : multiTopes[j]) {
-				// multiTopesNoPtr[j].push_back(*singleConvexTope);
-				multiTopesNoPtr.push_back(singleConvexTope);
-			}
-		}
+		//// multiTopes에서 multiTopesNoPtr로 변경
+		//for (int j = 0; j < multiTopes.size(); j++) {
+		//	for (auto singleConvexTope : multiTopes[j]) {
+		//		// multiTopesNoPtr[j].push_back(*singleConvexTope);
+		//		multiTopesNoPtr.push_back(singleConvexTope);
+		//	}
+		//}
 
 		// ex) C:\Users\HWI\Documents\epsGraphTestData\000\points
 		fs::path pointsDir(dataDir.string() + "\\points");
@@ -135,11 +136,11 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		// auto slicedPoints = vector<Point*>(pts2.begin(), pts2.begin() + 100); 
 
 		vector<Point*> pts2;
-		for (int j = 0; j < 100; j++) pts2.push_back(generateRandomPoint(dimension, make_pair(-val, val)));
+		for (int j = 0; j < 10000; j++) pts2.push_back(generateRandomPoint(dimension, make_pair(-val, val)));
 		
-		vector<CPolytope*> pols;
+		// vector<CPolytope*> pols;
 		
-		auto qT = new kDQuadTree(pts2, pols, dimension, boundingBox, epsilon);
+		auto qT = new kDQuadTree(pts2, Ctopes, dimension, boundingBox, epsilon);
 		// buildEpsilonGraph(pts2);
 
 		// 파이썬에서 옮겨서 테스트 할 output 생성
@@ -153,14 +154,19 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 			while (!q.empty()) {
 				Node* cur = q.front();
 				q.pop();
+
+				/*
 				std::cout << "size: " << (cur->boundingBox).size() << '\n';
 
 				outputTXT << "b\n";
 				for (pair<double, double> p : cur->boundingBox) {
 					outputTXT << p.first << " " << p.second << '\n';
 				}
+				*/
+
 
 				if (cur->isLeaf) {
+					/*
 					outputTXT << "p " << (cur->points).size() << '\n';
 					for (Point* p : cur->points) {
 						for (double x : p->getxs()) {
@@ -168,6 +174,8 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 						}
 						outputTXT << '\n';
 					}
+					*/
+
 				}
 				else {
 					for (Node* child : cur->childNodes) {
@@ -196,10 +204,11 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		// 준비된 free points와 polytopes 이용해 epsilon graph 생성
 
+		std::vector<Polytope*> multiTopesNoPtr;
+
 		// Eps_Graph_nD epsGraph(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
-		auto* epsGraph =
-			new Eps_Graph_nD(dimension, frpts, multiTopesNoPtr,
-				epsilon, resultDir + "\\" + "EG1");
+		auto* epsGraph = new Eps_Graph_nD(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
+		// auto* epsGraph = new Eps_Graph_nD(-1);
 
 		if (checkMemory) {
 			epsGraph->checkMemory("C:\\Users\\HWI\\Desktop\\finalResult");
