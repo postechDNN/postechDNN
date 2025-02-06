@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DCEL.h"
+#include "DCEL/DCEL.h"
 #include <string>
 #include <fstream>
 #include <sstream>

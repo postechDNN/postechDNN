@@ -1,6 +1,6 @@
 #pragma once
-#include "../BBST/SimpleBBST.h"
-#include "../DCEL/DCEL.h"
+#include "SimpleBBST.h"
+#include "DCEL/DCEL.h"
 #include <map>
 
 class TriangleSubdivision{

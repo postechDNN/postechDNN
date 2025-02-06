@@ -2,7 +2,7 @@
 #include <memory>
 #include <queue>
 #include <fstream>
-#include "../RBTree/Red Black Tree.h"
+#include "RBTree.h"
 using namespace std;
 
 float sweep_t;
