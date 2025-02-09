@@ -47,7 +47,7 @@ public:
     ~Point_S() {};
 };
 
-class Space {
+class VisGraph {
 public:
     vector<Point_S> srcs; //Sources
     vector<SimplePolygon_S> obstacles; // Obstacles
@@ -61,8 +61,8 @@ public:
 
 public:
     // Setting
-    Space(const vector<Point>&, const vector<SimplePolygon>&);
-    ~Space();
+    VisGraph(const vector<Point>&, const vector<SimplePolygon>&);
+    ~VisGraph();
     void set_Space(const vector<Point>&, const vector<SimplePolygon>&);
 
 

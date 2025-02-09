@@ -111,7 +111,7 @@ Edge* Edge::crossing(Edge& _e, bool closed = true) {
 	else {
 		t = t / d;
 		s = s / d;
-		if (t > 1 || s > 1 || t < 0 || s < 0) {
+		if (t > 1 + ERR || s > 1 + ERR || t < -ERR || s < -ERR) {
 			return nullptr;
 		}
 		else if ((std::abs(t) < ERR || std::abs(t - 1.) < ERR || std::abs(s) < ERR || std::abs(s - 1.) < ERR) && !closed) {

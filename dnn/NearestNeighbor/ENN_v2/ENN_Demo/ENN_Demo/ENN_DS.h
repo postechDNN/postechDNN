@@ -31,7 +31,7 @@ public:
 
 	// Data structure pointers 
 public:
-	Space* space;
+	VisGraph* space;
 	Object object2D;
 	Object object3D;
 

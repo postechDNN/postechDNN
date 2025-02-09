@@ -16,7 +16,7 @@ int main(){
     std::vector<SimplePolygon> obstacles = { SimplePolygon(pts1), SimplePolygon(pts2) };
     std::cout << "Construct the conforming subdivision of free space start\n";
     std::cout << "Construct the conforming subdivision of free space done\n";
-    Space s(srcs, obstacles);
+    VisGraph s(srcs, obstacles);
     //s.Dijkstra();
     Point t(9.1, 4.4);
     pair<Point, double> answer = s.query(t);

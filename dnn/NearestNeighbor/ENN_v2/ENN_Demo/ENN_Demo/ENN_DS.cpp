@@ -9,7 +9,7 @@ using namespace std;
 #define DIV 1024
 
 ENN_DS::ENN_DS() {
-	Space* space;
+	VisGraph* space;
 	memory.dwLength = sizeof(memory);
 	exe_time = 0;
 	store_add_pol = {};
@@ -143,26 +143,37 @@ void ENN_DS::readENN(CString path)
 	object2D.addQuery(query);
 
 
-	Space s(points_temp, poly_temp);
-	pair<Point, double>answer = s.query(q);
-	pair<Point, Point> temp = {};
-	temp = { answer.first, q };
-
-	OGL_Edge te;
-	OGL_Point a1, a2;
-	a1.setX(temp.first.getx());
-	a1.setY(temp.first.gety());
-	a2.setX(temp.second.getx());
-	a2.setY(temp.second.gety());
-	te.setStartP(a1);
-	te.setEndP(a2);
-	e_temp.push_back(te);
-	object2D.addPath(te);
-
-
-
-
-
+	VisGraph s(points_temp, poly_temp);
+	tuple<Point, int, double>answer = s.query(q);
+	int temp_ind = get<1>(answer);
+	double temp_dist = get<2>(answer);
+	Point p1 = q;
+	Point p2 = s.vertices[temp_ind];
+	while(true) {
+		pair<Point, Point> temp = { p1,p2 };
+		OGL_Edge te;
+		OGL_Point a1, a2;
+		a1.setX(temp.first.getx());
+		a1.setY(temp.first.gety());
+		a2.setX(temp.second.getx());
+		a2.setY(temp.second.gety());
+		te.setStartP(a1);
+		te.setEndP(a2);
+		e_temp.push_back(te);
+		object2D.addPath(te);
+		p1 = p2;
+		if (p2 == get<0>(answer)) break;
+		else {
+			temp_dist = s.dists[temp_ind];
+			for (int i = 0; i < s.adj_list[temp_ind].size(); i++) {
+				if (abs(s.adj_list[temp_ind][i].second + s.dists[s.adj_list[temp_ind][i].first] - temp_dist) < ERR) {
+					temp_ind = s.adj_list[temp_ind][i].first;
+					p2 = s.vertices[temp_ind];
+				}
+			}
+		}
+	}
+	
 	for (auto v : v_temp) {
 		object2D.addVertex(v);
 	}

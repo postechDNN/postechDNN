@@ -184,14 +184,14 @@ void Arrangement::make_Rectangle(double x_max, double y_max) {
 }
 
 
-Space::Space(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles) {
+VisGraph::VisGraph(const vector<Point> &_srcs, const vector<SimplePolygon>& _obstacles) {
     set_Space(_srcs, _obstacles);
 }
 
-Space::~Space(){
+VisGraph::~VisGraph(){
 }
 
-void  Space::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& _obstacles) {
+void  VisGraph::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon>& _obstacles) {
     vertices.clear();
     adj_list.clear();
     srcs.clear();
@@ -240,7 +240,7 @@ struct cmp {
     }
 };
 
-void Space::visibility_graph() {
+void VisGraph::visibility_graph() {
     for (int i = 0; i < vertices.size(); i++) {
 
         priority_queue<pair<double, Point_S>, vector<pair<double, Point_S>>, cmp> P;
@@ -282,7 +282,7 @@ void Space::visibility_graph() {
                 else if (!obstacles[vertices[i].poly].inPolygon(p)) {
                     Edge temp(vertices[i], event.second);
                     // event vertex is visible from p
-                    if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
+                    if (S.Is_empty() || S.Search().crossing(temp, true) == nullptr || S.Search().crossing(temp, true)->gets() == event.second) {
                         adj_list[i].push_back({ event.second.index , vertices[i].distance(event.second) });
                     }
                 }
@@ -290,7 +290,7 @@ void Space::visibility_graph() {
             else {
                 Edge temp(vertices[i], event.second);
                 // event vertex is visible from p
-                if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
+                if (S.Is_empty() || S.Search().crossing(temp, true) == nullptr || S.Search().crossing(temp, true)->gets() == event.second) {
                     adj_list[i].push_back({ event.second.index , vertices[i].distance(event.second) });
                 }
             }
@@ -354,7 +354,7 @@ void Space::visibility_graph() {
     visited.assign(size(vertices), false);*/
 };
 
-void Space::add_Polygon(SimplePolygon poly) {
+void VisGraph::add_Polygon(SimplePolygon poly) {
     this->obstacles.push_back(poly);
     std::vector<Point> _srcs;
     std::vector<SimplePolygon> _obs;
@@ -367,7 +367,7 @@ void Space::add_Polygon(SimplePolygon poly) {
     this->set_Space(_srcs, _obs);
 }
 
-void Space::del_Polygon(int i) {
+void VisGraph::del_Polygon(int i) {
     this->obstacles.erase(obstacles.begin() + i);
     std::vector<Point> _srcs;
     std::vector<SimplePolygon> _obs;
@@ -380,7 +380,7 @@ void Space::del_Polygon(int i) {
     this->set_Space(_srcs, _obs);
 }
 
-void Space::add_vert(Point p) {
+void VisGraph::add_vert(Point p) {
     this->srcs.push_back(p);
     std::vector<Point> _srcs;
     std::vector<SimplePolygon> _obs;
@@ -393,7 +393,7 @@ void Space::add_vert(Point p) {
     this->set_Space(_srcs, _obs);
 }
 
-void Space::del_vert(int i) {
+void VisGraph::del_vert(int i) {
     this->srcs.erase(srcs.begin() + i);
     std::vector<Point> _srcs;
     std::vector<SimplePolygon> _obs;
@@ -406,7 +406,7 @@ void Space::del_vert(int i) {
     this->set_Space(_srcs, _obs);
 }
 
-void Space::Dijkstra() {
+void VisGraph::Dijkstra() {
     //Modify code using fibonacci heap
     dists.assign(vertices.size(), std::numeric_limits<double>::max());
     visited.assign(vertices.size(), false);
@@ -435,7 +435,7 @@ void Space::Dijkstra() {
         }
     }
 }
-pair<Point, double> Space::query(Point query) {
+pair<Point, double> VisGraph::query(Point query) {
     Point Near;
     double dist = INFINITY;
 
@@ -467,7 +467,7 @@ pair<Point, double> Space::query(Point query) {
 
         Edge temp(query, event.second);
         // event vertex is visible from p
-        if (S.Is_empty() || S.Search().crossing(temp, false) == nullptr) {
+        if (S.Is_empty() || S.Search().crossing(temp, true) == nullptr || S.Search().crossing(temp, true)->gets() == event.second) {
             double dist_temp = query.distance(event.second);
             // event vertex is an edge
             if (event.second.poly >= 0 && dist_temp + dists[event.second.index] < dist) {

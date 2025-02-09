@@ -75,7 +75,7 @@ bool AVLTreeList::Insert(Edge data, Point v1, Point v2)
     bool isLeft = true;
     double x = v2.getx() - v1.getx();
     double y = v2.gety() - v1.gety();
-    Point V(v1.getx() + (x * cos(EPS) - y * sin(EPS)) / EPS, v1.gety() + (x * sin(EPS) + y * cos(EPS)) / EPS);
+    Point V(v1.getx() + x / EPS, v1.gety() + y / EPS);
     Edge E(v1, V);
     double key = v1.distance(data.crossing(E, true)->gets());
 
