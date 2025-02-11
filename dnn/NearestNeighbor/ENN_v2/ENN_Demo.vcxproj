@@ -156,6 +156,7 @@
     <ClInclude Include="..\ENN\C_Subidivision\DCEL\Vector.h" />
     <ClInclude Include="AVLTreeList.h" />
     <ClInclude Include="Space.h" />
+    <ClInclude Include="Space_IO.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

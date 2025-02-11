@@ -104,5 +104,8 @@
     <ClInclude Include="AVLTreeList.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Space_IO.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

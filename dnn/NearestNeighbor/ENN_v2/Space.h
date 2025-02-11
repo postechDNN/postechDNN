@@ -56,7 +56,7 @@ public:
     vector<double> dists; //distance from the nearest source
     vector<int> near_src; //index of the nearest source
     vector<bool> visited;
-    vector<vector<pair<long long, double>>> adj_list; // Adjacent list
+    vector<vector<pair<int, double>>> adj_list; // Adjacent list
     Arrangement arr;
 
 public:
@@ -74,6 +74,6 @@ public:
     void add_vert(Point);
     void del_vert(int);
     void Dijkstra();
-    pair<Point, double> query(Point query);
+    tuple<Point,int, double> query(Point query);
 };
 
