@@ -3,6 +3,8 @@
 #include <map>
 
 #include "quadtree.h"
+#include "CPolytope.h"
+#include "CPolytope.cpp"
 
 
 vector<int> dec2bin(int powerNum, int num) {
@@ -545,7 +547,14 @@ vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
 
 }
 
-void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
+// 좌표로 저장
+// vector< pair<double, double>, pair<double, double> > buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
+vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
+// void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
+	// vector< pair<double, double>, pair<double, double> > ret;
+	
+	vector<pair<int, int>> ret;
+
 	std::vector<Node*> leafs;
 	double EPS = 0.001;
 
@@ -614,21 +623,11 @@ void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 				for (Point* p2 : adj->points) {
 					for (auto& pol : pols) {
 						if (!pol->is_intersect(p1, p2)) {
+							
+							ret.push_back(make_pair(p1->nowIndex, p2->nowIndex));
 
 							p1->neighbors.push_back(p2);
 							p2->neighbors.push_back(p1);
-
-							/*
-							if (p1->isPolytopeVertex && !(p2->isPolytopeVertex)) { // p1만 polytope vertex
-							}
-							else if (!(p1->isPolytopeVertex) && p2->isPolytopeVertex) { // p2만 polytope vertex
-							}
-							else if (!(p1->isPolytopeVertex) && !(p2->isPolytopeVertex)) { // 둘 다 polytope vertex가 아님
-							}
-							else { // 둘 다 polytope vertex임
-								// if (isSameFacet(p1, p2)) { } // 같은 facet 위에 있는 경우만 연결?
-							}
-							*/
 						}
 					}
 					
@@ -636,6 +635,13 @@ void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 			}
 		}
 	}
+
+	for (auto& edge : ret) {
+		if (edge.first > edge.second) edge = make_pair(edge.second, edge.first);
+	}
+	ret.erase(unique(ret.begin(), ret.end()), ret.end());
+
+	return ret;
 }
 
 // 디버그용 함수

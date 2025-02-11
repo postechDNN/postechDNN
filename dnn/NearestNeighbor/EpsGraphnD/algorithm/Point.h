@@ -21,11 +21,18 @@ struct ind_pts {
 */
 
 extern int numTotalPoints;
+extern int totalIndex;
 
 class Point {
 public:
 	int n;
 	std::vector<double> xs;
+
+	// static int totalIndex;
+
+	int nowIndex;
+	// µÒº≈≥ ∏Æ ¿˙¿Â¿ª ¿ß«— ¿Œµ¶Ω∫
+
 
 	bool isPolytopeVertex;
 
@@ -69,7 +76,7 @@ public:
 
 };
 
-
+// int Point::totalIndex = 0;
 
 class Free_Point : public Point {
 public:

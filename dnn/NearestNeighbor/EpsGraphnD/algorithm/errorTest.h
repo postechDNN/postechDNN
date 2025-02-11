@@ -7,6 +7,7 @@
 #include "../data_generation/data_generation.h"
 #include "quadtree.h"
 
+void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useDataSetId);
 
 void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId);
 

@@ -114,7 +114,9 @@ Node* pointLocation(Node* node, Point* point);
 Node* addPoint(Node* node, Point* point, int maxDepth);
 Node* deletePoint(Node* node, Point* point);
 
-void buildPointGraphOnQuadTree(kDQuadTree* quadtree);
+// void buildPointGraphOnQuadTree(kDQuadTree* quadtree);
+vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree);
+// vector< pair<double, double>, pair<double, double> > buildPointGraphOnQuadTree(kDQuadTree* quadtree);
 
 // node를 root로 하는 subtree 내의 모든 node에 numPoints 개의 점을 무작위로 찍기
 // void spreadPoints(Node* node, int dim, int numPoints = numSpreadPoints);

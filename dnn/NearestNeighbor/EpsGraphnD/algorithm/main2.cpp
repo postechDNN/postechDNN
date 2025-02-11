@@ -32,15 +32,21 @@
     //cout << "3. read polytopes\n";
     //cout << "4. kNN query\n";
     //cout << "Enter: ";
+
     // manual ют╥б
-    //inVal = 0;
-    //dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
-    //speedFlag = true;
-    //useDataSetId = 0;
+
+    inVal = 0;
+    // dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
+	dir = "C:\\Users\\HWI\\Documents\\StarLab\\epsGraphTest";
+	// Data\\000\\polytopes\\0"
+    speedFlag = false;
+    useDataSetId = 0;
+
     switch (inVal) {
     case 0:
         // return;
-        autoTest(dir, epsilon, speedFlag, useDataSetId);
+        // autoTest(dir, epsilon, speedFlag, useDataSetId);
+        autoTestConvex(dir, epsilon, speedFlag, useDataSetId);
         break;
     case 1:
         // generatePoints();
@@ -58,6 +64,8 @@
     return 0;
 }
 
+/*
+
 int main2() {
     // Existing Test Cases for HalfPlanes
     // ... [Your existing HalfPlane test cases here] ...
@@ -72,17 +80,15 @@ int main2() {
 
         // Define vertices of the square (counter-clockwise order)
 
-        /*
-        *  std::vector<Point> vertices2D = {
+        std::vector<Point> vertices2D = {
             Point({0.0, 0.0}),
             Point({1.0, 0.0}),
             Point({1.0, 1.0}),
             Point({0.0, 1.0})
         };
-        */
 
-        std::vector<Point> vertices2D;
-        std::vector<double> v1 = {0.0, 0.0}, v2 = { 1.0, 0.0 }, v3 = { 1.0, 1.0 }, v4 = { 0.0, 1.0 };
+        // std::vector<Point> vertices2D;
+        // std::vector<double> v1 = {0.0, 0.0}, v2 = { 1.0, 0.0 }, v3 = { 1.0, 1.0 }, v4 = { 0.0, 1.0 };
 
         Point p1(v1), p2(v2), p3(v3), p4(v4);
 
@@ -111,8 +117,7 @@ int main2() {
 
         // Define line segments to test
         std::vector<std::pair<Point, Point>> line_segments2D = {
-            {sv1, sv2}
-             /*
+            // {sv1, sv2}
                         { Point({-0.5, 0.5}), Point({0.5, 0.5}) },   // Intersects (enters)
                         { Point({0.5, 0.5}), Point({1.5, 1.5}) },    // Intersects (exits)
                         { Point({0.2, 0.2}), Point({0.8, 0.8}) },    // Completely inside
@@ -120,7 +125,6 @@ int main2() {
                         { Point({0.0, 0.5}), Point({1.0, 0.5}) },    // Along an edge
                         { Point({0.5, -0.5}), Point({0.5, 1.5}) },   // Passes through two edges
                         { Point({-1.0, -1.0}), Point({-0.1, -0.1}) } // Completely outside
-             */
 
         };
 
@@ -186,3 +190,4 @@ int main2() {
 
     return 0;
 }
+*/

@@ -7,6 +7,142 @@
 
 using namespace std;
 
+void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useDataSetId) {
+	int dim = 2;
+
+	// 100개의 데이터셋
+	int numDatasets = 100;
+
+	// kNN에서 k값
+	std::vector<int> ks = { 10, 50, 100, 500, 1000 };
+
+	namespace fs = std::filesystem;
+
+	std::string resultDir = dir + "Result";
+	fs::path dataDirDir = dir + "Data";
+	if (speedFlag) dataDirDir = dir + "DataSpeed";
+
+	fs::directory_iterator iterDirDir(dataDirDir);
+
+	// 테스트케이스 5가지. (point 수, polytope 수에 따라)
+	std::vector<long long> speedSum = { 0, 0, 0, 0, 0 };
+	std::vector<double> avgSpeed = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+	std::vector<double> distErrorSumsAll = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+	std::vector<double> numErrorSumsAll = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+	std::vector<double> distErrorSumsAllDijk = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+	std::vector<double> numErrorSumsAllDijk = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+	int curDataSetId = -1;
+	// useDataSetId = 0;
+
+	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
+
+		curDataSetId++;
+		if (curDataSetId != useDataSetId) {
+			continue;
+		}
+
+		fs::path dataDir = (*i00).path();
+
+		// ********************************************************** read CPolytope start
+		fs::path polytopesDir(dataDir.string() + "\\polytopes");
+		fs::directory_iterator iterTopes(polytopesDir);
+
+		std::vector<CPolytope*> Ctopes;
+
+		std::cout << "before reading inputs" << std::endl;
+
+		for (auto& i01 = iterTopes; i01 != fs::end(iterTopes); ++i01) {
+			fs::path topeDir = (*i01).path();
+			Ctopes.push_back(dels2cpolytope(topeDir.string(), dim, true));
+		}
+		// ********************************************************** read CPolytope end
+
+		// ********************************************************** read (input) points start
+		std::string pointsDir = dataDir.string() + "\\points\\points.txt"; // for points
+		std::string queryDir = dataDir.string() + "\\points\\points.txt"; // for queries
+
+		std::vector<Point*> pts = makePointSet(pointsDir);
+		// ********************************************************** read (input) points end
+
+		std::cout << "finished reading inputs" << std::endl;
+
+		// ************** quadtree debug start
+
+		double val = 128.0;
+		// bounding box
+		vector<pair<double, double >> boundingBox;
+		for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-val, val));
+
+		auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsilon);
+		// buildEpsilonGraph(pts2);
+
+		// ********************************************************** 파이썬을 이용한 쿼드트리 시각화를 위한 txt 파일 생성
+		ofstream outputTXT("output.txt");
+		outputTXT.clear();
+
+		std::queue<Node*> q;
+		q.push(qT->root);
+		if (outputTXT.is_open()) {
+			while (!q.empty()) {
+				Node* cur = q.front();
+				q.pop();
+
+				// std::cout << "size: " << (cur->boundingBox).size() << '\n';
+
+				outputTXT << "b\n";
+				for (pair<double, double> p : cur->boundingBox) {
+					outputTXT << p.first << " " << p.second << '\n';
+				}
+
+
+				if (cur->isLeaf) {
+					outputTXT << "p " << (cur->points).size() << '\n';
+					for (Point* p : cur->points) {
+						for (double x : p->getxs()) {
+							outputTXT << x << ' ';
+						}
+						outputTXT << p->nowIndex;
+						outputTXT << '\n';
+					}
+
+				}
+				else {
+					for (Node* child : cur->childNodes) {
+						q.push(child);
+					}
+				}
+			}
+		}
+		else {
+			std::cout << "output.txt error!\n";
+		}
+
+		vector<pair<int, int>> edge_list = buildPointGraphOnQuadTree(qT);
+
+		for (auto& edge : edge_list) {
+			outputTXT << "e" << "\n";
+			outputTXT << edge.first << " " << edge.second << "\n";
+		}
+		
+		for (auto& tope : Ctopes) {
+			outputTXT << "t" << " " << tope->vertices.size() << "\n";
+			for (auto& ver : tope->vertices) {
+				for (auto& x : ver.xs) {
+					outputTXT << x << " ";
+				}
+				outputTXT << "\n";
+			}
+			
+		}
+
+		outputTXT.close();
+		// ********************************************************** 파이썬을 이용한 쿼드트리 시각화를 위한 txt 파일 생성
+	}
+}
+
 void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId) {
 
 	bool checkMemory = false;
@@ -22,7 +158,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 	// bool speedFlag = true;
 
-	int dimension = 2;
+	int dim = 2;
 	// double epsilon = 200.;
 
 	std::cout << "epsilon: " << epsilon << std::endl;
@@ -52,7 +188,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 	int curDataSetId = -1;
 
-	// 테스트케이스 5가지. (point 수, polytope 수)
+	// 테스트케이스 5가지. (point 수, polytope 수에 따라)
 	std::vector<long long> speedSum = { 0, 0, 0, 0, 0 };
 	std::vector<double> avgSpeed = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
@@ -81,6 +217,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		// std::vector<Polytope*> multiTopesNoPtr;
 
+		// ********************************************************** Polytope input reading start
 		std::vector<CPolytope*> Ctopes;
 
 		std::cout << "before reading inputs" << std::endl;
@@ -91,10 +228,12 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 			fs::path topeDir = (*i01).path();
 			// topeDir.string();
 
-			Ctopes.push_back(dels2cpolytope(topeDir.string(), 4));
+			Ctopes.push_back(dels2cpolytope(topeDir.string(), dim));
 
 			// multiTopes.push_back(dels2polytopes(topeDir.string(), 1));
 		}
+
+		// ********************************************************** Polytope input reading end
 
 		//// multiTopes에서 multiTopesNoPtr로 변경
 		//for (int j = 0; j < multiTopes.size(); j++) {
@@ -129,18 +268,18 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		double val = 128.0;
 			// bounding box
 		vector<pair<double, double >> boundingBox;
-		for (int i = 0; i < dimension; i++) boundingBox.push_back(make_pair(-val, val));
+		for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-val, val));
 
 		// std::vector<Point*> pts2 = makePointSet(pointsSpecificDir);
 		// 현재는 10000개 포인트 중에서 맨 앞 100개만 확인
 		// auto slicedPoints = vector<Point*>(pts2.begin(), pts2.begin() + 100); 
 
 		vector<Point*> pts2;
-		for (int j = 0; j < 10000; j++) pts2.push_back(generateRandomPoint(dimension, make_pair(-val, val)));
+		for (int j = 0; j < 100; j++) pts2.push_back(generateRandomPoint(dim, make_pair(-val, val)));
 		
 		// vector<CPolytope*> pols;
 		
-		auto qT = new kDQuadTree(pts2, Ctopes, dimension, boundingBox, epsilon);
+		auto qT = new kDQuadTree(pts2, Ctopes, dim, boundingBox, epsilon);
 		// buildEpsilonGraph(pts2);
 
 		// 파이썬에서 옮겨서 테스트 할 output 생성
@@ -155,26 +294,23 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 				Node* cur = q.front();
 				q.pop();
 
-				/*
-				std::cout << "size: " << (cur->boundingBox).size() << '\n';
+				// std::cout << "size: " << (cur->boundingBox).size() << '\n';
 
 				outputTXT << "b\n";
 				for (pair<double, double> p : cur->boundingBox) {
 					outputTXT << p.first << " " << p.second << '\n';
 				}
-				*/
 
 
 				if (cur->isLeaf) {
-					/*
 					outputTXT << "p " << (cur->points).size() << '\n';
 					for (Point* p : cur->points) {
 						for (double x : p->getxs()) {
 							outputTXT << x << ' ';
 						}
+						outputTXT << p->nowIndex;
 						outputTXT << '\n';
 					}
-					*/
 
 				}
 				else {
@@ -188,10 +324,15 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 			std::cout << "output.txt error!\n";
 		}
 
+		vector<pair<int, int>> edge_list = buildPointGraphOnQuadTree(qT);
+
+		for (auto& edge : edge_list) {
+			outputTXT << "e" << "\n";
+			outputTXT << edge.first << " " << edge.second << "\n";
+		}
+		// 왜 10000 넘는 인덱스가 만들어지나, 복사 생성자 호출해서?
+		
 		outputTXT.close();
-
-		buildPointGraphOnQuadTree(qT);
-
 		//Point p(std::vector<double>({ 10.0, 10.0 }));
 		//Node* n = pointLocation(qT->root, &p);
 		//if (n != nullptr) {
@@ -206,8 +347,8 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		std::vector<Polytope*> multiTopesNoPtr;
 
-		// Eps_Graph_nD epsGraph(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
-		auto* epsGraph = new Eps_Graph_nD(dimension, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
+		// Eps_Graph_nD epsGraph(dim, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
+		auto* epsGraph = new Eps_Graph_nD(dim, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
 		// auto* epsGraph = new Eps_Graph_nD(-1);
 
 		if (checkMemory) {
@@ -234,14 +375,14 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 			}
 
 			epsGraphOpt =
-				new Eps_Graph_nD(dimension, frpts2, multiTopesNoPtr2,
+				new Eps_Graph_nD(dim, frpts2, multiTopesNoPtr2,
 					epsilon * 0.5, resultDir + "\\" + "EG2");
 			std::cout << "constructed epsGraph2" << std::endl;
 		}
 
 
 		// 비교할 near-optimal epsilon graph 생성
-		// Eps_Graph_nD epsGraphOpt(dimension, frpts, multiTopesNoPtr, epsilon * 0.5, resultDir + "\\" + "EG2");
+		// Eps_Graph_nD epsGraphOpt(dim, frpts, multiTopesNoPtr, epsilon * 0.5, resultDir + "\\" + "EG2");
 
 		// 쿼리 점들도 읽어 오기
 		// convex polytope을 피해야 하기 때문에?

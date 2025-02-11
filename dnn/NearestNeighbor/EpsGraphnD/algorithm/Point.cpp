@@ -7,8 +7,14 @@
 //this class defines a point in 2D space
 #define ERR 1e-6
 Point::Point() {
+	nowIndex = totalIndex;
+	totalIndex += 1;
+
 }
 Point::Point(int _n) {
+	nowIndex = totalIndex;
+	totalIndex += 1;
+
 	this->n = _n;
 	//std::vector<int> V = { 1,2,3 };
 	//this->xs = V;
@@ -19,12 +25,18 @@ Point::Point(int _n) {
 	this->isPolytopeVertex = false;
 }
 Point::Point(int _n, bool isFreePoint) {
+	nowIndex = totalIndex;
+	totalIndex += 1;
+
 	this->n = _n;
 	this->xs = std::vector<double>(_n, 0.);
 	this->is_Free_Point = isFreePoint;
 	this->isPolytopeVertex = false;
 }
 Point::Point(std::vector<double> _xs) {
+	nowIndex = totalIndex;
+	totalIndex += 1;
+
 	this->xs = _xs;
 	this->n = _xs.size();
 	//this->x = _x;
@@ -33,12 +45,18 @@ Point::Point(std::vector<double> _xs) {
 	this->isPolytopeVertex = false;
 }
 Point::Point(std::vector<double> _xs, bool isFreePoint) {
+	nowIndex = totalIndex;
+	totalIndex += 1;
+
 	this->xs = _xs;
 	this->n = _xs.size();
 	this->is_Free_Point = isFreePoint;
 	this->isPolytopeVertex = false;
 }
 Point::Point(Point* _p) {
+	nowIndex = totalIndex;
+	totalIndex += 1;
+
 	this->xs = _p->getxs();
 	this->n = this->xs.size();
 	this->isPolytopeVertex = false;
@@ -168,6 +186,7 @@ double distanceBtwGPandFP(Grid_Point* p1, Free_Point* p2) {
 }
 
 int numTotalPoints = 0;
+int totalIndex = 0;
 
 Free_Point::Free_Point(Point* _p) :Point(xs) {
 	xs = _p->getxs();

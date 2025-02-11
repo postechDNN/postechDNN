@@ -13,6 +13,7 @@
 #include <typeinfo>
 #include <filesystem>
 #include <sstream>
+#include "../algorithm/CPolytope.h"
 
 #include <stdio.h>
 #include <io.h>
@@ -922,7 +923,7 @@ vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 
 // 파일 input을 통해, (하나의) convex polytope을 만드는 함수
 // dir의 예시: 
-CPolytope* dels2cpolytope(string dir, int dim) {
+CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex) {
 
 	int dummy;
 
@@ -959,31 +960,46 @@ CPolytope* dels2cpolytope(string dir, int dim) {
 	fin.close();
 	// point 정보 읽기 end
 
-	// facet 정보 읽기 start
+	// facet 정보 계산 start
 	std::vector< std::vector<int>> facets;
 
-	std::ifstream fin2;
-
-	// string str2 = dir + "\\" + "tets" + index + ".txt";
-	string str2 = dir + "\\" + "tets.txt";
-	fin.open(str2);
-
-	getline(fin, s);
-	// facet의 개수
-	int size = stoi(s);
-	for (int index = 0; index < size; index++) {
-		// 차원 정보 (필요 없는 정보)
-		fin >> dummy;
-
-		std::vector<int> facet;
+	if (isSimplex) {
+		// 0, 1, ..., dim
 
 		for (int j = 0; j < dim + 1; j++) {
-			fin >> s;
-			facet.push_back(stoi(s));
+			vector<int> temp;
+			for (int v = 0; v < dim + 1; v++) {
+				if (v == j) continue;
+				temp.push_back(v);
+			}
+			facets.push_back(temp);
 		}
-
-		facets.push_back(facet);
 	}
+	else {
+		std::ifstream fin2;
+
+		// string str2 = dir + "\\" + "tets" + index + ".txt";
+		string str2 = dir + "\\" + "tets.txt";
+		fin.open(str2);
+
+		getline(fin, s);
+		// facet의 개수
+		int size = stoi(s);
+		for (int index = 0; index < size; index++) {
+			// 차원 정보 (필요 없는 정보)
+			fin >> dummy;
+
+			std::vector<int> facet;
+
+			for (int j = 0; j < dim + 1; j++) {
+				fin >> s;
+				facet.push_back(stoi(s));
+			}
+
+			facets.push_back(facet);
+		}
+	}
+	
 	// facet 정보 읽기 end
 
 	return new CPolytope(dim, pts, facets);
