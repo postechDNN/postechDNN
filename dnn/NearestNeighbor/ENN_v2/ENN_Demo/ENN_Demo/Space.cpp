@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "Space.h"
 #include "AVLTreeList.h"
 #include <limits>
@@ -9,7 +8,7 @@
 #include <map>
 
 #define M_PI		3.14159265358979323846
-#define EPS 0.0001
+#define EPS 1e-5
 
 Arrangement::Arrangement(const vector<Point>& vertices) :DCEL() {
     double x_max = 0;
@@ -233,12 +232,12 @@ void  VisGraph::set_Space(const vector<Point>& _srcs, const vector<SimplePolygon
 
 
 struct cmp {
-    bool operator()(tuple<double,double, Point_S> a, tuple<double, double, Point_S> b) {
-        if (abs(get<0>(a) - get<0>(b)) < ERR) 
+    bool operator()(tuple<double, double, Point_S> a, tuple<double, double, Point_S> b) {
+        if (abs(get<0>(a) - get<0>(b)) < ERR)
             return get<1>(a) > get<1>(b);
-        else 
-            return get<0>(a) > get<0>(b); 
-        
+        else
+            return get<0>(a) > get<0>(b);
+
     }
 };
 
@@ -412,7 +411,7 @@ void VisGraph::del_vert(int i) {
 
 void VisGraph::Dijkstra() {
     //Modify code using fibonacci heap
-    dists.assign(vertices.size(), - std::numeric_limits<double>::lowest());
+    dists.assign(vertices.size(), -std::numeric_limits<double>::lowest());
     visited.assign(vertices.size(), false);
     near_src.assign(vertices.size(), -1);
     std::priority_queue<std::tuple<double, int, int>, std::vector<std::tuple<double, int, int>>, greater<std::tuple<double, int, int>>> que = {};

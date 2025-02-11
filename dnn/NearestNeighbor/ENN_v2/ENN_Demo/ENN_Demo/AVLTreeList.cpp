@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <math.h>
 
-#define EPS 0.001
+#define EPS 1e-4
 
 AVLTreeList::AVLTreeList()
 {
@@ -14,7 +14,7 @@ AVLTreeList::AVLTreeList()
 bool AVLTreeList::Is_empty()
 {
     Node* currentNode = root.left;
-    if (currentNode == nullptr) { return true; }
+    if (currentNode == nullptr) { return true;}
     return false;
 }
 
@@ -76,9 +76,10 @@ bool AVLTreeList::Insert(Edge data, Point v1, Point v2)
     bool isLeft = true;
     double x = v2.getx() - v1.getx();
     double y = v2.gety() - v1.gety();
-    //Point V(v1.getx() + (x * cos(EPS) - y * sin(EPS)) / EPS, v1.gety() + (x * sin(EPS) + y * cos(EPS)) / EPS);
     Point V(v1.getx() + x / EPS, v1.gety() + y / EPS);
+    Point VR(v1.getx() + (x * cos(ERR*10) - y * sin(ERR*10)) / EPS, v1.gety() + (x * sin(ERR*10) + y * cos(ERR*10)) / EPS);
     Edge E(v1, V);
+    Edge ER(v1, VR);
     double key = v1.distance(data.crossing(E, true)->gets());
 
     while (currentNode != nullptr)		//(왼쪽 혹은 오른쪽 자식이 비어있는)부모 노드를 찾는 과정
@@ -91,15 +92,29 @@ bool AVLTreeList::Insert(Edge data, Point v1, Point v2)
         stack.Push(parentNode);	//리밸런싱을 위해 저장
         parentNode = currentNode;
 
-        if (key >= cur_key)
+        if (key > cur_key + ERR)
         {
             isLeft = false;
             currentNode = currentNode->right;
         }
-        else if (key < cur_key)
+        else if (key + ERR < cur_key)
         {
             isLeft = true;
             currentNode = currentNode->left;
+        }
+        else {
+            double cur_rkey = v1.distance(currentNode->data.crossing(ER, true)->gets());
+            double rkey = v1.distance(data.crossing(ER, true)->gets());
+            if (cur_rkey < rkey)
+            {
+                isLeft = false;
+                currentNode = currentNode->right;
+            }
+            else if (cur_rkey > rkey)
+            {
+                isLeft = true;
+                currentNode = currentNode->left;
+            }
         }
     }
     currentNode = new Node;		//새로운 노드를 만들고
@@ -122,8 +137,10 @@ bool AVLTreeList::Delete(Edge data, Point v1, Point v2)
 
     double x = v2.getx() - v1.getx();
     double y = v2.gety() - v1.gety();
-    Point V(v1.getx() + (x * cos(-EPS) - y * sin(-EPS)) / EPS, v1.gety() + (x * sin(-EPS) + y * cos(-EPS)) / EPS);
+    Point V(v1.getx() + x / EPS, v1.gety() + y / EPS);
+    Point VR(v1.getx() + (x * cos(-ERR*10) - y * sin(-ERR*10)) / EPS, v1.gety() + (x * sin(-ERR*10) + y * cos(-ERR*10)) / EPS);
     Edge E(v1, V);
+    Edge ER(v1, VR);
     double key = v1.distance(data.crossing(E, true)->gets());
 
     while (deleteNode != nullptr)	//지울 노드를 찾는 과정
@@ -136,15 +153,29 @@ bool AVLTreeList::Delete(Edge data, Point v1, Point v2)
 
         double del_key = v1.distance(deleteNode->data.crossing(E, true)->gets());
 
-        if (del_key <= key)
+        if (del_key + ERR < key)
         {
             isLeft = false;
             deleteNode = deleteNode->right;
         }
-        else if (del_key > key)
+        else if (del_key > key + ERR)
         {
             isLeft = true;
             deleteNode = deleteNode->left;
+        }
+        else {
+            double rkey = v1.distance(data.crossing(ER, true)->gets());
+            double del_rkey = v1.distance(deleteNode->data.crossing(ER, true)->gets());
+            if (del_rkey < rkey)
+            {
+                isLeft = false;
+                deleteNode = deleteNode->right;
+            }
+            else if (del_rkey > rkey)
+            {
+                isLeft = true;
+                deleteNode = deleteNode->left;
+            }
         }
     }
 

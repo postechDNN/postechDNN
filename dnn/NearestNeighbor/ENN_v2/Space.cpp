@@ -8,7 +8,7 @@
 #include <map>
 
 #define M_PI		3.14159265358979323846
-#define EPS 0.0001
+#define EPS 1e-5
 
 Arrangement::Arrangement(const vector<Point>& vertices) :DCEL() {
     double x_max = 0;
