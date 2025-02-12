@@ -1,5 +1,5 @@
 #pragma once
-#include "SimplePolygon.h"
+#include "Polygon.h"
 
 
 class PolygonalDomain {

@@ -14,7 +14,7 @@ class Gen_geom_data{
     double min_x, max_x;
     double min_y, max_y;
     std::mt19937 gen;
-    static constexpr double const_pi(){return std::atan(1)*4;}
+    static double const_pi(){return std::atan(1)*4;}
 public:
     Gen_geom_data(Point left_bottom, Point right_top);
     
@@ -29,6 +29,7 @@ public:
     //Generate m random disjoint simple polygons in a bounding box, where total number of vertices is n.
     DCEL gen_polygonal_domain(int n);
     std::vector<SimplePolygon> gen_polygonal_domain(int n, int num_polys);
+    std::vector<Point> gen_sources(std::vector<SimplePolygon>& obstacles, int n);
 
     //Generate a planar graph on which the number of vertices is n and the number of edges is m. 
     Graph<Point> gen_planar_graph(int n); 

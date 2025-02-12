@@ -97,14 +97,16 @@ SimplePolygon Gen_geom_data::gen_simple_polygon(int n, double center_x, double c
 
     // Generate the points
     std::vector<Point> pts;
-    std::uniform_real_distribution<double> uniformDistribution(0.0, 2 * this->const_pi());
+    std::uniform_real_distribution<double> uniformDistribution_angle(0.0, 2 * this->const_pi());
+    std::uniform_real_distribution<double> uniformDistribution_radius(0.0, std::max((this->max_x - this->min_x) / 4, (this->max_y - this->min_y) / 4));
 
-    double angle = uniformDistribution(gen);
+    double angle = uniformDistribution_angle(gen);
     double radius;
     double x, y;
 
     for (int i = 0; i < n; ++i) {
-        radius = clip(uniformDistribution(gen), 0, std::max((this->max_x - this->min_x) / 2, (this->max_y - this->min_y) / 2));
+        radius = uniformDistribution_radius(gen);
+            //clip(uniformDistribution(gen), 0, std::max((this->max_x - this->min_x) / 2, (this->max_y - this->min_y) / 2));
         x = center_x + radius * std::cos(angle);
         y = center_y + radius * std::sin(angle);
         pts.push_back(Point(x, y));
@@ -257,17 +259,49 @@ std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int m) {
                             break;
                         }
                     }
-                    if (flag = false) {
+                    if (flag) {
                         break;
                     }
                 }
-                if (flag = false) {
+                std::vector<Point> tmpvs = tmp.getVertices();
+                for (Point pt : tmpvs) {
+                    if (sim.inPolygon(pt) != -1) {
+                        flag = true;
+                        break;
+                    }
+                } 
+                if (flag) {
                     break;
                 }
             }
         }
         while (flag);
         ret.push_back(tmp);
+    }
+    return ret;
+}
+
+std::vector<Point> Gen_geom_data::gen_sources(std::vector<SimplePolygon>& obstacles, int n) {
+    std::uniform_real_distribution<> u_dis_x(this->min_x, this->max_x);
+    std::uniform_real_distribution<> u_dis_y(this->min_y, this->max_y);
+
+    std::vector<Point> ret;
+
+    for (int i = 0; i < n+1; i++) {
+        bool flag;
+        Point point;
+        do {
+            flag = false;
+            point.setx(u_dis_x(gen));
+            point.sety(u_dis_y(gen));
+            for (SimplePolygon sim : obstacles) {
+                if (sim.inPolygon(point) != -1) {
+                    flag = true;
+                    break;
+                }
+            }
+        } while (flag);  
+        ret.push_back(point);
     }
     return ret;
 }

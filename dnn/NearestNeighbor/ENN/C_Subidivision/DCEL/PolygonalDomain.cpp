@@ -1,6 +1,6 @@
 #include "PolygonalDomain.h" 
 #include "Point.h"
-#include "SimplePolygon.h"
+#include "Polygon.h"
 #include <iterator>
 #include <cmath>
 #include <algorithm>
