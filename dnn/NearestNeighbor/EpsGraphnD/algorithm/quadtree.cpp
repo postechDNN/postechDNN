@@ -4,7 +4,7 @@
 
 #include "quadtree.h"
 #include "CPolytope.h"
-#include "CPolytope.cpp"
+//#include "CPolytope.cpp"
 
 
 vector<int> dec2bin(int powerNum, int num) {
@@ -495,56 +495,48 @@ vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
 	int numFind = 0;
 
 	// Dijkstra on the local graph
-	priority_queue<pair<double, Point*>> pq;
+	priority_queue<pair<double, Point*>, vector<pair<double, Point*>>, greater<>> pq;
 
 	map<Point*, double> dist;
 	map<Point*, bool> visited;
 
-	visited[query] = false;
 	dist[query] = 0;
+	//visited[query] = true;
+
 
 	// startNode의 각 spreadPoint에서 쿼리 점까지 자동으로 연결
-	for (auto p : startNode->spreadPoints) {
-		pq.push(make_pair(distance(query, p), p));
-		visited[p] = false;
-		dist[query] = distance(query, p);
+	for (auto p : startNode->points[0]->neighbors) {
+		double d = query->distance(p);
+        pq.push(make_pair(d, p));
+        dist[p] = d;
 	}
 
-	// point location의 결과 노드 v뿐만이 아니라,
-	// v + (v의 인접 노드)까지 모두 고려해야 하나?
-
 	while (!pq.empty()) {
-		auto& nowPair = pq.top();
+		auto [curDist, nowPoint] = pq.top();
 		pq.pop();
 		
-		ret.push_back(nowPair);
-		numFind += 1;
+		// 중복 방문 방지
+		if (visited[nowPoint]) continue;
+		visited[nowPoint] = true;
 
+		// 최근접 이웃 리스트에 추가
+		ret.push_back(make_pair(curDist, nowPoint));
+		numFind += 1;
 		if (numFind == k) return ret;
 
-		auto& nowPoint = nowPair.second;
-		for (auto n : nowPoint->neighbors) {
-			
-			// 대신, 노드 n을 이미 방문한 경우는 continue로 넘어감
+		// 현재 노드의 모든 이웃 탐색
+		for (auto neighbor : nowPoint->neighbors) {
+			if (visited[neighbor]) continue; // 이미 방문했으면 스킵
 
-			if (visited.contains(n)) continue;
-
-			// 노드 n을 방문하지는 않았지만, 거리는 계산된 적이 있으면
-			if (dist.contains(n)) {
-				double newDist = dist[nowPoint] + distance(n, nowPoint);
-				if (dist[n] > newDist) dist[n] = newDist;
+			double newDist = curDist + nowPoint->distance(neighbor);
+			if (!dist.contains(neighbor) || dist[neighbor] > newDist) {
+				dist[neighbor] = newDist;
+				pq.push(make_pair(newDist, neighbor));
 			}
-			// 거리 계산도 이루어지지 않았으면 map에 새로 추가
-			else {
-				dist[n] = dist[nowPoint] + distance(n, nowPoint);
-			}
-
-			// 위의 if-else 두 경우 모두에서, 큐에는 n까지의 최단거리 candidate을 넣음.
-			pq.push(make_pair(dist[n], n));
-
 		}
 	}
 
+	return ret;
 }
 
 // 좌표로 저장

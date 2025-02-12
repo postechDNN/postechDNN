@@ -36,12 +36,10 @@ Point::Point(int _n, bool isFreePoint) {
 Point::Point(std::vector<double> _xs) {
 	nowIndex = totalIndex;
 	totalIndex += 1;
-
+	this->is_Free_Point = true;
 	this->xs = _xs;
 	this->n = _xs.size();
-	//this->x = _x;
-	//this->y = _y;
-	//this->z = _z;
+
 	this->isPolytopeVertex = false;
 }
 Point::Point(std::vector<double> _xs, bool isFreePoint) {

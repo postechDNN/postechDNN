@@ -342,7 +342,7 @@ void run_nearest_neighbor() {
 }
 
 // random point set 생성 함수들 (파일에서 읽어 와서 vector<Point>로) ------------------------------------------------------------------------------------------------------------------------
-vector<Point*> makePointSet(std::string dir) {
+vector<Point*> makePointSet(std::string dir, int start_idx) {
 	
 	vector<Point*> ret;
 	
@@ -370,6 +370,7 @@ vector<Point*> makePointSet(std::string dir) {
 
 		auto pt = new Point(values);
 		pt->is_Free_Point = true;
+		pt->nowIndex = start_idx + j;
 		ret.push_back(pt);
 	}
 

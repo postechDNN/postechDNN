@@ -19,7 +19,7 @@
     if (std::string(argv[3]) == "F") speedFlag = false;
     // grid step size
     std::string epsilonStr = argv[4];
-    double epsilon = std::stod(epsilonStr);
+    double  epsilon = std::stod(epsilonStr);
     // 입력으로 사용할 데이터 셋의 인덱스
     int useDataSetId = std::stoi(argv[5]);
     // 입력할 polytope의 수
@@ -37,7 +37,8 @@
 
     inVal = 0;
     // dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
-	dir = "C:\\Users\\HWI\\Documents\\StarLab\\epsGraphTest";
+    // dir = "C:\\Users\\HWI\\Documents\\StarLab\\epsGraphTest";
+    dir = "C:\\Users\\WIN10\\Documents\\GitHub\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\algorithm\\epsGraphTest";
 	// Data\\000\\polytopes\\0"
     speedFlag = false;
     useDataSetId = 0;

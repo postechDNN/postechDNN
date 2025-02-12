@@ -165,7 +165,7 @@ void data_generation(int dim, double u_bound, int halfplane_constraint, int num_
 
 void autoTest(string dir, double epsilon, bool speedFlag, int useDataSetId);
 
-vector<Point*> makePointSet(std::string dir);
+vector<Point*> makePointSet(std::string dir, int start_idx = 0);
 vector<Point> makePointSetNoPtr(std::string dir);
 vector<Free_Point*> makeFreePointSet(std::string dir);
 vector<Free_Point> makeFreePointSetNoPtr(std::string dir);

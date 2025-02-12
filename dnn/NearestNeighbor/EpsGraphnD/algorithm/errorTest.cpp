@@ -14,8 +14,8 @@ void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useData
 	int numDatasets = 100;
 
 	// kNN에서 k값
-	std::vector<int> ks = { 10, 50, 100, 500, 1000 };
-
+	std::vector<int> ks = { 5,10 };
+	std::vector<double> eps = { 1,10,20,30,40,50 };
 	namespace fs = std::filesystem;
 
 	std::string resultDir = dir + "Result";
@@ -65,80 +65,99 @@ void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useData
 		std::string queryDir = dataDir.string() + "\\points\\points.txt"; // for queries
 
 		std::vector<Point*> pts = makePointSet(pointsDir);
+		std::vector<Point*> q_pts = makePointSet(queryDir);
+
 		// ********************************************************** read (input) points end
 
 		std::cout << "finished reading inputs" << std::endl;
 
 		// ************** quadtree debug start
 
-		double val = 128.0;
-		// bounding box
-		vector<pair<double, double >> boundingBox;
-		for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-val, val));
+		for (auto epsVal : eps) {  // 여러 개의 epsilon 값에 대해 반복
 
-		auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsilon);
-		// buildEpsilonGraph(pts2);
+			double val = 128.0;
+			// bounding box
+			vector<pair<double, double >> boundingBox;
+			for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-val, val));
+			// ********************************************************** 파이썬을 이용한 쿼드트리 시각화를 위한 txt 파일 생성
+			string outputFileName = "output_" + to_string(int(epsVal)) + ".txt";
+			ofstream outputTXT(outputFileName);
+			outputTXT.clear();
 
-		// ********************************************************** 파이썬을 이용한 쿼드트리 시각화를 위한 txt 파일 생성
-		ofstream outputTXT("output.txt");
-		outputTXT.clear();
+			auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsVal);
+			std::queue<Node*> q;
+			q.push(qT->root);
+			if (outputTXT.is_open()) {
+				while (!q.empty()) {
+					Node* cur = q.front();
+					q.pop();
 
-		std::queue<Node*> q;
-		q.push(qT->root);
-		if (outputTXT.is_open()) {
-			while (!q.empty()) {
-				Node* cur = q.front();
-				q.pop();
+					// std::cout << "size: " << (cur->boundingBox).size() << '\n';
 
-				// std::cout << "size: " << (cur->boundingBox).size() << '\n';
-
-				outputTXT << "b\n";
-				for (pair<double, double> p : cur->boundingBox) {
-					outputTXT << p.first << " " << p.second << '\n';
-				}
+					//outputTXT << "b\n";
+					//for (pair<double, double> p : cur->boundingBox) {
+					//	outputTXT << p.first << " " << p.second << '\n';
+					//}
 
 
-				if (cur->isLeaf) {
-					outputTXT << "p " << (cur->points).size() << '\n';
-					for (Point* p : cur->points) {
-						for (double x : p->getxs()) {
-							outputTXT << x << ' ';
+					if (cur->isLeaf) {
+						//outputTXT << "p " << (cur->points).size() << '\n';
+						for (Point* p : cur->points) {
+							for (double x : p->getxs()) {
+								//outputTXT << x << ' ';
+							}
+							//outputTXT << p->nowIndex;
+							//outputTXT << '\n';
 						}
-						outputTXT << p->nowIndex;
-						outputTXT << '\n';
-					}
 
-				}
-				else {
-					for (Node* child : cur->childNodes) {
-						q.push(child);
+					}
+					else {
+						for (Node* child : cur->childNodes) {
+							q.push(child);
+						}
 					}
 				}
 			}
-		}
-		else {
-			std::cout << "output.txt error!\n";
-		}
-
-		vector<pair<int, int>> edge_list = buildPointGraphOnQuadTree(qT);
-
-		for (auto& edge : edge_list) {
-			outputTXT << "e" << "\n";
-			outputTXT << edge.first << " " << edge.second << "\n";
-		}
-		
-		for (auto& tope : Ctopes) {
-			outputTXT << "t" << " " << tope->vertices.size() << "\n";
-			for (auto& ver : tope->vertices) {
-				for (auto& x : ver.xs) {
-					outputTXT << x << " ";
-				}
-				outputTXT << "\n";
+			else {
+				std::cout << "output.txt error!\n";
 			}
-			
+
+			vector<pair<int, int>> edge_list = buildPointGraphOnQuadTree(qT);
+
+
+			for (auto& edge : edge_list) {
+				//outputTXT << "e" << "\n";
+				//outputTXT << edge.first << " " << edge.second << "\n";
+			}
+
+			for (auto& tope : Ctopes) {
+				//outputTXT << "t" << " " << tope->vertices.size() << "\n";
+				for (auto& ver : tope->vertices) {
+					for (auto& x : ver.xs) {
+						//outputTXT << x << " ";
+					}
+					//outputTXT << "\n";
+				}
+
+			}
+			/*std::vector<Point*> pts = makePointSet(pointsDir);
+			std::vector<Point*> q_pts = makePointSet(queryDir);*/
+			outputTXT << 'o' << ' ' << epsVal << ' ' << pts.size() << ' ' << q_pts.size() << endl;
+			for (auto q : q_pts){
+				for (auto k : ks) {
+					for (auto& x : q->xs)
+						outputTXT << x << ' ';
+					auto ret = qT->kNN(q, k);
+					outputTXT << k <<' '<<ret.size()<< endl;
+					for (auto [dist, kp] : ret) {
+						outputTXT << kp->nowIndex <<' '<< dist<< ' ' << kp->getx(0) << ' ' << kp->getx(1) << endl;
+					}
+				}
+			}
+			outputTXT.close();
 		}
 
-		outputTXT.close();
+
 		// ********************************************************** 파이썬을 이용한 쿼드트리 시각화를 위한 txt 파일 생성
 	}
 }
@@ -338,7 +357,6 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		//if (n != nullptr) {
 		//	std::cout << "hi\n";
 		//}
-
 		exit(1);
 
 		// ************** quadtree debug end
@@ -406,12 +424,12 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		std::cout << "ready to start" << endl;
 
+		std::cout << numQueries << std::endl;
 		if (speedFlag) {
 
 			//auto start = chrono::high_resolution_clock::now();
 			//for (int j = 0; j < numQueries; j++) epsGraph.kNN(queryPoints[j], 10, "");
-			//auto stop = chrono::high_resolution_clock::now();
-
+			//auto stop = chrono::high_resolution_clock::now();;
 			auto start = chrono::high_resolution_clock::now();
 			for (int j = 0; j < numQueries; j++) {
 				if (j % 100 == 0) std::cout << j << "-th query" << endl;
