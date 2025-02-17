@@ -30,7 +30,7 @@ public:
 	void printQuery(std::string fileName);
 
 	double getPathLength();
-	double DNN_Util::getPathLength(std::vector<std::pair<double, double>> path_points);
+	double getPathLength(std::vector<std::pair<double, double>> path_points);
 
 	std::vector<std::pair<double, double>> getPolygonVertices();
 	std::pair<double, double> getPolygonVerticesBack();

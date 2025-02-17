@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{02f13485-58fd-48fa-89a5-a59d2fa3eeac}</ProjectGuid>
+    <RootNamespace>build</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\DDNN_Demo\Util\DD.cpp" />
+    <ClCompile Include="..\DNN_Demo\Util\DNN_Util.cpp" />
+    <ClCompile Include="..\L1NNS_Demo\Util\CarrierGraph.cpp" />
+    <ClCompile Include="..\L1NNS_Demo\Util\Edge.cpp" />
+    <ClCompile Include="..\L1NNS_Demo\Util\Point.cpp" />
+    <ClCompile Include="..\L1NNS_Demo\Util\Rect.cpp" />
+    <ClCompile Include="..\L1NNS_Demo\Util\RectangularDomain.cpp" />
+    <ClCompile Include="..\PDDNN_Demo\Util\PDGraph.cpp" />
+    <ClCompile Include="..\PDDNN_Demo\Util\PDNode.cpp" />
+    <ClCompile Include="..\ShortestPathSimplePolygon\Util\SPSP.cpp" />
+    <ClCompile Include="..\ShortestVisibilityPath\Util\SVP.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\DDNN_Demo\Util\DD.h" />
+    <ClInclude Include="..\DNN_Demo\Util\DNN_Util.h" />
+    <ClInclude Include="..\HNN_Demo\Util\compressed_quadtree.h" />
+    <ClInclude Include="..\L1NNS_Demo\Util\CarrierGraph.h" />
+    <ClInclude Include="..\L1NNS_Demo\Util\Edge.h" />
+    <ClInclude Include="..\L1NNS_Demo\Util\Point.h" />
+    <ClInclude Include="..\L1NNS_Demo\Util\Rect.h" />
+    <ClInclude Include="..\L1NNS_Demo\Util\RectangularDomain.h" />
+    <ClInclude Include="..\PDDNN_Demo\Util\PDgraph.h" />
+    <ClInclude Include="..\PDDNN_Demo\Util\PDNode.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\Chain.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\common_tangent.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\DataT.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\DebugPrint.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\Edge.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\Hourglass.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\hourglass_operation.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\NODE.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\Point.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\PointS.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\polygon_decomposition.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\polygon_operation.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\print.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\SNode.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\SPSP.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\tangent.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\TNODE.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\Tree.h" />
+    <ClInclude Include="..\ShortestPathSimplePolygon\Util\VertexID.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\Chain.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\common_tangent.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\DataT.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\DebugPrint.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\Edge.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\event_computation.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\Hourglass.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\hourglass_operation.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\LOS.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\NODE.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\Point.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\PointS.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\polygon_decomposition.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\polygon_operation.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\print.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\ShortestPathTree.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\SNode.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\SPTnode.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\storage.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\SVP.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\tangent.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\TNODE.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\Tree.h" />
+    <ClInclude Include="..\ShortestVisibilityPath\Util\VertexID.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
