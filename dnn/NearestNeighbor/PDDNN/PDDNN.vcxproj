@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{D85BBE99-43A6-4EB8-93AF-AAE15ED39E8C}</ProjectGuid>
+    <ProjectGuid>{7654BE70-2CD1-4298-AD5F-6B18A7102504}</ProjectGuid>
     <RootNamespace>PDDNN</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -120,7 +120,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="PDGraph.cpp" />
     <ClCompile Include="PDNode.cpp" />
   </ItemGroup>

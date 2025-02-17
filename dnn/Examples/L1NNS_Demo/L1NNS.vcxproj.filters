@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{c6e6678e-fe44-47ce-8a8f-f72f62c91664}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{5e8292b8-0511-475a-9edd-b69f0b530efc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{c7cfcc3f-2652-4420-9f7a-9680f9f2cdb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{d475a965-5892-47ba-9e2a-e8fa2ab57033}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{192d96d1-51b2-449c-aabb-0faed5176b95}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\CarrierGraph.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Edge.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Point.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Rect.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\RectangularDomain.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\AddDialog.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\L1NNS_DS.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\L1NNSDlg.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Object.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\OGL_Contorl.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="L1NNS.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Util\CarrierGraph.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Edge.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Point.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Rect.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\RectangularDomain.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\AddDialog.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\L1NNS_DS.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\L1NNSDlg.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Object.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\OGL_Contorl.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="L1NNS.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="L1NNS.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\L1NNS.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\L1NNS.rc2">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
+</Project>

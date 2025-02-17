@@ -14,6 +14,10 @@ PolygonalDomain::PolygonalDomain(std::vector<SimplePolygon*>* obs) {
 	this->obstacles = obs;
 }
 
+PolygonalDomain::~PolygonalDomain() {
+	
+}
+
 bool PolygonalDomain::validPoint(Point p) {
 	for (std::vector<SimplePolygon*>::iterator i1 = this->obstacles->begin(); i1 != this->obstacles->end(); i1++) {
 		SimplePolygon* s = *i1;
