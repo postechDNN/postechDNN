@@ -11,7 +11,7 @@ In dynamic environments, users can insert/delete data and add conditions such as
 ## Getting Started 
 Windows 
 1. Get the latest version of PostechDNN.zip from [DNN git](https://github.com/postechDNN/postechDNN/releases).
-2. See details in [wiki](https://github.com/postechDNN/postechDNN/wiki).
+2. See details in [wiki](https://github.com/postechDNN/postechDNN/wiki) to use this library.
 
 ## Contribution
 Check the [Contribution.md](./Contributing.md) file.
