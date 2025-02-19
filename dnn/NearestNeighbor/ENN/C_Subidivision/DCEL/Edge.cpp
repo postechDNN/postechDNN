@@ -2,7 +2,7 @@
 #include "Point.h"
 #include <algorithm>
 #include <cmath>
-#define ERR 1e-6
+#define ERR 1e-8
 
 Edge::Edge() {
 	this->s = Point();

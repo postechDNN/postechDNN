@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <math.h>
 
-#define EPS 1e-4
 
 AVLTreeList::AVLTreeList()
 {
@@ -47,7 +46,7 @@ bool AVLTreeList::Search(Edge data, Point v1)
         stack.Push(parentNode);	//¸®¹ë·±½ÌÀ» À§ÇØ ÀúÀå
         parentNode = deleteNode;
 
-        double del_key = v1.distance(deleteNode->data.crossing(E, true)->gets());;
+        double del_key = v1.distance(deleteNode->data.crossing(E, true)->gets());
 
         if (del_key <= key)
         {

@@ -1,5 +1,7 @@
 #pragma once
 #include "Space.h"
+#define EPS 1e-5
+
 class AVLTreeList
 {
 	struct Node

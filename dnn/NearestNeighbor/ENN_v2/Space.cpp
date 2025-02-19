@@ -8,7 +8,7 @@
 #include <map>
 
 #define M_PI		3.14159265358979323846
-#define EPS 1e-5
+
 
 Arrangement::Arrangement(const vector<Point>& vertices) :DCEL() {
     double x_max = 0;
@@ -243,7 +243,6 @@ struct cmp {
 
 void VisGraph::visibility_graph() {
     for (int i = 0; i < vertices.size(); i++) {
-
         priority_queue<tuple<double, double, Point_S>, vector<tuple<double, double, Point_S>>, cmp> P;
         //map<double, Point_S> P; // Event list
         for (int j = 0; j < vertices.size(); j++) {
