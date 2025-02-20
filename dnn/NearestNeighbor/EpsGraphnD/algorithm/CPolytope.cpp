@@ -14,7 +14,6 @@ HalfPlane::HalfPlane(int dim, bool is_boundary, double coeffs[]) {
     std::copy(coeffs, coeffs + dim + 1, this->coeffs.begin()); 
 }
 
-
 void HalfPlane::translate(Point vec) {
     assert(vec.getsize() == this->dim);
 
@@ -257,7 +256,7 @@ int CPolytope::is_in(Point p) {
 }
 
 CPolytope:: ~CPolytope() {
-    ;
+    
 }
 
 // Function to print intersection results

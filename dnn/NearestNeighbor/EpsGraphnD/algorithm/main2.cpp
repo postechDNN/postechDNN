@@ -38,16 +38,27 @@
     inVal = 0;
     // dir = "C:\\Users\\HWI\\Documents\\epsGraphTest";
     // dir = "C:\\Users\\HWI\\Documents\\StarLab\\epsGraphTest";
-    dir = "C:\\Users\\WIN10\\Documents\\GitHub\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\algorithm\\epsGraphTest";
+    // dir = "C:\\Users\\WIN10\\Documents\\GitHub\\postechDNN\\dnn\\NearestNeighbor\\EpsGraphnD\\algorithm\\epsGraphTest";
+   
+    // HWI - laptop
+    // dir = "C:\\epsGraphTest\\epsGraphTest";
+    dir = "C:\\epsGraphTest\\4D_10000P_10T_1000Q";
+
 	// Data\\000\\polytopes\\0"
+
     speedFlag = false;
+    speedFlag = true;
+
     useDataSetId = 0;
 
     switch (inVal) {
     case 0:
         // return;
         // autoTest(dir, epsilon, speedFlag, useDataSetId);
-        autoTestConvex(dir, epsilon, speedFlag, useDataSetId);
+        if (speedFlag) 
+            querySpeedTest(dir);
+        else 
+            distanceSumTest(dir, speedFlag, useDataSetId);
         break;
     case 1:
         // generatePoints();

@@ -9,6 +9,7 @@
 Point::Point() {
 	nowIndex = totalIndex;
 	totalIndex += 1;
+	isExtraPoint = false;
 
 }
 Point::Point(int _n) {
@@ -22,6 +23,7 @@ Point::Point(int _n) {
 	//this->x = 0.;
 	//this->y = 0.;
 	//this->z = 0.;
+	this->isExtraPoint = false;
 	this->isPolytopeVertex = false;
 }
 Point::Point(int _n, bool isFreePoint) {
@@ -32,6 +34,8 @@ Point::Point(int _n, bool isFreePoint) {
 	this->xs = std::vector<double>(_n, 0.);
 	this->is_Free_Point = isFreePoint;
 	this->isPolytopeVertex = false;
+	this->isExtraPoint = false;
+
 }
 Point::Point(std::vector<double> _xs) {
 	nowIndex = totalIndex;
@@ -41,6 +45,8 @@ Point::Point(std::vector<double> _xs) {
 	this->n = _xs.size();
 
 	this->isPolytopeVertex = false;
+	this->isExtraPoint = false;
+
 }
 Point::Point(std::vector<double> _xs, bool isFreePoint) {
 	nowIndex = totalIndex;
@@ -50,6 +56,8 @@ Point::Point(std::vector<double> _xs, bool isFreePoint) {
 	this->n = _xs.size();
 	this->is_Free_Point = isFreePoint;
 	this->isPolytopeVertex = false;
+	this->isExtraPoint = false;
+
 }
 Point::Point(Point* _p) {
 	nowIndex = totalIndex;
@@ -58,8 +66,10 @@ Point::Point(Point* _p) {
 	this->xs = _p->getxs();
 	this->n = this->xs.size();
 	this->isPolytopeVertex = false;
+	this->isExtraPoint = false;
+
 }
-Point::~Point() {}
+// Point::~Point() {}
 
 bool Point::operator==(Point* _p) {
 	for (int i=0;i<this->n;i++){

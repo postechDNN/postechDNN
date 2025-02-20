@@ -7,7 +7,13 @@
 #include "../data_generation/data_generation.h"
 #include "quadtree.h"
 
-void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useDataSetId);
+void querySpeedTest(std::string dir);
+
+void distanceSumTest(std::string dir, bool speedFlag, int useDataSetId);
+
+void insertionTest(kDQuadTree* qT, Point* q, int maxDepth, double EPS = 0.0000001);
+
+void deletionTest(kDQuadTree* qT, Point* q, double EPS = 0.0000001);
 
 void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId);
 

@@ -6,7 +6,6 @@
 #include "CPolytope.h"
 //#include "CPolytope.cpp"
 
-
 vector<int> dec2bin(int powerNum, int num) {
 	vector<int> ret;
 
@@ -87,11 +86,10 @@ void kDQuadTreeNode::updateNumNodesSubtree() {
 	}
 }
 
-Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, kDQuadTreeNode* parent) { // vector<Polytope*>
+Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, 
+	double _eps, int _depth, kDQuadTreeNode* parent) { // vector<Polytope*>
 
 	// cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
-
-	int maxDepth = 12;
 
 	// debug
 	// if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
@@ -213,7 +211,7 @@ void buildEpsilonGraph() {
 
 	vector<CPolytope*> pols;
 
-	auto qT = new kDQuadTree(points, pols, 4, boundingBox, eps);
+	auto qT = new kDQuadTree(points, pols, 4, boundingBox, eps, INT_MAX);
 
 	// debug
 	exit(1);
@@ -345,6 +343,8 @@ Node* addPoint(Node* node, Point* point, int maxDepth) {
         targetNode->points.clear();
     }
 
+	cout << "new point (id: " << point->nowIndex << ") inserted\n";
+
     return node;
 }
 
@@ -464,7 +464,7 @@ void constructLocalGraph(Node* root, int dim) {
 
 		// 인접한 quadtree cell pair (c1, c2)에 해당하는 point set (P1, P2)
 		// each p1 \in P1, p2 \in P2에 대해 p1과 p2를 연결
-		for (auto& iNode : nowNode->incidentNodes) {
+		for (auto& iNode : nowNode->adjacentNodes) {
 			for (auto& p1 : nowNode->spreadPoints) {
 				for (auto& p2 : iNode->spreadPoints) {
 
@@ -485,7 +485,7 @@ void constructLocalGraph(Node* root, int dim) {
 }
 
 // returns { (n_1, dist(query,  n_1)), ..., (n_k, dist(query,  n_k)) }
-vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
+vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k, bool isEmptyCell) {
 	
 	vector<pair<double, Point*>> ret;
 
@@ -503,12 +503,39 @@ vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
 	dist[query] = 0;
 	//visited[query] = true;
 
+	if (isEmptyCell) {
+		
+		queue<Node*> Q;
+		Q.push(startNode);
 
-	// startNode의 각 spreadPoint에서 쿼리 점까지 자동으로 연결
-	for (auto p : startNode->points[0]->neighbors) {
-		double d = query->distance(p);
-        pq.push(make_pair(d, p));
-        dist[p] = d;
+		while (true) {
+			auto T = Q.front();
+			Q.pop();
+
+			if (T->points.empty()) {
+				for (auto node : T->adjacentNodes) {
+					Q.push(node);
+				}
+			}
+			else {
+				for (auto p : T->points[0]->neighbors) {
+					double d = query->distance(p);
+					pq.push(make_pair(d, p));
+					dist[p] = d;
+				}
+				break;
+			}
+
+		}
+
+	}
+	else {
+		// startNode의 각 point에서 쿼리 점까지 자동으로 연결
+		for (auto p : startNode->points[0]->neighbors) {
+			double d = query->distance(p);
+			pq.push(make_pair(d, p));
+			dist[p] = d;
+		}
 	}
 
 	while (!pq.empty()) {
@@ -519,10 +546,16 @@ vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
 		if (visited[nowPoint]) continue;
 		visited[nowPoint] = true;
 
-		// 최근접 이웃 리스트에 추가
-		ret.push_back(make_pair(curDist, nowPoint));
-		numFind += 1;
-		if (numFind == k) return ret;
+		// 정확도 개선을 위해 추가한 점이면
+		if (nowPoint->isExtraPoint || nowPoint->isPolytopeVertex) {
+			// 넘어가기
+		}
+		else {
+			// 최근접 이웃 리스트에 추가
+			ret.push_back(make_pair(curDist, nowPoint));
+			numFind += 1;
+			if (numFind == k) return ret;
+		}
 
 		// 현재 노드의 모든 이웃 탐색
 		for (auto neighbor : nowPoint->neighbors) {
@@ -539,16 +572,43 @@ vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k) {
 	return ret;
 }
 
+int dummyTest(void) {
+	return 0;
+}
+
+std::vector<Node*> getLeafs(Node* node) {
+	std::vector<Node*> leafs;
+
+	std::queue<Node*> queue;
+	queue.push(node);
+	while (!queue.empty()) {
+		Node* cur = queue.front();
+		queue.pop();
+
+		for (Node* child : cur->childNodes) {
+			queue.push(child);
+		}
+
+		if (cur->isLeaf) {
+			leafs.push_back(cur);
+		}
+	}
+
+	return leafs;
+}
+
 // 좌표로 저장
 // vector< pair<double, double>, pair<double, double> > buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
-vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
+vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree, double absoluteValue, double relativeFactor) { // neighborLimit - 이웃 거리 제한 
 // void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 	// vector< pair<double, double>, pair<double, double> > ret;
 	
+	// neighborLimit은 절대 값 vs 상대 값? - 직접 plotting해 보기
+
 	vector<pair<int, int>> ret;
 
 	std::vector<Node*> leafs;
-	double EPS = 0.001;
+	double smallValue = 0.001;
 
 	auto& pols = quadtree->pols;
 
@@ -567,33 +627,42 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 		if (cur->isLeaf) {
 			leafs.push_back(cur);
 		}
+
 	}
 
-	for (Node* leaf : leafs) {
+	// set adjacent nodes
+	for (Node* leaf : leafs) { // 각 leaf node에 대해서
 		std::vector<Node*> adjacentNodes;
 		vector<pair<double, double>> box = leaf->boundingBox;
-		double radius = std::abs((box[0].second - box[0].first) / 2.0);
+
+		double radius = std::abs((box[0].second - box[0].first) / 2.0); // box (정사각형 cell)의 side length 절반을 radius로 잡음
 		std::vector<double> center;
 
-		// std::cout << "box\n";
-		for (std::pair<double, double> interval : box) {
-			center.push_back((interval.first + interval.second) / 2.0);
-
-			// std::cout << interval.first << ' ' << interval.second << '\n';
+		for (std::pair<double, double> interval : box) { // box (정사각형 cell)의 center 계산
+			center.push_back((interval.first + interval.second) / 2.0); 
 		}
 
-		//std::cout << "center\n";
-		//for (double x : center) {
-		//	std::cout << x << ' ';
-		//}
-		//std::cout << '\n';
-
+		vector<double> temp;
 		for (int i = 0; i < box.size(); i++) {
+
 			vector<double> pos1, pos2;
 			pos1 = pos2 = center;
-			pos1[i] += (radius + EPS);
-			pos2[i] -= (radius + EPS);
-			Point p1(pos1), p2(pos2);
+
+			pos1[i] += (radius + smallValue);
+			pos2[i] -= (radius + smallValue);
+
+			/*
+			if (absoluteValue > 0) {
+				pos1[i] += (radius + absoluteValue);
+				pos2[i] -= (radius + absoluteValue);
+			}
+			else {
+				pos1[i] += (radius * (1 + relativeFactor));
+				pos2[i] -= (radius * (1 + relativeFactor));
+			}
+			*/
+
+			Point p1(pos1), p2(pos2);		// 특정 축 방향으로 EPS
 			Node* adj1 = pointLocation(quadtree->root, &p1);
 			Node* adj2 = pointLocation(quadtree->root, &p2);
 
@@ -603,17 +672,19 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 			if (adj2 != nullptr) {
 				adjacentNodes.push_back(adj2);
 			}
+
+
 		}
 
+		leaf->adjacentNodes = adjacentNodes;
 
+		// 각 adjacent node pair에 대해서 edges 추가
 		for (Node* adj : adjacentNodes) {
-			//std::cout << "adj" << '\n';
-			//for (std::pair<double, double> interval : adj->boundingBox) {
-			//	std::cout << interval.first << ' ' << interval.second << '\n';
-			//}
+
 			for (Point* p1 : leaf->points) {
 				for (Point* p2 : adj->points) {
-					for (auto& pol : pols) {
+
+					for (auto& pol : pols) { // polytope과 intersect하지 않으면
 						if (!pol->is_intersect(p1, p2)) {
 							
 							ret.push_back(make_pair(p1->nowIndex, p2->nowIndex));
@@ -628,6 +699,16 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 		}
 	}
 
+	/*
+	int numIsolatedLeafs = 0;
+	for (Node* leaf : leafs) {
+		if (leaf->adjacentNodes.empty()) {
+			numIsolatedLeafs++;
+		}
+	}
+	int _ = 0;
+	*/
+
 	for (auto& edge : ret) {
 		if (edge.first > edge.second) edge = make_pair(edge.second, edge.first);
 	}
@@ -639,6 +720,38 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 // 디버그용 함수
 // node를 루트로 하는 그래프 G = (V, E)에 대하여, |V|와 |E|를 계산
 // 점 많이 찍을수록, or incidency를 결정하는 radius가 커질수록 |E|가 달라지는 것 확인
-void checkPointGraphSize(Node* node) {
+void checkPointGraphSize(double eps, Node* node) {
+	auto leafs = getLeafs(node);
 	
+	int numEdges = 0;
+
+	for (auto l : leafs) {
+		for (auto p : l->points) {
+			numEdges += p->neighbors.size();
+		}
+	}
+	
+	cout << "epsilon: " << eps << ", num edges: " << numEdges << endl;
+}
+
+void fillEmptyCells(int dim, kDQuadTree* T) {
+	auto leafs = getLeafs(T->root);
+
+	for (auto leaf : leafs) {
+
+		while (true) {
+			auto p = generateRandomPoint(dim, leaf->boundingBox);
+			p->isExtraPoint = true;
+
+			bool insert = true;
+
+			for (auto& pol : T->pols) {
+				if (pol->is_in(p)) insert = false;
+			}
+
+			if (insert) {leaf->points.push_back(p); break;}
+			else continue; 
+		}
+
+	}
 }

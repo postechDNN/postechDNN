@@ -1,45 +1,202 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "../algorithm/errorTest.h"
 // #include <Eigen/Dense>
 #include "../Polytope.h"
 #include "fstream"
 #include "quadtree.h"
+#include <ctime>
 // #include "filesystem"
 
 using namespace std;
 
-void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useDataSetId) {
-	int dim = 2;
+Point* translate(Point* p, int axis, double val) {
+	assert(axis < p->xs.size());
+	auto ret = new Point(p);
+	p->xs[axis] += val;
+	return ret;
+}
+
+// ex) dir = ""
+void querySpeedTest(std::string dir) {
+
+	int dim = 4;
+	int numQueries = 1000;
+	int k = 10;
+	int epsilon = 1.0;
+	int maxDepth = INT_MAX; // user-defined
+
+	// bounding box
+	double maxValue = 128.0;
+	vector<pair<double, double >> boundingBox;
+	for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-maxValue, maxValue));
+
+	// uniform 4개 dataset
+	vector<double> uniform;
+	uniform.assign(4, 0.0);
+
+	// clustered 4개 dataset
+	vector<double> clustered;
+	clustered.assign(4, 0.0);
+
+	namespace fs = std::filesystem;
+	fs::path dataDirDir = dir + "_Speed";
+	fs::directory_iterator iterDirDir(dataDirDir);
+
+	int curDataSetId = -1;
+
+	string outputFileName = "output_" + to_string(epsilon) + ".txt";
+	ofstream outputTXT(outputFileName);
+	outputTXT.clear();
+
+	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
+		
+		curDataSetId += 1;
+
+		fs::path dataDir = (*i00).path();
+
+		// ********************************************************** read CPolytope start
+		fs::path polytopesDir(dataDir.string() + "\\polytopes");
+		fs::directory_iterator iterTopes(polytopesDir);
+
+		std::vector<CPolytope*> Ctopes;
+
+		for (auto& i01 = iterTopes; i01 != fs::end(iterTopes); ++i01) {
+			fs::path topeDir = (*i01).path();
+			Ctopes.push_back(dels2cpolytope(topeDir.string(), dim, true));
+		}
+		// ********************************************************** read CPolytope end
+
+		std::string pointsDir = dataDir.string() + "\\points\\points.txt"; // for input sites
+		std::vector<Point*> pts = makePointSet(pointsDir);
+
+		std::string queryDir = dataDir.string() + "\\points\\queries.txt"; // for queries
+		std::vector<Point*> q_pts = makePointSet(queryDir); // query points
+
+		// ********************************************************** read (input) points end
+
+		auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsilon, maxDepth);
+
+		buildPointGraphOnQuadTree(qT, maxValue * (1 / epsilon), -1);
+
+		/*
+		vector<Point*> queries;
+		for (int j = 0; j < numQueries; j++) {
+			queries.push_back(generateRandomPoint(dim, boundingBox));
+		}
+		*/
+
+		cout << "query start\n";
+		auto start = chrono::high_resolution_clock::now();
+		for (int j = 0; j < q_pts.size(); j++) {
+			qT->kNN(q_pts[j], k, true);
+		}
+		auto stop = chrono::high_resolution_clock::now();
+		auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+		auto microsecond = duration.count();
+		double second = double(microsecond) / 1000000.0;
+		cout << "query end\n";
+
+		for (auto& pt : pts) delete pt;
+		for (auto& q_pt : q_pts) delete q_pt;
+		for (auto& tope : Ctopes) delete tope;
+		delete qT;
+
+		int index;
+
+		// uniform
+		if (curDataSetId < 40) {
+			index = curDataSetId / 10;
+			uniform[index] += second;
+		}
+		else {
+			index  = (curDataSetId - 40) / 10;
+			clustered[index] += second;
+		}
+
+		time_t timer = time(NULL);
+		struct tm* t = localtime(&timer);
+
+		cout << t->tm_year + 1900 << "/" << t->tm_mon + 1 << "/" << t->tm_mday << " " << t->tm_hour << ":" << t->tm_min << ":" << t->tm_sec << "\n";
+		cout << "dataset ID: " << curDataSetId;
+		if (curDataSetId < 40) cout << " uniform, ";
+		else cout << " clustered, ";
+		cout << " num points: " << pts.size() << ", num polytopes: " << Ctopes.size() << "\n";
+		cout << "time taken for " << numQueries << " queries: " << second << "\n";
+
+		outputTXT << t->tm_year + 1900 << "/" << t->tm_mon + 1 << "/" << t->tm_mday << " " << t->tm_hour << ":" << t->tm_min << ":" << t->tm_sec << "\n";
+		outputTXT << "dataset ID: " << curDataSetId;
+		if (curDataSetId < 40) outputTXT << " uniform, ";
+		else outputTXT << " clustered, ";
+		outputTXT << " num points: " << pts.size() << ", num polytopes: " << Ctopes.size() << "\n";
+		outputTXT << "time taken for " << numQueries << " queries: " << second << "\n";
+
+	}
+
+	outputTXT << "uniform - average query time (s)\n";
+	for (auto val : uniform) {
+		outputTXT << val / 10.0 / numQueries << " ";
+	}
+	outputTXT << "\nclustered - average query time (s)\n";
+	for (auto val : clustered) {
+		outputTXT << val / 10.0 / numQueries << " ";
+	}
+	outputTXT << "\n";
+
+	outputTXT.close();
+}
+
+void distanceSumTest(std::string dir, bool speedFlag, int useDataSetId) {
+	
+	// very small value
+	// double EPS = 0.0000001;
+
+	bool plotting = true;
+
+	int dim = 4;
 
 	// 100개의 데이터셋
-	int numDatasets = 100;
+	// int numDatasets = 100;
 
 	// kNN에서 k값
-	std::vector<int> ks = { 5,10 };
-	std::vector<double> eps = { 1,10,20,30,40,50 };
+	// std::vector<int> ks = { 10, 50, 100, 500, 1000 };
+	std::vector<int> ks = { 50 };
+
+	// if (speedFlag) ks = {10};
+
+	// std::vector<double> epsValues = { 0.1, 0.25, 0.5, 1.0}; // (0, \infty) 범위 내에서 well-defined 되는 것이 좋을 듯.
+	std::vector<double> epsValues = { 0.1, 0.2, 0.3 }; 
+	if (speedFlag) {
+		epsValues = {0.0};
+	}
+
+	int maxDepth = INT_MAX; 
+	if (speedFlag) {
+		maxDepth = 3;
+	}
+
 	namespace fs = std::filesystem;
 
 	std::string resultDir = dir + "Result";
-	fs::path dataDirDir = dir + "Data";
-	if (speedFlag) dataDirDir = dir + "DataSpeed";
+	// fs::path dataDirDir = dir + "Data";
+	// 	if (speedFlag) dataDirDir = dir + "DataSpeed";
+	fs::path dataDirDir = dir;
+
+	vector<Point*> speedPts;
+	if (speedFlag) {
+		dataDirDir = dir + "_Speed";
+	}
 
 	fs::directory_iterator iterDirDir(dataDirDir);
-
-	// 테스트케이스 5가지. (point 수, polytope 수에 따라)
-	std::vector<long long> speedSum = { 0, 0, 0, 0, 0 };
-	std::vector<double> avgSpeed = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-
-	std::vector<double> distErrorSumsAll = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-	std::vector<double> numErrorSumsAll = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-
-	std::vector<double> distErrorSumsAllDijk = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-	std::vector<double> numErrorSumsAllDijk = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
 	int curDataSetId = -1;
 	// useDataSetId = 0;
 
+	// 각 dataSet에 대해서
 	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
 
 		curDataSetId++;
+		// 디버그용. 특정 하나의 dataSet만 테스트하도록
 		if (curDataSetId != useDataSetId) {
 			continue;
 		}
@@ -60,12 +217,13 @@ void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useData
 		}
 		// ********************************************************** read CPolytope end
 
-		// ********************************************************** read (input) points start
-		std::string pointsDir = dataDir.string() + "\\points\\points.txt"; // for points
-		std::string queryDir = dataDir.string() + "\\points\\points.txt"; // for queries
-
+		std::string pointsDir = dataDir.string() + "\\points\\points.txt"; // for input sites
 		std::vector<Point*> pts = makePointSet(pointsDir);
-		std::vector<Point*> q_pts = makePointSet(queryDir);
+
+		pts = vector<Point*>(pts.begin(), pts.begin() + 100);
+
+		std::string queryDir = dataDir.string() + "\\points\\queries.txt"; // for queries
+		std::vector<Point*> q_pts = makePointSet(queryDir); // query points
 
 		// ********************************************************** read (input) points end
 
@@ -73,18 +231,36 @@ void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useData
 
 		// ************** quadtree debug start
 
-		for (auto epsVal : eps) {  // 여러 개의 epsilon 값에 대해 반복
+		for (auto epsVal : epsValues) {  // 여러 개의 epsilon 값에 대해 반복
 
-			double val = 128.0;
+			double maxValue = 128.0;
 			// bounding box
 			vector<pair<double, double >> boundingBox;
-			for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-val, val));
+			for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-maxValue, maxValue));
 			// ********************************************************** 파이썬을 이용한 쿼드트리 시각화를 위한 txt 파일 생성
-			string outputFileName = "output_" + to_string(int(epsVal)) + ".txt";
+			string outputFileName = "output_" + to_string(epsVal) + ".txt";
 			ofstream outputTXT(outputFileName);
 			outputTXT.clear();
 
-			auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsVal);
+			if (!speedFlag) {
+				int numExtraPoints = epsVal * pts.size();
+				for (int k = 0; k < numExtraPoints; k++) {
+					Point* p = generateRandomPoint(dim, boundingBox);
+					p->isExtraPoint = true;
+					pts.push_back(p);
+				}
+			}
+
+			auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsVal, maxDepth);
+			
+			auto query = q_pts[0];
+			// insertionTest(qT, query, maxDepth);
+			// deletionTest(qT, query, maxDepth);
+
+			if (!speedFlag) {
+				fillEmptyCells(dim, qT);
+			}
+
 			std::queue<Node*> q;
 			q.push(qT->root);
 			if (outputTXT.is_open()) {
@@ -92,22 +268,21 @@ void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useData
 					Node* cur = q.front();
 					q.pop();
 
-					// std::cout << "size: " << (cur->boundingBox).size() << '\n';
+					 // std::cout << "size: " << (cur->boundingBox).size() << '\n';
 
-					//outputTXT << "b\n";
-					//for (pair<double, double> p : cur->boundingBox) {
-					//	outputTXT << p.first << " " << p.second << '\n';
-					//}
-
+					outputTXT << "b\n";
+					for (pair<double, double> p : cur->boundingBox) {
+						outputTXT << p.first << " " << p.second << '\n';
+					}
 
 					if (cur->isLeaf) {
-						//outputTXT << "p " << (cur->points).size() << '\n';
+						outputTXT << "p " << (cur->points).size() << '\n';
 						for (Point* p : cur->points) {
 							for (double x : p->getxs()) {
-								//outputTXT << x << ' ';
+								outputTXT << x << ' ';
 							}
-							//outputTXT << p->nowIndex;
-							//outputTXT << '\n';
+							outputTXT << p->nowIndex;
+							outputTXT << '\n';
 						}
 
 					}
@@ -122,44 +297,105 @@ void autoTestConvex(std::string dir, double epsilon, bool speedFlag, int useData
 				std::cout << "output.txt error!\n";
 			}
 
-			vector<pair<int, int>> edge_list = buildPointGraphOnQuadTree(qT);
+			// vector<pair<int, int>> edge_list = buildPointGraphOnQuadTree(qT, -1, 0.5);
+			vector<pair<int, int>> edge_list = buildPointGraphOnQuadTree(qT, maxValue * epsVal, -1);
 
+			std::cout << "epsilon: " << epsVal << std::endl;
+			std::cout << "num cells: " << getLeafs(qT->root).size() << std::endl;
+			std::cout << "num edges: " << edge_list.size() << std::endl;
+			// checkPointGraphSize(eps, qT);
 
 			for (auto& edge : edge_list) {
-				//outputTXT << "e" << "\n";
-				//outputTXT << edge.first << " " << edge.second << "\n";
+				outputTXT << "e" << "\n";
+				outputTXT << edge.first << " " << edge.second << "\n";
 			}
 
 			for (auto& tope : Ctopes) {
-				//outputTXT << "t" << " " << tope->vertices.size() << "\n";
+				outputTXT << "t" << " " << tope->vertices.size() << "\n";
 				for (auto& ver : tope->vertices) {
 					for (auto& x : ver.xs) {
-						//outputTXT << x << " ";
+						outputTXT << x << " ";
 					}
-					//outputTXT << "\n";
+					outputTXT << "\n";
 				}
 
 			}
 			/*std::vector<Point*> pts = makePointSet(pointsDir);
 			std::vector<Point*> q_pts = makePointSet(queryDir);*/
-			outputTXT << 'o' << ' ' << epsVal << ' ' << pts.size() << ' ' << q_pts.size() << endl;
-			for (auto q : q_pts){
-				for (auto k : ks) {
-					for (auto& x : q->xs)
-						outputTXT << x << ' ';
-					auto ret = qT->kNN(q, k);
-					outputTXT << k <<' '<<ret.size()<< endl;
-					for (auto [dist, kp] : ret) {
-						outputTXT << kp->nowIndex <<' '<< dist<< ' ' << kp->getx(0) << ' ' << kp->getx(1) << endl;
-					}
-				}
+			outputTXT << 'o' << ' ' << epsVal << ' ' << pts.size() << ' ' << q_pts.size() << "\n";
+
+			if (speedFlag) {
+	
+				cout << "number of points: " << pts.size() << endl;
+		
+				auto q = generateRandomPoint(dim, boundingBox);
+
+				auto start = chrono::high_resolution_clock::now();
+				qT->kNN(q, 10, true);
+
+				auto stop = chrono::high_resolution_clock::now();
+				auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+				auto exe_time = duration.count();
+				cout << "query time: " << exe_time / 1000000.0 << "s\n";
+
 			}
+			else {
+				
+				for (auto q : q_pts) {
+
+					for (auto k : ks) {
+						for (auto& x : q->xs)
+							outputTXT << x << ' ';
+
+						auto ret = qT->kNN(q, k, false);
+
+						for (int jj = 0; jj < ret.size(); jj++) { // pr : ret) {
+							auto pr = ret[jj]; // (dist, neighbor)
+							// cout << k << "-NN result" << endl;
+							// cout << jj << "-th neighbor index: " << pr.second->nowIndex << ", graph distance: " << pr.first << endl;
+						}
+
+						outputTXT << k << ' ' << ret.size() << "\n";
+						for (auto [dist, kp] : ret) {
+							outputTXT << kp->nowIndex << ' ' << dist << ' ' << kp->getx(0) << ' ' << kp->getx(1) << "\n";
+						}
+					}
+
+				}
+
+			}
+				
 			outputTXT.close();
 		}
 
 
 		// ********************************************************** 파이썬을 이용한 쿼드트리 시각화를 위한 txt 파일 생성
 	}
+}
+
+void insertionTest(kDQuadTree* qT, Point* q, int maxDepth, double EPS) {
+
+	auto ret = qT->kNN(q, 1, false);
+	cout << "nn index:" << ret[0].second->nowIndex << "\n";
+
+	auto nn = translate(q, 0, EPS);
+	addPoint(qT->root, q, maxDepth);
+
+	ret = qT->kNN(q, 1, false);
+	cout << "nn index:" << ret[0].second->nowIndex << "\n";
+
+}
+
+void deletionTest(kDQuadTree* qT, Point* q, double EPS) {
+
+	auto ret = qT->kNN(q, 1, false);
+	cout << "nn index:" << ret[0].second->nowIndex << "\n";
+
+	deletePoint(qT->root, q);
+
+	ret = qT->kNN(q, 1, false);
+	cout << "nn index:" << ret[0].second->nowIndex << "\n";
+
 }
 
 void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId) {
@@ -284,21 +520,21 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		// ************** quadtree debug start
 
-		double val = 128.0;
+		double maxValue = 128.0;
 			// bounding box
 		vector<pair<double, double >> boundingBox;
-		for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-val, val));
+		for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-maxValue, maxValue));
 
 		// std::vector<Point*> pts2 = makePointSet(pointsSpecificDir);
 		// 현재는 10000개 포인트 중에서 맨 앞 100개만 확인
 		// auto slicedPoints = vector<Point*>(pts2.begin(), pts2.begin() + 100); 
 
 		vector<Point*> pts2;
-		for (int j = 0; j < 100; j++) pts2.push_back(generateRandomPoint(dim, make_pair(-val, val)));
+		for (int j = 0; j < 100; j++) pts2.push_back(generateRandomPoint(dim, make_pair(-maxValue, maxValue)));
 		
 		// vector<CPolytope*> pols;
 		
-		auto qT = new kDQuadTree(pts2, Ctopes, dim, boundingBox, epsilon);
+		auto qT = new kDQuadTree(pts2, Ctopes, dim, boundingBox, epsilon, INT_MAX);
 		// buildEpsilonGraph(pts2);
 
 		// 파이썬에서 옮겨서 테스트 할 output 생성

@@ -59,17 +59,21 @@ public:
 	kDQuadTreeNode* parent; // parent node
 	vector<Point*> spreadPoints; // kNN을 위해 생성하는 local graph의 노드에 해당하는 점들
 
-	vector<kDQuadTreeNode*> incidentNodes;
+	vector<kDQuadTreeNode*> adjacentNodes;
 
 	// methods
 public:
 	kDQuadTreeNode() : isLeaf(false), parent(nullptr), numNodesSubtree(0) {} // 기본 생성자 - 사용 여부?
-
+	
 	kDQuadTreeNode(vector<kDQuadTreeNode*> _childNodes, kDQuadTreeNode* _parent = nullptr) // for internal node
 	: childNodes(_childNodes), isLeaf(false), parent(_parent), numNodesSubtree(0) {} // numNodesSubtree(1 + _childNodes.size())
 	
 	kDQuadTreeNode(vector<Point*> _points, kDQuadTreeNode* _parent = nullptr) // for leaf node
 	: points(_points), isLeaf(true), parent(_parent), numNodesSubtree(0) {} // numNodesSubtree(1)
+
+	~kDQuadTreeNode() {
+		for (auto& sp : spreadPoints) delete sp;
+	}
 
 	void updateNumNodesSubtree();
 
@@ -83,11 +87,13 @@ class kDQuadTree {
 		int dim; // dimension
 		Node* root;
 		vector<CPolytope*> pols;
+		int maxDepth;
 
 	// methods
 	public:
 		kDQuadTree(){}
-		kDQuadTree(vector<Point*> _points, vector<CPolytope*> _pols, int _dim, vector<pair<double, double >> _boundingBox, double _eps) : pols(_pols), dim(_dim) {
+
+		kDQuadTree(vector<Point*> _points, vector<CPolytope*> _pols, int _dim, vector<pair<double, double >> _boundingBox, double _eps, int _maxDepth) : pols(_pols), dim(_dim), maxDepth(_maxDepth) {
 			
 			// insert polytope vertices into _points
 			for (auto& pol : _pols) {
@@ -100,11 +106,39 @@ class kDQuadTree {
 			this->root = build(_points, _dim, _boundingBox, _eps, 0);
 		}
 		
+		~kDQuadTree() {
+			// std::vector<Node*> leafs;
+
+			std::queue<Node*> queue;
+			queue.push(root);
+
+			while (!queue.empty()) {
+				Node* cur = queue.front();
+				queue.pop();
+
+				for (Node* child : cur->childNodes) {
+					queue.push(child);
+				}
+
+				delete cur;
+
+				//if (cur->isLeaf) {
+				// leafs.push_back(cur);
+				// }
+
+				// return leafs;
+			}
+
+
+
+			// getAllNodes 
+		}
+
 		// CPolytope square2D(2, vertices2D, facets2D);
 
 		Node* build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, kDQuadTreeNode* parent = nullptr);
 		
-		vector<pair<double, Point*>> kNN(Point* query, int k);
+		vector<pair<double, Point*>> kNN(Point* query, int k, bool isEmptyCell);
 };
 
 void buildEpsilonGraph();
@@ -114,9 +148,17 @@ Node* pointLocation(Node* node, Point* point);
 Node* addPoint(Node* node, Point* point, int maxDepth);
 Node* deletePoint(Node* node, Point* point);
 
+int dummyTest(void);
+
+std::vector<Node*> getLeafs(Node* node);
+
 // void buildPointGraphOnQuadTree(kDQuadTree* quadtree);
-vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree);
+vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree, double absoluteValue = -1, double relativeFactor = -1);
 // vector< pair<double, double>, pair<double, double> > buildPointGraphOnQuadTree(kDQuadTree* quadtree);
+
+void checkPointGraphSize(double eps, Node* node);
+
+void fillEmptyCells(int dim, kDQuadTree* T);
 
 // node를 root로 하는 subtree 내의 모든 node에 numPoints 개의 점을 무작위로 찍기
 // void spreadPoints(Node* node, int dim, int numPoints = numSpreadPoints);

@@ -33,6 +33,8 @@ public:
 	int nowIndex;
 	// 딕셔너리 저장을 위한 인덱스
 
+	bool isExtraPoint;
+	// eps 값에 따라 input site를 추가할 때
 
 	bool isPolytopeVertex;
 
@@ -52,7 +54,7 @@ public:
 	Point(std::vector<double>);
 	Point(std::vector<double>, bool);
 	Point(Point*);
-	~Point();
+	~Point() {}
 	Point operator+(Point&);
 	Point operator/ (double );	
 	Point& operator+=(Point&);

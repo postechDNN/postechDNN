@@ -374,6 +374,8 @@ vector<Point*> makePointSet(std::string dir, int start_idx) {
 		ret.push_back(pt);
 	}
 
+	fin.close();
+
 	return ret;
 }
 
@@ -999,6 +1001,8 @@ CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex) {
 
 			facets.push_back(facet);
 		}
+
+		fin2.close();
 	}
 	
 	// facet 정보 읽기 end
