@@ -163,7 +163,6 @@
     <ClInclude Include="..\Triangulation\Triangulation.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\BBST\SimpleBBST.cpp" />
     <ClCompile Include="..\CarrierGraph\CarrierGraph.cpp" />
     <ClCompile Include="..\CarrierGraph\Rect.cpp" />
     <ClCompile Include="..\compressed_quadtree\QC.cpp" />

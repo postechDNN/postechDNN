@@ -95,9 +95,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\BBST\SimpleBBST.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="..\CarrierGraph\CarrierGraph.cpp">
       <Filter>소스 파일\CarrierGraph</Filter>
     </ClCompile>
