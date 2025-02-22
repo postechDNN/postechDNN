@@ -7,9 +7,11 @@
 #include "../data_generation/data_generation.h"
 #include "quadtree.h"
 
-void querySpeedTest(std::string dir);
+void querySpeedTest(std::string dir, int startID, int endID, int numSites, int numQueries);
 
-void distanceSumTest(std::string dir, bool speedFlag, int useDataSetId);
+void distanceSumTest(std::string dir, int startID, int endID, int numSites, int numQueries);
+
+void Test(std::string dir, bool speedFlag, int useDataSetId);
 
 void insertionTest(kDQuadTree* qT, Point* q, int maxDepth, double EPS = 0.0000001);
 

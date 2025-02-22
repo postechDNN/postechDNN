@@ -18,10 +18,10 @@ Point* translate(Point* p, int axis, double val) {
 }
 
 // ex) dir = ""
-void querySpeedTest(std::string dir) {
+void querySpeedTest(std::string dir, int startID, int endID, int numPoints, int numQueries) {
 
 	int dim = 4;
-	int numQueries = 1000;
+	// int numQueries = 1000;
 	int k = 10;
 	int epsilon = 1.0;
 	int maxDepth = INT_MAX; // user-defined
@@ -43,15 +43,35 @@ void querySpeedTest(std::string dir) {
 	fs::path dataDirDir = dir + "_Speed";
 	fs::directory_iterator iterDirDir(dataDirDir);
 
-	int curDataSetId = -1;
+	int curDataSetID = -1;
 
-	string outputFileName = "output_" + to_string(epsilon) + ".txt";
+	// int startID = 70;
+	// int endID = 79;
+
+	string outputFileName = "speed_" + to_string(startID) + "_" + to_string(endID) + "_" + to_string(numPoints) + "_" + to_string(numQueries) + ".txt";
 	ofstream outputTXT(outputFileName);
 	outputTXT.clear();
 
+	if (0 <= startID && endID <= 9 || 20 <= startID && endID <= 29 || 40 <= startID && endID <= 49 || 60 <= startID && endID <= 69) {
+		cout << "uniform\n\n";  outputTXT << "uniform\n\n";
+	}
+	if (10 <= startID && endID <= 19 || 30 <= startID && endID <= 39 || 50 <= startID && endID <= 59 || 70 <= startID && endID <= 79) {
+		cout << "cluster\n\n";  outputTXT << "cluster\n\n";
+	}
+
 	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
-		
-		curDataSetId += 1;
+
+		curDataSetID += 1;
+
+		if (startID <= curDataSetID && curDataSetID <= endID) {
+			cout << "dataset #" << curDataSetID << " start\n";
+			outputTXT << "dataset #" << curDataSetID << " start\n";
+		}
+		else { continue; }
+		// else { cout << "dataset #" << curDataSetID << " skipped\n"; continue; }
+
+		// if (startID <= curDataSetId && curDataSetId <= endID) 
+		// if (startID > curDataSetID || curDataSetID > endID) continue;
 
 		fs::path dataDir = (*i00).path();
 
@@ -70,14 +90,36 @@ void querySpeedTest(std::string dir) {
 		std::string pointsDir = dataDir.string() + "\\points\\points.txt"; // for input sites
 		std::vector<Point*> pts = makePointSet(pointsDir);
 
+		// int numPoints = pts.size();
+		// pts = vector<Point*>(pts.begin(), pts.begin() + 1000);
+
 		std::string queryDir = dataDir.string() + "\\points\\queries.txt"; // for queries
 		std::vector<Point*> q_pts = makePointSet(queryDir); // query points
 
 		// ********************************************************** read (input) points end
 
-		auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsilon, maxDepth);
+		// kDQuadTree(vector<Point*> _points, vector<CPolytope*> _pols, int _dim, 
+		// vector<pair<double, double >> _boundingBox, int _maxDepth, double _eps = 1.0)
+		auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, maxDepth);
 
-		buildPointGraphOnQuadTree(qT, maxValue * (1 / epsilon), -1);
+		int numExtraPoints = double(1) / epsilon * pts.size();
+
+		for (int _ = 0; _ < numExtraPoints; _++) {
+			Point* p = generateRandomPoint(dim, boundingBox);
+			p->isExtraPoint = true;
+
+			auto node = pointLocation(qT->root, p);
+			node->points.push_back(p);
+		}
+
+		auto edge_list = buildPointGraphOnQuadTree(qT);
+
+		// std::cout << "epsilon: " << epsilon << "\n";
+		std::cout << "num cells: " << getLeafs(qT->root).size() << "\n";
+		std::cout << "num edges: " << edge_list.size() << "\n";
+
+		outputTXT << "num cells: " << getLeafs(qT->root).size() << "\n";
+		outputTXT << "num edges: " << edge_list.size() << "\n";
 
 		/*
 		vector<Point*> queries;
@@ -86,7 +128,7 @@ void querySpeedTest(std::string dir) {
 		}
 		*/
 
-		cout << "query start\n";
+		// cout << "query start\n";
 		auto start = chrono::high_resolution_clock::now();
 		for (int j = 0; j < q_pts.size(); j++) {
 			qT->kNN(q_pts[j], k, true);
@@ -95,7 +137,7 @@ void querySpeedTest(std::string dir) {
 		auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
 		auto microsecond = duration.count();
 		double second = double(microsecond) / 1000000.0;
-		cout << "query end\n";
+		// cout << "query end\n";
 
 		for (auto& pt : pts) delete pt;
 		for (auto& q_pt : q_pts) delete q_pt;
@@ -105,48 +147,300 @@ void querySpeedTest(std::string dir) {
 		int index;
 
 		// uniform
-		if (curDataSetId < 40) {
-			index = curDataSetId / 10;
-			uniform[index] += second;
+		if (curDataSetID / 10 % 2 == 0) {
+			index = curDataSetID / 20;
+			uniform[index] += microsecond;
 		}
 		else {
-			index  = (curDataSetId - 40) / 10;
-			clustered[index] += second;
+			index  = (curDataSetID - 10) / 20;
+			clustered[index] += microsecond;
 		}
 
 		time_t timer = time(NULL);
 		struct tm* t = localtime(&timer);
 
-		cout << t->tm_year + 1900 << "/" << t->tm_mon + 1 << "/" << t->tm_mday << " " << t->tm_hour << ":" << t->tm_min << ":" << t->tm_sec << "\n";
-		cout << "dataset ID: " << curDataSetId;
-		if (curDataSetId < 40) cout << " uniform, ";
-		else cout << " clustered, ";
-		cout << " num points: " << pts.size() << ", num polytopes: " << Ctopes.size() << "\n";
-		cout << "time taken for " << numQueries << " queries: " << second << "\n";
+		cout << "currentTime: " << t->tm_year + 1900 << "/" << t->tm_mon + 1 << "/" << t->tm_mday << " " << t->tm_hour << ":" << t->tm_min << ":" << t->tm_sec << "\n";
+		// cout << "dataset ID: " << curDataSetID;
+		// << ", type: ";
+		// if (curDataSetID / 10 % 2 == 0) cout << " uniform, ";
+		// else cout << " clustered, ";
+		cout << "numPoints: " << numPoints << " numPolytopes: " << Ctopes.size() << " numQueries: " << numQueries << "\n";
+		cout << "time" << numQueries << "queries: " << second << "\n\n";
+		//  taken for 
 
 		outputTXT << t->tm_year + 1900 << "/" << t->tm_mon + 1 << "/" << t->tm_mday << " " << t->tm_hour << ":" << t->tm_min << ":" << t->tm_sec << "\n";
-		outputTXT << "dataset ID: " << curDataSetId;
-		if (curDataSetId < 40) outputTXT << " uniform, ";
-		else outputTXT << " clustered, ";
-		outputTXT << " num points: " << pts.size() << ", num polytopes: " << Ctopes.size() << "\n";
-		outputTXT << "time taken for " << numQueries << " queries: " << second << "\n";
-
+		// outputTXT << "dataset ID: " << curDataSetID;
+		// << ", type: ";
+		// if (curDataSetID / 10 % 2 == 0) outputTXT << " uniform, ";
+		// else outputTXT << " clustered, ";
+		outputTXT << "numPoints: " << numPoints << ", numPolytopes: " << Ctopes.size() << " numQueries: " << numQueries << "\n";
+		outputTXT << "time" << numQueries << "queries: " << second << "\n\n";
+		//  taken for 
 	}
 
-	outputTXT << "uniform - average query time (s)\n";
+	/*
+	cout << "uniform - average query time (ms)\n";
 	for (auto val : uniform) {
-		outputTXT << val / 10.0 / numQueries << " ";
+		cout << val / 10.0 / numQueries * 1000.0 << " ";
 	}
-	outputTXT << "\nclustered - average query time (s)\n";
+	cout << "\nclustered - average query time (ms)\n";
 	for (auto val : clustered) {
-		outputTXT << val / 10.0 / numQueries << " ";
+		cout << val / 10.0 / numQueries * 1000.0 << " ";
+	}
+	cout << "\n";
+
+	outputTXT << "uniform - average query time (ms)\n";
+	for (auto val : uniform) {
+		outputTXT << val / 10.0 / numQueries * 1000.0 << " ";
+	}
+	outputTXT << "\nclustered - average query time (ms)\n";
+	for (auto val : clustered) {
+		outputTXT << val / 10.0 / numQueries * 1000.0 << " ";
 	}
 	outputTXT << "\n";
+	*/
 
 	outputTXT.close();
 }
 
-void distanceSumTest(std::string dir, bool speedFlag, int useDataSetId) {
+void distanceSumTest(std::string dir, int startID, int endID, int numSites, int numQueries) {
+
+	int dim = 4;
+	// int numSites = 1000;
+	// int numQueries = 100;
+
+	vector<int> kVals;
+	if (numSites == 1000) kVals = { 5, 10, 50, 100 };
+	else if (numSites == 10000) kVals = { 10, 50, 100, 500, 1000};
+	else throw std::invalid_argument("numSites should be 1000 or 10000");
+
+	// vector<double> epsVals = { 0.33, 0.2, 0.14, 0.09 };
+	vector<double> epsVals = { 10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1};
+	int maxDepth = 10; // user-defined
+
+	// bounding box
+	double maxValue = 128.0;
+	vector<pair<double, double >> boundingBox;
+	for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-maxValue, maxValue));
+
+	namespace fs = std::filesystem;
+	fs::path dataDirDir = dir;
+	fs::directory_iterator iterDirDir(dataDirDir);
+
+	int curDataSetID = -1;
+
+	// int startID = 0;
+	// int endID = 9;
+
+	string outputFileName = "dist_" + to_string(startID) + "_" + to_string(endID) + "_" + 
+		to_string(numSites) + "_" + to_string(numQueries) + ".txt";
+	ofstream outputTXT(outputFileName);
+	outputTXT.clear();
+
+	if (startID >= 50) outputTXT << "cluster\n";
+
+	vector<vector<double>> arr;
+	arr.assign(epsVals.size(), vector<double>(kVals.size(), 0.0));
+	// vec.assign(3, vector<int>(4, 0));
+	
+	for (auto& i00 = iterDirDir; i00 != fs::end(iterDirDir); ++i00) {
+
+		curDataSetID += 1;
+
+		if (startID <= curDataSetID && curDataSetID <= endID) cout << "dataset #" << curDataSetID << " start\n";
+		else { cout << "dataset #" << curDataSetID << " skipped\n"; }
+
+		// if (startID <= curDataSetId && curDataSetId <= endID) 
+		if (startID > curDataSetID || curDataSetID > endID) continue;
+
+		fs::path dataDir = (*i00).path();
+
+		// ********************************************************** read CPolytope start
+		fs::path polytopesDir(dataDir.string() + "\\polytopes");
+		fs::directory_iterator iterTopes(polytopesDir);
+
+		std::vector<CPolytope*> Ctopes;
+
+		for (auto& i01 = iterTopes; i01 != fs::end(iterTopes); ++i01) {
+			fs::path topeDir = (*i01).path();
+			Ctopes.push_back(dels2cpolytope(topeDir.string(), dim, true));
+		}
+		// ********************************************************** read CPolytope end
+
+		std::string pointsDir = dataDir.string() + "\\points\\points.txt"; // for input sites
+		std::vector<Point*> pts = makePointSet(pointsDir);
+
+		pts = vector<Point*>(pts.begin(), pts.begin() + numSites);
+
+		std::string queryDir = dataDir.string() + "\\points\\queries.txt"; // for queries
+		std::vector<Point*> q_pts = makePointSet(queryDir); // query points
+
+		q_pts = vector<Point*>(q_pts.begin(), q_pts.begin() + numQueries);
+
+		// ********************************************************** read (input) points end
+
+		for (int j = 0; j < epsVals.size(); j++) {
+			auto eps = epsVals[j];
+
+			/*
+			vector<Point*> pts2;
+
+			for (int ii = 0; ii < pts.size(); ii++) {
+				pts2.push_back(new Point(pts[ii]));
+			}
+			*/
+
+			int numExtraPoints =  double(1) / eps * pts.size();
+			/*
+			for (int k = 0; k < numExtraPoints; k++) {
+				Point* p = generateRandomPoint(dim, boundingBox);
+				p->isExtraPoint = true;
+				pts.push_back(p);
+			}
+			*/
+
+			auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, maxDepth);
+
+			for (int _ = 0; _ < numExtraPoints; _++) {
+				Point* p = generateRandomPoint(dim, boundingBox);
+				p->isExtraPoint = true;
+
+				auto node = pointLocation(qT->root, p);
+				node->points.push_back(p);
+			}
+
+			/*
+			* 
+			// find a number n such that n^2 <= 1 / eps < (n+1)^2
+			int n = 1;
+
+			while (true) {
+				if (pow(n, 4) < numExtraPoints && numExtraPoints <= pow(n + 1, 4)) {
+					break;
+				}
+				else n++;
+			}
+
+			// 놓는 점의 개수가 n^4
+			double gap = (boundingBox[0].second - boundingBox[0].first) / (n + 1);
+			double start = boundingBox[0].first + gap;
+
+			vector<int> vec; vec.assign(dim, 0);
+
+			// debug
+			vector<Point*> testPoints;
+
+			// n진수 - 각 자리수는 0부터 (n-1)까지
+			for (int ii = 0; ii < pow(n, 4); ii++) {
+
+				int nowDigit = dim - 1;
+				while (true) {
+					if (vec[nowDigit] == n - 1) {
+						vec[nowDigit] = 0;
+						nowDigit -= 1;
+					}
+
+					else {
+						vec[nowDigit] += 1;
+						break;
+					}
+				}
+
+				// for (auto x : vec)
+				// 	cout << x << " ";
+
+				// cout << "\n";
+
+				vector<double> xs; xs.assign(dim, start);
+				for (int jj = 0; jj < dim; jj++) {
+					xs[jj] += vec[jj] * gap;
+				}
+
+				auto p = new Point(xs);
+				p->isExtraPoint = true;
+
+				auto node = pointLocation(qT->root, p);
+				node->points.push_back(p);
+
+				// debug
+				testPoints.push_back(p);
+			}
+
+			// place additional points (not as quadtree sites but as "points") on the uniform grid of size n * n (as vertices)
+
+			*/
+			
+			fillEmptyCells(dim, qT);
+			auto edge_list = buildPointGraphOnQuadTree(qT);
+
+			std::cout << "epsilon: " << eps << "\n";
+			std::cout << "num cells: " << getLeafs(qT->root).size() << "\n";
+			std::cout << "num edges: " << edge_list.size() << "\n";
+
+			for (int ii = 0; ii < numQueries; ii++) {
+				auto& q = q_pts[ii];
+
+				for (int jj = 0; jj < kVals.size(); jj++) {
+					auto k = kVals[jj];
+					// auto ret = qT->kNN(q, k, false);
+
+					double distSum = 0;
+
+					// auto ret = qT->kNN(q, k, true);
+					auto ret = qT->kNN(q, k, false);
+
+					for (auto& v : ret) {
+						distSum += v.first;
+					}
+					
+					arr[j][jj] += distSum;
+				}
+			}
+
+			delete qT;
+			/*
+			for (int ii = numSites; ii < numSites + numExtraPoints; ii++) {
+				delete pts[ii];
+			}
+			*/
+
+			pts.resize(numSites);
+			// pts = vector<Point*>(pts.begin(), pts.begin() + numSites);
+			// for (auto & pt : pts) delete pt;
+		}
+
+		for (auto& pt : pts) delete pt;
+		for (auto& q_pt : q_pts) delete q_pt;
+		for (auto& tope : Ctopes) delete tope;
+
+		for (int j = 0; j < arr.size(); j++) {
+			auto& vals = arr[j];
+			cout << "eps: " << epsVals[j] << "\n";
+			
+			for (int ii = 0; ii < vals.size(); ii++) {
+				auto& val = vals[ii];
+				cout << val << " for k: " << kVals[ii] << "\n";
+			}
+			cout << "\n";
+		}
+		cout << "\n\n";
+
+		for (int j = 0; j < arr.size(); j++) {
+			auto& vals = arr[j];
+			outputTXT << "eps: " << epsVals[j] << "\n";
+
+			for (int ii = 0; ii < vals.size(); ii++) {
+				auto& val = vals[ii];
+				outputTXT << val << " for k: " << kVals[ii] << "\n";
+			}
+			outputTXT << "\n";
+		}
+		outputTXT << "\n\n";
+
+	}
+}
+
+void Test(std::string dir, bool speedFlag, int useDataSetId) {
 	
 	// very small value
 	// double EPS = 0.0000001;

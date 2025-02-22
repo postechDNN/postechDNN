@@ -620,6 +620,47 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree, double ab
 		Node* cur = queue.front();
 		queue.pop();
 
+		/*
+		
+		// 각 node (cell) 내에서도 complete graph를 만들기
+		for (int j = 0; j < cur->points.size(); j++) {
+			auto p1 = cur->points[j];
+
+			for (int ii = j + 1; ii < cur->points.size(); ii++) {
+				auto p2 = cur->points[ii];
+
+				p1->neighbors.push_back(p2);
+				p2->neighbors.push_back(p1);
+			}
+		} 
+		
+		*/
+
+		// 각 node (cell) 내에서도 complete graph를 만들기
+		for (int j = 0; j < cur->points.size(); j++) {
+			auto p1 = cur->points[j];
+
+			for (int ii = j + 1; ii < cur->points.size(); ii++) {
+				auto p2 = cur->points[ii];
+				
+				// cannot connect p1 and p2 since it is blocked by a polytope. 
+				bool blocked = false;
+
+				// 모든 polytope과 intersect하지 않아야 연결
+				for (auto& pol : pols) {
+					if (pol->is_intersect(p1, p2)) {
+						blocked = true;
+						break;
+					}
+				}
+
+				if (!blocked) {
+					p1->neighbors.push_back(p2);
+					p2->neighbors.push_back(p1);
+				}
+			}
+		}
+
 		for (Node* child : cur->childNodes) {
 			queue.push(child);
 		}
@@ -684,16 +725,31 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree, double ab
 			for (Point* p1 : leaf->points) {
 				for (Point* p2 : adj->points) {
 
-					for (auto& pol : pols) { // polytope과 intersect하지 않으면
-						if (!pol->is_intersect(p1, p2)) {
-							
-							ret.push_back(make_pair(p1->nowIndex, p2->nowIndex));
+					/*
+					
+					p1->neighbors.push_back(p2);
+					p2->neighbors.push_back(p1);
 
-							p1->neighbors.push_back(p2);
-							p2->neighbors.push_back(p1);
+					*/
+
+					// cannot connect p1 and p2 since they are blocked by a polytope. 
+					bool blocked = false;
+
+					// 모든 polytope과 intersect하지 않아야 연결
+					for (auto& pol : pols) { 
+						if (pol->is_intersect(p1, p2)) {
+							blocked = true;
+							break;
 						}
 					}
 					
+					if (!blocked) {
+						ret.push_back(make_pair(p1->nowIndex, p2->nowIndex));
+
+						p1->neighbors.push_back(p2);
+						p2->neighbors.push_back(p1);
+					} 
+
 				}
 			}
 		}

@@ -72,11 +72,10 @@ public:
 	: points(_points), isLeaf(true), parent(_parent), numNodesSubtree(0) {} // numNodesSubtree(1)
 
 	~kDQuadTreeNode() {
-		for (auto& sp : spreadPoints) delete sp;
+		// for (auto& sp : spreadPoints) delete sp;
 	}
 
 	void updateNumNodesSubtree();
-
 
 }Node;
 
@@ -93,7 +92,7 @@ class kDQuadTree {
 	public:
 		kDQuadTree(){}
 
-		kDQuadTree(vector<Point*> _points, vector<CPolytope*> _pols, int _dim, vector<pair<double, double >> _boundingBox, double _eps, int _maxDepth) : pols(_pols), dim(_dim), maxDepth(_maxDepth) {
+		kDQuadTree(vector<Point*> _points, vector<CPolytope*> _pols, int _dim, vector<pair<double, double >> _boundingBox, int _maxDepth, double _eps = 1.0) : pols(_pols), dim(_dim), maxDepth(_maxDepth) {
 			
 			// insert polytope vertices into _points
 			for (auto& pol : _pols) {
@@ -128,8 +127,6 @@ class kDQuadTree {
 
 				// return leafs;
 			}
-
-
 
 			// getAllNodes 
 		}
