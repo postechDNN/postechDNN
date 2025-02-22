@@ -354,10 +354,10 @@ bool comp(std::pair<double, Point> a, std::pair<double, Point> b) {
     return a.first < b.first;
 }
 
-pair<Point, double> BoxGraphL2::query(Point query) {
+tuple<Point, int, double> BoxGraphL2::query(Point query) {
     Point Near;
     double dist = INFINITY;
-
+    int index = -1;
     for (int i = 0; i < vertices.size(); i ++){
         bool check_intersect = false;
 
@@ -389,12 +389,13 @@ pair<Point, double> BoxGraphL2::query(Point query) {
 
             if (dist >= dist_temp){
                 dist = dist_temp;
-                Near = vertices[i];
+                Near = vertices[near_src[i]];
+                index = i;
             }
         }
     }
 
-    return { Near, dist };
+    return { Near, index, dist };
 }
 
 /*

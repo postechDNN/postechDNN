@@ -20,8 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
+    <ClInclude Include="data_gen.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="Space.h" />
+    <ClInclude Include="Space_IO.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Box.cpp" />

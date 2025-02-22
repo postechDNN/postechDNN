@@ -24,6 +24,12 @@
     <ClInclude Include="Space.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Space_IO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="data_gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

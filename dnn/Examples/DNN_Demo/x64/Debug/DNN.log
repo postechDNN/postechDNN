@@ -1,0 +1,171 @@
+﻿  AddDialog.cpp
+  DNN.cpp
+  DNNDlg.cpp
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(353,93): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(353,74): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(365,90): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(365,71): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(392,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(523,16): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(662,50): warning C4805: '==': 연산에 'int' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(688,49): warning C4805: '==': 연산에 'int' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(708,49): warning C4805: '==': 연산에 'int' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(730,48): warning C4805: '==': 연산에 'int' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(753,18): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\DNNDlg.cpp(753,35): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  DNN_DS.cpp
+  Object.cpp
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Object.cpp(142,28): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Object.cpp(145,29): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Object.cpp(188,28): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Object.cpp(191,25): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Object.cpp(194,25): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Object.cpp(197,24): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  OGL_Contorl.cpp
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(232,12): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(358,9): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(359,10): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(360,9): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(361,10): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(386,10): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(388,13): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(390,17): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(391,10): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(392,14): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(393,19): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(413,9): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(414,10): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(415,9): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\OGL_Contorl.cpp(416,10): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  pch.cpp
+  DNN_Util.cpp
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_operation.h(86,13): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_operation.h(117,10): warning C4244: '초기화 중': 'point_type'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_operation.h(131,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_operation.h(132,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_operation.h(133,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_operation.h(134,13): warning C4244: '초기화 중': 'point_type'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_operation.h(291,25): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_decomposition.h(247,13): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_decomposition.h(267,13): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_decomposition.h(326,49): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\Chain.h(161,30): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\Chain.h(353,27): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(170,8): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(171,8): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(272,25): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(293,25): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(347,26): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(382,26): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(431,25): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(452,25): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(507,26): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\tangent.h(543,26): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\hourglass_operation.h(54,20): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\hourglass_operation.h(63,20): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\hourglass_operation.h(86,10): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\hourglass_operation.h(95,10): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\hourglass_operation.h(151,40): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(212,29): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(232,82): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(232,59): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(233,57): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(234,58): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(240,55): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(241,53): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(328,29): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(412,21): warning C4244: '인수': 'point_type'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(412,19): warning C4244: '인수': 'point_type'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(444,29): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(520,12): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(559,27): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(591,30): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(603,25): warning C4267: 'return': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\numeric(525,34): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\numeric(525,34):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\ShortestPathSimplePolygon\Util\polygon_decomposition.h(321,2):
+          컴파일되는 함수 템플릿 인스턴스화 'void std::iota<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,unsigned __int64>(_FwdIt,_FwdIt,unsigned __int64)'에 대한 참조를 확인하세요.
+          with
+          [
+              _Ty=int,
+              _FwdIt=std::_Vector_iterator<std::_Vector_val<std::_Simple_types<int>>>
+          ]
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\numeric(533,20): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244: '초기화 중': '_Ty'에서 '_Ty2'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:             _Ty=unsigned __int64
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:         ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:         and
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:             _Ty2=int
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61): warning C4244:         ]
+  (소스 파일 'Util/DNN_Util.cpp'을(를) 컴파일하는 중)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\include\utility(276,61):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(646,34):
+          컴파일되는 함수 템플릿 인스턴스화 'std::pair<double,int>::pair<double,unsigned __int64,0>(std::pair<double,unsigned __int64> &&) noexcept'에 대한 참조를 확인하세요.
+              C:\Users\tkeom\Desktop\postechDNN\dnn\Examples\DNN_Demo\Util\DNN_Util.cpp(646,19):
+              'DNN_Util::getQueryResult'에서 'std::pair<double,int>::pair'에 대한 첫 번째 참조를 확인하세요.
+  
+  코드를 생성하고 있습니다...
+  DNN.vcxproj -> C:\Users\tkeom\Desktop\postechDNN\dnn\x64\Debug\DNN_Demo.exe

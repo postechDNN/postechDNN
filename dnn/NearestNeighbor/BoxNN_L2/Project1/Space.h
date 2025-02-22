@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <tuple>
 
 
 using namespace std;
@@ -28,14 +29,15 @@ public:
     void add_vert(Point);
     void del_vert(int);
     void Dijkstra();
-    pair<Point, double> query(Point);
+    tuple<Point, int, double>  query(Point);
     //void knn(Point, int);
 
-private:
+
     vector<Point> vertices; // Input points + Box vertices + Steiner points
     vector<vector<pair<long long int, double>>> adj_list; // Adjacent list
     vector<double> dists; //distance from the nearest source
     vector<int> near_src; //index of the nearest source
+private:
     vector<bool> visited;
     vector<pair<int,int>> Combination();
     vector<Point> gen_SteinerPoint();

@@ -20,7 +20,6 @@ public:
 
     vector<vector<double>> generate_epsilon(double rmin, double epsilon);
     bool intersect(Point, Point);
-   
 };
 
 /*
