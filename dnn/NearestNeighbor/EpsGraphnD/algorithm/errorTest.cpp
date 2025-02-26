@@ -100,7 +100,7 @@ void querySpeedTest(std::string dir, int startID, int endID, int numPoints, int 
 
 		// kDQuadTree(vector<Point*> _points, vector<CPolytope*> _pols, int _dim, 
 		// vector<pair<double, double >> _boundingBox, int _maxDepth, double _eps = 1.0)
-		auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, maxDepth);
+		auto qT = new EpsGraphNd(pts, Ctopes, dim, boundingBox, maxDepth);
 
 		int numExtraPoints = double(1) / epsilon * pts.size();
 
@@ -299,7 +299,7 @@ void distanceSumTest(std::string dir, int startID, int endID, int numSites, int 
 			}
 			*/
 
-			auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, maxDepth);
+			auto qT = new EpsGraphNd(pts, Ctopes, dim, boundingBox, maxDepth);
 
 			for (int _ = 0; _ < numExtraPoints; _++) {
 				Point* p = generateRandomPoint(dim, boundingBox);
@@ -545,7 +545,7 @@ void Test(std::string dir, bool speedFlag, int useDataSetId) {
 				}
 			}
 
-			auto qT = new kDQuadTree(pts, Ctopes, dim, boundingBox, epsVal, maxDepth);
+			auto qT = new EpsGraphNd(pts, Ctopes, dim, boundingBox, epsVal, maxDepth);
 			
 			auto query = q_pts[0];
 			// insertionTest(qT, query, maxDepth);
@@ -667,7 +667,7 @@ void Test(std::string dir, bool speedFlag, int useDataSetId) {
 	}
 }
 
-void insertionTest(kDQuadTree* qT, Point* q, int maxDepth, double EPS) {
+void insertionTest(EpsGraphNd* qT, Point* q, int maxDepth, double EPS) {
 
 	auto ret = qT->kNN(q, 1, false);
 	cout << "nn index:" << ret[0].second->nowIndex << "\n";
@@ -680,7 +680,7 @@ void insertionTest(kDQuadTree* qT, Point* q, int maxDepth, double EPS) {
 
 }
 
-void deletionTest(kDQuadTree* qT, Point* q, double EPS) {
+void deletionTest(EpsGraphNd* qT, Point* q, double EPS) {
 
 	auto ret = qT->kNN(q, 1, false);
 	cout << "nn index:" << ret[0].second->nowIndex << "\n";
@@ -828,7 +828,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		
 		// vector<CPolytope*> pols;
 		
-		auto qT = new kDQuadTree(pts2, Ctopes, dim, boundingBox, epsilon, INT_MAX);
+		auto qT = new EpsGraphNd(pts2, Ctopes, dim, boundingBox, epsilon, INT_MAX);
 		// buildEpsilonGraph(pts2);
 
 		// 파이썬에서 옮겨서 테스트 할 output 생성
@@ -896,7 +896,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 		std::vector<Polytope*> multiTopesNoPtr;
 
 		// Eps_Graph_nD epsGraph(dim, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
-		auto* epsGraph = new Eps_Graph_nD(dim, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
+		auto* epsGraph = new GridGraph(dim, frpts, multiTopesNoPtr, epsilon, resultDir + "\\" + "EG1");
 		// auto* epsGraph = new Eps_Graph_nD(-1);
 
 		if (checkMemory) {
@@ -911,7 +911,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 
 		list<Free_Point*> frpts2;
 
-		Eps_Graph_nD* epsGraphOpt = nullptr;
+		GridGraph* epsGraphOpt = nullptr;
 		if (!speedFlag) {
 
 			for (auto& tope : multiTopesNoPtr) {
@@ -923,7 +923,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 			}
 
 			epsGraphOpt =
-				new Eps_Graph_nD(dim, frpts2, multiTopesNoPtr2,
+				new GridGraph(dim, frpts2, multiTopesNoPtr2,
 					epsilon * 0.5, resultDir + "\\" + "EG2");
 			std::cout << "constructed epsGraph2" << std::endl;
 		}
@@ -1046,7 +1046,7 @@ void autoTest(std::string dir, double epsilon, bool speedFlag, int useDataSetId)
 	//auto exe_time = duration.count();
 }
 
-pair<double, double> printErrorDijk(Eps_Graph_nD& epsGraph, pVV& pr,
+pair<double, double> printErrorDijk(GridGraph& epsGraph, pVV& pr,
 	vector<pair<Free_Point, double>>& prDijk, Free_Point& q, int& k, string& dir) {
 
 	auto& myDists = pr.second;
@@ -1103,7 +1103,7 @@ pair<double, double> printErrorDijk(Eps_Graph_nD& epsGraph, pVV& pr,
 //std::advance(now2, id);
 
 
-pair<double, double> printError(Eps_Graph_nD* epsGraph1, Eps_Graph_nD* epsGraph2,
+pair<double, double> printError(GridGraph* epsGraph1, GridGraph* epsGraph2,
 	int useDataSetId,
 	pVV& pr1, pVV& pr2, Free_Point* q, int& k, string& dir) {
 	// std::string resultDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestResult";

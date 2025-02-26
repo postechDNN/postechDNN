@@ -13,7 +13,7 @@ class quadTree {
 
 using namespace std;
 // Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point> _fr_pts, vector<vector<Polytope>> _NonconvexPols, double _eps) {
-Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point*> _fr_pts, vector<Polytope*> _NonconvexPols, 
+GridGraph::GridGraph(int _n, list<Free_Point*> _fr_pts, vector<Polytope*> _NonconvexPols, 
 	double _eps, string printDir = "") {
 	n = _n;
 	fr_pts = _fr_pts;
@@ -73,7 +73,7 @@ Eps_Graph_nD::Eps_Graph_nD(int _n, list<Free_Point*> _fr_pts, vector<Polytope*> 
 	// cout << this->
 }
 
-void Eps_Graph_nD::computeMinMax() {
+void GridGraph::computeMinMax() {
 
 	for (Polytope* convexPol : pols) {
 		//pol.set_vertices_size();
@@ -117,7 +117,7 @@ void Eps_Graph_nD::computeMinMax() {
 //cout << "---------------------" << endl;
 ////cout << "dimension of polytope: " << pol.xs_max.size() << endl;
 
-void Eps_Graph_nD::init_grid(string printDir = "") {
+void GridGraph::init_grid(string printDir = "") {
 	for (int i = 0;i < n;i++) {
 		xs_num[i] = 1 + long long int(ceil((xs_max[i] - xs_min[i]) / eps));
 	}
@@ -214,7 +214,7 @@ void Eps_Graph_nD::init_grid(string printDir = "") {
 
 }
 
-bool Eps_Graph_nD::get_step_comb(vector<int>& arr, int index, int sum, int& step, 
+bool GridGraph::get_step_comb(vector<int>& arr, int index, int sum, int& step, 
 	vector<long long int>& xs, Free_Point* p) {
 
 	if (index == arr.size() - 1) {
@@ -261,7 +261,7 @@ bool Eps_Graph_nD::get_step_comb(vector<int>& arr, int index, int sum, int& step
 	}
 }
 
-void Eps_Graph_nD::anchor(Free_Point* p) { // cast anchor onto a grid point from a free point
+void GridGraph::anchor(Free_Point* p) { // cast anchor onto a grid point from a free point
 	double verySmallVal = pow(0.1, 10);
 
 	if (p->host != -1) {
@@ -304,11 +304,11 @@ void Eps_Graph_nD::anchor(Free_Point* p) { // cast anchor onto a grid point from
 	}
 }
 
-Grid_Point* Eps_Graph_nD::get_gridpt(vector<long long int>& ind) {//O
+Grid_Point* GridGraph::get_gridpt(vector<long long int>& ind) {//O
 	return grid[ind2num(ind)];
 }
 
-long long int Eps_Graph_nD::ind2num(vector<long long int> ind) {
+long long int GridGraph::ind2num(vector<long long int> ind) {
 	long long out = 0;
 	long long mul = 1;
 	for (int i = n - 1;i >= 0;i--) {
@@ -318,7 +318,7 @@ long long int Eps_Graph_nD::ind2num(vector<long long int> ind) {
 	return out;
 }
 
-vector<long long int> Eps_Graph_nD::num2ind(long long int num) {//O
+vector<long long int> GridGraph::num2ind(long long int num) {//O
 	long long t = 1;
 	for (int i = 1;i < n;i++) {
 		t *= xs_num[i];
@@ -333,7 +333,7 @@ vector<long long int> Eps_Graph_nD::num2ind(long long int num) {//O
 	return out;
 }
 
-void Eps_Graph_nD::add_edge(vector<long long int>& ind1, vector<long long int>& ind2) { //O
+void GridGraph::add_edge(vector<long long int>& ind1, vector<long long int>& ind2) { //O
 	int i;
 	for (i = 0;i < ind1.size();i++) {
 		if (ind1[i] != ind2[i]) break;
@@ -342,7 +342,7 @@ void Eps_Graph_nD::add_edge(vector<long long int>& ind1, vector<long long int>& 
 	grid[ind2num(ind2)]->ip_d[i] = true;
 }
 
-void Eps_Graph_nD::delete_edge(vector<long long int>& ind1, vector<long long int>& ind2) { //O
+void GridGraph::delete_edge(vector<long long int>& ind1, vector<long long int>& ind2) { //O
 	int i;
 	for (i = 0;i < ind1.size();i++) {
 		if (ind1[i] != ind2[i]) break;
@@ -351,7 +351,7 @@ void Eps_Graph_nD::delete_edge(vector<long long int>& ind1, vector<long long int
 	grid[ind2num(ind2)]->ip_d[i] = false;
 }
 
-bool Eps_Graph_nD::cmpNadd(vector<long long int>& ind, int& direc) {  //O
+bool GridGraph::cmpNadd(vector<long long int>& ind, int& direc) {  //O
 	// checks if the line connecting the gridpoint and its neighboring one is blocked by any polytope. if is not, add an edge between them.
 
 	Grid_Point* A = grid[ind2num(ind)];
@@ -436,7 +436,7 @@ bool Eps_Graph_nD::cmpNadd(vector<long long int>& ind, int& direc) {  //O
 //	return true;
 //}
 
-bool Eps_Graph_nD::cmpNadd_SinPol(vector<long long int>& ind, int& direc, int& ord) { // do the same with a specific polygon.
+bool GridGraph::cmpNadd_SinPol(vector<long long int>& ind, int& direc, int& ord) { // do the same with a specific polygon.
 
 	Polytope* pol;
 	vector<Polytope*>::iterator it;
@@ -477,7 +477,7 @@ bool Eps_Graph_nD::cmpNadd_SinPol(vector<long long int>& ind, int& direc, int& o
 	return true;
 }
 
-void Eps_Graph_nD::add_freepts(Free_Point* p) { // add points to the point set P //O
+void GridGraph::add_freepts(Free_Point* p) { // add points to the point set P //O
 	Free_Point* pt = fr_pts.back();
 
 	for (Polytope* pol : pols) {
@@ -490,7 +490,7 @@ void Eps_Graph_nD::add_freepts(Free_Point* p) { // add points to the point set P
 	fr_pts.push_back(p);
 }
 
-void Eps_Graph_nD::add_freepts(vector<Free_Point*> p_vec) { // add points to the point set P //O
+void GridGraph::add_freepts(vector<Free_Point*> p_vec) { // add points to the point set P //O
 	for (Free_Point* p : p_vec) {
 		for (Polytope* pol : pols) {
 		//for (auto& nonconvexPol : pols) {
@@ -503,7 +503,7 @@ void Eps_Graph_nD::add_freepts(vector<Free_Point*> p_vec) { // add points to the
 	}
 }
 
-void Eps_Graph_nD::delete_freept(int& ind) { // delete a point from P, specified by its index //O
+void GridGraph::delete_freept(int& ind) { // delete a point from P, specified by its index //O
 	int s = fr_pts.size();
 	if (ind < 0 || s - 1 < ind) { return; }
 
@@ -523,7 +523,7 @@ void Eps_Graph_nD::delete_freept(int& ind) { // delete a point from P, specified
 	fr_pts.erase(remove(fr_pts.begin(), fr_pts.end(), p));
 }
 
-void Eps_Graph_nD::query_anchor(Grid_Point* g) {
+void GridGraph::query_anchor(Grid_Point* g) {
 	for (vector<Free_Point*>::iterator it = g->anchored.begin(); it != g->anchored.end();) {
 		Free_Point* p = *it;
 		anchor(p);
@@ -534,7 +534,7 @@ void Eps_Graph_nD::query_anchor(Grid_Point* g) {
 	return;
 }
 
-std::vector<vector<long long int>> Eps_Graph_nD::eff_region(Polytope* P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
+std::vector<vector<long long int>> GridGraph::eff_region(Polytope* P) { // returns a range indicating orthogonal rectangle bounding the polygon (effective region)
 	static std::vector<vector<long long int>> ret(2, vector<long long int>(n, 0)); // ret[0] : minimum index containing polytope , ret[1] : maximum index containing polytope
 
 
@@ -546,7 +546,7 @@ std::vector<vector<long long int>> Eps_Graph_nD::eff_region(Polytope* P) { // re
 	return ret;
 }
 
-void Eps_Graph_nD::add_pol(Polytope* P) { // add a polygon to the set of obstacles 
+void GridGraph::add_pol(Polytope* P) { // add a polygon to the set of obstacles 
 	P->ord = ord_pol;
 
 	for (Free_Point* pt : fr_pts)
@@ -600,7 +600,7 @@ void Eps_Graph_nD::add_pol(Polytope* P) { // add a polygon to the set of obstacl
 }
 
 // delete a polygon from O, specified by its index
-void Eps_Graph_nD::delete_pol(int ord) { 
+void GridGraph::delete_pol(int ord) { 
 
 	//bool check = true;
 	//Polytope* P;
@@ -655,15 +655,15 @@ void Eps_Graph_nD::delete_pol(int ord) {
 }
 
 
-Eps_Graph_nD::Eps_Graph_nD(int n) { xs_num = vector<long long int>(n, 0); eps = 0; xs_min = vector<double>(n, 0), xs_max = vector<double>(n, 0); }
+GridGraph::GridGraph(int n) { xs_num = vector<long long int>(n, 0); eps = 0; xs_min = vector<double>(n, 0), xs_max = vector<double>(n, 0); }
 
 
-list<Free_Point*> Eps_Graph_nD::get_free_points()
+list<Free_Point*> GridGraph::get_free_points()
 {
 	return fr_pts;
 }
 
-Free_Point* Eps_Graph_nD::get_free_point(int& index) {
+Free_Point* GridGraph::get_free_point(int& index) {
 	list<Free_Point*>::iterator iter = fr_pts.begin();
 	std::advance(iter, index);
 	return *iter;
@@ -674,23 +674,23 @@ Free_Point* Eps_Graph_nD::get_free_point(int& index) {
 //	return pols;
 //}
 
-vector<Polytope*> Eps_Graph_nD::get_Polytopes() {
+vector<Polytope*> GridGraph::get_Polytopes() {
 
 	return pols;
 }
 
-vector<Grid_Point*> Eps_Graph_nD::get_grid() {
+vector<Grid_Point*> GridGraph::get_grid() {
 	return grid;
 }
 
 
-vector<edge*> Eps_Graph_nD::get_path(Free_Point* p, int k) {
+vector<edge*> GridGraph::get_path(Free_Point* p, int k) {
 	vector<edge*> path = path_kNN(p, k + 1);
 	return path;
 }
 
 // free point에 index를 줘야할 듯?
-pair<vector<Free_Point*>, vector<double>> Eps_Graph_nD::kNN(Free_Point* p, int k, string dir = "") { // returns k approximate nearest neighbors of p
+pair<vector<Free_Point*>, vector<double>> GridGraph::kNN(Free_Point* p, int k, string dir = "") { // returns k approximate nearest neighbors of p
 	
 	ofstream fout;
 	fout.open(dir, ios::app);
@@ -875,7 +875,7 @@ pair<vector<Free_Point*>, vector<double>> Eps_Graph_nD::kNN(Free_Point* p, int k
 
 // vector<edge> Eps_Graph_nD::path_kNN(Free_Point p, int k){}
 
-vector<edge*> Eps_Graph_nD::path_kNN(Free_Point* p, int k) { // returns k approximate nearest neighbors of p
+vector<edge*> GridGraph::path_kNN(Free_Point* p, int k) { // returns k approximate nearest neighbors of p
 
 	//for (auto& nonconvexPol : pols) {
 	//	for (auto& pol : nonconvexPol) {
@@ -978,7 +978,7 @@ vector<edge*> Eps_Graph_nD::path_kNN(Free_Point* p, int k) { // returns k approx
 	return path;
 }
 
-void Eps_Graph_nD::print_grid() {
+void GridGraph::print_grid() {
 	for (unsigned int i = 0; i < grid.size(); i++) {
 		for (int j = 0; j < grid[i]->getsize(); j++) {
 			cout << grid[i]->ind[j];
@@ -992,7 +992,7 @@ void Eps_Graph_nD::print_grid() {
 	}
 }
 
-void Eps_Graph_nD::print_free_point() {
+void GridGraph::print_free_point() {
 	for (Free_Point* fr : fr_pts) {
 
 		for (int i = 0; i < n; i++) {
@@ -1004,7 +1004,7 @@ void Eps_Graph_nD::print_free_point() {
 	}
 }
 
-void Eps_Graph_nD::print_kNN(Free_Point* p, int k) {
+void GridGraph::print_kNN(Free_Point* p, int k) {
 	cout << "-------------------Print KNN-------------------" << endl;
 	// vector<Free_Point> nbhd = kNN(p, k + 1);
 	// int kCopy = k;
@@ -1109,7 +1109,7 @@ void Eps_Graph_nD::print_kNN(Free_Point* p, int k) {
 //	return nb_list;
 //}
 
-vector<pair<Point*, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point* qry) {
+vector<pair<Point*, double>>* GridGraph::Visibility_polygon(Free_Point* qry) {
 	
 	// visibility polygon vertex
 	vector<Point*> vp_vertex;
@@ -1186,7 +1186,7 @@ vector<pair<Point*, double>>* Eps_Graph_nD::Visibility_polygon(Free_Point* qry) 
 	return nb_list;
 }
 
-vector<pair<Point*, double>> Eps_Graph_nD::Dijkstra(Free_Point* qry, int& _num) {
+vector<pair<Point*, double>> GridGraph::Dijkstra(Free_Point* qry, int& _num) {
 	cout << "-------------------Print Dijkstra-------------------" << endl;
 	vector<Point*> vp_vertex;
 	int check_num = 0;
@@ -1262,7 +1262,7 @@ vector<pair<Point*, double>> Eps_Graph_nD::Dijkstra(Free_Point* qry, int& _num) 
 
 
 
-void Eps_Graph_nD::checkMemory(string dir) {
+void GridGraph::checkMemory(string dir) {
 
 	ofstream fout;
 	fout.open(dir + "\\" + "checkMemory.txt");

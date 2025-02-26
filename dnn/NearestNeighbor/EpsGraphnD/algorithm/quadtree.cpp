@@ -74,8 +74,8 @@ double myLog2(double num) {
 	return log(num) / log(2.0);
 }
 
-void kDQuadTreeNode::updateNumNodesSubtree() {
-	kDQuadTreeNode* nowNode = this;
+void EpsGraphNdNode::updateNumNodesSubtree() {
+	EpsGraphNdNode* nowNode = this;
 
 	while (true) {
 		nowNode->numNodesSubtree++;
@@ -86,8 +86,8 @@ void kDQuadTreeNode::updateNumNodesSubtree() {
 	}
 }
 
-Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, 
-	double _eps, int _depth, kDQuadTreeNode* parent) { // vector<Polytope*>
+Node* EpsGraphNd::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, 
+	double _eps, int _depth, EpsGraphNdNode* parent) { // vector<Polytope*>
 
 	// cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
 
@@ -100,7 +100,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 	// 포인트가 비어 있으면 리프 노드 반환
 	if (_points.empty()) {
 		// cout << "point set empty. return" << endl;
-		kDQuadTreeNode* leafNode = new kDQuadTreeNode(vector<Point*>{}, parent);
+		EpsGraphNdNode* leafNode = new EpsGraphNdNode(vector<Point*>{}, parent);
 		leafNode->isLeaf = true;
 		leafNode->boundingBox = _boundingBox;
 
@@ -112,7 +112,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 	// 최대 깊이 도달
 	else if (_depth == maxDepth) {
 		// cout << "Reached max depth. return" << endl;
-		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
+		EpsGraphNdNode* leafNode = new EpsGraphNdNode(_points, parent);
 		leafNode->isLeaf = true;
 		leafNode->boundingBox = _boundingBox;
 
@@ -124,7 +124,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 	// 포인트가 하나만 있으면 리프 노드 반환
 	if (_points.size() == 1) {
 		// cout << "Single point. return" << endl;
-		kDQuadTreeNode* leafNode = new kDQuadTreeNode(_points, parent);
+		EpsGraphNdNode* leafNode = new EpsGraphNdNode(_points, parent);
 		leafNode->isLeaf = true;
 		leafNode->boundingBox = _boundingBox;
 
@@ -133,7 +133,7 @@ Node* kDQuadTree::build(vector<Point*> _points, int _dim, vector<pair<double, do
 		return leafNode;
 	}
 
-	kDQuadTreeNode* internalNode = new kDQuadTreeNode;
+	EpsGraphNdNode* internalNode = new EpsGraphNdNode;
 	internalNode->parent = parent;
 
 	vector<Node*> childNodes;
@@ -211,7 +211,7 @@ void buildEpsilonGraph() {
 
 	vector<CPolytope*> pols;
 
-	auto qT = new kDQuadTree(points, pols, 4, boundingBox, eps, INT_MAX);
+	auto qT = new EpsGraphNd(points, pols, 4, boundingBox, eps, INT_MAX);
 
 	// debug
 	exit(1);
@@ -270,7 +270,7 @@ Node* addPoint(Node* node, Point* point, int maxDepth) {
 	// 근데 targetNode == nullptr일 경우가 거의 없을 듯?
     if (targetNode == nullptr) {
         vector<pair<double, double>> boundingBox = node->boundingBox;
-        targetNode = new kDQuadTreeNode(vector<Point*>{point});
+        targetNode = new EpsGraphNdNode(vector<Point*>{point});
         targetNode->boundingBox = boundingBox;
         targetNode->isLeaf = true;
 		targetNode->parent = node;
@@ -330,7 +330,7 @@ Node* addPoint(Node* node, Point* point, int maxDepth) {
                 }
             }
 
-            Node* childNode = new kDQuadTreeNode(newCellPoints);
+            Node* childNode = new EpsGraphNdNode(newCellPoints);
             childNode->boundingBox = newBoundingBox;
             childNode->isLeaf = true;
 			childNode->parent = targetNode;
@@ -485,7 +485,7 @@ void constructLocalGraph(Node* root, int dim) {
 }
 
 // returns { (n_1, dist(query,  n_1)), ..., (n_k, dist(query,  n_k)) }
-vector<pair<double, Point*>> kDQuadTree::kNN(Point* query, int k, bool isEmptyCell) {
+vector<pair<double, Point*>> EpsGraphNd::kNN(Point* query, int k, bool isEmptyCell) {
 	
 	vector<pair<double, Point*>> ret;
 
@@ -599,7 +599,7 @@ std::vector<Node*> getLeafs(Node* node) {
 
 // 좌표로 저장
 // vector< pair<double, double>, pair<double, double> > buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
-vector<pair<int, int>> buildPointGraphOnQuadTree(kDQuadTree* quadtree, double absoluteValue, double relativeFactor) { // neighborLimit - 이웃 거리 제한 
+vector<pair<int, int>> buildPointGraphOnQuadTree(EpsGraphNd* quadtree, double absoluteValue, double relativeFactor) { // neighborLimit - 이웃 거리 제한 
 // void buildPointGraphOnQuadTree(kDQuadTree* quadtree) {
 	// vector< pair<double, double>, pair<double, double> > ret;
 	
@@ -790,7 +790,7 @@ void checkPointGraphSize(double eps, Node* node) {
 	cout << "epsilon: " << eps << ", num edges: " << numEdges << endl;
 }
 
-void fillEmptyCells(int dim, kDQuadTree* T) {
+void fillEmptyCells(int dim, EpsGraphNd* T) {
 	auto leafs = getLeafs(T->root);
 
 	for (auto leaf : leafs) {
