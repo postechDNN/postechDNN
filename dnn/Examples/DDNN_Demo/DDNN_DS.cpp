@@ -115,7 +115,7 @@ void DDNN_DS::preprocessingConvexDist() {
 	this->convexDistResult.clear();
 	std::vector<ConvexDistPoint> dp;
 	for (auto p : this->boundingBox) {
-		dp.push_back(p);
+		// dp.push_back(p);
 	}
 	for (auto p : this->convexDistPoints) {
 		dp.push_back(p);
@@ -137,6 +137,13 @@ void DDNN_DS::clearQueryData() {
 }
 
 void DDNN_DS::preprocessing() {
+	std::vector<ConvexDistPoint> temp = this->myd->distPolygon;
+	
+	for (int i = 0; i < this->myd->distPolygon.size(); i++) {
+		this->myd->distPolygon[i] = this->myd->distPolygon[i] - *this->queryPoint;
+	}
+	std::sort(this->myd->distPolygon.begin(), this->myd->distPolygon.end());
+
 	std::vector<std::pair<double, int>> distList; // distance and idx of inputPoints
 	for (size_t i = 0; i < this->InputPoints.size(); i++) {
 		distList.push_back(std::make_pair(this->myd->GetDist(this->InputPoints[i],*this->queryPoint), i));
@@ -151,6 +158,8 @@ void DDNN_DS::preprocessing() {
 				, distList[i].first));
 		}
 	}
+
+	this->myd->ResetDist(temp);
 }
 
 int DDNN_DS::getConvexDistPointsSize() {

@@ -388,7 +388,7 @@ int OGL_Contorl::addPoint(double x, double y) {
 }
 
 int OGL_Contorl::addPointAlign(double x, double y) {
-	int ax, ay;
+	double ax, ay;
 	double normTrans[3];
 	double normMul[3];
 	this->DDDS.object2D.getNorm(normTrans, normMul, 2);
