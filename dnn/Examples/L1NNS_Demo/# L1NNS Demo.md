@@ -1,10 +1,11 @@
-# L1 Nearest Neighbor Search Demo
+# L1NNS Demo
 
 ## 1. Introduction
-Given a polygonal domain $P$ and points set $Q$, we compute the $k$-nearest neighbors of a query point $q$ with respect to a polygonal domain as an obstacle.
+Given a polygonal domain and points set, we compute the $k$-nearest neighbors of a query point $q$ with respect to a polygonal domain as an obstacle.
 $L_1$ norm is a distance metric.
 
   
+
 ## 2. UI
 
 ## Operations
@@ -38,7 +39,7 @@ It supports GUI using openGL and UI using MFC.
 Use the function `1. Make input file`. The input be rectangle polygonal domain and a set of points. 
 In the Input object, press the Polygonal domain button to input the polygonal domain $P$.
 Polygonal domain is consisted only of rectangles. A rectangle is created by setting two vertices that form its diagonal.
-In the Input object, press the Point button to input the point set $Q$.
+In the Input object, press the Point button to input the polygonal domain $P$.
 
 ### Step 2: Save the Input Set 
 After creating the input set $P$, press the save button to store the input set.

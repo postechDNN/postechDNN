@@ -1,7 +1,7 @@
-# DNN Demo
+# Dynamic Nearest Neighbor Demo
 
 ## 1. Introduction
-Given a simple polygon $P$ and a point set $Q \subset P$, compute the $k$-nearest neighbor points in $Q$ for a query point $p$ and a positive integer $k$.
+Given a simple polygon $P$ and a point set $Q$, compute the $k$-nearest neighbor points in $Q$ for a query point $p$ and a positive integer $k$.
 
 ## 2. UI
 
@@ -35,7 +35,7 @@ After creating the simple polygon $P$, press the save button to store the polygo
 ### Step 3: Open the Saved Simple Polygon
 Use the function `2. Test the input file`. Click the File open button to open the simple polygon file saved in Step 2.
 
-### Step 4: Create the Point Set Q within the Simple Polygon
+### Step 4: Creat the Point Set Q within the Simple Polygon
 In the Input object, press the Point button to create the point set $Q$. The point set $Q$ must exist inside the $P$.
 
 ### Step 5: KNN Setting and Query
