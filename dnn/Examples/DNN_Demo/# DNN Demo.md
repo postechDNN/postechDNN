@@ -1,7 +1,7 @@
-# Dynamic Nearest Neighbor 
+# Dynamic Nearest Neighbor Demo
 
 ## 1. Introduction
-Given a simple polygon $P$ and a point set $Q \subset P$, compute the $k$-nearest neighbor points in $Q$ for a query point $p$ and a positive integer $k$.
+Given a simple polygon $P$ and a point set $Q$, compute the $k$-nearest neighbor points in $Q$ for a query point $p$ and a positive integer $k$.
 
 ## 2. UI
 
