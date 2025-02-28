@@ -6,7 +6,7 @@
 #include <random>
 
 
-void generate_data(int d, int n, int m, std::string fname) {
+void generate_data_rand(int d, int n, int m, std::string fname) {
 	double max_bound = 20.;
 	std::vector<std::vector<std::vector<int>>> Boxes;
 	std::vector<std::vector<double>> sites;
@@ -81,6 +81,77 @@ void generate_data(int d, int n, int m, std::string fname) {
 		file << std::endl;
 	}
 	for (size_t i = 0; i < m; i++) {
+		for (size_t j = 0; j < 2; j++) {
+			for (size_t k = 0; k < d; k++) {
+				file << Boxes[i][j][k] << " ";
+			}
+			file << std::endl;
+		}
+	}
+	for (size_t j = 0; j < d; j++) {
+		file << sites[n][j] << " ";
+	}
+	file << std::endl;
+	file.close();
+}
+
+void generate_data_fix3d(int n, std::string fname) {
+	int d = 3;
+	double max_bound = 20.;
+	int box_size = 7;
+	int gap = 3;
+	std::vector<std::vector<std::vector<int>>> Boxes;
+	std::vector<std::vector<double>> sites;
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> u_dis_double(0., max_bound);
+	int size_bnd = max_bound / 3;
+	std::uniform_int_distribution<> u_dis_int(1, size_bnd);
+	std::uniform_int_distribution<> u_dis_int2(0, max_bound - size_bnd);
+	for (int i = 0; i < static_cast<int>(max_bound/(box_size+gap)); i++) {
+		for (int j = 0; j < static_cast<int>(max_bound / (box_size + gap)); j++) {
+			for (int k = 0; k < static_cast<int>(max_bound / (box_size + gap)); k++) {
+				Boxes.push_back(std::vector<std::vector<int>>({ {gap + (box_size + gap) * i,gap + (box_size + gap) * j,gap + (box_size + gap) * k},
+					{gap + box_size + (box_size + gap) * i,gap + box_size + (box_size + gap) * j,gap + box_size + (box_size + gap) * k} }));
+			}
+		}
+	}
+
+	for (size_t i = 0; i < n + 1; i++) {
+		std::vector<double> pt;
+		bool flag = false;
+		do {
+			flag = false;
+			pt.clear();
+			for (size_t j = 0; j < d; j++) {
+				pt.push_back(u_dis_double(gen));
+			}
+			for (auto box : Boxes) {
+				bool flag1 = true;
+				for (size_t k = 0; k < d; k++) {
+					if (box[0][k] > pt[k] || pt[k] > box[1][k]) {
+						flag1 = false;
+						break;
+					}
+				}
+				if (flag1) {
+					flag = flag1;
+					break;
+				}
+			}
+		} while (flag);
+		sites.emplace_back(pt);
+	}
+
+	std::ofstream file(fname);
+	file << n << " " << Boxes.size() << " " << d << std::endl;
+	for (size_t i = 0; i < n; i++) {
+		for (size_t j = 0; j < d; j++) {
+			file << sites[i][j] << " ";
+		}
+		file << std::endl;
+	}
+	for (size_t i = 0; i < Boxes.size(); i++) {
 		for (size_t j = 0; j < 2; j++) {
 			for (size_t k = 0; k < d; k++) {
 				file << Boxes[i][j][k] << " ";

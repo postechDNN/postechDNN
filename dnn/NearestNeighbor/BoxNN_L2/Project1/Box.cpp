@@ -17,7 +17,7 @@ std::vector<std::vector<double> > Box::generate_epsilon(double rmin, double epsi
     std::vector < std::vector<double>> result_2(this->d);
 
     double result_1 = pow(this->d, 3.0 / 2.0);
-    double s = rmin / (2 * result_1);
+    double s = rmin*epsilon / (2 * result_1);
 
     for (auto& v1:result_2) {
         int i = 0;
