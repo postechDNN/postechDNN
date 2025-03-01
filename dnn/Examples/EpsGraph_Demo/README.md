@@ -26,19 +26,22 @@ It supports GUI using openGL and UI using MFC.
 
 ## 3. How to Use DNN Demo
 
-### Step 1: Open the saved obstacles
-Use the function `3D nearest neighbor search`. In the `Function` object, check `Polytope` and `More (File I/O)` then click `Add` to add the file saves obstacles.
+### Step 1: Open the saved obstacles and free points
+Use the function `3D nearest neighbor search`. Then click `File open`  to add the file saves obstacles and free points. The format of input file is as follows
 
-### Step 2: Create the point Set Q not intersects with obstacles
-In the `Function` object, check `Free Point` and `More (File I/O)`press the `Add` button to create the point set $Q$. 
+1. The first line of input gives the number of free points $N_F$, the number of polytopes $N_P$, and $\varepsilon$. 
+2. The next $N_F$ lines give the coordinates of free points.
+3. Next, $N_P$ polytopes given as follows.
+    1. The first line gives the number of faces $n_f$ of the polygon.
+    2. Each three line gives the coordinates of three vertices of the triangular face. $3n_f$ lines give the faces of the polygon. 
+ 
+### Step 2: KNN Setting and Query
+Enter the value of $k$ in the `Query` window and click `Query`. Then enter the coordinates about the query point $p$. The system will return the $k$-nearest neighbor points and their corresponding geodesic distances. You can also change the query point $p$ and make additional queries.
 
-### Step 3: KNN Setting and Query
-Enter the value of $k$ in the `KNN` window and click `Query`. Then enter the coordinates about the query point $p$. The system will return the $k$-nearest neighbor points and their corresponding geodesic distances. You can also change the query point $p$ and make additional queries.
-
-### Step 4: Editing Points
+### Step 3: Editing Points
 You can delete points using the `Delete` button or add new points by pressing the `Add` button again.
 
-### Step 5: Modify KNN and Re-query
+### Step 4: Modify KNN and Re-query
 Input a new query point $p'$ by pressing the `Query` button. Then, in the `KNN` window, enter a new $k'$ value and click change to update the query.
 
 

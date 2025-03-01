@@ -48,7 +48,11 @@ void OGL_Point::setZ(double z) {
 
 // Vertex
 OGL_Vertex::OGL_Vertex() {
-
+	this->isCustom = false;
+}
+OGL_Vertex::OGL_Vertex(double x, double y, double z) {
+	this->setPos(x, y, z);
+	this->isCustom = false;
 }
 OGL_Vertex::~OGL_Vertex() {
 	
@@ -77,10 +81,12 @@ OGL_Edge::OGL_Edge() {
 	OGL_Point p;
 	endpoints.push_back(p);
 	endpoints.push_back(p);
+	this->isCustom = false;
 }
 OGL_Edge::OGL_Edge(OGL_Point s, OGL_Point e) {
 	endpoints.push_back(s);
 	endpoints.push_back(e);
+	this->isCustom = false;
 }
 OGL_Edge::~OGL_Edge() {
 	this->endpoints.clear();
@@ -124,7 +130,7 @@ void OGL_Edge::setNext(std::string n) {
 
 // Face
 OGL_Face::OGL_Face() {
-
+	this->isCustom = false;
 }
 OGL_Face::~OGL_Face() {
 	this->vertices.clear();
@@ -168,7 +174,16 @@ Object::~Object() {
 	this->vertices.clear();
 	this->edges.clear();
 	this->faces.clear();
+	this->path.clear();
 }
+
+void Object::total_clear() {
+	this->vertices.clear();
+	this->edges.clear();
+	this->faces.clear();
+	this->path.clear();
+}
+
 int Object::getVerticsNum() {
 	return this->vertices.size();
 }
@@ -177,6 +192,9 @@ int Object::getEdgesNum() {
 }
 int Object::getFacesNum() {
 	return this->faces.size();
+}
+int Object::getPathNum() {
+	return this->path.size();
 }
 OGL_Vertex& Object::getVertex(int idx) {
 	return this->vertices[idx];
@@ -187,12 +205,21 @@ OGL_Edge& Object::getEdge(int idx) {
 OGL_Face& Object::getFace(int idx) {
 	return this->faces[idx];
 }
+OGL_Edge& Object::getPath(int idx) {
+	return this->path[idx];
+}
 void Object::addVertex() {
 	OGL_Vertex v;
 	this->vertices.push_back(v);
 }
+void Object::addVertex(OGL_Vertex v) {
+	this->vertices.push_back(v);
+}
 void Object::addEdge() {
 	OGL_Edge e;
+	this->edges.push_back(e);
+}
+void Object::addEdge(OGL_Edge e) {
 	this->edges.push_back(e);
 }
 void Object::addFace() {
@@ -202,6 +229,14 @@ void Object::addFace() {
 void Object::addFace(OGL_Face f) {
 	this->faces.push_back(f);
 }
+void Object::addPath() {
+	OGL_Edge e;
+	this->path.push_back(e);
+}
+void Object::addPath(OGL_Edge e) {
+	this->path.push_back(e);
+}
+
 void Object::setDrawVertices(bool b) {
 	this->drawVertices = b;
 }
@@ -211,6 +246,9 @@ void Object::setDrawEdges(bool b) {
 void Object::setDrawFaces(bool b) {
 	this->drawFaces = b;
 }
+void Object::setDrawPath(bool b) {
+	this->drawPath = b;
+}
 bool Object::getDrawVertices() {
 	return this->drawVertices;
 }
@@ -219,6 +257,9 @@ bool Object::getDrawEdges() {
 }
 bool Object::getDrawFaces() {
 	return this->drawFaces;
+}
+bool Object::getDrawPath() {
+	return this->drawPath;
 }
 
 void Object::updateNorm(int dimension) {
