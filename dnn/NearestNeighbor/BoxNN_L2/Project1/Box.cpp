@@ -11,6 +11,8 @@ Box::Box(int n,  vector<double> min, vector<double> max) {
 Box::~Box() {
 }
 
+
+//Produce the vectors of the d-th coordinates of steiner points for all axes 
 std::vector<std::vector<double> > Box::generate_epsilon(double rmin, double epsilon) {
     //vector<Point> resultÀº std::vector<std::pair<Point, Point>> d_axisÀÇ output°ª
 

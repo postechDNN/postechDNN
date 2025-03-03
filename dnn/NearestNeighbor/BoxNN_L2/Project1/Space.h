@@ -18,8 +18,7 @@ public:
     double rmin;
     vector<Box> Boxes; // Obstacles
     vector<Point> sites;
-    // Initializing obstacle space
-    BoxGraphL2(int, vector<Point>&, vector<Box>&, double _epsilon);
+    BoxGraphL2(int, vector<Point>&, vector<Box>&, double _epsilon);    // Initializing obstacle space
     ~BoxGraphL2();
     void set_Space(int, vector<Point>&, vector<Box>&);
 
@@ -30,7 +29,6 @@ public:
     void del_vert(int);
     void Dijkstra();
     tuple<Point, int, double>  query(Point);
-    //void knn(Point, int);
 
 
     vector<Point> vertices; // Input points + Box vertices + Steiner points
