@@ -3,12 +3,16 @@
 #include <math.h>
 
 
+
+//Constructor
 AVLTreeList::AVLTreeList()
 {
     root.left = nullptr;
     root.right = nullptr;
 }
 
+
+//Destructor
 bool AVLTreeList::Is_empty()
 {
     Node* currentNode = root.left;
@@ -16,6 +20,8 @@ bool AVLTreeList::Is_empty()
     return false;
 }
 
+
+//Return the node with the smallest key
 Edge AVLTreeList::Search()
 {
     Node* currentNode = root.left;
@@ -26,6 +32,8 @@ Edge AVLTreeList::Search()
     return currentNode->data;
 }
 
+
+//Test whether the node correspond to the edge "data" is exists or not
 bool AVLTreeList::Search(Edge data, Point v1)
 {
     Node* parentNode = &root;	//지울노드가 맨처음 노드 일경우를 대비해서 가상노드 루트가 있다.
@@ -67,6 +75,7 @@ bool AVLTreeList::Search(Edge data, Point v1)
     else return true; // 노드를 찾았다면
 }
 
+//Insert the edge "data" with respect to v1. "data" containing the point v2.
 bool AVLTreeList::Insert(Edge data, Point v1, Point v2)
 {
     Node* parentNode = &root;
@@ -127,6 +136,8 @@ bool AVLTreeList::Insert(Edge data, Point v1, Point v2)
     return true;
 }
 
+
+//Delete the edge "data" with respect to v1. "data" containing the point v2.
 bool AVLTreeList::Delete(Edge data, Point v1, Point v2)
 {
     Node* parentNode = &root;	//지울노드가 맨처음 노드 일경우를 대비해서 가상노드 루트가 있다.
@@ -219,6 +230,8 @@ bool AVLTreeList::Delete(Edge data, Point v1, Point v2)
     return false;
 }
 
+
+//Rebalnce the tree when a node of tree is inserted or deleted
 void AVLTreeList::Rebalance()
 {
     Node* balanceCheckNode = nullptr;

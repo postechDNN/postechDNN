@@ -57,14 +57,11 @@
     <ClCompile Include="AVLTreeList.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Arrangement.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Space.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\ENN\C_Subidivision\DCEL\AVLTree.h">
       <Filter>소스 파일\DCEL</Filter>
     </ClInclude>
@@ -101,11 +98,20 @@
     <ClInclude Include="..\ENN\C_Subidivision\DCEL\Vector.h">
       <Filter>소스 파일\DCEL</Filter>
     </ClInclude>
-    <ClInclude Include="AVLTreeList.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Space.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Space_IO.h">
-      <Filter>소스 파일</Filter>
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="AVLTreeList.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Arrangement.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -137,6 +137,7 @@
     <ClCompile Include="..\ENN\C_Subidivision\DCEL\Polygon.cpp" />
     <ClCompile Include="..\ENN\C_Subidivision\DCEL\PolygonalDomain.cpp" />
     <ClCompile Include="..\ENN\C_Subidivision\DCEL\Vector.cpp" />
+    <ClCompile Include="Arrangement.cpp" />
     <ClCompile Include="AVLTreeList.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Space.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="..\ENN\C_Subidivision\DCEL\Polygon.h" />
     <ClInclude Include="..\ENN\C_Subidivision\DCEL\PolygonalDomain.h" />
     <ClInclude Include="..\ENN\C_Subidivision\DCEL\Vector.h" />
+    <ClInclude Include="Arrangement.h" />
     <ClInclude Include="AVLTreeList.h" />
     <ClInclude Include="Space.h" />
     <ClInclude Include="Space_IO.h" />
