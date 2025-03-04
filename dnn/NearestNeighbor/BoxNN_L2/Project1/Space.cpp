@@ -1,4 +1,3 @@
-
 #include "Space.h"
 #include "Box.h"
 #include <limits>
@@ -9,7 +8,7 @@ template<typename T>
 std::vector<std::vector<T>> Cartesian_Product(const std::vector<std::vector<T>>& items);
 
 
-//Constructer
+//Constructor
 BoxGraphL2::BoxGraphL2(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes, double _epsilon) {
     this->epsilon = _epsilon;
     set_Space(_d, _sites, _Boxes);
@@ -19,7 +18,7 @@ BoxGraphL2::BoxGraphL2(int _d, std::vector<Point> &_sites, std::vector<Box> &_Bo
 BoxGraphL2::~BoxGraphL2(){
 }
 
-
+//Reconstruct the data structure when the input is modified (addition or deletion of a site or box)
 void  BoxGraphL2::set_Space(int _d, std::vector<Point> &_sites, std::vector<Box> &_Boxes) {
     this->d = _d;
     this->sites = _sites;
