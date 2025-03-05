@@ -125,14 +125,14 @@ void visualize(std::string dir) {
 
 	int dim = 2;
 
-	std::string pointsDir = "C:\\epsGraphData\\000\\points\\points.txt";
-	std::string queryDir = "C:\\epsGraphData\\000\\points\\queries.txt";
+	std::string pointsDir = "C:\\epsGraphData\\003\\points\\points.txt";
+	std::string queryDir = "C:\\epsGraphData\\003\\points\\queries.txt";
 
 	std::vector<Point*> pts = makePointSet(pointsDir); // input sites
 	std::vector<Point*> q_pts = makePointSet(queryDir); // query points
 
 	namespace fs = std::filesystem;
-	fs::path topeDir = "C:\\epsGraphData\\000\\polytopes";
+	fs::path topeDir = "C:\\epsGraphData\\003\\polytopes";
 	fs::directory_iterator iterTopes(topeDir);
 
 	std::vector<CPolytope*> Ctopes;

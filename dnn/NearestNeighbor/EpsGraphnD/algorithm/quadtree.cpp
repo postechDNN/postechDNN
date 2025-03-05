@@ -790,6 +790,21 @@ void checkPointGraphSize(double eps, Node* node) {
 	cout << "epsilon: " << eps << ", num edges: " << numEdges << endl;
 }
 
+bool isInTriangle(Point* s, Point* a, Point* b, Point* c)
+{
+	int as_x = s->xs[0] - a->xs[0];
+	int as_y = s->xs[1] - a->xs[1];
+
+	bool s_ab = (b->xs[0] - a->xs[0]) * as_y - (b->xs[1] - a->xs[1]) * as_x > 0;
+
+	if ((c->xs[0] - a->xs[0]) * as_y - (c->xs[1] - a->xs[1]) * as_x > 0 == s_ab)
+		return false;
+	if ((c->xs[0] - b->xs[0]) * (s->xs[1] - b->xs[1]) - (c->xs[1] - b->xs[1]) * (s->xs[0] - b->xs[0]) > 0 != s_ab)
+		return false;
+
+	return true;
+}
+
 void fillEmptyCells(int dim, EpsGraphNd* T) {
 	auto leafs = getLeafs(T->root);
 
@@ -804,7 +819,10 @@ void fillEmptyCells(int dim, EpsGraphNd* T) {
 			bool insert = true;
 
 			for (auto& pol : T->pols) {
-				if (pol->is_in(p)) insert = false;
+				
+				if (isInTriangle(p, &(pol->vertices[0]), &(pol->vertices[1]), &(pol->vertices[2]))) {insert = false; break;}
+				// pol->half_planes();
+				// if (pol->is_in(p)) {insert = false; break;}
 			}
 
 			if (insert) {leaf->points.push_back(p); break;}

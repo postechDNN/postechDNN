@@ -166,3 +166,5 @@ void constructLocalGraph(Node* root, int dim);
 Point* generateRandomPoint(int dim, vector<pair<double, double>> boundingBox);
 
 Point* generateRandomPoint(int dim, pair<double, double> boundingBox);
+
+bool isInTriangle(Point* s, Point* a, Point* b, Point* c);

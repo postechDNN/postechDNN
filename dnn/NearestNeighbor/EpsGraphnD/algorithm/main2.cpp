@@ -13,8 +13,8 @@
     // input / ouput 경로
     std::string dir = argv[1];
 
-    //visualize(dir);
-    //exit(1);
+   visualize(dir);
+   exit(1);
 
     // 쿼리 속도 체크(T), 쿼리 오차 체크(F)
     bool speedFlag;
