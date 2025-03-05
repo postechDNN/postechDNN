@@ -17,6 +17,149 @@ Point* translate(Point* p, int axis, double val) {
 	return ret;
 }
 
+void visualizeTXT(EpsGraphNd* qT, vector<CPolytope*> Ctopes, vector<pair<int, int>> edge_list, vector<Point*> queries) {
+	string outputFileName = "quadtree.txt";
+	ofstream outputTXT(outputFileName);
+	outputTXT.clear();
+
+	std::queue<Node*> q;
+	q.push(qT->root);
+	if (outputTXT.is_open()) {
+		while (!q.empty()) {
+			Node* cur = q.front();
+			q.pop();
+
+			// std::cout << "size: " << (cur->boundingBox).size() << '\n';
+
+			outputTXT << "b\n";
+			for (pair<double, double> p : cur->boundingBox) {
+				outputTXT << p.first << " " << p.second << '\n';
+			}
+
+			if (cur->isLeaf) {
+				outputTXT << "p " << (cur->points).size() << '\n';
+				for (Point* p : cur->points) {
+					for (double x : p->getxs()) {
+						outputTXT << x << ' ';
+					}
+					outputTXT << p->nowIndex << ' ';
+
+					if (p->isExtraPoint || p->isPolytopeVertex) outputTXT << 'x';
+					else outputTXT << 'o';
+
+					outputTXT << '\n';
+				}
+
+			}
+			else {
+				for (Node* child : cur->childNodes) {
+					q.push(child);
+				}
+			}
+		}
+	}
+	else {
+		std::cout << "output.txt error!\n";
+	}
+
+	for (auto& edge : edge_list) {
+		outputTXT << "e" << "\n";
+		outputTXT << edge.first << " " << edge.second << "\n";
+	}
+
+	for (auto& tope : Ctopes) {
+		outputTXT << "t" << " " << tope->vertices.size() << "\n";
+		for (auto& ver : tope->vertices) {
+			for (auto& x : ver.xs) {
+				outputTXT << x << " ";
+			}
+			outputTXT << "\n";
+		}
+
+	}
+
+	/*
+		for (auto q : q_pts) {
+
+		for (auto k : ks) {
+			for (auto& x : q->xs)
+				outputTXT << x << ' ';
+
+			auto ret = qT->kNN(q, k, false);
+
+			for (int jj = 0; jj < ret.size(); jj++) { // pr : ret) {
+				auto pr = ret[jj]; // (dist, neighbor)
+				// cout << k << "-NN result" << endl;
+				// cout << jj << "-th neighbor index: " << pr.second->nowIndex << ", graph distance: " << pr.first << endl;
+			}
+
+			outputTXT << k << ' ' << ret.size() << "\n";
+			for (auto [dist, kp] : ret) {
+				outputTXT << kp->nowIndex << ' ' << dist << ' ' << kp->getx(0) << ' ' << kp->getx(1) << "\n";
+			}
+		}
+
+	}
+	*/
+
+	outputTXT << "q" << " ";
+	for (auto& x : queries[0]->xs)
+		outputTXT << x << ' ';
+
+	auto ret = qT->kNN(queries[0], 10, true);
+
+	for (int jj = 0; jj < ret.size(); jj++) { // pr : ret) {
+		auto pr = ret[jj]; // (dist, neighbor)
+		// cout << k << "-NN result" << endl;
+		// cout << jj << "-th neighbor index: " << pr.second->nowIndex << ", graph distance: " << pr.first << endl;
+	}
+
+	outputTXT << 10 << ' ' << ret.size() << "\n";
+	for (auto [dist, kp] : ret) {
+		outputTXT << kp->nowIndex << ' ' << dist << ' ' << kp->getx(0) << ' ' << kp->getx(1) << "\n";
+	}
+
+}
+
+void visualize(std::string dir) {
+
+	int dim = 2;
+
+	std::string pointsDir = "C:\\epsGraphData\\000\\points\\points.txt";
+	std::string queryDir = "C:\\epsGraphData\\000\\points\\queries.txt";
+
+	std::vector<Point*> pts = makePointSet(pointsDir); // input sites
+	std::vector<Point*> q_pts = makePointSet(queryDir); // query points
+
+	namespace fs = std::filesystem;
+	fs::path topeDir = "C:\\epsGraphData\\000\\polytopes";
+	fs::directory_iterator iterTopes(topeDir);
+
+	std::vector<CPolytope*> Ctopes;
+
+	for (auto& i01 = iterTopes; i01 != fs::end(iterTopes); ++i01) {
+		fs::path topeDir = (*i01).path();
+		Ctopes.push_back(dels2cpolytope(topeDir.string(), dim, true));
+	}
+
+	double maxValue = 128.0;
+	vector<pair<double, double >> boundingBox;
+	for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-maxValue, maxValue));
+
+	int maxDepth = 10;
+	auto qT = new EpsGraphNd(pts, Ctopes, dim, boundingBox, maxDepth);
+
+	fillEmptyCells(dim, qT);
+	auto edge_list = buildPointGraphOnQuadTree(qT);
+
+	visualizeTXT(qT, Ctopes, edge_list, q_pts);
+
+	// void visualizeTXT(EpsGraphNd* qT, vector<CPolytope*> Ctopes, vector<pair<int, int>> edge_list, vector<Point*> queries)
+
+	// qT->kNN(q_pts[0], 10, true);
+
+}
+
 // ex) dir = ""
 void querySpeedTest(std::string dir, int startID, int endID, int numPoints, int numQueries) {
 

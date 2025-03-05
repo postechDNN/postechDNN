@@ -7,6 +7,10 @@
 #include "../data_generation/data_generation.h"
 #include "quadtree.h"
 
+void visualizeTXT(EpsGraphNd* qT);
+
+void visualize(std::string dir);
+
 void querySpeedTest(std::string dir, int startID, int endID, int numSites, int numQueries);
 
 void distanceSumTest(std::string dir, int startID, int endID, int numSites, int numQueries);

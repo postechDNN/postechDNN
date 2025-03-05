@@ -795,7 +795,9 @@ void fillEmptyCells(int dim, EpsGraphNd* T) {
 
 	for (auto leaf : leafs) {
 
-		while (true) {
+		int count = 0;
+
+		while (true && count < 100) {
 			auto p = generateRandomPoint(dim, leaf->boundingBox);
 			p->isExtraPoint = true;
 
@@ -806,7 +808,7 @@ void fillEmptyCells(int dim, EpsGraphNd* T) {
 			}
 
 			if (insert) {leaf->points.push_back(p); break;}
-			else continue; 
+			else {count += 1; continue; }
 		}
 
 	}
