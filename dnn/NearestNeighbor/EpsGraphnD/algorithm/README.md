@@ -9,10 +9,10 @@ Description of the algorithm can be found [here](https://github.com/postechDNN/p
 
 The algorithm is maintained with the class **EpsGraphNd**. It is a data structure based on quadtree. It supports a $k$-NN query as follows.
 
-- Node* **EpsGraphNd::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, EpsGraphNdNode* parent = nullptr)**: construct a quadtree given input sites and polytope vertices.  
-- **Node* addPoint(Node* node, Point* point, int maxDepth)**: add a new input site to the data structure
-- **Node* deletePoint(Node* node, Point* point)**: delete an input site from the data structure
-- **vector<pair<int, int>> buildPointGraphOnQuadTree(EpsGraphNd* quadtree, double absoluteValue, double relativeFactor)**: construct a graph on the quadtree, so that $k$-NN queries are resolved using the graph
+- __Node* EpsGraphNd::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, double _eps, int _depth, EpsGraphNdNode* parent = nullptr)__: construct a quadtree given input sites and polytope vertices.  
+- __Node* addPoint(Node* node, Point* point, int maxDepth)__: add a new input site to the data structure
+- __Node* deletePoint(Node* node, Point* point)__: delete an input site from the data structure
+- __vector<pair<int, int>> buildPointGraphOnQuadTree(EpsGraphNd* quadtree, double absoluteValue, double relativeFactor)__: construct a graph on the quadtree, so that $k$-NN queries are resolved using the graph
 
 The classes **Point** and **CPolytope** can be constructed as follows.
 - **Point(std::vector<double> xs)**: Construct the point with coordinate **xs**.
