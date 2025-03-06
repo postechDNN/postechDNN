@@ -10,6 +10,81 @@
 
 using namespace std;
 
+// point set 
+vector<Point*> makePointSet(std::string dir, int start_idx) {
+
+	vector<Point*> ret;
+
+	ifstream fin(dir);
+
+	string line;
+	getline(fin, line); // dimension
+	getline(fin, line); // number of points
+	int numPoints = stoi(line);
+
+	// 
+	for (int j = 0; j < numPoints; j++) {
+		getline(fin, line);
+		stringstream ss(line);
+		ss.str(line);
+
+		vector<double> values;
+		vector<string> words;
+
+		string word;
+		while (ss >> word) {
+			// words.push_back(word);
+			values.push_back(stod(word));
+		}
+
+		auto pt = new Point(values);
+		pt->is_Free_Point = true;
+		pt->nowIndex = start_idx + j;
+		ret.push_back(pt);
+	}
+
+	fin.close();
+
+	return ret;
+}
+
+vector<Free_Point*> makeFreePointSet(std::string dir) {
+
+	vector<Free_Point*> ret;
+
+	ifstream fin(dir);
+
+	string line;
+	getline(fin, line); // dimension
+	getline(fin, line); // number of points
+	int numPoints = stoi(line);
+
+	for (int j = 0; j < numPoints; j++) {
+		getline(fin, line);
+		stringstream ss(line);
+		ss.str(line);
+
+		vector<double> values;
+		vector<string> words;
+
+		string word;
+		while (ss >> word) {
+			// words.push_back(word);
+			values.push_back(stod(word));
+		}
+
+
+		auto newP = new Free_Point(values);
+		// pt->is_Free_Point = true;
+		ret.push_back(newP);
+
+		//Free_Point newP(values);
+		//ret.push_back(newP);
+	}
+
+	return ret;
+}
+
 Point* translate(Point* p, int axis, double val) {
 	assert(axis < p->xs.size());
 	auto ret = new Point(p);
@@ -1230,22 +1305,6 @@ pair<double, double> printErrorDijk(GridGraph& epsGraph, pVV& pr,
 	return make_pair(noIDnum / double(k), ((myDistSum - optDistSum)) / optDistSum);
 }
 
-//pair<double, double> printError(Eps_Graph_nD& epsGraph1, Eps_Graph_nD& epsGraph2,
-//	pVV& pr1, pVV& pr2, Free_Point& q, int& k, string& dir) {
-//	// std::string resultDir = "C:\\Users\\\HWI\\Documents\\epsGraphTestResult";
-//
-//	bool printFlag = false;
-//
-//	vector<Grid_Point>& gr1 = epsGraph1.grid;
-//	vector<Grid_Point>& gr2 = epsGraph2.grid;
-
-//auto now = epsGraph1.fr_pts.begin();
-//std::advance(now, id);
-//
-//auto now2 = epsGraph2.fr_pts.begin();
-//std::advance(now2, id);
-
-
 pair<double, double> printError(GridGraph* epsGraph1, GridGraph* epsGraph2,
 	int useDataSetId,
 	pVV& pr1, pVV& pr2, Free_Point* q, int& k, string& dir) {
@@ -1317,19 +1376,6 @@ pair<double, double> printError(GridGraph* epsGraph1, GridGraph* epsGraph2,
 		// for (auto& myID : myIDs) fout << myID << " ";
 		fout << endl;
 	}
-	/*
-	#include <iterator>
-	#include <list>
-
-		....
-
-	std::list<Student> l; // look, no pointers!
-	auto l_front = l.begin();
-
-	std::advance(l_front, 4);
-
-	std::cout << *l_front << '\n';
-	*/
 
 	if (printFlag) {
 
@@ -1374,10 +1420,6 @@ pair<double, double> printError(GridGraph* epsGraph1, GridGraph* epsGraph2,
 		fout << endl;
 
 	}
-	//int yesID = 0;
-	//for (auto& myID : myIDs) {
-	//	if (isIn(optIDs, myID)) yesID++;
-	//}
 
 	vector<int> overlapIDs;
 
@@ -1432,17 +1474,6 @@ pair<double, double> printError(GridGraph* epsGraph1, GridGraph* epsGraph2,
 	return make_pair(noIDnum / double(k), ((myDistSum - optDistSum)) / optDistSum);
 }
 
-
-//// 
-//double computeDistanceError(pVV& pr1, pVV& pr2, string dir) {
-//	
-//}
-//
-//// 
-//double computeNeighborError(pVV& pr1, pVV& pr2, string dir) {
-//	
-//}
-
 // resultDir + "\\" + "speed.txt", avgSpeed);
 void printSpeedFinal(string dir, vector<double> avgSpeed) {
 
@@ -1481,7 +1512,6 @@ void printSpeedTemp(string dir, int id, long long time) {
 	fout.close();
 }
 
-
 void printErrorFinal(string dir, vector<double> numErrorSumsAll, vector<double> distErrorSumsAll,
 	int numQueries, int numDatasets) {
 	ofstream fout;
@@ -1514,4 +1544,157 @@ bool isIn(vector<int> vec, int val) {
 		if (vecVal == val) return true;
 	}
 	return false;
+}
+
+// 파일 input을 통해, 하나의 nonConvex polytope을 vector<convex polytope>으로 변환하는 함수  
+vector<Polytope*> dels2polytopes(string dir, int num_topes) {
+	vector<Polytope*> ret;
+
+	int dummy;
+
+	std::vector<string> filenames = { "" };
+
+	for (auto index : filenames) {
+		std::ifstream fin;
+
+		// string str = dir + "result" + index + ".txt";
+		string str = dir + "\\" + "points" + index + ".txt";
+		fin.open(str);
+
+		string s;
+		getline(fin, s);
+		int dim = stoi(s);
+		getline(fin, s);
+		int num_pts = stoi(s);
+
+		std::vector<Point*> pts;
+		std::vector<double> vec(num_pts, 0.0);
+		double val;
+
+		for (int i = 0; i < num_pts; i++) {
+			Point* pt = new Point(dim);
+			for (int j = 0; j < dim; j++) {
+				fin >> val;
+				pt->setx(j, val);
+			}
+			pts.push_back(pt);
+		}
+
+		fin.close();
+
+		Polytope* tope = new Polytope(dim);
+		tope->set_vertices(pts);
+
+		std::vector<simplex> sims;
+
+		// std::ifstream fin2(dir + "CH" + to_string(index));
+		string str2 = dir + "\\" + "tets" + index + ".txt";
+		std::ifstream fin2;
+
+		fin.open(str2);
+
+		getline(fin, s);
+		int size = stoi(s);
+		for (int index = 0; index < size; index++) {
+			fin >> dummy;
+			vector<Point*> vec;
+			for (int index2 = 0; index2 < dim + 1; index2++) {
+				fin >> s;
+				vec.push_back(pts[stoi(s)]);
+			}
+			auto sim = new simplex(dim, vec);
+			sims.push_back(*sim);
+		}
+
+		tope->set_simplices(sims);
+		ret.push_back(tope);
+	}
+
+	return ret;
+}
+
+// 파일 input을 통해, (하나의) convex polytope을 만드는 함수
+// dir의 예시: 
+CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex) {
+
+	int dummy;
+
+	std::ifstream fin;
+
+	// point 정보 읽기 start
+	// string str = dir + "\\" + "points" + index + ".txt";
+	string str = dir + "\\" + "points.txt";
+	fin.open(str);
+
+	string s;
+	// 차원 입력
+	getline(fin, s);
+	// 점 개수 입력
+	getline(fin, s);
+	int num_pts = stoi(s);
+
+	// 포인트 읽어들이기
+	// std::vector<Point*> pts;
+	std::vector<Point> pts;
+	double val;
+
+	for (int i = 0; i < num_pts; i++) {
+		// Point* pt = new Point(dim);
+		Point pt(dim);
+		for (int j = 0; j < dim; j++) {
+			fin >> val;
+			// pt->setx(j, val);
+			pt.setx(j, val);
+		}
+		pts.push_back(pt);
+	}
+
+	fin.close();
+	// point 정보 읽기 end
+
+	// facet 정보 계산 start
+	std::vector< std::vector<int>> facets;
+
+	if (isSimplex) {
+		// 0, 1, ..., dim
+
+		for (int j = 0; j < dim + 1; j++) {
+			vector<int> temp;
+			for (int v = 0; v < dim + 1; v++) {
+				if (v == j) continue;
+				temp.push_back(v);
+			}
+			facets.push_back(temp);
+		}
+	}
+	else {
+		std::ifstream fin2;
+
+		// string str2 = dir + "\\" + "tets" + index + ".txt";
+		string str2 = dir + "\\" + "tets.txt";
+		fin.open(str2);
+
+		getline(fin, s);
+		// facet의 개수
+		int size = stoi(s);
+		for (int index = 0; index < size; index++) {
+			// 차원 정보 (필요 없는 정보)
+			fin >> dummy;
+
+			std::vector<int> facet;
+
+			for (int j = 0; j < dim + 1; j++) {
+				fin >> s;
+				facet.push_back(stoi(s));
+			}
+
+			facets.push_back(facet);
+		}
+
+		fin2.close();
+	}
+
+	// facet 정보 읽기 end
+
+	return new CPolytope(dim, pts, facets);
 }

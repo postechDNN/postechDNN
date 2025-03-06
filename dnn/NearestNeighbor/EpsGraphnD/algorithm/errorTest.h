@@ -40,3 +40,10 @@ void printErrorFinal(string dir, vector<double> numErrorSumsAll, vector<double> 
 	int numQueries, int numDatasets);
 
 bool isIn(vector<int> vec, int val);
+
+vector<Point*> makePointSet(std::string dir, int start_idx = 0);
+
+vector<Free_Point*> makeFreePointSet(std::string dir);
+
+// 파일 input을 통해, convex polytope을 만드는 함수
+CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex = false);

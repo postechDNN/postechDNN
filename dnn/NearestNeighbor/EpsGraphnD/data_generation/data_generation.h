@@ -152,9 +152,6 @@ void disperse_pts_between_active_cells(std::vector<std::pair<double, double>> bb
 // vector<Polytope*> dels2polytopes(int num_topes); 
 vector<Polytope*> dels2polytopes(string dir, int num_topes);
 
-// 파일 input을 통해, convex polytope을 만드는 함수
-CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex = false);
-
 vector<Point*> generate_point_sites(std::vector<std::pair<double, double>> bbx, int dim, int num_points, int TYPE = 0);
 
 void data_generation();
@@ -165,9 +162,9 @@ void data_generation(int dim, double u_bound, int halfplane_constraint, int num_
 
 void autoTest(string dir, double epsilon, bool speedFlag, int useDataSetId);
 
-vector<Point*> makePointSet(std::string dir, int start_idx = 0);
+
 vector<Point> makePointSetNoPtr(std::string dir);
-vector<Free_Point*> makeFreePointSet(std::string dir);
+
 vector<Free_Point> makeFreePointSetNoPtr(std::string dir);
 
 typedef pair<vector<Free_Point*>, vector<double>> pVV;

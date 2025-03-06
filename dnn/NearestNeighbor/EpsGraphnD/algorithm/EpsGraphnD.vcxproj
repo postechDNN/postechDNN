@@ -158,11 +158,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\136297485147260925\include\dirent.h" />
-    <ClInclude Include="..\data_generation\data_generation.h" />
     <ClInclude Include="alglibinternal.h" />
     <ClInclude Include="alglibmisc.h" />
     <ClInclude Include="ap.h" />
-    <ClInclude Include="data_generation_print.h" />
     <ClInclude Include="EpsGraphnD.h" />
     <ClInclude Include="errorTest.h" />
     <ClInclude Include="linalg.h" />
@@ -170,19 +168,16 @@
     <ClInclude Include="optimization.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Polytope.h" />
-    <ClInclude Include="KDtree.h" />
     <ClInclude Include="quadtree.h" />
     <ClInclude Include="solvers.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\data_generation\data_generation.cpp" />
     <ClCompile Include="alglibinternal.cpp" />
     <ClCompile Include="alglibmisc.cpp" />
     <ClCompile Include="ap.cpp" />
     <ClCompile Include="CPolytope.cpp" />
     <ClCompile Include="CPolytope.h" />
-    <ClCompile Include="data_generation_print.cpp" />
     <ClCompile Include="EpsGraphnD.cpp" />
     <ClCompile Include="errorTest.cpp" />
     <ClCompile Include="linalg.cpp" />
@@ -190,7 +185,6 @@
     <ClCompile Include="optimization.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polytope.cpp" />
-    <ClCompile Include="KDtree.cpp" />
     <ClCompile Include="quadtree.cpp" />
     <ClCompile Include="solvers.cpp" />
   </ItemGroup>
