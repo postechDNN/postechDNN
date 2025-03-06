@@ -17,12 +17,7 @@ Point::Point(int _n) {
 	totalIndex += 1;
 
 	this->n = _n;
-	//std::vector<int> V = { 1,2,3 };
-	//this->xs = V;
 	this->xs = std::vector<double>(_n, 0.);
-	//this->x = 0.;
-	//this->y = 0.;
-	//this->z = 0.;
 	this->isExtraPoint = false;
 	this->isPolytopeVertex = false;
 }
@@ -242,11 +237,3 @@ Grid_Point::Grid_Point(std::vector<long long int> _ind, Point* _upper_left,
 	ip_u = std::vector<bool>(n, false);
 	ip_d = std::vector<bool>(n, false);
 }
-
-//Grid_Point::Grid_Point(int _x_num, int _y_num, int _z_num, double x_min, double y_min, double z_min, double eps, int eg_y, int eg_z) {
-//	ind.x_ind = _x_num; ind.y_ind = _y_num; ind.z_ind = _z_num;
-//	x = x_min + ind.x_ind * eps; y = y_min + ind.y_ind * eps; z = z_min + ind.z_ind * eps;
-//	num = ind.x_ind * eg_y * eg_z + ind.y_ind * eg_z + ind.z_ind;
-//	encl = -1;
-//	ip = { false, false, false, false, false, false };
-//}

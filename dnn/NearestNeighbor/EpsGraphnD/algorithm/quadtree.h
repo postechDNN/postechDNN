@@ -120,12 +120,6 @@ class EpsGraphNd {
 				}
 
 				delete cur;
-
-				//if (cur->isLeaf) {
-				// leafs.push_back(cur);
-				// }
-
-				// return leafs;
 			}
 
 			// getAllNodes 

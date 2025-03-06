@@ -161,7 +161,6 @@
     <ClInclude Include="alglibinternal.h" />
     <ClInclude Include="alglibmisc.h" />
     <ClInclude Include="ap.h" />
-    <ClInclude Include="EpsGraphnD.h" />
     <ClInclude Include="errorTest.h" />
     <ClInclude Include="linalg.h" />
     <ClInclude Include="Macro.h" />
@@ -178,7 +177,6 @@
     <ClCompile Include="ap.cpp" />
     <ClCompile Include="CPolytope.cpp" />
     <ClCompile Include="CPolytope.h" />
-    <ClCompile Include="EpsGraphnD.cpp" />
     <ClCompile Include="errorTest.cpp" />
     <ClCompile Include="linalg.cpp" />
     <ClCompile Include="main2.cpp" />

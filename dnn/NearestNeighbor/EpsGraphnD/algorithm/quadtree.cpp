@@ -87,15 +87,7 @@ void EpsGraphNdNode::updateNumNodesSubtree() {
 }
 
 Node* EpsGraphNd::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, 
-	double _eps, int _depth, EpsGraphNdNode* parent) { // vector<Polytope*>
-
-	// cout << "current depth: " << _depth << ", # points:" << _points.size() << endl;
-
-	// debug
-	// if (_points.empty()) { cout << "point set empty. return" << endl; return new kDQuadTreeLeafNode({}); }
-	// // else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return nullptr; }
-	// else if (_depth == maxDepth) { cout << "reached maximum depth of " << _depth << " achieved. return" << endl; return new kDQuadTreeLeafNode(_points); }
-	// else if (_points.size() == 1) { cout << "Single point. return" << endl; return new kDQuadTreeLeafNode(_points); }
+	double _eps, int _depth, EpsGraphNdNode* parent) { 
 
 	// 포인트가 비어 있으면 리프 노드 반환
 	if (_points.empty()) {
@@ -218,11 +210,9 @@ void buildEpsilonGraph() {
 
 }
 
-// point location 함수 구현 - 컴파일 잘됨!
-// 용도: 한 Point에 대해, 해당 Point가 quadtree의 어느 cell(region)에 위치하는지 찾고 반환
+
 // input: Point 형식의 한 점
 // output: input point가 위치하는 leafnode 반환
-
 Node* pointLocation(Node* node, Point* point) {
     if (node == nullptr) {
         return nullptr; // 노드가 null인 경우 null 반환
@@ -251,11 +241,8 @@ Node* pointLocation(Node* node, Point* point) {
     return nullptr;
 }
 
-// point 추가 함수 구현
-// 용도: quadtree에 Point 하나를 추가하고 바뀐 quadtree 반환
 // input: Point 형식의 한 점
 // output: Point 한 점을 추가한 quadtree
-
 Node* addPoint(Node* node, Point* point, int maxDepth) {
 	// 예외) node나 point가 nullptr인 경우
     if (node == nullptr || point == nullptr) {
@@ -348,11 +335,8 @@ Node* addPoint(Node* node, Point* point, int maxDepth) {
     return node;
 }
 
-// point 삭제 함수 구현
-// 용도: quadtree에 Point 하나를 삭제하고 바뀐 quadtree 반환
 // input: Point 형식의 한 점
 // output: Point 한 점을 삭제한 quadtree
-
 Node* deletePoint(Node* node, Point* point) {
 	// 예외) node나 point가 nullptr인 경우
     if (node == nullptr || point == nullptr) {
@@ -424,64 +408,6 @@ Point* generateRandomPoint(int dim, pair<double, double> boundingBox) {
 	for (int i = 0; i < dim; i++) fullBoundingBox.push_back(boundingBox);
 
 	return generateRandomPoint(dim, fullBoundingBox);
-}
-
-// 현재는 cell 내부에 균일하게 뿌리기. vs 경계(cell edge)에다 뿌리기?
-void spreadPoints(Node* node, int dim, int numPoints) {
-
-	int nowNum = 0;
-	while (nowNum < numPoints) {
-		Point* p = generateRandomPoint(dim, node->boundingBox);
-
-		// false 대신, "p가 input convex polytope 중 하나에 포함될 경우"로 수정 
-		if (false) continue;
-		else {node->spreadPoints.push_back(p); nowNum += 1;}
-	}
-
-}
-
-// spreadPoints
-
-void constructLocalGraph(Node* root, int dim) {
-	
-	// 큐가 빌 때까지
-	queue<Node*> Q;
-	while (!Q.empty()) {
-		Node* nowNode = Q.front();
-		Q.pop();
-
-		// 현재 노드에 local graph 점 추가
-		spreadPoints(nowNode, dim);
-
-		// 자식 노드 push
-		for (auto& child : nowNode->childNodes) Q.push(child);
-
-	}
-
-	while (!Q.empty()) {
-		Node* nowNode = Q.front();
-		Q.pop();
-
-		// 인접한 quadtree cell pair (c1, c2)에 해당하는 point set (P1, P2)
-		// each p1 \in P1, p2 \in P2에 대해 p1과 p2를 연결
-		for (auto& iNode : nowNode->adjacentNodes) {
-			for (auto& p1 : nowNode->spreadPoints) {
-				for (auto& p2 : iNode->spreadPoints) {
-
-					// true 대신 polytope 조건 필요
-					if (true) {
-						p1->neighbors.push_back(p2);
-						// p1->neighbors.push_back(p1);
-					}
-
-				}
-			}
-		}
-
-		// 자식 노드 push
-		for (auto& child : nowNode->childNodes) Q.push(child);
-	}
-
 }
 
 // returns { (n_1, dist(query,  n_1)), ..., (n_k, dist(query,  n_k)) }
@@ -572,10 +498,6 @@ vector<pair<double, Point*>> EpsGraphNd::kNN(Point* query, int k, bool isEmptyCe
 	return ret;
 }
 
-int dummyTest(void) {
-	return 0;
-}
-
 std::vector<Node*> getLeafs(Node* node) {
 	std::vector<Node*> leafs;
 
@@ -619,22 +541,6 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(EpsGraphNd* quadtree, double ab
 	while (!queue.empty()) {
 		Node* cur = queue.front();
 		queue.pop();
-
-		/*
-		
-		// 각 node (cell) 내에서도 complete graph를 만들기
-		for (int j = 0; j < cur->points.size(); j++) {
-			auto p1 = cur->points[j];
-
-			for (int ii = j + 1; ii < cur->points.size(); ii++) {
-				auto p2 = cur->points[ii];
-
-				p1->neighbors.push_back(p2);
-				p2->neighbors.push_back(p1);
-			}
-		} 
-		
-		*/
 
 		// 각 node (cell) 내에서도 complete graph를 만들기
 		for (int j = 0; j < cur->points.size(); j++) {
@@ -692,17 +598,6 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(EpsGraphNd* quadtree, double ab
 			pos1[i] += (radius + smallValue);
 			pos2[i] -= (radius + smallValue);
 
-			/*
-			if (absoluteValue > 0) {
-				pos1[i] += (radius + absoluteValue);
-				pos2[i] -= (radius + absoluteValue);
-			}
-			else {
-				pos1[i] += (radius * (1 + relativeFactor));
-				pos2[i] -= (radius * (1 + relativeFactor));
-			}
-			*/
-
 			Point p1(pos1), p2(pos2);		// 특정 축 방향으로 EPS
 			Node* adj1 = pointLocation(quadtree->root, &p1);
 			Node* adj2 = pointLocation(quadtree->root, &p2);
@@ -724,13 +619,6 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(EpsGraphNd* quadtree, double ab
 
 			for (Point* p1 : leaf->points) {
 				for (Point* p2 : adj->points) {
-
-					/*
-					
-					p1->neighbors.push_back(p2);
-					p2->neighbors.push_back(p1);
-
-					*/
 
 					// cannot connect p1 and p2 since they are blocked by a polytope. 
 					bool blocked = false;
@@ -754,16 +642,6 @@ vector<pair<int, int>> buildPointGraphOnQuadTree(EpsGraphNd* quadtree, double ab
 			}
 		}
 	}
-
-	/*
-	int numIsolatedLeafs = 0;
-	for (Node* leaf : leafs) {
-		if (leaf->adjacentNodes.empty()) {
-			numIsolatedLeafs++;
-		}
-	}
-	int _ = 0;
-	*/
 
 	for (auto& edge : ret) {
 		if (edge.first > edge.second) edge = make_pair(edge.second, edge.first);
