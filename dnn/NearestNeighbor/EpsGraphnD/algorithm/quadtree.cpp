@@ -6,6 +6,7 @@
 #include "CPolytope.h"
 //#include "CPolytope.cpp"
 
+// Converts a decimal number to a binary representation with a fixed number of bits.
 vector<int> dec2bin(int powerNum, int num) {
 	vector<int> ret;
 
@@ -26,7 +27,7 @@ vector<int> dec2bin(int powerNum, int num) {
 	return ret;
 }
 
-// need to test
+// Converts a binary representation to a decimal number.
 int bin2dec(vector<int> bin) {
 	int ret = 0;
 
@@ -42,7 +43,8 @@ int bin2dec(vector<int> bin) {
 	return ret;
 }
 
-// minimum side length of the 
+
+// Computes the minimum side length of the bounding box.
 double minCellSize(vector<pair<double, double>>& _boundingBox) {
 	double ret = DBL_MAX;
 	for (auto slab : _boundingBox) {
@@ -53,6 +55,7 @@ double minCellSize(vector<pair<double, double>>& _boundingBox) {
 	return ret;
 }
 
+// Checks if a given point is contained within a bounding box based on its binary representation.
 bool isContained(Point* p, vector<pair<double, double>> boundingBox, vector<int> binary) {
 
 	for (int axis = 0; axis < binary.size(); axis++) {
@@ -70,10 +73,12 @@ bool isContained(Point* p, vector<pair<double, double>> boundingBox, vector<int>
 
 }
 
+// Computes logarithm base 2.
 double myLog2(double num) {
 	return log(num) / log(2.0);
 }
 
+// Updates the count of nodes in the subtree.
 void EpsGraphNdNode::updateNumNodesSubtree() {
 	EpsGraphNdNode* nowNode = this;
 
@@ -86,6 +91,7 @@ void EpsGraphNdNode::updateNumNodesSubtree() {
 	}
 }
 
+// Recursively builds the quadtree structure.
 Node* EpsGraphNd::build(vector<Point*> _points, int _dim, vector<pair<double, double>> _boundingBox, 
 	double _eps, int _depth, EpsGraphNdNode* parent) { 
 
@@ -172,6 +178,7 @@ Node* EpsGraphNd::build(vector<Point*> _points, int _dim, vector<pair<double, do
 	// return new Node(childNodes);
 }
 
+// Locates the leaf node where a given point belongs.
 void buildEpsilonGraph() {
 	// debug: check if some nodes are of depth 2, while others are of depth 1
 
@@ -213,6 +220,7 @@ void buildEpsilonGraph() {
 
 // input: Point 형식의 한 점
 // output: input point가 위치하는 leafnode 반환
+// Locates the leaf node where a given point belongs.
 Node* pointLocation(Node* node, Point* point) {
     if (node == nullptr) {
         return nullptr; // 노드가 null인 경우 null 반환
@@ -243,6 +251,7 @@ Node* pointLocation(Node* node, Point* point) {
 
 // input: Point 형식의 한 점
 // output: Point 한 점을 추가한 quadtree
+// Adds a point to the quadtree, possibly causing node splitting.
 Node* addPoint(Node* node, Point* point, int maxDepth) {
 	// 예외) node나 point가 nullptr인 경우
     if (node == nullptr || point == nullptr) {
@@ -337,6 +346,7 @@ Node* addPoint(Node* node, Point* point, int maxDepth) {
 
 // input: Point 형식의 한 점
 // output: Point 한 점을 삭제한 quadtree
+// Deletes a point from the quadtree.
 Node* deletePoint(Node* node, Point* point) {
 	// 예외) node나 point가 nullptr인 경우
     if (node == nullptr || point == nullptr) {

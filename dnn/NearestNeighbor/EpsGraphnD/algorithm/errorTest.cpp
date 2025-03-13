@@ -10,7 +10,7 @@
 
 using namespace std;
 
-// point set 
+// Creates a set of points from a file.
 vector<Point*> makePointSet(std::string dir, int start_idx) {
 
 	vector<Point*> ret;
@@ -48,6 +48,8 @@ vector<Point*> makePointSet(std::string dir, int start_idx) {
 	return ret;
 }
 
+
+// Creates a set of free points from a file.
 vector<Free_Point*> makeFreePointSet(std::string dir) {
 
 	vector<Free_Point*> ret;
@@ -83,6 +85,7 @@ vector<Free_Point*> makeFreePointSet(std::string dir) {
 	return ret;
 }
 
+// Translates a point along a specified axis.
 Point* translate(Point* p, int axis, double val) {
 	assert(axis < p->xs.size());
 	auto ret = new Point(p);
@@ -90,6 +93,7 @@ Point* translate(Point* p, int axis, double val) {
 	return ret;
 }
 
+// Visualizes the quadtree and writes the output to a text file.
 void visualizeTXT(EpsGraphNd* qT, vector<CPolytope*> Ctopes, vector<pair<int, int>> edge_list, vector<Point*> queries) {
 	string outputFileName = "quadtree.txt";
 	ofstream outputTXT(outputFileName);
@@ -168,6 +172,7 @@ void visualizeTXT(EpsGraphNd* qT, vector<CPolytope*> Ctopes, vector<pair<int, in
 
 }
 
+// Visualizes the quadtree by reading points and polytopes from files.
 void visualize(std::string dir) {
 
 	int dim = 2;
@@ -204,6 +209,7 @@ void visualize(std::string dir) {
 }
 
 // ex) dir = ""
+// Tests query speed for k-nearest neighbors search.
 void querySpeedTest(std::string dir, int startID, int endID, int numPoints, int numQueries) {
 
 	int dim = 4;
@@ -217,11 +223,11 @@ void querySpeedTest(std::string dir, int startID, int endID, int numPoints, int 
 	vector<pair<double, double >> boundingBox;
 	for (int i = 0; i < dim; i++) boundingBox.push_back(make_pair(-maxValue, maxValue));
 
-	// uniform 4°³ dataset
+	// uniform 4ï¿½ï¿½ dataset
 	vector<double> uniform;
 	uniform.assign(4, 0.0);
 
-	// clustered 4°³ dataset
+	// clustered 4ï¿½ï¿½ dataset
 	vector<double> clustered;
 	clustered.assign(4, 0.0);
 
@@ -338,6 +344,7 @@ void querySpeedTest(std::string dir, int startID, int endID, int numPoints, int 
 	outputTXT.close();
 }
 
+// Tests the sum of distances for k-nearest neighbors search at different epsilon values.
 void distanceSumTest(std::string dir, int startID, int endID, int numSites, int numQueries) {
 
 	int dim = 4;
@@ -498,6 +505,7 @@ void distanceSumTest(std::string dir, int startID, int endID, int numSites, int 
 	}
 }
 
+// Tests the insertion of a new point into the quadtree.
 void insertionTest(EpsGraphNd* qT, Point* q, int maxDepth, double EPS) {
 
 	auto ret = qT->kNN(q, 1, false);
@@ -511,6 +519,7 @@ void insertionTest(EpsGraphNd* qT, Point* q, int maxDepth, double EPS) {
 
 }
 
+// Tests the deletion of a point from the quadtree.
 void deletionTest(EpsGraphNd* qT, Point* q, double EPS) {
 
 	auto ret = qT->kNN(q, 1, false);
@@ -523,6 +532,7 @@ void deletionTest(EpsGraphNd* qT, Point* q, double EPS) {
 
 }
 
+// Checks if a value exists in a vector.
 bool isIn(vector<int> vec, int val) {
 	for (auto& vecVal : vec) {
 		if (vecVal == val) return true;
@@ -530,7 +540,7 @@ bool isIn(vector<int> vec, int val) {
 	return false;
 }
 
-// ÆÄÀÏ inputÀ» ÅëÇØ, ÇÏ³ªÀÇ nonConvex polytopeÀ» vector<convex polytope>À¸·Î º¯È¯ÇÏ´Â ÇÔ¼ö  
+ // Delete a set of polytopes instructed by a file directory.
 vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 	vector<Polytope*> ret;
 
@@ -597,27 +607,27 @@ vector<Polytope*> dels2polytopes(string dir, int num_topes) {
 	return ret;
 }
 
-// ÆÄÀÏ inputÀ» ÅëÇØ, (ÇÏ³ªÀÇ) convex polytopeÀ» ¸¸µå´Â ÇÔ¼ö
-// dirÀÇ ¿¹½Ã: 
+
+ // Delete a set of convex polytopes instructed by a file directory.
 CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex) {
 
 	int dummy;
 
 	std::ifstream fin;
 
-	// point Á¤º¸ ÀÐ±â start
+	// point ï¿½ï¿½ï¿½ï¿½ ï¿½Ð±ï¿½ start
 	// string str = dir + "\\" + "points" + index + ".txt";
 	string str = dir + "\\" + "points.txt";
 	fin.open(str);
 
 	string s;
-	// Â÷¿ø ÀÔ·Â
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½
 	getline(fin, s);
-	// Á¡ °³¼ö ÀÔ·Â
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½
 	getline(fin, s);
 	int num_pts = stoi(s);
 
-	// Æ÷ÀÎÆ® ÀÐ¾îµéÀÌ±â
+	// ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ð¾ï¿½ï¿½ï¿½Ì±ï¿½
 	// std::vector<Point*> pts;
 	std::vector<Point> pts;
 	double val;
@@ -634,9 +644,9 @@ CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex) {
 	}
 
 	fin.close();
-	// point Á¤º¸ ÀÐ±â end
+	// point ï¿½ï¿½ï¿½ï¿½ ï¿½Ð±ï¿½ end
 
-	// facet Á¤º¸ °è»ê start
+	// facet ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ start
 	std::vector< std::vector<int>> facets;
 
 	if (isSimplex) {
@@ -659,10 +669,10 @@ CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex) {
 		fin.open(str2);
 
 		getline(fin, s);
-		// facetÀÇ °³¼ö
+		// facetï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		int size = stoi(s);
 		for (int index = 0; index < size; index++) {
-			// Â÷¿ø Á¤º¸ (ÇÊ¿ä ¾ø´Â Á¤º¸)
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 			fin >> dummy;
 
 			std::vector<int> facet;
@@ -678,7 +688,7 @@ CPolytope* dels2cpolytope(string dir, int dim, bool isSimplex) {
 		fin2.close();
 	}
 
-	// facet Á¤º¸ ÀÐ±â end
+	// facet ï¿½ï¿½ï¿½ï¿½ ï¿½Ð±ï¿½ end
 
 	return new CPolytope(dim, pts, facets);
 }

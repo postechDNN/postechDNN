@@ -7,6 +7,7 @@
 #include "solvers.h"
 #include <iomanip>
 
+// Constructor for HalfPlane, initializes with coefficients
 HalfPlane::HalfPlane(int dim, bool is_boundary, double coeffs[]) {
 	this->dim = dim;
     this->coeffs.resize(dim + 1);
@@ -14,6 +15,7 @@ HalfPlane::HalfPlane(int dim, bool is_boundary, double coeffs[]) {
     std::copy(coeffs, coeffs + dim + 1, this->coeffs.begin()); 
 }
 
+// Translates the half-plane by a given vector
 void HalfPlane::translate(Point vec) {
     assert(vec.getsize() == this->dim);
 
@@ -23,6 +25,7 @@ void HalfPlane::translate(Point vec) {
     this->coeffs[this->dim] += cum;
 }
 
+// Constructs a HalfPlane from a set of points
 HalfPlane::HalfPlane(int dim, std::vector<Point> pts, Point anc) {
     this->dim = dim;
     this->coeffs.resize(dim + 1);
@@ -107,6 +110,7 @@ HalfPlane::HalfPlane(int dim, std::vector<Point> pts, Point anc) {
     }
 }
 
+// Returns the coefficient at a given index
 double HalfPlane::getCoeff(int index)  {
     if (index < 0 || index > dim) {
         throw std::out_of_range("Index out of range in getCoeff.");
@@ -114,6 +118,7 @@ double HalfPlane::getCoeff(int index)  {
     return this->coeffs[index];
 }
 
+// Checks if a point is inside, outside, or on the boundary of the half-plane
 int HalfPlane::is_in(Point& p)  {
     assert(p.getsize() == this->dim);
 
@@ -130,6 +135,7 @@ int HalfPlane::is_in(Point& p)  {
         return 0; // Boundary
 }
 
+// Constructor for CPolytope, initializes with vertices and facets
 CPolytope::CPolytope(int dim, std::vector<Point> vertices, std::vector< std::vector<int>> facets) {
     this->dim = dim;
 
@@ -175,6 +181,7 @@ CPolytope::CPolytope(int dim, std::vector<Point> vertices, std::vector< std::vec
 
 }
 
+// Checks if a line segment intersects the polytope
 bool CPolytope::is_intersect(Point p, Point q) {
     assert(p.getsize() == this->dim && q.getsize() == this->dim);
 
@@ -240,6 +247,7 @@ bool CPolytope::is_intersect(Point p, Point q) {
     return true;
 }
 
+// Checks if a point is inside the polytope, on the boundary, or outside
 int CPolytope::is_in(Point p) {
     bool bd_flag = false;
     for (auto &hp : this->half_planes) {
@@ -259,6 +267,7 @@ CPolytope:: ~CPolytope() {
     
 }
 
+// Prints intersection results between a polytope and a line segment
 // Function to print intersection results
 void test_intersection(CPolytope& polytope, Point p, Point q, int test_num) {
 	bool intersects = polytope.is_intersect(p, q);
@@ -282,6 +291,7 @@ void test_intersection(CPolytope& polytope, Point p, Point q, int test_num) {
 	}
 }
 
+// Prints the equation of a HalfPlane
 void print_halfplane(HalfPlane& hp, int dim) {
 	std::cout << "HalfPlane equation: ";
 	for (int i = 0; i < dim; ++i) {
