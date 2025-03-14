@@ -10,7 +10,7 @@
 int main() {
 	vector<Box> boxes;
 	vector<Point> points;
-	generate_data_fix3d(10, "input_fix.txt");
+	//generate_data_fix3d(10, "input_fix.txt");
 	Point q({ 10.,10.,20. });
 	text_input(points, boxes, q,"input_fix.txt");
 	BoxGraphL2 space(3, points, boxes, 2.);
