@@ -98,7 +98,7 @@ SimplePolygon Gen_geom_data::gen_simple_polygon(int n, double center_x, double c
     // Generate the points
     std::vector<Point> pts;
     std::uniform_real_distribution<double> uniformDistribution_angle(0.0, 2 * this->const_pi());
-    std::uniform_real_distribution<double> uniformDistribution_radius(0.0, std::max((this->max_x - this->min_x) / 4, (this->max_y - this->min_y) / 4));
+    std::uniform_real_distribution<double> uniformDistribution_radius(0.0, std::max((this->max_x - this->min_x) / 6, (this->max_y - this->min_y) / 6));
 
     double angle = uniformDistribution_angle(gen);
     double radius;
@@ -240,8 +240,9 @@ std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int m) {
     for (int i = m; i > 0; i--) {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> k_gen(3, n - 3 * i + 3);
+        std::uniform_int_distribution<int> k_gen(3, std::min(n - 3 * i + 3, 2*n/m));
         int k = k_gen(gen);
+        if (i == 1) k = n;
         double center_x = x_gen(gen);
         double center_y = y_gen(gen);
 
@@ -270,6 +271,13 @@ std::vector<SimplePolygon> Gen_geom_data::gen_polygonal_domain(int n, int m) {
                         break;
                     }
                 } 
+                std::vector<Point> simvs = sim.getVertices();
+                for (Point pt : simvs) {
+                    if (tmp.inPolygon(pt) != -1) {
+                        flag = true;
+                        break;
+                    }
+                }
                 if (flag) {
                     break;
                 }

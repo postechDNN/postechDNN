@@ -83,8 +83,9 @@ bool AVLTreeList::Insert(Edge data, Point v1, Point v2)
     bool isLeft = true;
     double x = v2.getx() - v1.getx();
     double y = v2.gety() - v1.gety();
-    Point V(v1.getx() + x / EPS, v1.gety() + y / EPS);
-    Point VR(v1.getx() + (x * cos(ERR*10) - y * sin(ERR*10)) / EPS, v1.gety() + (x * sin(ERR*10) + y * cos(ERR*10)) / EPS);
+    double norm = sqrt(x * x + y * y);
+    Point V(v1.getx() + x / (EPS*norm), v1.gety() + y / (EPS*norm));
+    Point VR(v1.getx() + (x * cos(ERR*10) - y * sin(ERR*10)) / (EPS * norm), v1.gety() + (x * sin(ERR*10) + y * cos(ERR*10)) / (EPS * norm));
     Edge E(v1, V);
     Edge ER(v1, VR);
     double key = v1.distance(data.crossing(E, true)->gets());

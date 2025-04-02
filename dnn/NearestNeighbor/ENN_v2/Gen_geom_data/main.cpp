@@ -30,9 +30,9 @@ int main(){
 }*/
 
 int main() {
-    int n = 20;
-    int m = 10;
-    int k = 60;
+    int n = 50;
+    int m = 20;
+    int k = 150;
     Point left_bottom = Point(0, 0), right_upper = Point(10000, 10000);
     Gen_geom_data gen_geom(left_bottom, right_upper);
     std::vector<SimplePolygon> obstacles = gen_geom.gen_polygonal_domain(k,m);
